@@ -1,0 +1,35 @@
+<?xml version="1.0" standalone="no"?>
+<app-bundle>
+	<meta>
+		<prefix name="default">${env:JHBUILD_PREFIX}</prefix>
+		<prefix name="editor">/Users/user/Source/mokoi-code/meg</prefix>
+		<prefix name="resource">/Users/user/Source/mokoi-code/MokoiGaming</prefix>
+		<prefix name="installer">/Users/user/Source/</prefix>
+		<destination overwrite="yes">${prefix:installer}</destination>
+		<!--run-install-name-tool-->
+		<gtk>gtk+-3.0</gtk>
+	</meta>
+	<plist>${prefix:editor}/res/Info.plist</plist>
+	<main-binary>${prefix:resource}/bin/Meg</main-binary>
+	<launcher-script>${prefix:editor}/res/meg.launcher</launcher-script>
+	<binary dest="${bundle}/Contents/MacOS" >${prefix:resource}/bin/mokoipawnc4</binary>
+
+	<!--binary>${prefix}/lib/${gtkdir}/modules/*.so</binary-->
+	<!--binary>${prefix}/lib/gtk-3.0/${pkg:gtk+-3.0:gtk_binary_version}/theming-engines/*.so</binary-->
+	<binary>${prefix}/lib/gdk-pixbuf-2.0/2.10.0/loaders/*.so</binary>
+	<translations name="gtk30">${prefix}/share/locale</translations>
+
+	<data>${prefix}/share/themes</data>
+	<data dest="${bundle}/Contents/MacOS/">${prefix:editor}/res/luxengine</data>
+	<data dest="${bundle}/Contents/Resources/share">${prefix:resource}/share</data>
+	<data dest="${bundle}/Contents/Resources">${prefix:editor}/res/meg.icns</data>
+	<data>${prefix}/etc/gtk-3.0/*</data>
+	<data>${prefix}/share/glib-2.0/schemas/*</data>
+	<!--data dest="${bundle}/Contents/Resources/etc/${gtk}/gtkrc">${project}/gtkrc</data-->
+	<!--icon-theme icons="auto">Tango</icon-theme-->
+	<binary>${prefix}/lib/pango/${pkg:pango:pango_module_version}/modules/</binary>
+	<data>${prefix}/etc/pango/</data>
+
+
+
+</app-bundle>

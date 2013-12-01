@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<interface>
+  <requires lib="gtk+" version="2.20"/>
+  <!-- interface-naming-policy toplevel-contextual -->
+  <object class="GtkActionGroup" id="actiongroup1">
+    <child>
+      <object class="GtkAction" id="action_object_rotate">
+        <property name="label" translatable="yes">Rotate Object 90°</property>
+        <property name="short_label" translatable="yes">Rotate</property>
+      </object>
+    </child>
+    <child>
+      <object class="GtkAction" id="action_layer_decrease">
+        <property name="label">Decrease Layer</property>
+        <property name="short_label" translatable="yes">Decrease Layer</property>
+        <property name="stock_id">gtk-go-down</property>
+        <property name="always_show_image">True</property>
+      </object>
+    </child>
+  </object>
+</interface>

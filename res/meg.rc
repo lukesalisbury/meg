@@ -1,0 +1,31 @@
+#include <windows.h> // include for version info constants
+
+A ICON MOVEABLE PURE LOADONCALL DISCARDABLE "res\\mokoi-game-editor.ico"
+
+
+1 VERSIONINFO
+FILEVERSION 0,9,4,750
+PRODUCTVERSION 0,9,4,750
+FILETYPE VFT_APP
+{
+	BLOCK "StringFileInfo"
+	{
+		BLOCK "0C0904E4"
+		{
+			VALUE "CompanyName", "Mokoi Gaming"
+			VALUE "FileVersion", "0.94"
+			VALUE "FileDescription", "Mokoi Editor"
+			VALUE "InternalName", "meg"
+			VALUE "LegalCopyright", "Mokoi Gaming mokoi.info"
+			VALUE "LegalTrademarks", ""
+			VALUE "OriginalFilename", ""
+			VALUE "ProductName", "meg"
+			VALUE "ProductVersion", "0.94"
+		}
+	}
+BLOCK "VarFileInfo"
+	{
+		VALUE "Translation", 0x0C09, 1252
+	}
+}
+

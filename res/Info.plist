@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>CFBundleSignature</key>
+	<string>ALCH</string>
+	<key>CFBundlePackageType</key>
+	<string>APPL</string>
+	<key>CFBundleVersion</key>
+	<string>0.93</string>
+	<key>CFBundleDocumentTypes</key>
+	<array>
+		<dict>
+			<key>CFBundleTypeExtensions</key>
+			<array>
+				<string>mokoi</string>
+			</array>
+			<key>CFBundleTypeName</key>
+			<string>Mokoi Game Source</string>
+			<key>LSHandlerRank</key>
+			<string>Default</string>
+		</dict>
+	</array>
+	<key>CFBundleName</key>
+	<string>Alchera - 2D Game Editor Framework</string>
+	<key>CFBundleExecutable</key>
+	<string>Alchera</string>
+	<key>LSMinimumSystemVersion</key>
+	<string>10.5.0</string>
+	<key>CFBundleDisplayName</key>
+	<string>Alchera</string>
+	<key>CFBundleGetInfoString</key>
+	<string>Alchera</string>
+	<key>NSHumanReadableCopyright</key>
+	<string>Mokoi Gaming</string>
+	<key>CFBundleIconFile</key>
+	<string>Alchera.icns</string>
+	<key>CFBundleIdentifier</key>
+	<string>info.mokoi.alchera</string>
+	<key>CFBundleInfoDictionaryVersion</key>
+	<string>6.0</string>
+	<key>NSAppleScriptEnabled</key>
+	<false/>
+</dict>
+</plist>

@@ -1,0 +1,57 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<interface>
+  <requires lib="gtk+" version="2.20"/>
+  <!-- interface-naming-policy toplevel-contextual -->
+  <object class="GtkAction" id="menu_compile">
+    <property name="label">Compile</property>
+  </object>
+  <object class="GtkAction" id="menu_open">
+    <property name="label">Open</property>
+    <property name="icon_name">GTK_STOCK_OPEN</property>
+  </object>
+  <object class="GtkAction" id="menu_remove">
+    <property name="label">Remove</property>
+    <property name="icon_name">GTK_STOCK_DELETE</property>
+  </object>
+  <object class="GtkAction" id="menu_settings">
+    <property name="label">Runtime Settings</property>
+  </object>
+  <object class="GtkMenu" id="object_menu">
+    <property name="can_focus">False</property>
+    <child>
+      <object class="GtkMenuItem" id="menuitem1">
+        <property name="related_action">menu_open</property>
+        <property name="visible">True</property>
+        <property name="can_focus">False</property>
+      </object>
+    </child>
+    <child>
+      <object class="GtkMenuItem" id="menuitem2">
+        <property name="related_action">menu_compile</property>
+        <property name="visible">True</property>
+        <property name="can_focus">False</property>
+      </object>
+    </child>
+    <child>
+      <object class="GtkMenuItem" id="menuitem3">
+        <property name="related_action">menu_settings</property>
+        <property name="visible">True</property>
+        <property name="can_focus">False</property>
+      </object>
+    </child>
+    <child>
+      <object class="GtkSeparatorMenuItem" id="menuitem4">
+        <property name="use_action_appearance">False</property>
+        <property name="visible">True</property>
+        <property name="can_focus">False</property>
+      </object>
+    </child>
+    <child>
+      <object class="GtkMenuItem" id="menuitem5">
+        <property name="related_action">menu_remove</property>
+        <property name="visible">True</property>
+        <property name="can_focus">False</property>
+      </object>
+    </child>
+  </object>
+</interface>

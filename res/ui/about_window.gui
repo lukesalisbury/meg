@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<interface>
+  <object class="GtkAboutDialog" id="alchera_about_dialog">
+	<property name="can_focus">False</property>
+	<property name="events">GDK_POINTER_MOTION_MASK | GDK_POINTER_MOTION_HINT_MASK | GDK_BUTTON_PRESS_MASK | GDK_BUTTON_RELEASE_MASK</property>
+	<property name="border_width">5</property>
+	<property name="title" translatable="yes">About Meg</property>
+	<property name="modal">True</property>
+	<property name="window_position">center-on-parent</property>
+	<property name="destroy_with_parent">True</property>
+	<property name="type_hint">dialog</property>
+	<property name="program_name">Meg</property>
+	<property name="version">0.94</property>
+	<property name="copyright" translatable="yes">Copyright © 2007-2013 Luke Salisbury</property>
+	<property name="comments" translatable="yes">Mokoi Game Editor (GTK)</property>
+	<property name="website">http://mokoi.info/</property>
+	<property name="website_label" translatable="yes">mokoi.info</property>
+	<property name="license" translatable="yes">This software is provided 'as-is', without any express or implied warranty. In no event will the authors be held liable for any damages arising from the use of this software.
+
+
+Permission is granted to anyone to use this software for any purpose, including commercial applications, and to alter it and redistribute it freely, subject to the following restrictions:
+
+1. The origin of this software must not be misrepresented; you must not claim that you wrote the original software. If you use this software in a product, an acknowledgment in the product documentation would be appreciated but is not required.
+2. Altered source versions must be plainly marked as such, and must not be misrepresented as being the original software.
+3. This notice may not be removed or altered from any source distribution.</property>
+	<property name="authors">Luke Salisbury</property>
+	<property name="documenters"></property>
+	<property name="artists">Luke Salisbury, Tango Project</property>
+	<property name="logo_icon_name">mokoi-game-editor</property>
+	<property name="wrap_license">True</property>
+	<signal name="close" handler="gtk_widget_destroy" swapped="no"/>
+	<signal name="response" handler="gtk_widget_destroy" swapped="no"/>
+	<child internal-child="vbox">
+	  <object class="GtkVBox" id="dialog-vbox1">
+		<property name="visible">True</property>
+		<property name="can_focus">False</property>
+		<property name="events">GDK_POINTER_MOTION_MASK | GDK_POINTER_MOTION_HINT_MASK | GDK_BUTTON_PRESS_MASK | GDK_BUTTON_RELEASE_MASK</property>
+		<property name="orientation">vertical</property>
+		<property name="spacing">2</property>
+		<child internal-child="action_area">
+		  <object class="GtkButtonBox" id="dialog-action_area1">
+			<property name="visible">True</property>
+			<property name="can_focus">False</property>
+			<property name="events">GDK_POINTER_MOTION_MASK | GDK_POINTER_MOTION_HINT_MASK | GDK_BUTTON_PRESS_MASK | GDK_BUTTON_RELEASE_MASK</property>
+			<property name="layout_style">end</property>
+		  </object>
+		  <packing>
+			<property name="expand">False</property>
+			<property name="fill">True</property>
+			<property name="pack_type">end</property>
+			<property name="position">0</property>
+		  </packing>
+		</child>
+		<child>
+		  <placeholder/>
+		</child>
+	  </object>
+	</child>
+  </object>
+</interface>
