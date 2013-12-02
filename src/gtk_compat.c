@@ -32,13 +32,19 @@ GdkPixbuf * gdk_pixbuf_get_from_surface( cairo_surface_t * surface, gint src_x, 
 	GdkPixmap * pixmap = NULL;
 	cairo_t * cr = NULL;
 
+	g_return_val_if_fail( surface, NULL );
+	g_return_val_if_fail( width > 0, NULL );
+	g_return_val_if_fail( height > 0, NULL );
+
 	pixmap = gdk_pixmap_new(NULL, width, height, 32);
 	cr = gdk_cairo_create(pixmap);
-	cairo_set_source_surface(cr, surface, 0.0, 0.0);
+	cairo_set_source_surface(cr, surface, (gdouble)src_x, (gdouble)src_y );
 	cairo_paint(cr);
-	cairo_destroy(cr);
 	pixbuf = gdk_pixbuf_get_from_drawable(NULL, pixmap, NULL, 0, 0, 0, 0, width, height);
 
+
+
+	cairo_destroy(cr);
 	g_object_unref(pixmap);
 	return pixbuf;
 }

@@ -1,4 +1,4 @@
-
+objects/*
 *.o
 *.user
 *.user.*
