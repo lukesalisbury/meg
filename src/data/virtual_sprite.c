@@ -13,6 +13,7 @@ Permission is granted to anyone to use this software for any purpose, including 
 #include "loader_global.h"
 #include "widgets/widget_map.h"
 #include "gtk_compat.h"
+#include "maps.h"
 
 /* External Functions */
 gboolean Map_ParseXML( MapInfo * map_info, gchar * content );
@@ -147,6 +148,10 @@ GdkPixbuf *  VirtualSprite_BuildPixbuf( gchar * id )
 	GdkPixbuf * image = NULL;
 	MapInfo * map_info = NULL;
 
+	if ( !g_ascii_strcasecmp( id, "Add New" ) )
+	{
+		return NULL;
+	}
 	map_info = VirtualSprite_LoadXML( id );
 
 	/* Save Image of Map */

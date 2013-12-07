@@ -26,26 +26,61 @@ void gdk_cairo_set_source_rgba( cairo_t *cr, const GdkRGBA * rgba )
 
 }
 
+guint32 cairo_surface_get_pixel( cairo_surface_t * surface, gint src_x, gint src_y )
+{
+	guint32 colour = 0xFA118ac4;
+	guchar * data = cairo_image_surface_get_data(surface);
+	gint stride = cairo_image_surface_get_stride(surface);
+
+	guchar * pixel = NULL;
+
+	if ( data )
+	{
+		pixel = data + (src_y * stride) + src_x * 4;
+
+		colour = pixel[0] << 24 | pixel[1] << 16 | pixel[2] << 8 | pixel[3];
+	}
+
+	return colour;
+}
+
+gboolean gdk_pixbuf_set_pixel( GdkPixbuf * pixbuf, gint src_x, gint src_y, guint32 colour )
+{
+	guchar * data = gdk_pixbuf_get_pixels(pixbuf);
+	gint stride = gdk_pixbuf_get_rowstride(pixbuf);
+	guchar * pixel = NULL;
+
+	if ( data )
+	{
+		pixel = data + (src_y * stride) + src_x * 4;
+
+		pixel[0] = colour;
+		return TRUE;
+	}
+	return FALSE;
+}
+
 GdkPixbuf * gdk_pixbuf_get_from_surface( cairo_surface_t * surface, gint src_x, gint src_y, gint width, gint height)
 {
-	GdkPixbuf * pixbuf = NULL;
-	GdkPixmap * pixmap = NULL;
-	cairo_t * cr = NULL;
-
 	g_return_val_if_fail( surface, NULL );
 	g_return_val_if_fail( width > 0, NULL );
 	g_return_val_if_fail( height > 0, NULL );
 
-	pixmap = gdk_pixmap_new(NULL, width, height, 32);
-	cr = gdk_cairo_create(pixmap);
-	cairo_set_source_surface(cr, surface, (gdouble)src_x, (gdouble)src_y );
-	cairo_paint(cr);
-	pixbuf = gdk_pixbuf_get_from_drawable(NULL, pixmap, NULL, 0, 0, 0, 0, width, height);
+	GdkPixbuf * pixbuf = gdk_pixbuf_new( GDK_COLORSPACE_RGB, TRUE, 8, width, height);
+
+	g_return_val_if_fail( pixbuf, NULL );
+
+	gint y,x;
+	for ( y = 0; y < height; y++ )
+	{
+		for ( x = 0; x < width; x++ )
+		{
+			guint32 c = cairo_surface_get_pixel( surface, src_x+x, src_y+y );
+			gdk_pixbuf_set_pixel( pixbuf, src_x, src_y, c );
+		}
+	}
 
 
-
-	cairo_destroy(cr);
-	g_object_unref(pixmap);
 	return pixbuf;
 }
 

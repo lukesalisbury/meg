@@ -81,20 +81,27 @@ gchar * Meg_Help_GetFilePath( const gchar * file )
 
 
 /********************************
-*
+* Meg_Help_Load
 *
 */
 void Meg_Help_Load( const gchar * file, GtkWidget * textview )
 {
-	gchar * help_file_path, * content;
+	gchar * help_file_path, * content = NULL;
 
 	help_file_path = Meg_Help_GetFilePath( file );
 
 	if ( !g_file_get_contents(help_file_path, &content, NULL, NULL) )
 	{
-		Meg_Error_Print( __func__, __LINE__, "Can not open help file '%s'", file );
+		/* Meg_Error_Print( __func__, __LINE__, "Can not open help file '%s'", file ); */
+		if ( content )
+		{
+			g_free(content);
+		}
+		content = g_strdup_printf("<div>Can not open help file '%s'</div>",file);
+
 	}
-	else
+
+	if ( content )
 	{
 		if ( !Meg_HelpParser_Load( GTK_TEXT_VIEW(textview), content ) )
 		{

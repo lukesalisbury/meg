@@ -104,8 +104,10 @@ void Map_Free( MapInfo * map_info, gboolean save )
 	g_return_if_fail( map_info->data );
 
 
-
-	g_hash_table_destroy( map_info->settings );
+	if ( map_info->settings )
+	{
+		g_hash_table_destroy( map_info->settings );
+	}
 
 	if ( map_info->file_type == 0 )
 	{
