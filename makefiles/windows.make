@@ -1,5 +1,7 @@
 ifeq ($(SUPPORTPATH), )
-	SUPPORTPATH = F:/supportlibs
+
+$(error Please set SUPPORTPATH variable before running make.   )
+
 endif
 
 USEGTKSOURCEVIEW=TRUE
