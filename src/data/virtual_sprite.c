@@ -504,6 +504,7 @@ gboolean VirtualSprite_InsertIntoSpriteSheet( gchar * name )
 
 
 		virtual_spritesheet.children = g_slist_append( virtual_spritesheet.children, (gpointer)sprite );
+		virtual_spritesheet.detail->children = g_slist_append( virtual_spritesheet.detail->children, (gpointer)sprite->detail );
 
 		VirtualSprite_BuildPixbuf( name );
 
