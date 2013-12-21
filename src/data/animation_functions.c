@@ -97,40 +97,41 @@ gboolean SpriteAnimation_Preview_Foreach( GtkTreeModel * model, GtkTreePath *pat
 * SpriteAnimation_Build
 *
 */
-void SpriteAnimation_Build( MokoiSprite * sprite )
+void SpriteAnimation_Build( SheetObject * sprite )
 {
-	if ( sprite->animation )
+	if ( SPRITE_DATA(sprite)->animation )
 	{
-		MokoiSheet * parent = Sheet_Get(sprite->parent, FALSE);
+		Spritesheet * parent = Sheet_Get(sprite->parent_sheet, FALSE);
 
 		if ( !parent )
 		{
-			Meg_Log_Print( LOG_WARNING, "Parent Sheet not found '%s'.", sprite->parent );
+			Meg_Log_Print( LOG_WARNING, "Parent Sheet not found '%s'.", sprite->parent_sheet );
 			return;
 		}
-		if ( sprite->image )
+		if ( SPRITE_DATA(sprite)->image )
 		{
-			g_object_unref(sprite->image);
-			sprite->image = NULL;
+			g_object_unref(SPRITE_DATA(sprite)->image);
+			SPRITE_DATA(sprite)->image = NULL;
 		}
-		sprite->animation->image_loaded = TRUE;
+		SPRITE_DATA(sprite)->animation->image_loaded = TRUE;
 
 
-		if ( sprite->animation->frames )
+		if ( SPRITE_DATA(sprite)->animation->frames )
 		{
-			MokoiAnimationFrame * first_frame = (MokoiAnimationFrame *)g_slist_nth_data(sprite->animation->frames, 0);
+			AnimationFrame * first_frame = (AnimationFrame *)g_slist_nth_data(SPRITE_DATA(sprite)->animation->frames, 0);
 
-			GdkPixbuf * src = Sprite_GetPixbuf( first_frame->sprite, sprite->parent );
+			GdkPixbuf * src = Sprite_GetPixbuf( first_frame->sprite, sprite->parent_sheet );
 			GdkPixbuf * image = gdk_pixbuf_copy( src );
 			GdkPixbuf * overlay = gdk_pixbuf_new_from_inline( -1, anim_overlay, FALSE, NULL );
 
 			gdk_pixbuf_copy_area( overlay, 0,0, 9,9, image, 2, 2 );
-			sprite->image = image;
-			sprite->animation->w = gdk_pixbuf_get_width(image);
-			sprite->animation->h = gdk_pixbuf_get_height(image);
 
-			sprite->image = image;
-			sprite->image_loaded = TRUE;
+			SPRITE_DATA(sprite)->image = image;
+			SPRITE_DATA(sprite)->animation->w = gdk_pixbuf_get_width(image);
+			SPRITE_DATA(sprite)->animation->h = gdk_pixbuf_get_height(image);
+
+			SPRITE_DATA(sprite)->image = image;
+			SPRITE_DATA(sprite)->image_loaded = TRUE;
 
 			g_object_unref(src);
 
@@ -158,15 +159,15 @@ void SpriteAnimation_Clear(  AnimationPreview * preview )
 * SpriteAnimation_Create
 *
 */
-void SpriteAnimation_Create( MokoiSprite * sprite, AnimationPreview * preview )
+void SpriteAnimation_Create( SheetObject * sprite, AnimationPreview * preview )
 {
 	g_return_if_fail( sprite != NULL );
-	g_return_if_fail( sprite->animation != NULL );
+	g_return_if_fail( SPRITE_DATA(sprite)->animation != NULL );
 	g_return_if_fail( preview != NULL );
 
 	SpriteAnimation_Clear(preview);
 
-	gtk_tree_model_foreach( sprite->animation->model, (GtkTreeModelForeachFunc)SpriteAnimation_Preview_Foreach, preview);
+	gtk_tree_model_foreach( SPRITE_DATA(sprite)->animation->model, (GtkTreeModelForeachFunc)SpriteAnimation_Preview_Foreach, preview);
 }
 
 

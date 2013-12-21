@@ -13,9 +13,9 @@ Permission is granted to anyone to use this software for any purpose, including 
 #include "loader_global.h"
 
 /* External Functions */
-gboolean Sheet_SaveFile( MokoiSheet * sheet );
-gboolean SpriteCollision_Read( MokoiSprite * sprite, GtkListStore * list );
-gboolean SpriteCollision_Write( MokoiSprite * sprite, GtkTreeModel * data );
+gboolean Sheet_SaveFile( Spritesheet * sheet );
+gboolean SpriteCollision_Read( SheetObject * sprite, GtkListStore * list );
+gboolean SpriteCollision_Write( SheetObject * sprite, GtkTreeModel * data );
 
 void SpriteCollision_Add( GtkButton * widget, GtkComboBox * combobox );
 void SpriteCollision_Update( GtkComboBox * combobox, GtkWidget * widget );
@@ -46,10 +46,10 @@ const gchar * mokoiUI_SpriteAdvance = GUISPRITE_ADVANCE
 * Sprite_AdvanceDialog
 *
 */
-gboolean Sprite_AdvanceDialog( MokoiSheet * sheet, MokoiSprite * sprite )
+gboolean Sprite_AdvanceDialog( Spritesheet * sheet, SheetObject * sprite )
 {
 	GtkWidget * dialog, * entry_name, * spin_mask, * file_mask, * file_entity, * spin_x, * spin_y, * spin_w, * spin_h, *area_collision , *combo_collision, * image_preview, * check_visible, * button_entitysettings;
-	GtkWidget * image_group, * area_grouptopleft , * area_grouptop, * area_grouptopright, * area_groupright, * area_groupbottomright, * area_groupbottom, * area_groupbottomleft, * area_groupleft;
+	GtkWidget * image_group, * area_grouptopleft, * area_grouptop, * area_grouptopright, * area_groupright, * area_groupbottomright, * area_groupbottom, * area_groupbottomleft, * area_groupleft;
 	GtkListStore * store_collision;
 
 	/* UI */
@@ -120,44 +120,43 @@ gboolean Sprite_AdvanceDialog( MokoiSheet * sheet, MokoiSprite * sprite )
 #endif
 
 	/* Set Default Values */
-	gtk_entry_set_text( GTK_ENTRY(entry_name), sprite->detail->name );
+	gtk_entry_set_text( GTK_ENTRY(entry_name), sprite->display_name );
 
 	Meg_ComboFile_Scan( file_mask, "masks",  ".pgm", TRUE, 0 );
 	Meg_ComboFile_Scan( file_entity, "scripts",  ".mps", TRUE, 0 );
 
-	if ( sprite->mask )
-	{
-		if ( sprite->mask->name != NULL )
-		{
-			Meg_ComboText_SetIndex( GTK_COMBO_BOX(file_mask), sprite->mask->name);
-		}
-		else
-		{
 
-			gtk_spin_button_set_value( GTK_SPIN_BUTTON(spin_mask), (gdouble) sprite->mask->value );
-		}
+	if ( SPRITE_DATA(sprite)->mask.name != NULL )
+	{
+		Meg_ComboText_SetIndex( GTK_COMBO_BOX(file_mask), SPRITE_DATA(sprite)->mask.name);
 	}
-
-	if ( sprite->entity )
+	else
 	{
-		Meg_ComboText_SetIndex( GTK_COMBO_BOX(file_entity), sprite->entity );
+
+		gtk_spin_button_set_value( GTK_SPIN_BUTTON(spin_mask), (gdouble) SPRITE_DATA(sprite)->mask.value );
 	}
 
 
-	if (sprite->image)
+	if ( SPRITE_DATA(sprite)->entity )
 	{
-		gtk_image_set_from_pixbuf( GTK_IMAGE(image_preview), sprite->image );
-		gtk_image_set_from_pixbuf( GTK_IMAGE(image_group), sprite->image );
+		Meg_ComboText_SetIndex( GTK_COMBO_BOX(file_entity), SPRITE_DATA(sprite)->entity );
+	}
+
+
+	if ( SPRITE_DATA(sprite)->image )
+	{
+		gtk_image_set_from_pixbuf( GTK_IMAGE(image_preview), SPRITE_DATA(sprite)->image );
+		gtk_image_set_from_pixbuf( GTK_IMAGE(image_group), SPRITE_DATA(sprite)->image );
 
 
 	}
 
 	gtk_toggle_button_set_active( GTK_TOGGLE_BUTTON(check_visible), sprite->visible );
 
-	gtk_spin_button_set_value( GTK_SPIN_BUTTON(spin_x), (gdouble) sprite->detail->position.x );
-	gtk_spin_button_set_value( GTK_SPIN_BUTTON(spin_y), (gdouble) sprite->detail->position.y );
-	gtk_spin_button_set_value( GTK_SPIN_BUTTON(spin_w), (gdouble) sprite->detail->position.width );
-	gtk_spin_button_set_value( GTK_SPIN_BUTTON(spin_h), (gdouble) sprite->detail->position.height );
+	gtk_spin_button_set_value( GTK_SPIN_BUTTON(spin_x), (gdouble) sprite->position.x );
+	gtk_spin_button_set_value( GTK_SPIN_BUTTON(spin_y), (gdouble) sprite->position.y );
+	gtk_spin_button_set_value( GTK_SPIN_BUTTON(spin_w), (gdouble) sprite->position.width );
+	gtk_spin_button_set_value( GTK_SPIN_BUTTON(spin_h), (gdouble) sprite->position.height );
 
 
 
@@ -178,43 +177,43 @@ gboolean Sprite_AdvanceDialog( MokoiSheet * sheet, MokoiSprite * sprite )
 			Meg_Error_Print( __func__, __LINE__, "Mokoi_Sprite_AdvanceSprite: No name given");
 		else
 		{
-			if ( sprite->detail->name)
-				g_free( sprite->detail->name );
+			if ( sprite->display_name)
+				g_free( sprite->display_name );
 
-			sprite->detail->name = g_strdup( sprite_name );
-			sprite->ident = g_strdup_printf( "%s:%s", sprite->parent, sprite->detail->name );
+			sprite->display_name = g_strdup( sprite_name );
+			sprite->ident_string = g_strdup_printf( "%s:%s", sprite->parent_sheet, sprite->display_name );
 
 			if ( mask_filename )
-				sprite->mask->name = g_strdup( mask_filename );
+				SPRITE_DATA(sprite)->mask.name = g_strdup( mask_filename );
 			else
-				sprite->mask->value = gtk_spin_button_get_value_as_int( GTK_SPIN_BUTTON(spin_mask) );
+				SPRITE_DATA(sprite)->mask.value = gtk_spin_button_get_value_as_int( GTK_SPIN_BUTTON(spin_mask) );
 
 			if ( entity_filename )
-				sprite->entity = g_strdup( entity_filename );
+				SPRITE_DATA(sprite)->entity = g_strdup( entity_filename );
 
 
 			sprite->visible = gtk_toggle_button_get_active( GTK_TOGGLE_BUTTON(check_visible) );
 
 
-			sprite->detail->position.x = gtk_spin_button_get_value_as_int( GTK_SPIN_BUTTON(spin_x) );
-			sprite->detail->position.y = gtk_spin_button_get_value_as_int( GTK_SPIN_BUTTON(spin_y) );
-			sprite->detail->position.width = gtk_spin_button_get_value_as_int( GTK_SPIN_BUTTON(spin_w) );
-			sprite->detail->position.height = gtk_spin_button_get_value_as_int( GTK_SPIN_BUTTON(spin_h) );
+			sprite->position.x = gtk_spin_button_get_value_as_int( GTK_SPIN_BUTTON(spin_x) );
+			sprite->position.y = gtk_spin_button_get_value_as_int( GTK_SPIN_BUTTON(spin_y) );
+			sprite->position.width = gtk_spin_button_get_value_as_int( GTK_SPIN_BUTTON(spin_w) );
+			sprite->position.height = gtk_spin_button_get_value_as_int( GTK_SPIN_BUTTON(spin_h) );
 
 			sprite->visible = gtk_toggle_button_get_active( GTK_TOGGLE_BUTTON(check_visible) );
 
 
-			if ( sprite->image )
-				g_object_unref( sprite->image );
+			if ( SPRITE_DATA(sprite)->image )
+				g_object_unref( SPRITE_DATA(sprite)->image );
 
 			/* Create new sprite */
 			GdkPixbuf * parent_image;
-			parent_image = AL_GetImage( sprite->parent, NULL );
-			sprite->image = gdk_pixbuf_new( GDK_COLORSPACE_RGB, TRUE, 8, sprite->detail->position.width, sprite->detail->position.height );
+			parent_image = AL_GetImage( sprite->parent_sheet, NULL );
+			SPRITE_DATA(sprite)->image = gdk_pixbuf_new( GDK_COLORSPACE_RGB, TRUE, 8, sprite->position.width, sprite->position.height );
 			if ( parent_image )
 			{
-				gdk_pixbuf_copy_area( parent_image, sprite->detail->position.x, sprite->detail->position.y, sprite->detail->position.width, sprite->detail->position.height, sprite->image, 0, 0 );
-				sprite->image_loaded = TRUE;
+				gdk_pixbuf_copy_area( parent_image, sprite->position.x, sprite->position.y, sprite->position.width, sprite->position.height, SPRITE_DATA(sprite)->image, 0, 0 );
+				SPRITE_DATA(sprite)->image_loaded = TRUE;
 			}
 			g_object_unref( parent_image );
 
@@ -222,9 +221,9 @@ gboolean Sprite_AdvanceDialog( MokoiSheet * sheet, MokoiSprite * sprite )
 			guint8 t = 0;
 			for ( ; t < 8; t++ )
 			{
-				if ( sprite->childrens[t].name && sprite->childrens[t].position >= 0 && sprite->childrens[t].position <= 7 )
+				if ( SPRITE_DATA(sprite)->childrens[t].name && SPRITE_DATA(sprite)->childrens[t].position >= 0 && SPRITE_DATA(sprite)->childrens[t].position <= 7 )
 				{
-					g_print( "<child name=\"%s\" position=\"%d\" repeat=\"%d\"/>\n", sprite->childrens[t].name, sprite->childrens[t].position, sprite->childrens[t].repeat );
+					g_print( "<child name=\"%s\" position=\"%d\" repeat=\"%d\"/>\n", SPRITE_DATA(sprite)->childrens[t].name, SPRITE_DATA(sprite)->childrens[t].position, SPRITE_DATA(sprite)->childrens[t].repeat );
 				}
 			}
 

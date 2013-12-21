@@ -13,15 +13,15 @@ Permission is granted to anyone to use this software for any purpose, including 
 	#include <gtk/gtk.h>
 
 	/* Sheets */
-	void Sheets_ListEachVisible( MokoiSheet * sheet, GtkListStore * list );
-	void Sheets_ListEach( MokoiSheet * sheet, GtkListStore * list );
+	void Sheets_ListEachVisible( Spritesheet * sheet, GtkListStore * list );
+	void Sheets_ListEach( Spritesheet * sheet, GtkListStore * list );
 
-	void Sheet_RemoveSprite( MokoiSheet * sheet, MokoiSprite * sprite );
+	void Sheet_RemoveSprite( Spritesheet * sheet, SheetObject * sprite );
 
-	gboolean Sheet_SpriteExists( MokoiSheet * parent, gchar * sprite );
+	gboolean Sheet_SpriteExists( Spritesheet * parent, gchar * sprite );
 	GSList * Sheet_Find( gchar * file_name );
-	MokoiSheet * Sheet_Get( gchar * file_name, gboolean create );
-	void Sheet_Load( MokoiSheet * current );
+	Spritesheet * Sheet_Get( gchar * file_name, gboolean create );
+	void Sheet_Load( Spritesheet * current );
 
 	gboolean Sheet_Unload( );
 	gboolean Sheet_Parse( gchar * filename );

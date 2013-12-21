@@ -18,7 +18,7 @@ Permission is granted to anyone to use this software for any purpose, including 
 #include "sheets_functions.h"
 
 /* Global Functions */
-gboolean SpriteCollision_Load( MokoiSprite * sprite, gchar * file );
+gboolean SpriteCollision_Load( SheetObject * sprite, gchar * file );
 GSList * Path_FileLoad( gchar * file );
 
 /* Local Functions */
@@ -29,8 +29,8 @@ void sheet_xml_start_element(GMarkupParseContext * context, const gchar * elemen
 extern GError * mokoiError;
 
 /* Local Variables */
-GSList * mokoiSpritesheets = NULL; /* <MokoiSheet*> */
-MokoiSprite * sheet_xml_sprite = NULL;
+GSList * mokoiSpritesheets = NULL; /* <Spritesheet*> */
+SheetObject * sheet_xml_sprite = NULL;
 static GMarkupParser sheet_xml_parser = {
 		sheet_xml_start_element,
 		sheet_xml_end_element,
@@ -133,34 +133,34 @@ void Sheet_Create( GdkPixbuf * image, gchar * imagefile )
 */
 void sheet_xml_end_element(GMarkupParseContext *context, const gchar*element_name, gpointer user_data, GError **error)
 {
-	MokoiSheet * sheet = (MokoiSheet*)user_data;
+	Spritesheet * sheet = (Spritesheet*)user_data;
 
 	if ( !g_ascii_strcasecmp(element_name, "sprite")  )
 	{
 		if ( sheet_xml_sprite )
 		{
-			if ( !Sheet_SpriteExists( sheet, sheet_xml_sprite->detail->name ) ) /* Don't re-add a sprite with the same name */
+			if ( !Sheet_SpriteExists( sheet, sheet_xml_sprite->display_name ) ) /* Don't re-add a sprite with the same name */
 			{
 				sheet->children = g_slist_prepend( sheet->children, sheet_xml_sprite );
 			}
 			else
 			{
 				/* Todo: Delete sheet_xml_sprite */
-				g_free(sheet_xml_sprite);
+				SheetObject_Free(sheet_xml_sprite);
 			}
 		}
 		sheet_xml_sprite = NULL;
 	}
 	else if ( !g_ascii_strcasecmp(element_name, "animation") )
 	{
-		if ( sheet_xml_sprite->animation )
+		if ( SPRITE_DATA(sheet_xml_sprite)->animation )
 		{
 			sheet->children = g_slist_append( sheet->children, sheet_xml_sprite );
 		}
 		else
 		{
 			/* Todo: Delete sheet_xml_sprite */
-			g_free(sheet_xml_sprite);
+			SheetObject_Free(sheet_xml_sprite);
 		}
 		sheet_xml_sprite = NULL;
 	}
@@ -171,18 +171,18 @@ void sheet_xml_end_element(GMarkupParseContext *context, const gchar*element_nam
 */
 void sheet_xml_start_element(GMarkupParseContext * context, const gchar * element_name, const gchar ** attribute_names, const gchar ** attribute_values, gpointer user_data, GError ** error)
 {
-	MokoiSheet * sheet = (MokoiSheet*)user_data;
+	Spritesheet * sheet = (Spritesheet*)user_data;
 	const gchar **name_cursor = attribute_names;
 	const gchar **value_cursor = attribute_values;
 
 	if ( !g_ascii_strcasecmp(element_name, "sheet") )
 	{
-		sheet->detail->visible = TRUE;
+		sheet->visible = TRUE;
 		while (*name_cursor)
 		{
 			if ( !g_ascii_strcasecmp(*name_cursor, "hidden") )
 			{
-				sheet->detail->visible = FALSE;
+				sheet->visible = FALSE;
 			}
 
 			name_cursor++;
@@ -191,32 +191,28 @@ void sheet_xml_start_element(GMarkupParseContext * context, const gchar * elemen
 	}
 	else if ( !g_ascii_strcasecmp(element_name, "virtualsprite") )
 	{
-		sheet_xml_sprite = g_new0( MokoiSprite, 1 );
-		sheet_xml_sprite->detail = g_new0( SheetObject, 1 );
-		sheet_xml_sprite->mask = g_new0( MokoiMask, 1 );
+		SpriteData * sprite_data = g_new0(SpriteData, 1);
 
+		sheet_xml_sprite = SheetObject_New( (gpointer)sprite_data, &SpriteData_FreePointer );
 
 		sheet_xml_sprite->visible = TRUE;
-		sheet_xml_sprite->parent = sheet->detail->file;
-
+		sheet_xml_sprite->parent_sheet = g_strdup(sheet->file);
 
 	}
 	else if ( !g_ascii_strcasecmp(element_name, "sprite") || !g_ascii_strcasecmp(element_name, "animation") ) /* Create New Sprite */
 	{
-		sheet_xml_sprite = g_new0( MokoiSprite, 1 );
-		sheet_xml_sprite->detail = g_new0( SheetObject, 1 );
-		sheet_xml_sprite->mask = g_new0( MokoiMask, 1 );
+		SpriteData * sprite_data = g_new0(SpriteData, 1);
 
+		sheet_xml_sprite = SheetObject_New( (gpointer)sprite_data, &SpriteData_FreePointer );
 
 		sheet_xml_sprite->visible = TRUE;
-		sheet_xml_sprite->parent = sheet->detail->file;
-
+		sheet_xml_sprite->parent_sheet = g_strdup(sheet->file);
 
 		while (*name_cursor)
 		{
 			if ( !g_ascii_strcasecmp(*name_cursor, "name") )
 			{
-				sheet_xml_sprite->detail->name = g_strdup( *value_cursor );
+				sheet_xml_sprite->display_name = g_strdup( *value_cursor );
 			}
 			else if ( !g_ascii_strcasecmp(*name_cursor, "hidden") )
 			{
@@ -225,13 +221,13 @@ void sheet_xml_start_element(GMarkupParseContext * context, const gchar * elemen
 			else if ( !g_ascii_strcasecmp(*name_cursor, "mask") )
 			{
 				if ( g_ascii_isdigit( *value_cursor[0]) )
-					sheet_xml_sprite->mask->value = strtoul( *value_cursor, NULL, 0 );
+					sprite_data->mask.value = strtoul( *value_cursor, NULL, 0 );
 				else
-					sheet_xml_sprite->mask->name = g_strdup( *value_cursor );
+					sprite_data->mask.name = g_strdup( *value_cursor );
 			}
 			else if ( !g_ascii_strcasecmp(*name_cursor, "entity") )
 			{
-				sheet_xml_sprite->entity = g_strdup( *value_cursor );
+				sprite_data->entity = g_strdup( *value_cursor );
 			}
 
 			name_cursor++;
@@ -240,12 +236,12 @@ void sheet_xml_start_element(GMarkupParseContext * context, const gchar * elemen
 
 		if ( !g_ascii_strcasecmp(element_name, "animation") )
 		{
-			sheet_xml_sprite->animation = g_new0(MokoiAnimation, 1);
+			sprite_data->animation = g_new0(AnimationDetail, 1);
 		}
-		sheet_xml_sprite->ident = g_strdup_printf( "%s:%s", sheet->detail->file, sheet_xml_sprite->detail->name );
+		sheet_xml_sprite->ident_string = g_strdup_printf( "%s:%s", sheet->file, sheet_xml_sprite->display_name );
 
 		/*
-		gchar * collision_file = g_strdup_printf( "%s-%s.collision", sheet->detail->file, sheet_xml_sprite->detail->name );
+		gchar * collision_file = g_strdup_printf( "%s-%s.collision", sheet->file, sheet_xml_sprite->display_name );
 		SpriteCollision_Load( sheet_xml_sprite, collision_file );
 		g_free(collision_file);
 		*/
@@ -256,42 +252,43 @@ void sheet_xml_start_element(GMarkupParseContext * context, const gchar * elemen
 		for (; *attribute_names && *attribute_values; attribute_names++, attribute_values++)
 		{
 			if ( *attribute_names[0] =='x' )
-				sheet_xml_sprite->detail->position.x = g_ascii_strtod(*attribute_values, NULL);
+				sheet_xml_sprite->position.x = g_ascii_strtod(*attribute_values, NULL);
 			else if ( *attribute_names[0] =='y' )
-				sheet_xml_sprite->detail->position.y = g_ascii_strtod(*attribute_values, NULL);
+				sheet_xml_sprite->position.y = g_ascii_strtod(*attribute_values, NULL);
 			else if ( *attribute_names[0] =='w' )
-				sheet_xml_sprite->detail->position.width = g_ascii_strtod(*attribute_values, NULL);
+				sheet_xml_sprite->position.width = g_ascii_strtod(*attribute_values, NULL);
 			else if ( *attribute_names[0] =='h' )
-				sheet_xml_sprite->detail->position.height = g_ascii_strtod(*attribute_values, NULL);
+				sheet_xml_sprite->position.height = g_ascii_strtod(*attribute_values, NULL);
 		}
 	}
 	else if ( !g_ascii_strcasecmp(element_name, "collision") && sheet_xml_sprite != NULL) /* Add collision */
 	{
 		guint8 rect = 0;
 
-		while ( sheet_xml_sprite->collisions[rect].width )
+		while ( SPRITE_DATA(sheet_xml_sprite)->collisions[rect].width )
 		{
 			rect++;
 		}
+
 		if ( rect <= 6 )
 		{
 			for (; *attribute_names && *attribute_values; attribute_names++, attribute_values++)
 			{
 				if ( *attribute_names[0] =='x' )
-					sheet_xml_sprite->collisions[rect].x = g_ascii_strtod(*attribute_values, NULL);
+					SPRITE_DATA(sheet_xml_sprite)->collisions[rect].x = g_ascii_strtod(*attribute_values, NULL);
 				else if ( *attribute_names[0] =='y' )
-					sheet_xml_sprite->collisions[rect].y = g_ascii_strtod(*attribute_values, NULL);
+					SPRITE_DATA(sheet_xml_sprite)->collisions[rect].y = g_ascii_strtod(*attribute_values, NULL);
 				else if ( *attribute_names[0] =='w' )
-					sheet_xml_sprite->collisions[rect].width = g_ascii_strtod(*attribute_values, NULL);
+					SPRITE_DATA(sheet_xml_sprite)->collisions[rect].width = g_ascii_strtod(*attribute_values, NULL);
 				else if ( *attribute_names[0] =='h' )
-					sheet_xml_sprite->collisions[rect].height = g_ascii_strtod(*attribute_values, NULL);
+					SPRITE_DATA(sheet_xml_sprite)->collisions[rect].height = g_ascii_strtod(*attribute_values, NULL);
 			}
 		}
 	}
 	else if ( !g_ascii_strcasecmp(element_name, "child") && sheet_xml_sprite != NULL) /* Add child sprites */
 	{
 		/* <child name="process_0" position="top-left" repeat="0"/> */
-		MokoiSpriteChild child;
+		SpriteChild child;
 		child.position = -1;
 		child.name = NULL;
 		child.repeat = 0;
@@ -349,15 +346,15 @@ void sheet_xml_start_element(GMarkupParseContext * context, const gchar * elemen
 			}
 		}
 		if ( child.position >= 0 && child.position <= 7)
-			sheet_xml_sprite->childrens[child.position] = child;
+			SPRITE_DATA(sheet_xml_sprite)->childrens[child.position] = child;
 
 	}
 	else if ( !g_ascii_strcasecmp(element_name, "frame") && sheet_xml_sprite != NULL) /* Animation Frames */
 	{
-		if ( sheet_xml_sprite->animation )
+		if ( SPRITE_DATA(sheet_xml_sprite)->animation )
 		{
 			/* <frame sprite="process_0" x="0" y="0" ms="100"/> */
-			MokoiAnimationFrame * frame = g_new0( MokoiAnimationFrame, 1 );
+			AnimationFrame * frame = g_new0( AnimationFrame, 1 );
 			for (; *attribute_names && *attribute_values; attribute_names++, attribute_values++)
 			{
 				if ( !g_ascii_strcasecmp(*attribute_names, "sprite") )
@@ -369,7 +366,7 @@ void sheet_xml_start_element(GMarkupParseContext * context, const gchar * elemen
 				else if ( !g_ascii_strcasecmp(*attribute_names, "ms") )
 					frame->length_ms = g_ascii_strtod(*attribute_values, NULL);
 			}
-			sheet_xml_sprite->animation->frames = g_slist_append(sheet_xml_sprite->animation->frames, frame);
+			SPRITE_DATA(sheet_xml_sprite)->animation->frames = g_slist_append(SPRITE_DATA(sheet_xml_sprite)->animation->frames, frame);
 		}
 	}
 }
@@ -390,16 +387,15 @@ gboolean Sheet_ParseXMLFormat( gchar * filename )
 
 	if ( Meg_file_test( sheet_file, G_FILE_TEST_IS_REGULAR ) )
 	{
-		MokoiSheet * sheet = NULL;
+		Spritesheet * sheet = NULL;
 		GMarkupParseContext * ctx;
 		gchar * sheet_contents = NULL;
 
-		sheet = g_new0(MokoiSheet, 1);
-		sheet->detail = g_new0(Spritesheet, 1);
-		sheet->detail->file = g_path_get_basename(filename);
+		sheet = g_new0(Spritesheet, 1);
+		sheet->file = g_path_get_basename(filename);
 		sheet->children = NULL;
-		sheet->detail->image_loaded = FALSE;
-		sheet->detail->visible = TRUE;
+		sheet->image_loaded = FALSE;
+		sheet->visible = TRUE;
 
 		mokoiSpritesheets = g_slist_prepend( mokoiSpritesheets, sheet );
 		Meg_file_get_contents( sheet_file, &sheet_contents, NULL, &mokoiError );
@@ -429,7 +425,7 @@ gboolean Sheet_ParseXMLFormat( gchar * filename )
 	return function_success;
 }
 
-gboolean Sheet_SaveFile( MokoiSheet * sheet );
+gboolean Sheet_SaveFile( Spritesheet * sheet );
 /********************************
 * Sheet_ParseTextFormat
 * Old Format
@@ -443,11 +439,10 @@ gboolean Sheet_ParseTextFormat( gchar * filename )
 	if ( Meg_file_test( sheet_file, G_FILE_TEST_IS_REGULAR ) )
 	{
 		gchar * sheet_contents = NULL;
-		MokoiSheet * sheet = g_new0(MokoiSheet, 1);
-		sheet->detail = g_new0(Spritesheet, 1);
-		sheet->detail->file = g_strdup(filename);
-		sheet->detail->image_loaded = FALSE;
-		sheet->detail->visible = TRUE;
+		Spritesheet * sheet = g_new0(Spritesheet, 1);
+		sheet->file = g_strdup(filename);
+		sheet->image_loaded = FALSE;
+		sheet->visible = TRUE;
 		sheet->children = NULL;
 		sheet->ref = 0;
 
@@ -480,56 +475,54 @@ gboolean Sheet_ParseTextFormat( gchar * filename )
 							continue;
 						}
 						/* Create New Sprite */
-						MokoiSprite * sprite = g_new0( MokoiSprite, 1 );
-						sprite->detail = g_new0( SheetObject, 1 );
-						sprite->detail->name = g_strdup( array[0] );
-						sprite->parent = g_path_get_basename(filename);
-						sprite->ident = g_strdup_printf( "%s:%s", sprite->parent, sprite->detail->name );
+						SheetObject * sprite = g_new0( SheetObject, 1 );
+						sprite->display_name = g_strdup( array[0] );
+						sprite->parent_sheet = g_path_get_basename(filename);
+						sprite->ident_string = g_strdup_printf( "%s:%s", sprite->parent_sheet, sprite->display_name );
 						sprite->visible = TRUE;
 
-						sprite->animation = NULL;
-						sprite->image = NULL;
-						sprite->image_loaded = 0;
+						SPRITE_DATA(sprite)->animation = NULL;
+						SPRITE_DATA(sprite)->image = NULL;
+						SPRITE_DATA(sprite)->image_loaded = 0;
 
-						sprite->flag = strtoul( array[1], NULL, 0 );
+						SPRITE_DATA(sprite)->flag = strtoul( array[1], NULL, 0 );
 
-						sprite->mask = g_new0( MokoiMask, 1 );
-						sprite->mask->name = NULL;
-						sprite->mask->value = 0;
+						SPRITE_DATA(sprite)->mask.name = NULL;
+						SPRITE_DATA(sprite)->mask.value = 0;
 
 						if ( g_ascii_isdigit( array[2][0]) )
-							sprite->mask->value = strtoul( array[2], NULL, 0 );
+							SPRITE_DATA(sprite)->mask.value = strtoul( array[2], NULL, 0 );
 						else
-							sprite->mask->name = g_strdup( array[2] );
+							SPRITE_DATA(sprite)->mask.name = g_strdup( array[2] );
 
 						if ( array[3][0] == 0 || array[3][0] == '0' )
-							sprite->entity = NULL;
+							SPRITE_DATA(sprite)->entity = NULL;
 						else
-							sprite->entity = g_strdup( array[3] );
+							SPRITE_DATA(sprite)->entity = g_strdup( array[3] );
 
 						if ( !g_ascii_strcasecmp( array[4], "ANIMATION" ) )
 						{
-							sprite->detail->position.x = sprite->detail->position.y = sprite->detail->position.width = sprite->detail->position.height = 0;
+							sprite->position.x = sprite->position.y = sprite->position.width = sprite->position.height = 0;
 
-							sprite->animation = g_new0(MokoiAnimation, 1);
-							sprite->animation->ms_length = strtoul( array[5], NULL, 0 );
-							sprite->animation->frames = NULL;
-							sprite->animation->w = 0;
-							sprite->animation->h = 0;
+							SPRITE_DATA(sprite)->animation = g_new0(AnimationDetail, 1);
+							SPRITE_DATA(sprite)->animation->ms_length = strtoul( array[5], NULL, 0 );
+							SPRITE_DATA(sprite)->animation->frames = NULL;
+							SPRITE_DATA(sprite)->animation->w = 0;
+							SPRITE_DATA(sprite)->animation->h = 0;
 
 							/* Load Offsets file */
-							gchar * offset_file = g_strdup_printf( "/paths/%s-%s.animation", sprite->parent, sprite->detail->name );
+							gchar * offset_file = g_strdup_printf( "/paths/%s-%s.animation", sprite->parent_sheet, sprite->display_name );
 							GSList * offset_path = Path_FileLoad( offset_file );
 							g_free(offset_file);
 
 							guint n = 6;
 							while ( n < length )
 							{
-								MokoiAnimationFrame * frame = g_new0( MokoiAnimationFrame, 1 );
-								MokoiPath * path = (MokoiPath *)g_slist_nth_data( offset_path, n - 6 );
+								AnimationFrame * frame = g_new0( AnimationFrame, 1 );
+								PathPoint * path = (PathPoint *)g_slist_nth_data( offset_path, n - 6 );
 
 								frame->sprite = g_strdup( array[n] );
-								frame->length_ms = sprite->animation->ms_length;
+								frame->length_ms = SPRITE_DATA(sprite)->animation->ms_length;
 
 								if ( path )
 								{
@@ -540,7 +533,7 @@ gboolean Sheet_ParseTextFormat( gchar * filename )
 								{
 									frame->offset.x = frame->offset.y = 0;
 								}
-								sprite->animation->frames = g_slist_append( sprite->animation->frames, frame );
+								SPRITE_DATA(sprite)->animation->frames = g_slist_append( SPRITE_DATA(sprite)->animation->frames, frame );
 								n++;
 							}
 
@@ -549,24 +542,24 @@ gboolean Sheet_ParseTextFormat( gchar * filename )
 						}
 						else
 						{
-							sprite->detail->position.x = strtoul( array[4], NULL, 0 );
-							sprite->detail->position.y = strtoul( array[5], NULL, 0 );
-							sprite->detail->position.width = strtoul( array[6], NULL, 0 );
-							sprite->detail->position.height = strtoul( array[7], NULL, 0 );
+							sprite->position.x = strtoul( array[4], NULL, 0 );
+							sprite->position.y = strtoul( array[5], NULL, 0 );
+							sprite->position.width = strtoul( array[6], NULL, 0 );
+							sprite->position.height = strtoul( array[7], NULL, 0 );
 						}
 
 						/* Load Collision file */
-						gchar * collision_file = g_strdup_printf( "%s-%s.collision", sprite->parent, sprite->detail->name );
+						gchar * collision_file = g_strdup_printf( "%s-%s.collision", sprite->parent_sheet, sprite->display_name );
 						SpriteCollision_Load( sprite, collision_file );
 						g_free(collision_file);
 
 						/* Added Animation to the End */
-						if ( sprite->animation )
+						if ( SPRITE_DATA(sprite)->animation )
 							sheet->children = g_slist_append( sheet->children, sprite );
-						else if ( !Sheet_SpriteExists( sheet, sprite->detail->name ) )
+						else if ( !Sheet_SpriteExists( sheet, sprite->display_name ) )
 							sheet->children = g_slist_prepend( sheet->children, sprite );
 						else
-							Meg_Error_Print( __func__, __LINE__, "Sprite '%s' already exist on sheet.", sprite->detail->name );
+							Meg_Error_Print( __func__, __LINE__, "Sprite '%s' already exist on sheet.", sprite->display_name );
 					}
 					g_strfreev( array );
 				}

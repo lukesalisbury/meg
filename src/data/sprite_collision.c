@@ -30,16 +30,16 @@ GdkRectangle Mokoi_SpriteCollision;
 * SpriteCollision_Read
 *
 */
-gboolean SpriteCollision_Read( MokoiSprite * sprite, GtkListStore * list )
+gboolean SpriteCollision_Read( SheetObject * sprite, GtkListStore * list )
 {
 	GtkTreeIter iter;
 	guint8 rect = 0;
 	for ( rect = 0; rect < 7; rect++ )
 	{
-		if ( sprite->collisions[rect].width )
+		if ( SPRITE_DATA(sprite)->collisions[rect].width )
 		{
 			gtk_list_store_append( list, &iter );
-			gtk_list_store_set( list, &iter, 0, rect, 1, sprite->collisions[rect].x, 2, sprite->collisions[rect].y, 3, sprite->collisions[rect].width, 4, sprite->collisions[rect].height, 5, NULL, -1);
+			gtk_list_store_set( list, &iter, 0, rect, 1, SPRITE_DATA(sprite)->collisions[rect].x, 2, SPRITE_DATA(sprite)->collisions[rect].y, 3, SPRITE_DATA(sprite)->collisions[rect].width, 4, SPRITE_DATA(sprite)->collisions[rect].height, 5, NULL, -1);
 		}
 	}
 	return TRUE;
@@ -50,7 +50,7 @@ gboolean SpriteCollision_Read( MokoiSprite * sprite, GtkListStore * list )
 * SpriteCollision_Load
 * OLD Method
 */
-gboolean SpriteCollision_Load( MokoiSprite * sprite, gchar * file )
+gboolean SpriteCollision_Load( SheetObject * sprite, gchar * file )
 {
 	GdkRectangle collision;
 	gint c = 0;
@@ -68,10 +68,10 @@ gboolean SpriteCollision_Load( MokoiSprite * sprite, gchar * file )
 			PHYSFS_readSBE16( handle, &temp_buffer ); collision.height = temp_buffer;
 			if (  c < 7 )
 			{
-				if ( !sprite->collisions[c].width )
+				if ( !SPRITE_DATA(sprite)->collisions[c].width )
 				{
-					sprite->collisions[c] = collision;
-					g_print( "%s %d x=\"%d\" y=\"%d\" w=\"%d\" h=\"%d\"\n", file, c, sprite->collisions[c].x, sprite->collisions[c].y, sprite->collisions[c].width, sprite->collisions[c].height );
+					SPRITE_DATA(sprite)->collisions[c] = collision;
+					g_print( "%s %d x=\"%d\" y=\"%d\" w=\"%d\" h=\"%d\"\n", file, c, SPRITE_DATA(sprite)->collisions[c].x, SPRITE_DATA(sprite)->collisions[c].y, SPRITE_DATA(sprite)->collisions[c].width, SPRITE_DATA(sprite)->collisions[c].height );
 				}
 				c++;
 			}
@@ -87,7 +87,7 @@ gboolean SpriteCollision_Load( MokoiSprite * sprite, gchar * file )
 * SpriteCollision_Write
 *
 */
-gboolean SpriteCollision_Write( MokoiSprite * sprite, GtkTreeModel * data )
+gboolean SpriteCollision_Write( SheetObject * sprite, GtkTreeModel * data )
 {
 	guint8 c = 0;
 	GdkRectangle rect;
@@ -98,7 +98,7 @@ gboolean SpriteCollision_Write( MokoiSprite * sprite, GtkTreeModel * data )
 		{
 			gtk_tree_model_get( data, &iter, 0, &c, 1, &rect.x, 2, &rect.y, 3, &rect.width, 4, &rect.height, -1);
 			if ( c < 7 )
-				sprite->collisions[c] = rect;
+				SPRITE_DATA(sprite)->collisions[c] = rect;
 
 		} while ( gtk_tree_model_iter_next( data, &iter ) );
 		return TRUE;
@@ -140,7 +140,7 @@ gboolean SpriteCollision_Draw( GtkWidget * widget, cairo_t * cr, GtkComboBox * c
 
 	GdkRectangle rect;
 	GtkTreeIter iter;
-	MokoiSprite * sprite = g_object_get_data( G_OBJECT(widget), "sprite" );
+	SheetObject * sprite = g_object_get_data( G_OBJECT(widget), "sprite" );
 	guint width = 5, height = 5, x = 0, y = 0;
 
 
@@ -153,15 +153,15 @@ gboolean SpriteCollision_Draw( GtkWidget * widget, cairo_t * cr, GtkComboBox * c
 
 	cairo_scale(cr, 4.0, 4.0);
 
-	if ( sprite->image )
+	if ( SPRITE_DATA(sprite)->image )
 	{
-		width = gdk_pixbuf_get_width( sprite->image );
-		height = gdk_pixbuf_get_height( sprite->image );
+		width = gdk_pixbuf_get_width( SPRITE_DATA(sprite)->image );
+		height = gdk_pixbuf_get_height( SPRITE_DATA(sprite)->image );
 		gtk_widget_set_size_request( widget, width*4, height*4 );
 
 		cairo_save( cr );
 		cairo_rectangle( cr, 0, 0, width, height );
-		gdk_cairo_set_source_pixbuf( cr, sprite->image, 0, 0 );
+		gdk_cairo_set_source_pixbuf( cr, SPRITE_DATA(sprite)->image, 0, 0 );
 		cairo_fill( cr );
 		cairo_restore( cr );
 

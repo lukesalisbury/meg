@@ -19,11 +19,12 @@ Permission is granted to anyone to use this software for any purpose, including 
 #include "entity_functions.h"
 #include "animation_functions.h"
 #include "runtime_parser.h"
+#include "virtual_sprite.h"
 
 /* Global Functions */
 
-gboolean SpriteCollision_Load( MokoiSprite * sprite, gchar * file );
-void Sheet_RemoveSprite( MokoiSheet * sheet, MokoiSprite * sprite );
+gboolean SpriteCollision_Load( SheetObject * sprite, gchar * file );
+void Sheet_RemoveSprite( Spritesheet * sheet, SheetObject * sprite );
 
 /* Local Functions */
 void sheet_xml_end_element(GMarkupParseContext *context, const gchar*element_name, gpointer user_data, GError **error);
@@ -59,13 +60,13 @@ static gchar * mokoiChildPositionStrings[] = {
 * Sheets_ListEachVisible
 *
 */
-void Sheets_ListEachVisible( MokoiSheet * sheet, GtkListStore * list )
+void Sheets_ListEachVisible( Spritesheet * sheet, GtkListStore * list )
 {
-	if ( sheet->detail->visible )
+	if ( sheet->visible )
 	{
 		GtkTreeIter iter;
 		gtk_list_store_append( list, &iter );
-		gtk_list_store_set( list, &iter, 0, g_strdup(sheet->detail->file), -1);
+		gtk_list_store_set( list, &iter, 0, g_strdup(sheet->file), -1);
 	}
 }
 
@@ -73,13 +74,13 @@ void Sheets_ListEachVisible( MokoiSheet * sheet, GtkListStore * list )
 * Sheets_ListEach
 *
 */
-void Sheets_ListEach( MokoiSheet * sheet, GtkListStore * list )
+void Sheets_ListEach( Spritesheet * sheet, GtkListStore * list )
 {
 	if ( sheet )
 	{
 		GtkTreeIter iter;
 		gtk_list_store_append( list, &iter );
-		gtk_list_store_set( list, &iter, 0, g_strdup(sheet->detail->file), -1);
+		gtk_list_store_set( list, &iter, 0, g_strdup(sheet->file), -1);
 	}
 }
 
@@ -95,10 +96,10 @@ GSList * Sheet_Find( gchar * file_name )
 	GSList * list_scan = mokoiSpritesheets;
 	while ( list_scan )
 	{
-		MokoiSheet * sheet =  ((MokoiSheet *)list_scan->data);
-		if ( file_name && sheet->detail->file )
+		Spritesheet * sheet =  ((Spritesheet *)list_scan->data);
+		if ( file_name && sheet->file )
 		{
-			if ( !g_ascii_strcasecmp( sheet->detail->file, file_name ) )
+			if ( !g_ascii_strcasecmp( sheet->file, file_name ) )
 			{
 				return list_scan;
 			}
@@ -110,23 +111,23 @@ GSList * Sheet_Find( gchar * file_name )
 
 
 
-extern MokoiSheet virtual_spritesheet;
+
 /********************************
 * Sheet_Get
 *
 */
-MokoiSheet * Sheet_Get( gchar * file_name, gboolean create )
+Spritesheet * Sheet_Get( gchar * file_name, gboolean create )
 {
 	if ( !g_ascii_strcasecmp(file_name, "Virtual") )
 	{
-		return &virtual_spritesheet;
+		return VirtualSpriteSheet_Get();
 	}
 
 
 	GSList * wanted_sheet = Sheet_Find( file_name );
 	if ( wanted_sheet )
 	{
-		return (MokoiSheet*)wanted_sheet->data;
+		return (Spritesheet*)wanted_sheet->data;
 	}
 	if ( create )
 	{
@@ -135,7 +136,7 @@ MokoiSheet * Sheet_Get( gchar * file_name, gboolean create )
 			wanted_sheet = Sheet_Find(file_name);
 			if ( wanted_sheet )
 			{
-				return (MokoiSheet*)wanted_sheet->data;
+				return (Spritesheet*)wanted_sheet->data;
 			}
 		}
 	}
@@ -147,33 +148,33 @@ MokoiSheet * Sheet_Get( gchar * file_name, gboolean create )
 * Loads PNG File
 @ current: Sheet to load
 */
-void Sheet_Load( MokoiSheet * current )
+void Sheet_Load( Spritesheet * current )
 {
 	GdkPixbuf * parent_image = NULL;
 	GSList * list_scan;
 
 	if ( !current->ref )
 	{
-		parent_image = AL_GetImage( current->detail->file, NULL );
+		parent_image = AL_GetImage( current->file, NULL );
 		list_scan = current->children;
 
 		while ( list_scan )
 		{
-			MokoiSprite * sprite = (MokoiSprite *)list_scan->data;
-			if ( !sprite->image_loaded )
+			SheetObject * sprite = (SheetObject *)list_scan->data;
+			if ( !SPRITE_DATA(sprite)->image_loaded )
 			{
-				if ( sprite->animation )
+				if ( SPRITE_DATA(sprite)->animation )
 				{
 					//SpriteAnimation_Build( sprite );
-					sprite->image_loaded = FALSE;
+					SPRITE_DATA(sprite)->image_loaded = FALSE;
 				}
 				else
 				{
-					sprite->image = gdk_pixbuf_new(GDK_COLORSPACE_RGB, TRUE, 8, sprite->detail->position.width, sprite->detail->position.height);
+					SPRITE_DATA(sprite)->image = gdk_pixbuf_new(GDK_COLORSPACE_RGB, TRUE, 8, sprite->position.width, sprite->position.height);
 					if ( parent_image )
 					{
-						gdk_pixbuf_copy_area(parent_image, sprite->detail->position.x, sprite->detail->position.y, sprite->detail->position.width, sprite->detail->position.height, sprite->image, 0, 0);
-						sprite->image_loaded = TRUE;
+						gdk_pixbuf_copy_area( parent_image, sprite->position.x, sprite->position.y, sprite->position.width, sprite->position.height, SPRITE_DATA(sprite)->image, 0, 0 );
+						SPRITE_DATA(sprite)->image_loaded = TRUE;
 					}
 				}
 			}
@@ -190,7 +191,7 @@ void Sheet_Load( MokoiSheet * current )
 @ parent:
 @ sprite:
 */
-gboolean Sheet_SpriteExists( MokoiSheet * parent, gchar * sprite )
+gboolean Sheet_SpriteExists( Spritesheet * parent, gchar * sprite )
 {
 	GSList * child = Sprite_Find(parent->children, sprite);
 	if ( child != NULL )
@@ -202,13 +203,13 @@ gboolean Sheet_SpriteExists( MokoiSheet * parent, gchar * sprite )
 /********************************
 * Sheet_SaveEachFrame
 *
-@ data: MokoiAnimationFrame
+@ data: AnimationFrame
 @ user_data: content
 */
 
 void Sheet_SaveEachFrame( gpointer data, gpointer user_data )
 {
-	MokoiAnimationFrame * value = (MokoiAnimationFrame *)data;
+	AnimationFrame * value = (AnimationFrame *)data;
 	GString * content = (GString *)user_data;
 
 	/* <frame sprite="process_0" x="0" y="0" ms="100"/> */
@@ -219,19 +220,19 @@ void Sheet_SaveEachFrame( gpointer data, gpointer user_data )
 /********************************
 * Sheet_SaveEachCollision
 *
-@ data: MokoiSpriteChild
+@ data: SpriteChild
 @ user_data: content
 */
 
-void Sheet_SaveEachCollision( MokoiSprite * sprite, GString * content )
+void Sheet_SaveEachCollision( SheetObject * sprite, GString * content )
 {
 	guint8 rect = 0;
 	for ( rect = 0; rect < 7; rect++ )
 	{
 		/* <collision id="0" x="0" y="0" w="16" h="16"/> */
-		if ( sprite->collisions[rect].width != 0 && sprite->collisions[rect].height != 0 )
+		if ( SPRITE_DATA(sprite)->collisions[rect].width != 0 && SPRITE_DATA(sprite)->collisions[rect].height != 0 )
 		{
-			g_string_append_printf( content, "\t\t<collision id=\"%d\" x=\"%d\" y=\"%d\" w=\"%d\" h=\"%d\" />\n", rect, sprite->collisions[rect].x, sprite->collisions[rect].y, sprite->collisions[rect].width, sprite->collisions[rect].height );
+			g_string_append_printf( content, "\t\t<collision id=\"%d\" x=\"%d\" y=\"%d\" w=\"%d\" h=\"%d\" />\n", rect, SPRITE_DATA(sprite)->collisions[rect].x, SPRITE_DATA(sprite)->collisions[rect].y, SPRITE_DATA(sprite)->collisions[rect].width, SPRITE_DATA(sprite)->collisions[rect].height );
 		}
 	}
 }
@@ -242,35 +243,34 @@ void Sheet_SaveEachCollision( MokoiSprite * sprite, GString * content )
 * Save 'parent' sheets.
 @ parent: Sheet to save
 */
-gboolean Sheet_SaveFile( MokoiSheet * sheet )
+gboolean Sheet_SaveFile( Spritesheet * sheet )
 {
-	if ( sheet == NULL || sheet->detail == NULL )
+	if ( sheet == NULL || sheet->data == NULL )
 		return FALSE;
 
 	GString * content = g_string_new("");
 
-	g_string_append_printf( content, "<sheet xmlns=\"http://mokoi.info/format/sheet\"%s>\n", (sheet->detail->visible ? "" : " hidden=\"hidden\"") );
+	g_string_append_printf( content, "<sheet xmlns=\"http://mokoi.info/format/sheet\"%s>\n", (sheet->visible ? "" : " hidden=\"hidden\"") );
 
 	GSList * scan = sheet->children;
 	while ( scan )
 	{
-		MokoiSprite * sprite = (MokoiSprite *)scan->data;
+		SheetObject * sprite = (SheetObject *)scan->data;
 
-		if ( sprite->animation != NULL )
+		if ( SPRITE_DATA(sprite)->animation != NULL )
 		{
 			/* Start Tag */
-			g_string_append_printf( content, "\t<animation name=\"%s\"", sprite->detail->name );
-			if ( sprite->mask )
-			{
-				if ( sprite->mask->name != NULL )
-					g_string_append_printf( content, " mask=\"%s\"", sprite->mask->name );
-				else
-					g_string_append_printf( content, " mask=\"%d\"", sprite->mask->value );
-			}
+			g_string_append_printf( content, "\t<animation name=\"%s\"", sprite->display_name );
 
-			if ( sprite->entity )
+			if ( SPRITE_DATA(sprite)->mask.name != NULL )
+				g_string_append_printf( content, " mask=\"%s\"", SPRITE_DATA(sprite)->mask.name );
+			else
+				g_string_append_printf( content, " mask=\"%d\"", SPRITE_DATA(sprite)->mask.value );
+
+
+			if ( SPRITE_DATA(sprite)->entity )
 			{
-				g_string_append_printf( content, " entity=\"%s\"", sprite->entity );
+				g_string_append_printf( content, " entity=\"%s\"", SPRITE_DATA(sprite)->entity );
 			}
 
 			if ( !sprite->visible )
@@ -280,7 +280,7 @@ gboolean Sheet_SaveFile( MokoiSheet * sheet )
 			content = g_string_append( content, ">\n" );
 
 			/* Children Tag */
-			g_slist_foreach( sprite->animation->frames, Sheet_SaveEachFrame, content ); /* Frames */
+			g_slist_foreach( SPRITE_DATA(sprite)->animation->frames, Sheet_SaveEachFrame, content ); /* Frames */
 
 			/* End Tag */
 			content = g_string_append( content, "\t</animation>\n" );
@@ -288,18 +288,17 @@ gboolean Sheet_SaveFile( MokoiSheet * sheet )
 		else
 		{
 			/* Start Tag */
-			g_string_append_printf( content, "\t<sprite name=\"%s\"", sprite->detail->name );
-			if ( sprite->mask )
-			{
-				if ( sprite->mask->name != NULL )
-					g_string_append_printf( content, " mask=\"%s\"", sprite->mask->name );
-				else
-					g_string_append_printf( content, " mask=\"%d\"", sprite->mask->value );
-			}
+			g_string_append_printf( content, "\t<sprite name=\"%s\"", sprite->display_name );
 
-			if ( sprite->entity )
+			if ( SPRITE_DATA(sprite)->mask.name != NULL )
+				g_string_append_printf( content, " mask=\"%s\"", SPRITE_DATA(sprite)->mask.name );
+			else
+				g_string_append_printf( content, " mask=\"%d\"", SPRITE_DATA(sprite)->mask.value );
+
+
+			if ( SPRITE_DATA(sprite)->entity )
 			{
-				g_string_append_printf( content, " entity=\"%s\"", sprite->entity );
+				g_string_append_printf( content, " entity=\"%s\"", SPRITE_DATA(sprite)->entity );
 			}
 
 			if ( !sprite->visible )
@@ -308,7 +307,7 @@ gboolean Sheet_SaveFile( MokoiSheet * sheet )
 			}
 			content = g_string_append( content, ">\n" );
 
-			g_string_append_printf( content, "\t\t<position x=\"%d\" y=\"%d\" w=\"%d\" h=\"%d\" />\n", sprite->detail->position.x, sprite->detail->position.y, sprite->detail->position.width, sprite->detail->position.height ); /* Position */
+			g_string_append_printf( content, "\t\t<position x=\"%d\" y=\"%d\" w=\"%d\" h=\"%d\" />\n", sprite->position.x, sprite->position.y, sprite->position.width, sprite->position.height ); /* Position */
 
 			Sheet_SaveEachCollision( sprite, content ); /* Collision */
 
@@ -316,16 +315,11 @@ gboolean Sheet_SaveFile( MokoiSheet * sheet )
 			guint8 t = 0;
 			for ( ; t < 8; t++ )
 			{
-				if ( sprite->childrens[t].name && sprite->childrens[t].position >= 0 && sprite->childrens[t].position <= 7 )
+				if ( SPRITE_DATA(sprite)->childrens[t].name && SPRITE_DATA(sprite)->childrens[t].position >= 0 && SPRITE_DATA(sprite)->childrens[t].position <= 7 )
 				{
-					g_string_append_printf( content, "\t\t<child name=\"%s\" position=\"%d\" repeat=\"%d\"/>\n", sprite->childrens[t].name, sprite->childrens[t].position, sprite->childrens[t].repeat );
+					g_string_append_printf( content, "\t\t<child name=\"%s\" position=\"%d\" repeat=\"%d\"/>\n", SPRITE_DATA(sprite)->childrens[t].name, SPRITE_DATA(sprite)->childrens[t].position, SPRITE_DATA(sprite)->childrens[t].repeat );
 				}
 			}
-
-
-
-
-
 
 			/* End Tag */
 			content = g_string_append( content, "\t</sprite>\n" );
@@ -337,7 +331,7 @@ gboolean Sheet_SaveFile( MokoiSheet * sheet )
 	content = g_string_append( content, "</sheet>" );
 
 	/* Write the content out to file */
-	gchar * sheet_file = g_strdup_printf("/sprites/%s.xml", sheet->detail->file);
+	gchar * sheet_file = g_strdup_printf("/sprites/%s.xml", sheet->file);
 	Meg_file_set_contents( sheet_file, content->str, -1, &mokoiError );
 	g_free( sheet_file );
 
@@ -355,13 +349,12 @@ gboolean Sheet_SaveFile( MokoiSheet * sheet )
 
 void SpritesheetList_DestroyNotify(gpointer data)
 {
-	MokoiSheet_Free( (MokoiSheet*)data );
+	Spritesheet_Free( (Spritesheet*)data );
 }
 
 /********************************
 * Sheet_Unload
 *
-@ filename:
 -
 */
 gboolean Sheet_Unload( )

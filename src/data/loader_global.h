@@ -15,10 +15,12 @@ Permission is granted to anyone to use this software for any purpose, including 
 #include <glib.h>
 #include <gtk/gtk.h>
 
-#include "alchera_types.h"
+#include "ma_types.h"
 #include "alchera_loader.h"
 #include "alchera_functions.h"
 #include "loader_structs.h"
+
+#include "data_types.h"
 #include "resources_functions.h"
 #include "sprite_grouping.h"
 #include "meg_setting.h"

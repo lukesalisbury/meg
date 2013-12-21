@@ -15,11 +15,13 @@ Permission is granted to anyone to use this software for any purpose, including 
 /* Required Headers */
 #include "animation.h"
 #include "virtual_sprite.h"
+#include "virtual_sprite_dialog.h"
+#include "data_types.h"
 
 /* External Functions */
-gboolean Sprite_AdvanceDialog( MokoiSheet * sheet, MokoiSprite * sprite );
+gboolean Sprite_AdvanceDialog( Spritesheet * sheet, SheetObject * sprite );
 void Sheet_Create( GdkPixbuf * image, gchar * filename );
-gboolean Sheet_SaveFile( MokoiSheet * sheet );
+gboolean Sheet_SaveFile( Spritesheet * sheet );
 
 /* Local Type */
 
@@ -45,7 +47,7 @@ const gchar * mokoiUI_SpriteAdd = GUISPRITE_ADD;
 */
 gboolean AL_Sheet_Save( Spritesheet * spritesheet )
 {
-	MokoiSheet * sheet = Sheet_Get( spritesheet->file, FALSE );
+	Spritesheet * sheet = Sheet_Get( spritesheet->file, FALSE );
 
 	Sheet_SaveFile( sheet );
 
@@ -141,14 +143,13 @@ Spritesheet * AL_Sheet_Get( gchar * file )
 		return NULL;
 
 	GSList * scan = NULL;
-	Spritesheet * spritesheet = NULL;
-	MokoiSheet * sheet = NULL;
+	Spritesheet * sheet = NULL;
 
 
 
 	if ( !g_ascii_strcasecmp(file, "Virtual") )
 	{
-		return VirtualSprite_GetSpritesheet( );
+		return VirtualSpriteSheet_Get( );
 	}
 	else
 	{
@@ -157,33 +158,33 @@ Spritesheet * AL_Sheet_Get( gchar * file )
 
 	if ( sheet )
 	{
-		spritesheet = sheet->detail;
-
 		/* update if need */
-		if ( !spritesheet->image_loaded )
+		if ( !sheet->image_loaded )
 		{
-			spritesheet->image = AL_GetImage( file, &spritesheet->file_size );
-			spritesheet->image_loaded = TRUE;
+			sheet->image = AL_GetImage( file, &sheet->file_size );
+			sheet->image_loaded = TRUE;
 		}
 
 		/* Get Sprite List */
-		if ( !spritesheet->children )
+		/*
+		if ( !sheet->children )
 		{
 			scan = sheet->children;
 			while ( scan )
 			{
-				MokoiSprite * sprite = (MokoiSprite *)scan->data;
-				spritesheet->children = g_slist_append(spritesheet->children, (gpointer)sprite->detail);
+				SheetObject * sprite = (SheetObject *)scan->data;
+				sheet->children = g_slist_append(sheet->children, (gpointer)sprite->detail);
 				scan = g_slist_next(scan);
 			}
 		}
+		*/
 	}
 	else
 	{
 		Meg_Error_Print( __func__, __LINE__, "Sheet %s not found.", file);
 	}
 
-	return spritesheet;
+	return sheet;
 
 }
 
@@ -203,22 +204,22 @@ gboolean AL_Sprite_Advance( Spritesheet * spritesheet, gchar * id )
 
 	if ( !g_ascii_strcasecmp( spritesheet->file, "Virtual" ) )
 	{
-        return VirtualSprite_DialogDisplay( id );
+		return VirtualSpriteDialog_Display( id );
 	}
 	else
 	{
-		MokoiSheet * sheet = Sheet_Get( spritesheet->file, FALSE );
-		MokoiSprite * sprite = Sprite_Get( id, spritesheet->file, TRUE );
+		SheetObject * sprite = Sprite_Get( id, spritesheet->file, TRUE );
 
 		if ( sprite )
 		{
-			if ( sprite->animation )
+
+			if ( SPRITE_DATA(sprite)->animation )
 			{
-				return Animation_AdvanceDialog( sheet, sprite );
+				return Animation_AdvanceDialog( spritesheet, sprite );
 			}
 			else
 			{
-				return Sprite_AdvanceDialog( sheet, sprite );
+				return Sprite_AdvanceDialog( spritesheet, sprite );
 			}
 		}
 		else
@@ -245,16 +246,8 @@ void AL_Sprite_Add( Spritesheet * spritesheet, GdkRectangle * sprite_rect )
 		return;
 	}
 
-	MokoiSheet * sheet = NULL;
 	GtkWidget * dialog, * text_name, * image_preview, * spin_x, * spin_y, * spin_w, * spin_h;
 	GtkWidget * spin_mask, * file_mask, * file_entity, * check_anim, * spin_frames, * radio_align;
-
-	sheet = Sheet_Get( spritesheet->file, FALSE );
-	if ( !sheet )
-	{
-		Meg_Error_Print( __func__, __LINE__, "AL_Sheet_AddSprite: Invalid parent %s", sheet->detail->file);
-		return;
-	}
 
 	/* UI */
 	GError * error = NULL;
@@ -281,8 +274,8 @@ void AL_Sprite_Add( Spritesheet * spritesheet, GdkRectangle * sprite_rect )
 	radio_align = GET_WIDGET( ui, "radio_align");
 
 	/* Set Default Values */
-	gtk_file_chooser_set_current_folder( GTK_FILE_CHOOSER(file_mask), mokoiBasePath);
-	gtk_file_chooser_set_current_folder( GTK_FILE_CHOOSER(file_entity), mokoiBasePath);
+	gtk_file_chooser_set_current_folder( GTK_FILE_CHOOSER(file_mask), mokoiBasePath );
+	gtk_file_chooser_set_current_folder( GTK_FILE_CHOOSER(file_entity), mokoiBasePath );
 	gtk_spin_button_set_value( GTK_SPIN_BUTTON(spin_x), (gdouble)sprite_rect->x );
 	gtk_spin_button_set_value( GTK_SPIN_BUTTON(spin_y), (gdouble)sprite_rect->y );
 	gtk_spin_button_set_value( GTK_SPIN_BUTTON(spin_w), (gdouble)sprite_rect->width );
@@ -310,96 +303,98 @@ void AL_Sprite_Add( Spritesheet * spritesheet, GdkRectangle * sprite_rect )
 		}
 		else
 		{
-			MokoiSprite * sprite = g_new0(MokoiSprite, 1);
+			SheetObject * sprite = NULL;
+			SpriteData * sprite_data = g_new0(SpriteData, 1);
 
-			sprite->detail = g_new0(SheetObject, 1);
-			sprite->mask = g_new0(MokoiMask, 1);
+			sprite = SheetObject_New( (gpointer)sprite_data, &SpriteData_FreePointer );
 
+			sprite->parent_sheet = g_strdup( spritesheet->file );
+			sprite->display_name = g_strdup( sprite_name );
 
-			sprite->detail->name = g_strdup(sprite_name);
-			sprite->parent = g_strdup(sheet->detail->file);
-			sprite->ident = g_strdup_printf( "%s:%s", sprite->parent, sprite->detail->name );
+			sprite->ident_string = g_strdup_printf( "%s:%s", sprite->parent_sheet, sprite->display_name );
+
 			if ( entity_file )
-				sprite->entity = g_path_get_basename( entity_file );
+				sprite_data->entity = g_path_get_basename( entity_file );
 			else
-				sprite->entity = NULL;
-			sprite->visible = TRUE;
-			sprite->image_loaded = FALSE;
+				sprite_data->entity = NULL;
 
-			sprite->detail->position.x = gtk_spin_button_get_value_as_int( GTK_SPIN_BUTTON(spin_x) );
-			sprite->detail->position.y = gtk_spin_button_get_value_as_int( GTK_SPIN_BUTTON(spin_y) );
-			sprite->detail->position.width = gtk_spin_button_get_value_as_int( GTK_SPIN_BUTTON(spin_w) );
-			sprite->detail->position.height = gtk_spin_button_get_value_as_int( GTK_SPIN_BUTTON(spin_h) );
+			sprite->visible = TRUE;
+			sprite_data->image_loaded = FALSE;
+
+			sprite->position.x = gtk_spin_button_get_value_as_int( GTK_SPIN_BUTTON(spin_x) );
+			sprite->position.y = gtk_spin_button_get_value_as_int( GTK_SPIN_BUTTON(spin_y) );
+			sprite->position.width = gtk_spin_button_get_value_as_int( GTK_SPIN_BUTTON(spin_w) );
+			sprite->position.height = gtk_spin_button_get_value_as_int( GTK_SPIN_BUTTON(spin_h) );
 
 			if ( mask_file && g_utf8_strlen( mask_file, -1 ) )
-				sprite->mask->name = g_strdup(mask_file);
+				sprite_data->mask.name = g_strdup(mask_file);
 			else
-				sprite->mask->value = gtk_spin_button_get_value_as_int( GTK_SPIN_BUTTON(spin_mask) );
+				sprite_data->mask.value = gtk_spin_button_get_value_as_int( GTK_SPIN_BUTTON(spin_mask) );
 
-			GdkPixbuf * parent_image = AL_GetImage( sprite->parent, NULL );
+			GdkPixbuf * parent_image = AL_GetImage( sprite->parent_sheet, NULL );
 			if ( frame_count > 0 )
 			{
 				/* Creating Animation */
 				gint frame_length = 0;
 				if ( bool_horizontal )
 				{
-					frame_length = sprite->detail->position.width / frame_count;
-					sprite->detail->position.width = frame_length;
+					frame_length = sprite->position.width / frame_count;
+					sprite->position.width = frame_length;
 				}
 				else
 				{
-					frame_length = sprite->detail->position.height / frame_count;
-					sprite->detail->position.height = frame_length;
+					frame_length = sprite->position.height / frame_count;
+					sprite->position.height = frame_length;
 				}
-				sprite->animation = g_new0(MokoiAnimation, 1);
-				sprite->animation->frames = NULL;
-				sprite->animation->ms_length = 0;
+				sprite_data->animation = g_new0(AnimationDetail, 1);
+
 
 				gint q = 0;
 				while ( q < frame_count )
 				{
 					/* Create the sprite for the frame */
-					MokoiSprite * frame_sprite = g_new0( MokoiSprite, 1 );
-					frame_sprite->detail = g_new0(SheetObject, 1);
-					frame_sprite->mask = g_new0(MokoiMask, 1);
-					frame_sprite->mask = sprite->mask;
+					SheetObject * frame_sprite = NULL;
+					SpriteData * frame_sprite_data = g_new0(SpriteData, 1);
 
-					frame_sprite->detail->name = g_strdup_printf("%s_%d", sprite->detail->name, q);
-					frame_sprite->parent = g_strdup(sheet->detail->file);
-					frame_sprite->ident = g_strdup_printf( "%s:%s", frame_sprite->parent, frame_sprite->detail->name );
+					frame_sprite = SheetObject_New( (gpointer)frame_sprite_data, &SpriteData_FreePointer );
 
-
+					frame_sprite->display_name = g_strdup_printf("%s_%d", sprite->display_name, q);
+					frame_sprite->parent_sheet = g_strdup( spritesheet->file );
+					frame_sprite->ident_string = g_strdup_printf( "%s:%s", frame_sprite->parent_sheet, frame_sprite->display_name );
 					frame_sprite->visible = FALSE;
-					frame_sprite->image_loaded = FALSE;
+
+					frame_sprite_data->mask = sprite_data->mask;
+					frame_sprite_data->image_loaded = FALSE;
 
 					if ( bool_horizontal )
 					{
-						frame_sprite->detail->position.x = sprite_rect->x + (q * frame_length);
-						frame_sprite->detail->position.y = sprite_rect->y;
-						frame_sprite->detail->position.width = frame_length;
-						frame_sprite->detail->position.height = sprite_rect->height;
+						frame_sprite->position.x = sprite_rect->x + (q * frame_length);
+						frame_sprite->position.y = sprite_rect->y;
+						frame_sprite->position.width = frame_length;
+						frame_sprite->position.height = sprite_rect->height;
 					}
 					else
 					{
-						frame_sprite->detail->position.x = sprite_rect->x;
-						frame_sprite->detail->position.y = sprite_rect->y + (q * frame_length);
-						frame_sprite->detail->position.width = sprite_rect->width;
-						frame_sprite->detail->position.height = frame_length;
+						frame_sprite->position.x = sprite_rect->x;
+						frame_sprite->position.y = sprite_rect->y + (q * frame_length);
+						frame_sprite->position.width = sprite_rect->width;
+						frame_sprite->position.height = frame_length;
 					}
-					frame_sprite->image = gdk_pixbuf_new( GDK_COLORSPACE_RGB, TRUE, 8, frame_sprite->detail->position.width, frame_sprite->detail->position.height );
-					gdk_pixbuf_copy_area( parent_image, frame_sprite->detail->position.x, frame_sprite->detail->position.y, frame_sprite->detail->position.width, frame_sprite->detail->position.height, frame_sprite->image, 0, 0);
-					frame_sprite->image_loaded = TRUE;
 
-					sheet->children = g_slist_append( sheet->children, frame_sprite);
+					frame_sprite_data->image = gdk_pixbuf_new( GDK_COLORSPACE_RGB, TRUE, 8, frame_sprite->position.width, frame_sprite->position.height );
+					gdk_pixbuf_copy_area( parent_image, frame_sprite->position.x, frame_sprite->position.y, frame_sprite->position.width, frame_sprite->position.height, frame_sprite_data->image, 0, 0);
+					frame_sprite_data->image_loaded = TRUE;
+
+					spritesheet->children = g_slist_append( spritesheet->children, frame_sprite);
 
 					/* Create the Frame and append to list */
-					MokoiAnimationFrame * frame = g_new0( MokoiAnimationFrame, 1 );
-					frame->sprite = g_strdup( frame_sprite->detail->name );
+					AnimationFrame * frame = g_new0( AnimationFrame, 1 );
+					frame->sprite = g_strdup( frame_sprite->display_name );
 					frame->offset.x = 0;
 					frame->offset.y = 0;
 					frame->length_ms = 33;
 
-					sprite->animation->frames = g_slist_append(sprite->animation->frames, frame);
+					sprite_data->animation->frames = g_slist_append( sprite_data->animation->frames, frame);
 
 
 					q++;
@@ -408,15 +403,14 @@ void AL_Sprite_Add( Spritesheet * spritesheet, GdkRectangle * sprite_rect )
 			else
 			{
 				/* Create Sprite */
-				sprite->image = gdk_pixbuf_new( GDK_COLORSPACE_RGB, TRUE, 8, sprite->detail->position.width, sprite->detail->position.height );
-				gdk_pixbuf_copy_area( parent_image, sprite->detail->position.x, sprite->detail->position.y, sprite->detail->position.width, sprite->detail->position.height, sprite->image, 0, 0 );
-				sprite->image_loaded = TRUE;
+				sprite_data->image = gdk_pixbuf_new( GDK_COLORSPACE_RGB, TRUE, 8, sprite->position.width, sprite->position.height );
+				gdk_pixbuf_copy_area( parent_image, sprite->position.x, sprite->position.y, sprite->position.width, sprite->position.height, sprite_data->image, 0, 0 );
+				sprite_data->image_loaded = TRUE;
 			}
 			g_object_unref( parent_image );
 
-			sheet->children = g_slist_append( sheet->children, sprite );
-			spritesheet->children = g_slist_append( spritesheet->children, sprite->detail );
-			Sheet_SaveFile( sheet );
+			spritesheet->children = g_slist_append( spritesheet->children, sprite );
+			Sheet_SaveFile( spritesheet );
 		}
 	}
 	gtk_widget_destroy( dialog );
@@ -429,19 +423,18 @@ void AL_Sprite_Add( Spritesheet * spritesheet, GdkRectangle * sprite_rect )
 @
 @
 */
-void AL_Sprite_Remove(Spritesheet *spritesheet, gchar * id )
+void AL_Sprite_Remove( Spritesheet * spritesheet, gchar * id )
 {
-	MokoiSheet * sheet = Sheet_Get( spritesheet->file, FALSE );
-	MokoiSprite * sprite = Sprite_Get( id, spritesheet->file, FALSE );
+	SheetObject * sprite = Sprite_Get( id, spritesheet->file, FALSE );
 
-	if ( sprite->image )
+	if ( SPRITE_DATA(sprite)->image )
 	{
-		g_object_unref( sprite->image );
-		sprite->image = NULL;
+		g_object_unref( SPRITE_DATA(sprite)->image );
+		SPRITE_DATA(sprite)->image = NULL;
 	}
-	sheet->children = g_slist_remove( sheet->children, sprite );
-	spritesheet->children = g_slist_remove( spritesheet->children, sprite->detail );
-	Sheet_SaveFile( sheet );
+
+	spritesheet->children = g_slist_remove( spritesheet->children, sprite );
+	Sheet_SaveFile( spritesheet );
 }
 
 

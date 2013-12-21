@@ -34,14 +34,14 @@ int main(int argc, char *argv[])
 	if ( argc < 2 )
 	{
 		g_print("buildheader.exe - missing argument");
-		return 1;
+		return 0;
 	}
 
 	//g_print("buildheader.exe - Reading %s\n", argv[1]);
 	if ( !g_str_has_suffix( argv[1], ".gui") )
 	{
 		g_print("buildheader.exe - not a GtkBuilder file");
-		return 1;
+		return 0;
 	}
 
 	if (argc >= 3)

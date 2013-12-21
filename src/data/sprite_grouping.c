@@ -45,12 +45,12 @@ void SpriteGrouping_ComboAppend( GtkComboBox * widget, const gchar * text, GdkPi
 * SpriteGrouping_ShowDialog
 *
 */
-gboolean SpriteGrouping_ShowDialog( GtkWidget * parent_widget, MokoiSpriteChild * sprite_child )
+gboolean SpriteGrouping_ShowDialog( GtkWidget * parent_widget, SpriteChild * sprite_child )
 {
 	GtkWidget * dialog, * combo_sprite, * combo_repeat, * label_parentsprite;
-	MokoiSheet * sheet = NULL;
+	Spritesheet * sheet = NULL;
 
-	sheet = (MokoiSheet*)g_object_get_data( G_OBJECT(parent_widget), "MokoiSheet" );
+	sheet = (Spritesheet*)g_object_get_data( G_OBJECT(parent_widget), "Spritesheet" );
 
 	/* UI */
 	GtkBuilder * ui = Meg_Builder_Create(mokoiUI_SpriteGrouping, __func__, __LINE__);
@@ -70,8 +70,8 @@ gboolean SpriteGrouping_ShowDialog( GtkWidget * parent_widget, MokoiSpriteChild 
 		GSList * scan = sheet->children;
 		while ( scan )
 		{
-			MokoiSprite * sprite =  (MokoiSprite *)scan->data;
-			SpriteGrouping_ComboAppend( GTK_COMBO_BOX(combo_sprite), sprite->detail->name, sprite->image );
+			SheetObject * sprite_object =  (SheetObject *)scan->data;
+			SpriteGrouping_ComboAppend( GTK_COMBO_BOX(combo_sprite), sprite_object->display_name, SPRITE_DATA(sprite_object)->image );
 			scan = g_slist_next( scan );
 		}
 	}
@@ -114,7 +114,7 @@ gboolean SpriteGrouping_ShowDialog( GtkWidget * parent_widget, MokoiSpriteChild 
 * Event:
 * Result:
 */
-gboolean SpriteGrouping_ButtonPressed( GtkWidget* widget, GdkEventButton * event, MokoiSpriteChild * sprite_child )
+gboolean SpriteGrouping_ButtonPressed( GtkWidget* widget, GdkEventButton * event, SpriteChild * sprite_child )
 {
 	if (event->type == GDK_BUTTON_PRESS)
 	{
@@ -129,11 +129,11 @@ gboolean SpriteGrouping_ButtonPressed( GtkWidget* widget, GdkEventButton * event
 * Event:
 * Result:
 */
-gboolean SpriteGrouping_ViewDraw( GtkWidget * window, cairo_t * cr, MokoiSprite * sprite )
+gboolean SpriteGrouping_ViewDraw( GtkWidget * window, cairo_t * cr, SheetObject * sprite )
 {
 	gint width, height;
 
-	MokoiSheet * sheet = (MokoiSheet*)g_object_get_data( G_OBJECT(window), "MokoiSheet" );
+	Spritesheet * sheet = (Spritesheet*)g_object_get_data( G_OBJECT(window), "Spritesheet" );
 	GdkPixbuf * selected_sprite = (GdkPixbuf*)g_object_get_data( G_OBJECT(window), "Image" );
 	g_return_val_if_fail( sheet, FALSE );
 
@@ -151,8 +151,8 @@ gboolean SpriteGrouping_ViewDraw( GtkWidget * window, cairo_t * cr, MokoiSprite 
 	}
 	else
 	{
-		width = gdk_pixbuf_get_width( sprite->image );
-		height = gdk_pixbuf_get_height( sprite->image );
+		width = gdk_pixbuf_get_width( SPRITE_DATA(sprite)->image );
+		height = gdk_pixbuf_get_height( SPRITE_DATA(sprite)->image );
 
 		gtk_widget_set_size_request( window, width, height );
 		cairo_rectangle( cr, 0, 0, width, height );
@@ -167,7 +167,7 @@ gboolean SpriteGrouping_ViewDraw( GtkWidget * window, cairo_t * cr, MokoiSprite 
 * Event: Refreshing Whole Image
 * Result: Draw grid, sprite outlines
 */
-gboolean SpriteGrouping_ViewExpose( GtkWidget * widget, GdkEventExpose * event, MokoiSprite * sprite )
+gboolean SpriteGrouping_ViewExpose( GtkWidget * widget, GdkEventExpose * event, SheetObject * sprite )
 {
 	cairo_t * cr = gdk_cairo_create( gtk_widget_get_window(widget) );
 
@@ -184,24 +184,24 @@ gboolean SpriteGrouping_ViewExpose( GtkWidget * widget, GdkEventExpose * event, 
 * Sprite_AdvanceDialog
 *
 */
-GtkWidget * SpriteGrouping_GetWidget(GtkBuilder * ui, gchar * name, MokoiSheet * sheet, MokoiSprite * sprite , gint position)
+GtkWidget * SpriteGrouping_GetWidget(GtkBuilder * ui, gchar * name, Spritesheet *sheet, SheetObject *sprite , gint position)
 {
 	GtkWidget * widget = GET_WIDGET( ui, name);
-	g_object_set_data( G_OBJECT(widget), "MokoiSheet", sheet );
+	g_object_set_data( G_OBJECT(widget), "Spritesheet", sheet );
 	g_object_set_data( G_OBJECT(widget), "Position", GINT_TO_POINTER(position) );
-	g_signal_connect( G_OBJECT(widget), "button-press-event", G_CALLBACK(SpriteGrouping_ButtonPressed), &sprite->childrens[position] );
+	g_signal_connect( G_OBJECT(widget), "button-press-event", G_CALLBACK(SpriteGrouping_ButtonPressed), &SPRITE_DATA(sprite)->childrens[position] );
 #if GTK_MAJOR_VERSION == 2
 	g_signal_connect( G_OBJECT(widget), "expose-event", G_CALLBACK(SpriteGrouping_ViewExpose), sprite );
 #else
 	g_signal_connect( G_OBJECT(widget), "draw", G_CALLBACK(SpriteGrouping_ViewDraw), sprite );
 #endif
 
-	sprite->childrens[position].position = position;
+	SPRITE_DATA(sprite)->childrens[position].position = position;
 
 	GdkPixbuf * image = NULL;
-	if ( sprite->childrens[position].name )
+	if ( SPRITE_DATA(sprite)->childrens[position].name )
 	{
-		image = SpriteSheet_GetPixbuf( sprite->childrens[position].name, sheet );
+		image = SpriteSheet_GetPixbuf( SPRITE_DATA(sprite)->childrens[position].name, sheet );
 	}
 	g_object_set_data( G_OBJECT(widget), "Image", image );
 	gtk_widget_queue_draw( widget );

@@ -24,45 +24,7 @@ extern GError * mokoiError;
 /* Local Variables */
 
 /* Local Function */
-MokoiSheet * MokoiSheet_New()
-{
-/*
-typedef struct {
-	GdkPixbuf * image;
-	gboolean image_loaded;
-	gchar * file;
-	gint64 file_size;
-	GSList * children; //<SheetObject>
-	gboolean visible;
-	SheetObject * selected;
-	gpointer data;
-} Spritesheet;
-*/
-	MokoiSheet * sheet = g_new0(MokoiSheet, 1);
-	sheet->detail = g_new0(Spritesheet, 1);
-	sheet->detail->visible = TRUE;
-	return sheet;
-}
 
-gboolean MokoiSheet_Free( MokoiSheet * sheet )
-{
-	if ( sheet )
-	{
-		sheet->detail->image_loaded = FALSE;
-
-		if (sheet->detail->file)
-			g_free(sheet->detail->file);
-		if (sheet->detail->children)
-			g_slist_free(sheet->detail->children);
-		if (sheet->detail->image)
-			g_object_unref(sheet->detail->image);
-
-
-		sheet->detail = NULL;
-	}
-	sheet = NULL;
-	return TRUE;
-}
 
 
 /*-------------------------------
@@ -78,7 +40,7 @@ GSList * Sprite_Find( GSList * first, gchar * file_name )
 	GSList * list_scan = first;
 	while ( list_scan )
 	{
-		if ( !g_ascii_strcasecmp(((MokoiSprite *)list_scan->data)->detail->name, file_name) )
+		if ( !g_ascii_strcasecmp(((SheetObject *)list_scan->data)->display_name, file_name) )
 		{
 			return list_scan;
 		}
@@ -93,10 +55,11 @@ GSList * Sprite_Find( GSList * first, gchar * file_name )
 * Sprite_Get
 *
 */
-MokoiSprite * Sprite_Get(gchar * name, gchar * sheet, gboolean load)
+SheetObject * Sprite_Get(gchar * name, gchar * sheet, gboolean load)
 {
-	MokoiSprite * sprite = NULL;
-	MokoiSheet * parent = Sheet_Get(sheet, FALSE);
+	SheetObject * sprite = NULL;
+	Spritesheet * parent = Sheet_Get( sheet, FALSE );
+
 	if ( parent )
 	{
 		if ( load )
@@ -107,8 +70,8 @@ MokoiSprite * Sprite_Get(gchar * name, gchar * sheet, gboolean load)
 
 		if ( child != NULL )
 		{
-			sprite = (MokoiSprite *)child->data;
-			if ( sprite->animation && sprite->image_loaded == FALSE )
+			sprite = (SheetObject *)child->data;
+			if ( SPRITE_DATA(sprite)->animation && SPRITE_DATA(sprite)->image_loaded == FALSE )
 				SpriteAnimation_Build(sprite);
 		}
 		else
@@ -129,9 +92,9 @@ MokoiSprite * Sprite_Get(gchar * name, gchar * sheet, gboolean load)
 * Sprite_GetFull
 *
 */
-MokoiSprite * Sprite_GetFull( gchar * full_ident, gboolean load)
+SheetObject * Sprite_GetFull( gchar * full_ident, gboolean load )
 {
-	MokoiSprite * sprite = NULL;
+	SheetObject * sprite = NULL;
 	gchar ** ident_split = g_strsplit_set(full_ident, ":", 2);
 
 	if ( ident_split )
@@ -144,33 +107,6 @@ MokoiSprite * Sprite_GetFull( gchar * full_ident, gboolean load)
 	return sprite;
 }
 
-/********************************
-* Sprite_Clear
-*
-*/
-void Sprite_Clear( MokoiSprite * sprite )
-{
-	if ( sprite->detail->name )
-		g_free( sprite->detail->name );
-	sprite->detail->name = NULL;
-
-	if ( sprite->ident )
-		g_free( sprite->ident );
-	sprite->ident = NULL;
-
-	if ( sprite->mask )
-	{
-		if ( sprite->mask->name )
-		{
-			g_free( sprite->mask->name );
-			sprite->mask->name = NULL;
-		}
-	}
-
-	if ( sprite->entity )
-		g_free( sprite->entity );
-	sprite->entity = NULL;
-}
 
 /********************************
 * Sprite_GetPixbuf
@@ -178,21 +114,21 @@ void Sprite_Clear( MokoiSprite * sprite )
 */
 GdkPixbuf * Sprite_GetPixbuf(gchar * name, gchar * sheet)
 {
-	MokoiSprite * sprite = Sprite_Get(name, sheet, TRUE);
+	SheetObject * sprite = Sprite_Get(name, sheet, TRUE);
 	if ( sprite )
 	{
-		if ( sprite->image )
+		if ( SPRITE_DATA(sprite)->image )
 		{
-			g_object_ref(sprite->image);
-			return sprite->image;
+			g_object_ref(SPRITE_DATA(sprite)->image);
+			return SPRITE_DATA(sprite)->image;
 		}
 		else
 		{
 			SpriteAnimation_Build(sprite);
-			if ( sprite->image )
+			if ( SPRITE_DATA(sprite)->image )
 			{
-				g_object_ref(sprite->image);
-				return sprite->image;
+				g_object_ref(SPRITE_DATA(sprite)->image);
+				return SPRITE_DATA(sprite)->image;
 			}
 		}
 	}
@@ -203,26 +139,26 @@ GdkPixbuf * Sprite_GetPixbuf(gchar * name, gchar * sheet)
 * Sprite_GetPixbuf
 *
 */
-GdkPixbuf * SpriteSheet_GetPixbuf(gchar * name, MokoiSheet * sheet )
+GdkPixbuf * SpriteSheet_GetPixbuf(gchar * name, Spritesheet * sheet )
 {
-	MokoiSprite * sprite = NULL;
+	SheetObject * sprite = NULL;
 	GSList * child = Sprite_Find(sheet->children, name);
 
 	if ( child != NULL )
 	{
-		sprite = (MokoiSprite *)child->data;
-		if ( sprite->image )
+		sprite = (SheetObject *)child->data;
+		if ( SPRITE_DATA(sprite)->image )
 		{
-			g_object_ref(sprite->image);
-			return sprite->image;
+			g_object_ref(SPRITE_DATA(sprite)->image);
+			return SPRITE_DATA(sprite)->image;
 		}
 		else
 		{
 			SpriteAnimation_Build(sprite);
-			if ( sprite->image )
+			if ( SPRITE_DATA(sprite)->image )
 			{
-				g_object_ref(sprite->image);
-				return sprite->image;
+				g_object_ref(SPRITE_DATA(sprite)->image);
+				return SPRITE_DATA(sprite)->image;
 			}
 		}
 	}
@@ -236,25 +172,21 @@ GdkPixbuf * SpriteSheet_GetPixbuf(gchar * name, MokoiSheet * sheet )
 
 /********************************
 * Animation_Get
-* Returns 'name' MokoiAnimation
+* Returns 'name' AnimationDetail
 *
 */
-MokoiAnimation * Animation_Get( gchar * name )
+AnimationDetail * Animation_Get( gchar * name )
 {
 	if ( !name )
 		return NULL;
 
-	MokoiSprite * sprite = Sprite_GetFull(name, 1);
+	SheetObject * sprite = Sprite_GetFull(name, 1);
 
 	if ( sprite )
 	{
-		return sprite->animation;
+		return SPRITE_DATA(sprite)->animation;
 	}
-	else
-	{
-		return NULL;
-	}
-
+	return NULL;
 }
 
 
@@ -267,9 +199,9 @@ MokoiAnimation * Animation_Get( gchar * name )
 * MapObject_UpdateSprite
 *
 */
-MokoiSprite * MapObject_UpdateSprite( MokoiMapObject * object )
+SheetObject * MapObject_UpdateSprite( MokoiMapObject * object )
 {
-	MokoiSprite * sprite = NULL;
+	SheetObject * sprite = NULL;
 	gchar ** ident_split = g_strsplit_set(object->name, ":", 2);
 
 	if ( ident_split )
@@ -290,31 +222,31 @@ MokoiSprite * MapObject_UpdateSprite( MokoiMapObject * object )
 	{
 		object->object->type = DT_NONE;
 	}
-	else if ( sprite->animation )
+	else if ( SPRITE_DATA(sprite)->animation )
 	{
 		object->type = 's';
-		if ( sprite->animation )
+		if ( SPRITE_DATA(sprite)->animation )
 		{
-			object->object->image = sprite->image;
+			object->object->image = SPRITE_DATA(sprite)->image;
 			object->object->type = DT_IMAGE;
-			object->object->tw = sprite->animation->w;
-			object->object->th = sprite->animation->h;
+			object->object->tw = SPRITE_DATA(sprite)->animation->w;
+			object->object->th = SPRITE_DATA(sprite)->animation->h;
 			object->object->timeout = TRUE;
 			//g_timeout_add(gdk_pixbuf_animation_iter_get_delay_time((GdkPixbufAnimationIter *)object->object->data ), (GSourceFunc)Meg_MapObject_PushAnimation, (gpointer)object->object);
 
 		}
-		else if ( sprite->image )
+		else if ( SPRITE_DATA(sprite)->image )
 		{
 			Meg_Log_Print( LOG_NONE, "No animation image for '%s' animation, using static image instead.", object->name);
-			object->object->image = sprite->image;
-			object->object->tw = gdk_pixbuf_get_width( sprite->image );
-			object->object->th = gdk_pixbuf_get_height( sprite->image );
+			object->object->image = SPRITE_DATA(sprite)->image;
+			object->object->tw = gdk_pixbuf_get_width( SPRITE_DATA(sprite)->image );
+			object->object->th = gdk_pixbuf_get_height( SPRITE_DATA(sprite)->image );
 			object->object->type = DT_IMAGE;
 		}
 		else
 			Meg_Log_Print( LOG_NONE,"No static image for '%s' animation", object->name);
 	}
-	else if ( !sprite->image )
+	else if ( !SPRITE_DATA(sprite)->image )
 	{
 		object->object->type = DT_NONE;
 	}
@@ -322,11 +254,11 @@ MokoiSprite * MapObject_UpdateSprite( MokoiMapObject * object )
 	{
 		object->type = 's';
 		object->object->type = DT_IMAGE;
-		object->object->image = sprite->image;
+		object->object->image = SPRITE_DATA(sprite)->image;
 		object->object->supports_path = TRUE;
 
-		object->object->tw = gdk_pixbuf_get_width( sprite->image );
-		object->object->th = gdk_pixbuf_get_height( sprite->image );
+		object->object->tw = gdk_pixbuf_get_width( SPRITE_DATA(sprite)->image );
+		object->object->th = gdk_pixbuf_get_height( SPRITE_DATA(sprite)->image );
 	}
 
 	if ( sprite )
@@ -334,11 +266,11 @@ MokoiSprite * MapObject_UpdateSprite( MokoiMapObject * object )
 		guint c = 0;
 		while ( c < 8 )
 		{
-			if ( sprite->childrens[c].position != -1 && sprite->childrens[c].name != NULL )
+			if ( SPRITE_DATA(sprite)->childrens[c].position != -1 && SPRITE_DATA(sprite)->childrens[c].name != NULL )
 			{
-				MokoiSprite * border_image = Sprite_Get( sprite->childrens[c].name, ident_split[0], FALSE );
-				Alchera_DisplayObject_AddBorder( object->object, border_image->image, sprite->childrens[c].position, sprite->childrens[c].repeat );
-				g_object_ref( border_image->image );
+				SheetObject * border_image = Sprite_Get( SPRITE_DATA(sprite)->childrens[c].name, ident_split[0], FALSE );
+				Alchera_DisplayObject_AddBorder( object->object, SPRITE_DATA(border_image)->image, SPRITE_DATA(sprite)->childrens[c].position, SPRITE_DATA(sprite)->childrens[c].repeat );
+				g_object_ref( SPRITE_DATA(border_image)->image );
 			}
 			c++;
 		}
@@ -462,14 +394,14 @@ MokoiMapObject * MapObject_New(gchar * name, gdouble area_width, gdouble area_he
 	else
 	{
 		object->type = 's';
-		MokoiSprite * sprite = MapObject_UpdateSprite( object );
+		SheetObject * sprite = MapObject_UpdateSprite( object );
 
 		/* Set Default Runtime options */
-		if ( sprite && sprite->entity )
+		if ( sprite && SPRITE_DATA(sprite)->entity )
 		{
 			RuntimeSetting_SetDefaultValues( object );
 
-			gchar ** file = g_strsplit( sprite->entity, ".", 2);
+			gchar ** file = g_strsplit( SPRITE_DATA(sprite)->entity, ".", 2);
 			if ( g_strv_length(file) == 2 )
 			{
 				REPLACE_STRING( object->entity_file, g_strdup(file[0]) );
@@ -490,7 +422,7 @@ MokoiMapObject * MapObject_New(gchar * name, gdouble area_width, gdouble area_he
 */
 void VirtualObject_UpdateSprite( VirtualObject * object )
 {
-	MokoiSprite * sprite = NULL;
+	SheetObject * sprite = NULL;
 	gchar ** ident_split = g_strsplit_set(object->name, ":", 2);
 
 	if ( ident_split )
@@ -511,29 +443,29 @@ void VirtualObject_UpdateSprite( VirtualObject * object )
 	{
 		object->object->type = DT_NONE;
 	}
-	else if ( sprite->animation )
+	else if ( SPRITE_DATA(sprite)->animation )
 	{
 		object->type = 's';
-		if ( sprite->animation )
+		if ( SPRITE_DATA(sprite)->animation )
 		{
-			object->object->image = sprite->image;
+			object->object->image = SPRITE_DATA(sprite)->image;
 			object->object->type = DT_IMAGE;
-			object->object->tw = sprite->animation->w;
-			object->object->th = sprite->animation->h;
+			object->object->tw = SPRITE_DATA(sprite)->animation->w;
+			object->object->th = SPRITE_DATA(sprite)->animation->h;
 			object->object->timeout = TRUE;
 		}
-		else if ( sprite->image )
+		else if ( SPRITE_DATA(sprite)->image )
 		{
 			Meg_Log_Print( LOG_NONE, "No animation image for '%s' animation, using static image instead.", object->name);
-			object->object->image = sprite->image;
-			object->object->tw = gdk_pixbuf_get_width( sprite->image );
-			object->object->th = gdk_pixbuf_get_height( sprite->image );
+			object->object->image = SPRITE_DATA(sprite)->image;
+			object->object->tw = gdk_pixbuf_get_width( SPRITE_DATA(sprite)->image );
+			object->object->th = gdk_pixbuf_get_height( SPRITE_DATA(sprite)->image );
 			object->object->type = DT_IMAGE;
 		}
 		else
 			Meg_Log_Print( LOG_NONE,"No static image for '%s' animation", object->name);
 	}
-	else if ( !sprite->image )
+	else if ( !SPRITE_DATA(sprite)->image )
 	{
 		object->object->type = DT_NONE;
 	}
@@ -541,11 +473,11 @@ void VirtualObject_UpdateSprite( VirtualObject * object )
 	{
 		object->type = 's';
 		object->object->type = DT_IMAGE;
-		object->object->image = sprite->image;
+		object->object->image = SPRITE_DATA(sprite)->image;
 		object->object->supports_path = TRUE;
 
-		object->object->tw = gdk_pixbuf_get_width( sprite->image );
-		object->object->th = gdk_pixbuf_get_height( sprite->image );
+		object->object->tw = gdk_pixbuf_get_width( SPRITE_DATA(sprite)->image );
+		object->object->th = gdk_pixbuf_get_height( SPRITE_DATA(sprite)->image );
 	}
 
 	if ( sprite )
@@ -553,11 +485,11 @@ void VirtualObject_UpdateSprite( VirtualObject * object )
 		guint c = 0;
 		while ( c < 8 )
 		{
-			if ( sprite->childrens[c].position != -1 && sprite->childrens[c].name != NULL )
+			if ( SPRITE_DATA(sprite)->childrens[c].position != -1 && SPRITE_DATA(sprite)->childrens[c].name != NULL )
 			{
-				MokoiSprite * border_image = Sprite_Get( sprite->childrens[c].name, ident_split[0], FALSE );
-				Alchera_DisplayObject_AddBorder( object->object, border_image->image, sprite->childrens[c].position, sprite->childrens[c].repeat );
-				g_object_ref( border_image->image );
+				SheetObject * border_image = Sprite_Get( SPRITE_DATA(sprite)->childrens[c].name, ident_split[0], FALSE );
+				Alchera_DisplayObject_AddBorder( object->object, SPRITE_DATA(border_image)->image, SPRITE_DATA(sprite)->childrens[c].position, SPRITE_DATA(sprite)->childrens[c].repeat );
+				g_object_ref( SPRITE_DATA(border_image)->image );
 			}
 			c++;
 		}

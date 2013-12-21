@@ -13,6 +13,7 @@ Permission is granted to anyone to use this software for any purpose, including 
 #define ANIMATION_H
 
 #include "loader_structs.h"
+#include "ma_types.h"
 
 typedef struct {
 	guint length_ms;
@@ -21,7 +22,7 @@ typedef struct {
 } AnimationPreviewFrame;
 
 typedef struct {
-	GList * frames; /* AnimationPreviewFrame */
+	GList * frames; /* <AnimationPreviewFrame> */
 	GtkWidget * widget;
 	guint timer;
 	guint current;
@@ -29,13 +30,13 @@ typedef struct {
 	gchar * parent;
 } AnimationPreview;
 
-gboolean Animation_AdvanceDialog( MokoiSheet *sheet, MokoiSprite * sprite );
+gboolean Animation_AdvanceDialog( Spritesheet *sheet, SheetObject * sprite );
 
-void Animation_ChangeFrameLength( GtkSpinButton * widget, MokoiSprite * sprite );
-void Animation_ChangePosition(GtkCellRendererSpin *renderer , gchar * path, gchar * new_text, GtkListStore * store);
+void Animation_ChangeFrameLength( GtkSpinButton * widget, SheetObject * sprite );
+void Animation_ChangePosition( GtkCellRendererSpin *renderer , gchar * path, gchar * new_text, GtkListStore * store);
 
-gboolean Animation_Preview_Pressed( GtkWidget * widget, GdkEventButton * event, MokoiSprite * sprite );
-void Animation_Preview_Play( GtkButton *button, MokoiSprite * sprite);
+gboolean Animation_Preview_Pressed( GtkWidget * widget, GdkEventButton * event, SheetObject * sprite );
+void Animation_Preview_Play( GtkButton *button, SheetObject * sprite);
 gboolean Animation_Preview_Update( GtkWidget * widget, GdkEventExpose *event, AnimationPreview * preview );
 gboolean Animation_Preview_Draw(GtkWidget * widget, cairo_t * cr, AnimationPreview * preview );
 

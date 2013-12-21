@@ -367,7 +367,7 @@ void AL_Object_Available( GtkListStore * list, gchar * parent )
 		gdk_pixbuf_fill( mokoiObjectMissing, 0xFF0000FF );
 	}
 
-	MokoiSheet * sheet = NULL;
+	Spritesheet * sheet = NULL;
 	GSList * scan;
 	guint s_width = 0, s_height = 0;
 	GtkTreeIter iter;
@@ -471,24 +471,24 @@ void AL_Object_Available( GtkListStore * list, gchar * parent )
 			scan = sheet->children;
 			while ( scan )
 			{
-				MokoiSprite * sprite = (MokoiSprite *)scan->data;
+				SheetObject * sprite = (SheetObject *)scan->data;
 
-				s_width = sprite->detail->position.width;
-				s_height = sprite->detail->position.height;
+				s_width = sprite->position.width;
+				s_height = sprite->position.height;
 
-				if ( sprite->animation )
+				if ( SPRITE_DATA(sprite)->animation )
 				{
 					gtk_list_store_append( list, &iter );
-					gtk_list_store_set( list, &iter, 1, sprite->detail->name, 2, sprite->ident, 3, FALSE, 4, DT_IMAGE, -1 );
-					if ( !sprite->image )
+					gtk_list_store_set( list, &iter, 1, sprite->display_name, 2, sprite->ident_string, 3, FALSE, 4, DT_IMAGE, -1 );
+					if ( !SPRITE_DATA(sprite)->image )
 					{
 						SpriteAnimation_Build(sprite);
 					}
-					if ( sprite->image )
+					if ( SPRITE_DATA(sprite)->image )
 					{
-						s_width = gdk_pixbuf_get_width( sprite->image );
-						s_height = gdk_pixbuf_get_height( sprite->image );
-						gtk_list_store_set( list, &iter, 0, sprite->image, 5, s_width, 6, s_height, -1 );
+						s_width = gdk_pixbuf_get_width( SPRITE_DATA(sprite)->image );
+						s_height = gdk_pixbuf_get_height( SPRITE_DATA(sprite)->image );
+						gtk_list_store_set( list, &iter, 0, SPRITE_DATA(sprite)->image, 5, s_width, 6, s_height, -1 );
 					}
 					else
 					{
@@ -498,12 +498,12 @@ void AL_Object_Available( GtkListStore * list, gchar * parent )
 				else if ( sprite->visible )
 				{
 					gtk_list_store_append( list, &iter );
-					gtk_list_store_set( list, &iter, 1, sprite->detail->name, 2, sprite->ident, 3, FALSE, 4, DT_IMAGE, -1 );
-					if ( sprite->image )
+					gtk_list_store_set( list, &iter, 1, sprite->display_name, 2, sprite->ident_string, 3, FALSE, 4, DT_IMAGE, -1 );
+					if ( SPRITE_DATA(sprite)->image )
 					{
-						s_width = gdk_pixbuf_get_width(sprite->image);
-						s_height = gdk_pixbuf_get_height(sprite->image);
-						gtk_list_store_set( list, &iter, 0, sprite->image, 5, s_width, 6, s_height, -1 );
+						s_width = gdk_pixbuf_get_width(SPRITE_DATA(sprite)->image);
+						s_height = gdk_pixbuf_get_height(SPRITE_DATA(sprite)->image);
+						gtk_list_store_set( list, &iter, 0, SPRITE_DATA(sprite)->image, 5, s_width, 6, s_height, -1 );
 					}
 					else
 					{

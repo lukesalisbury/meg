@@ -16,8 +16,8 @@ Permission is granted to anyone to use this software for any purpose, including 
 #include "loader_structs.h"
 #include "animation.h"
 
-void SpriteAnimation_Build( MokoiSprite * sprite );
-void SpriteAnimation_Create( MokoiSprite * sprite, AnimationPreview * preview );
+void SpriteAnimation_Build( SheetObject * sprite );
+void SpriteAnimation_Create( SheetObject * sprite, AnimationPreview * preview );
 void SpriteAnimation_Clear(  AnimationPreview * preview );
 
 

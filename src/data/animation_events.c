@@ -92,7 +92,7 @@ gboolean Animation_Preview_Timer( AnimationPreview * anim )
 * Animation_Preview_Play
 *
 */
-void Animation_Preview_Play( GtkButton * button, MokoiSprite * sprite )
+void Animation_Preview_Play( GtkButton * button, SheetObject * sprite )
 {
 	g_return_if_fail( button != NULL );
 	g_return_if_fail( sprite != NULL );
@@ -115,7 +115,7 @@ void Animation_Preview_Play( GtkButton * button, MokoiSprite * sprite )
 * Animation_Preview_Pressed
 *
 */
-gboolean Animation_Preview_Pressed( GtkWidget * button, GdkEventButton * event, MokoiSprite * sprite )
+gboolean Animation_Preview_Pressed( GtkWidget * button, GdkEventButton * event, SheetObject * sprite )
 {
 	if ( event->type == GDK_BUTTON_PRESS && event->button == 1 )
 	{
@@ -232,15 +232,15 @@ void Animation_AddSelected( GtkMenuItem * menuitem, GtkWidget * widget )
 
 
 	GSList * scan = NULL;
-	MokoiSheet * sheet = Sheet_Get( (gchar *)g_object_get_data( G_OBJECT(widget), "mokoisheet" ) , FALSE );
+	Spritesheet * sheet = Sheet_Get( (gchar *)g_object_get_data( G_OBJECT(widget), "mokoisheet" ) , FALSE );
 
 	if ( sheet )
 	{
 		scan = sheet->children;
 		while ( scan )
 		{
-			MokoiSprite * sprite =  (MokoiSprite *)scan->data;
-			Meg_ComboText_AppendText( GTK_COMBO_BOX(combo), sprite->detail->name );
+			SheetObject * sprite =  (SheetObject *)scan->data;
+			Meg_ComboText_AppendText( GTK_COMBO_BOX(combo), sprite->display_name );
 			scan = g_slist_next( scan );
 		}
 	}

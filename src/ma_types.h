@@ -12,6 +12,7 @@ extern "C" {
 #define GET_WIDGET(b,n)	GTK_WIDGET( gtk_builder_get_object( (b), (n) ) )
 #define GET_LISTSTORE(b,n)	GTK_LIST_STORE( gtk_builder_get_object( (b), (n) ) )
 #define GET_LABEL_WIDGET(b,n)	GTK_LABEL( gtk_builder_get_object( (b), (n) ) )
+
 #define SET_OBJECT_SIGNAL(b,n,e,c,d)	g_signal_connect( gtk_builder_get_object( (b), (n) ), (e), (c), (d));
 #define SET_OBJECT_SIGNAL_SWAP(b,n,e,c,d)	g_signal_connect_swapped( gtk_builder_get_object( (b), (n) ), (e), (c), (d));
 #define SET_MENU_SIGNAL(b,n,c)	g_signal_connect( gtk_builder_get_object( (b), (n) ), "activate", (c), NULL);
@@ -19,27 +20,39 @@ extern "C" {
 #define STRIP_FILE_EXTENSION(t,n)	g_strndup(t, g_utf8_strlen(t, -1) - n );
 #define REPLACE_STRING(s,v)	g_free( s ); s = v;
 #define REPLACE_STRING_DUPE(s,v)	g_free( s ); s = g_strdup(v);
+#define CLEAR_STRING(s)	if (s) { g_free( s ); s = NULL; }
 
 typedef struct {
 	guint id;
-	gchar * name;
+	gchar * ident_string;
+	gchar * display_name;
+	gchar * parent_sheet;
+
 	GdkRectangle position;
 	gboolean show_rect;
+	gboolean visible;
+
+	guint ref;
 	gpointer data;
+	gboolean (*free)(gpointer data);
 } SheetObject;
 
 typedef struct {
-	GdkPixbuf * image;
-	gboolean image_loaded;
+
 	gchar * file;
 	gint64 file_size;
+
 	GSList * children; /*<SheetObject>*/
 	gboolean visible;
 	SheetObject * selected;
+
+	GdkPixbuf * image;
+	gboolean image_loaded;
+
+	guint ref;
 	gpointer data;
+	gboolean (*free)(gpointer data);
 } Spritesheet;
-
-
 
 typedef enum LogStyle
 {
@@ -57,6 +70,18 @@ typedef struct
 	gchar * info;
 	gpointer user_data;
 } EditorDatabaseListing;
+
+SheetObject * SheetObject_New( gpointer data, gboolean (*free)(gpointer) );
+gboolean SheetObject_Clear( SheetObject * object );
+gboolean SheetObject_Free( SheetObject * object );
+SheetObject * SheetObject_Ref( SheetObject * object );
+SheetObject * SheetObject_Unref( SheetObject * object );
+
+Spritesheet * Spritesheet_New( gpointer data, gboolean (*free)(gpointer) );
+gboolean Spritesheet_Free( Spritesheet * object );
+Spritesheet * Spritesheet_Ref( Spritesheet * object );
+Spritesheet * Spritesheet_Unref( Spritesheet * object );
+
 
 #ifdef __cplusplus
 }

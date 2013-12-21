@@ -10,11 +10,11 @@ Permission is granted to anyone to use this software for any purpose, including 
 ****************************/
 
 #ifndef SPRITE_GROUPING_H
-#define SPRITE_GROUPING_H
+	#define SPRITE_GROUPING_H
 
-#include "loader_global.h"
+	#include "loader_global.h"
 
-	GtkWidget * SpriteGrouping_GetWidget( GtkBuilder * ui, gchar * name, MokoiSheet * sheet, MokoiSprite * sprite, gint position );
+	GtkWidget * SpriteGrouping_GetWidget( GtkBuilder * ui, gchar * name, Spritesheet * sheet, SheetObject * sprite, gint position );
 
 
 #endif

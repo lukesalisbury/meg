@@ -352,7 +352,7 @@ gboolean Meg_Spritesheet_ViewMouse(GtkWidget *widget, GdkEventButton *event, gpo
 					if ( PointCollide(map_object->position, x, y) )
 					{
 						spritesheet->selected = map_object;
-						Meg_Main_PrintStatus("Selected Sprite: %s", map_object->name);
+						Meg_Main_PrintStatus("Selected Sprite: %s", map_object->display_name);
 						gtk_widget_queue_draw(widget);
 
 						return TRUE;
@@ -365,7 +365,7 @@ gboolean Meg_Spritesheet_ViewMouse(GtkWidget *widget, GdkEventButton *event, gpo
 			}
 			else if ( event->type == GDK_2BUTTON_PRESS )
 			{
-				AL_Sprite_Advance( spritesheet, spritesheet->selected->name );
+				AL_Sprite_Advance( spritesheet, spritesheet->selected->display_name );
 				MegWidget_Spritesheet_SetFile(spritesheet);
 				sheetDragRect.x = sheetDragRect.y = -1;
 			}

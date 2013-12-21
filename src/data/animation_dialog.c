@@ -18,7 +18,7 @@ Permission is granted to anyone to use this software for any purpose, including 
 #include "sheets_functions.h"
 
 /* External Functions */
-gboolean Sheet_SaveFile( MokoiSheet * sheet );
+gboolean Sheet_SaveFile( Spritesheet * sheet );
 /* Local Type */
 
 /* Global Variables */
@@ -36,15 +36,15 @@ const gchar * mokoiUI_AnimationAdvance = GUIANIMATION_ADVANCE
 * Animation_AdvanceDialog
 *
 */
-gboolean Animation_AdvanceDialog( MokoiSheet * sheet, MokoiSprite * sprite )
+gboolean Animation_AdvanceDialog( Spritesheet * sheet, SheetObject * sprite )
 {
 	/* Check if the the Sprite contains a animation. */
-	if ( sprite->animation == NULL )
+	if ( SPRITE_DATA(sprite)->animation == NULL )
 	{
 		return FALSE;
 	}
 
-	if ( !sprite->animation->image_loaded )
+	if ( !SPRITE_DATA(sprite)->animation->image_loaded )
 	{
 		SpriteAnimation_Build(sprite);
 	}
@@ -105,13 +105,13 @@ gboolean Animation_AdvanceDialog( MokoiSheet * sheet, MokoiSprite * sprite )
 
 
 	/* Settings */
-	sprite->animation->model = GTK_TREE_MODEL(store_frames);
+	SPRITE_DATA(sprite)->animation->model = GTK_TREE_MODEL(store_frames);
 
 	AnimationPreview * anim_data = g_new0(AnimationPreview, 1);
 	anim_data->widget = area_framepreview;
-	anim_data->parent = g_strdup(sprite->parent);
+	anim_data->parent = g_strdup(sprite->parent_sheet);
 
-	g_object_set_data( G_OBJECT(tree_frames), "mokoisheet", (gpointer)sprite->parent );
+	g_object_set_data( G_OBJECT(tree_frames), "mokoisheet", (gpointer)sprite->parent_sheet );
 	g_object_set_data( spin_frame_x, "my_column_num", GUINT_TO_POINTER(2) );
 	g_object_set_data( spin_frame_y, "my_column_num", GUINT_TO_POINTER(3) );
 	g_object_set_data( spin_frame_time, "my_column_num", GUINT_TO_POINTER(4) );
@@ -137,55 +137,50 @@ gboolean Animation_AdvanceDialog( MokoiSheet * sheet, MokoiSprite * sprite )
 
 
 	/* Set Default Values */
-	gtk_entry_set_text( GTK_ENTRY(entry_name), sprite->detail->name );
+	gtk_entry_set_text( GTK_ENTRY(entry_name), sprite->display_name );
 
 	Meg_ComboFile_Scan( file_mask, "masks",  ".pgm", TRUE, 0 );
 	Meg_ComboFile_Scan( file_entity, "scripts",  ".mps", TRUE, 0 );
 
-	if ( sprite->mask )
+
+	if ( SPRITE_DATA(sprite)->mask.name != NULL )
 	{
-		if ( sprite->mask->name != NULL )
-		{
-			Meg_ComboText_SetIndex( GTK_COMBO_BOX(file_mask), sprite->mask->name);
-		}
-		else
-		{
-			gtk_spin_button_set_value( GTK_SPIN_BUTTON(spin_mask), (gdouble) sprite->mask->value );
-		}
+		Meg_ComboText_SetIndex( GTK_COMBO_BOX(file_mask), SPRITE_DATA(sprite)->mask.name);
 	}
 	else
 	{
-		sprite->mask = g_new0(MokoiMask, 1);
+		gtk_spin_button_set_value( GTK_SPIN_BUTTON(spin_mask), (gdouble) SPRITE_DATA(sprite)->mask.value );
 	}
 
-	if ( sprite->entity )
+
+	if ( SPRITE_DATA(sprite)->entity )
 	{
-		Meg_ComboText_SetIndex( GTK_COMBO_BOX(file_entity), sprite->entity );
+		Meg_ComboText_SetIndex( GTK_COMBO_BOX(file_entity), SPRITE_DATA(sprite)->entity );
 	}
 
 	gtk_toggle_button_set_active( GTK_TOGGLE_BUTTON(check_visible), sprite->visible );
 
-	if (sprite->image)
+	if (SPRITE_DATA(sprite)->image)
 	{
-		gtk_image_set_from_pixbuf( GTK_IMAGE(image_group), sprite->image );
+		gtk_image_set_from_pixbuf( GTK_IMAGE(image_group), SPRITE_DATA(sprite)->image );
 	}
 
 	/*
-	if ( sprite->animation->image )
+	if ( SPRITE_DATA(sprite)->animation->image )
 	{
-	   gtk_image_set_from_animation( GTK_IMAGE(image_preview), (GdkPixbufAnimation*)sprite->animation->image );
+	   gtk_image_set_from_animation( GTK_IMAGE(image_preview), (GdkPixbufAnimation*)SPRITE_DATA(sprite)->animation->image );
 	}
 	*/
 	/* Set Frames to treeview */
-	GSList * frames = sprite->animation->frames;
+	GSList * frames = SPRITE_DATA(sprite)->animation->frames;
 	if ( store_frames )
 	{
 		while( frames )
 		{
-			MokoiAnimationFrame * current_frame = (MokoiAnimationFrame *)frames->data;
+			AnimationFrame * current_frame = (AnimationFrame *)frames->data;
 			if ( current_frame )
 			{
-				GdkPixbuf * pixbuf = Sprite_GetPixbuf( current_frame->sprite, sprite->parent );
+				GdkPixbuf * pixbuf = Sprite_GetPixbuf( current_frame->sprite, sprite->parent_sheet );
 				/* frame, image, x, y, ms */
 
 				gtk_list_store_append( store_frames, &iter );
@@ -217,18 +212,18 @@ gboolean Animation_AdvanceDialog( MokoiSheet * sheet, MokoiSprite * sprite )
 			Meg_Error_Print( __func__, __LINE__, "Mokoi_Sprite_AdvanceSprite: No name given");
 		else
 		{
-			Sprite_Clear( sprite );
+			SheetObject_Clear( sprite );
 
-			sprite->detail->name = g_strdup( sprite_name );
-			sprite->ident = g_strdup_printf( "%s:%s", sprite->parent, sprite->detail->name );
+			sprite->display_name = g_strdup( sprite_name );
+			sprite->ident_string = g_strdup_printf( "%s:%s", sprite->parent_sheet, sprite->display_name );
 
 			if ( mask_filename )
-				sprite->mask->name = g_strdup( mask_filename );
+				SPRITE_DATA(sprite)->mask.name = g_strdup( mask_filename );
 			else
-				sprite->mask->value = gtk_spin_button_get_value_as_int( GTK_SPIN_BUTTON(spin_mask) );
+				SPRITE_DATA(sprite)->mask.value = gtk_spin_button_get_value_as_int( GTK_SPIN_BUTTON(spin_mask) );
 
 			if ( entity_filename )
-				sprite->entity = g_strdup( entity_filename );
+				SPRITE_DATA(sprite)->entity = g_strdup( entity_filename );
 
 
 			sprite->visible = gtk_toggle_button_get_active( GTK_TOGGLE_BUTTON(check_visible) );
@@ -239,15 +234,15 @@ gboolean Animation_AdvanceDialog( MokoiSheet * sheet, MokoiSprite * sprite )
 			if ( valid )
 			{
 				/* update the animation details */
-				g_slist_free( sprite->animation->frames );
-				sprite->animation->frames = NULL;
+				g_slist_free( SPRITE_DATA(sprite)->animation->frames );
+				SPRITE_DATA(sprite)->animation->frames = NULL;
 				while ( valid )
 				{
-					MokoiAnimationFrame * new_frame = g_new0( MokoiAnimationFrame, 1 );
+					AnimationFrame * new_frame = g_new0( AnimationFrame, 1 );
 
 					gtk_tree_model_get( GTK_TREE_MODEL(store_frames), &iter, 0, &new_frame->sprite, 2, &new_frame->offset.x, 3, &new_frame->offset.y, 4, &new_frame->length_ms, -1);
 
-					sprite->animation->frames = g_slist_append( sprite->animation->frames, new_frame );
+					SPRITE_DATA(sprite)->animation->frames = g_slist_append( SPRITE_DATA(sprite)->animation->frames, new_frame );
 
 					valid = gtk_tree_model_iter_next( GTK_TREE_MODEL(store_frames), &iter );
 				}

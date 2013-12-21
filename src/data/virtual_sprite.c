@@ -17,30 +17,18 @@ Permission is granted to anyone to use this software for any purpose, including 
 
 /* External Functions */
 gboolean Map_ParseXML( MapInfo * map_info, gchar * content );
-void Meg_MapEdit_GroupChangedNext( GtkWidget * widget, GtkComboBox * combo_group );
-void Meg_MapEdit_GroupChangedPrev( GtkWidget * widget, GtkComboBox * combo_group );
-void Meg_MapEdit_GroupChanged( GtkComboBox * widget, GtkWidget * iconview );
-void Meg_MapEdit_ObjectSelected( GtkIconView * icon_view, GtkTreePath *path, GtkWidget * map_widget );
-void Meg_MapEdit_ObjectDrop( GtkWidget * widget, GdkDragContext * drag_context, GtkSelectionData * data, guint info, guint time, gpointer user_data );
-gboolean Meg_MapEdit_ObjectSelectedKey( GtkWidget * layout, GdkEventKey * event, GtkIconView * icon_view );
+
 gchar * MapObject_TypeName( gchar type );
 
-gboolean VirtualSprite_InsertIntoSpriteSheet(gchar * name );
 
 /* Global Variables */
-extern const GtkTargetEntry alchera_map_drop_target;
+
 
 /* Local Variables */
-
-MokoiSheet virtual_spritesheet = {
-	NULL,
-	NULL,
-	1
-};
+Spritesheet * virtual_spritesheet = NULL;
 
 /* UI */
-#include "ui/virtual_sprite_dialog.gui.h"
-const gchar * ui_data_virtual_sprite_dialog = GUIVIRTUAL_SPRITE_DIALOG;
+
 
 /********************************
 * VirtualSprite_LoadXML
@@ -56,14 +44,11 @@ MapInfo * VirtualSprite_LoadXML( gchar * id )
 	map_info->name = g_strdup(id);
 
 
-
 	file_path = g_strdup_printf( "/sprites/virtual/%s.xml", id  );
 
 	if ( Meg_file_get_contents( file_path, &content, NULL, NULL ) )
 	{
-
 		map_info->data = object_list = g_new0(VirtualObjectList, 1);
-
 
 		Map_ParseXML( map_info, content );
 
@@ -268,7 +253,7 @@ gboolean VirtualSprite_SaveXML( MapInfo * map_info )
 	Meg_file_set_contents( file_path, map_string->str, -1, NULL);
 	g_free( file_path );
 
-	VirtualSprite_InsertIntoSpriteSheet( map_info->name );
+	VirtualSpriteSheet_Insert( map_info->name );
 
 	return TRUE;
 }
@@ -331,139 +316,15 @@ void VirtualSprite_UpdateName(GtkLabel * label, MapInfo * map_info)
 {
 	g_return_if_fail( map_info );
 
-
 	gchar * marked_up_text = NULL;
 
 	marked_up_text = g_markup_printf_escaped( "%s <a href=\"\">rename</a>", map_info->name );
 	gtk_label_set_markup( label , marked_up_text );
 	g_free( marked_up_text );
 
-
 }
 
-/********************************
-* VirtualSprite_UpdateNameDialog
-* File Coping with error handling
-*/
-void VirtualSprite_UpdateNameDialog(GtkLabel *label, gchar * uri,  MapInfo * map_info)
-{
-	g_return_if_fail( map_info );
 
-
-	GtkWidget * dialog = gtk_dialog_new_with_buttons( "Rename Virtual Sprite", Meg_Misc_ParentWindow(GTK_WIDGET(label)), GTK_DIALOG_MODAL, GTK_STOCK_OK, GTK_RESPONSE_ACCEPT, GTK_STOCK_CANCEL, GTK_RESPONSE_REJECT, NULL );
-	GtkWidget * entry = gtk_entry_new();
-
-	gtk_entry_set_max_length( GTK_ENTRY(entry), 64 );
-
-	gtk_box_pack_start( GTK_BOX(gtk_dialog_get_content_area(GTK_DIALOG(dialog))), entry, FALSE, FALSE, 1);
-	gtk_widget_show_all( gtk_dialog_get_content_area(GTK_DIALOG(dialog)) );
-
-	gint result = gtk_dialog_run( GTK_DIALOG (dialog) );
-	switch (result)
-	{
-		case GTK_RESPONSE_ACCEPT:
-		{
-			REPLACE_STRING_DUPE( map_info->name, gtk_entry_get_text( GTK_ENTRY(entry) ) );
-			VirtualSprite_UpdateName(label, map_info);
-			break;
-		}
-		case GTK_RESPONSE_REJECT:
-		{
-
-			break;
-		}
-		default:
-
-			break;
-	}
-	gtk_widget_destroy( dialog );
-
-
-
-}
-
-/********************************
-* VirtualSprite_DialogDisplay
-*
-*/
-gboolean VirtualSprite_DialogDisplay( gchar * id )
-{
-	MapInfo * map_info = VirtualSprite_GetInfo( id );
-
-	g_return_val_if_fail( map_info, FALSE );
-
-	/* UI */
-	GtkBuilder * ui = Meg_Builder_Create( ui_data_virtual_sprite_dialog, __func__, __LINE__ );
-	g_return_val_if_fail( ui, FALSE );
-
-	/* Widgets */
-	GtkWidget * window, * editor_viewport, * widget_map, * label_name, * iconview_objects, * combo_groups;
-	GtkListStore * store_current_objects, * store_groups;
-
-	window = GET_WIDGET( ui, "window" );
-	editor_viewport = GET_WIDGET( ui, "editor_viewport");
-	label_name = GET_WIDGET( ui, "label_name");
-
-	iconview_objects = GET_WIDGET( ui, "iconview_objects" );
-	combo_groups = GET_WIDGET( ui, "combo_groups" );
-	store_current_objects = GET_LISTSTORE( ui, "store_current_objects" );
-	store_groups = GET_LISTSTORE( ui, "store_groups" );
-
-	if ( store_groups  )
-	{		/* Spritesheet loading */
-		char ** files = PHYSFS_enumerateFiles("/sprites/virtual/");
-		char ** current;
-
-		for (current = files; *current != NULL; current++)
-		{
-			if ( g_str_has_suffix( *current, ".xml" ) )
-			{
-				gchar * file_name = g_strndup(*current, g_utf8_strlen(*current, -1) - 4 ); // Strip .xml
-				VirtualSprite_InsertIntoSpriteSheet( file_name );
-				g_free(file_name);
-			}
-		}
-		PHYSFS_freeList(files);
-
-		gtk_list_store_clear( store_groups );
-		AL_Object_Groups( store_groups, FALSE );
-	}
-
-	/* Settings */
-	VirtualSprite_UpdateName( GTK_LABEL(label_name), map_info );
-	gtk_icon_view_enable_model_drag_source( GTK_ICON_VIEW(iconview_objects), GDK_BUTTON1_MASK, &alchera_map_drop_target, 1, GDK_ACTION_COPY );
-
-
-	/* Alchera Map widget */
-	widget_map = gtk_alchera_map_new( map_info );
-	if ( GTK_IS_ALCHERA_MAP(widget_map) )
-	{
-		gtk_alchera_map_set_support_widget( GTK_ALCHERA_MAP(widget_map), store_current_objects, NULL, NULL );
-		gtk_widget_set_size_request( GTK_WIDGET(editor_viewport), 320, 240 );
-		gtk_widget_show_all( widget_map );
-	}
-	gtk_container_add( GTK_CONTAINER(editor_viewport), widget_map );
-
-	/* Signals */
-	SET_OBJECT_SIGNAL( ui, "button_save", "clicked", G_CALLBACK(VirtualSprite_Save), map_info );
-	SET_OBJECT_SIGNAL_SWAP( ui, "button_close", "clicked", G_CALLBACK(gtk_widget_destroy), window );
-	SET_OBJECT_SIGNAL_SWAP( ui, "window", "close", G_CALLBACK(gtk_widget_destroy), window );
-
-	SET_OBJECT_SIGNAL( ui, "label_name", "activate-link", G_CALLBACK(VirtualSprite_UpdateNameDialog), map_info );
-
-	g_signal_connect( G_OBJECT(combo_groups), "changed", G_CALLBACK(Meg_MapEdit_GroupChanged), iconview_objects );
-
-	SET_OBJECT_SIGNAL( ui, "button_nextgroup", "clicked", G_CALLBACK(Meg_MapEdit_GroupChangedNext), combo_groups );
-	SET_OBJECT_SIGNAL( ui, "button_prevgroup", "clicked", G_CALLBACK(Meg_MapEdit_GroupChangedPrev), combo_groups );
-
-	g_signal_connect( G_OBJECT(iconview_objects), "item-activated", G_CALLBACK(Meg_MapEdit_ObjectSelected), widget_map );
-	g_signal_connect( G_OBJECT(iconview_objects), "drag-data-get", G_CALLBACK(Meg_MapEdit_ObjectDrop), widget_map );
-
-	gtk_dialog_run( GTK_DIALOG(window) );
-
-
-	return TRUE;
-}
 
 /********************************
 * VirtualSprite_FindCompare
@@ -474,37 +335,37 @@ gint VirtualSprite_FindCompare(gconstpointer a, gconstpointer b)
 	SheetObject * list_object = (SheetObject *)a;
 	gchar * file_name = (gchar*)b;
 
-	return g_ascii_strcasecmp( list_object->name, file_name );
+	return g_ascii_strcasecmp( list_object->display_name, file_name );
 }
 
 /********************************
-* VirtualSprite_InsertIntoSpriteSheet
+* VirtualSpriteSheet_Insert
 *
 */
-gboolean VirtualSprite_InsertIntoSpriteSheet( gchar * name )
+gboolean VirtualSpriteSheet_Insert( gchar * name )
 {
 	GSList * scan = NULL;
 
-	scan = g_slist_find_custom( virtual_spritesheet.children, name, VirtualSprite_FindCompare );
+	scan = g_slist_find_custom( virtual_spritesheet->children, name, VirtualSprite_FindCompare );
 
 	if ( !scan )
 	{
-		MokoiSprite * sprite = g_new0(MokoiSprite, 1);
+		SheetObject * sprite = NULL;
+		SpriteData * sprite_data = g_new0(SpriteData, 1);
 
-		sprite->detail = g_new0(SheetObject, 1);
-		sprite->mask = g_new0(MokoiMask, 1);
+		sprite = SheetObject_New( (gpointer)sprite_data, &SpriteData_FreePointer );
 
 
-		sprite->detail->name = g_strdup(name);
-		sprite->parent = g_strdup("Virtual");
-		sprite->ident = g_strdup_printf( "Virtual:%s", sprite->detail->name );
+
+		sprite->display_name = g_strdup(name);
+		sprite->parent_sheet = g_strdup("Virtual");
+		sprite->ident_string = g_strdup_printf( "Virtual:%s", sprite->display_name );
 		sprite->visible = TRUE;
-		sprite->image_loaded = FALSE;
+		sprite_data->image_loaded = FALSE;
 
 
 
-		virtual_spritesheet.children = g_slist_append( virtual_spritesheet.children, (gpointer)sprite );
-		virtual_spritesheet.detail->children = g_slist_append( virtual_spritesheet.detail->children, (gpointer)sprite->detail );
+		virtual_spritesheet->children = g_slist_append( virtual_spritesheet->children, (gpointer)sprite );
 
 		VirtualSprite_BuildPixbuf( name );
 
@@ -524,14 +385,14 @@ gboolean VirtualSprite_UpdateSpriteInfo( gchar * name )
 {
 	GSList * scan = NULL;
 
-	scan = g_slist_find_custom( virtual_spritesheet.detail->children, name, VirtualSprite_FindCompare );
+	scan = g_slist_find_custom( virtual_spritesheet->children, name, VirtualSprite_FindCompare );
 
 	if ( scan )
 	{
-		MokoiSprite * sprite = (MokoiSprite*)scan->data;
+		SheetObject * sprite = (SheetObject*)scan->data;
 
-		sprite->image = VirtualSprite_BuildPixbuf( name );
-		sprite->image_loaded = TRUE;
+		SPRITE_DATA(sprite)->image = VirtualSprite_BuildPixbuf( name );
+		SPRITE_DATA(sprite)->image_loaded = TRUE;
 
 		return TRUE;
 	}
@@ -541,41 +402,41 @@ gboolean VirtualSprite_UpdateSpriteInfo( gchar * name )
 }
 
 /********************************
-* VirtualSprite_GetSpritesheet
+* VirtualSpriteSheet_Get
 *
 */
-Spritesheet * VirtualSprite_GetSpritesheet()
+Spritesheet * VirtualSpriteSheet_Get()
 {
-	if ( virtual_spritesheet.detail == NULL)
+	if ( virtual_spritesheet == NULL)
 	{
-		virtual_spritesheet.detail = g_new0(Spritesheet, 1);
-		virtual_spritesheet.detail->file = g_strdup("Virtual");
-		virtual_spritesheet.detail->image_loaded = FALSE;
-		virtual_spritesheet.detail->visible = TRUE;
-		virtual_spritesheet.detail->children = NULL;
-		virtual_spritesheet.detail->image = NULL;
-		virtual_spritesheet.ref++;
+		virtual_spritesheet = g_new0(Spritesheet, 1);
+		virtual_spritesheet->file = g_strdup("Virtual");
+		virtual_spritesheet->image_loaded = FALSE;
+		virtual_spritesheet->visible = TRUE;
+		virtual_spritesheet->children = NULL;
+		virtual_spritesheet->image = NULL;
+		virtual_spritesheet->ref++;
 
 		/* Spritesheet loading */
-		char ** files = PHYSFS_enumerateFiles("/sprites/virtual/");
-		char ** current;
+		gchar ** files = PHYSFS_enumerateFiles("/sprites/virtual/");
+		gchar ** current;
 
-		for (current = files; *current != NULL; current++)
+		for ( current = files; *current != NULL; current++ )
 		{
 			if ( g_str_has_suffix( *current, ".xml" ) )
 			{
 				gchar * file_name = g_strndup(*current, g_utf8_strlen(*current, -1) - 4 ); // Strip .xml
-				VirtualSprite_InsertIntoSpriteSheet( file_name );
+				VirtualSpriteSheet_Insert( file_name );
 				g_free(file_name);
 			}
 		}
 		PHYSFS_freeList(files);
 
-		VirtualSprite_InsertIntoSpriteSheet( "Add New" );
+		VirtualSpriteSheet_Insert( "Add New" );
 
 	}
 
-	return  virtual_spritesheet.detail;
+	return virtual_spritesheet;
 }
 
 

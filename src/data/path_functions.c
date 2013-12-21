@@ -34,7 +34,7 @@ GSList * Path_FileLoad( gchar * file )
 	{
 		while ( !PHYSFS_eof( handle )  )
 		{
-			MokoiPath * path = g_new0( MokoiPath, 1 );
+			PathPoint * path = g_new0( PathPoint, 1 );
 			PHYSFS_readSBE16( handle, &path->x );
 			PHYSFS_readSBE16( handle, &path->y );
 			PHYSFS_readUBE32( handle, &path->ms_length );

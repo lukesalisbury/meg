@@ -13,7 +13,7 @@ Permission is granted to anyone to use this software for any purpose, including 
 
 #include <gtk/gtk.h>
 #include <glib.h>
-#include "alchera_types.h"
+#include "ma_types.h"
 #include "alchera_loader.h"
 
 gboolean Alchera_Loaders_CreateNew(const gchar * title, gchar * base_project);

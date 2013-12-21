@@ -34,9 +34,7 @@ extern guint16 sheetGridValue;
 extern gboolean sheetModeSelect;
 guint32 sheetAlignValue = 8;
 
-
 /* External Functions */
-void Spritesheet_Free( gpointer data );
 
 /* Local Functions */
 void MegWidget_Spritesheet_Refresh( GtkWidget * widget, gpointer user_data );
@@ -209,7 +207,7 @@ void MegWidget_Spritesheet_RefreshSpriteList( )
 		{
 			SheetObject * map_object = (SheetObject *)list_scan->data;
 			gtk_list_store_append( GTK_LIST_STORE(treemodel), &iter );
-			gtk_list_store_set( GTK_LIST_STORE(treemodel), &iter, 0, map_object->name, -1 );
+			gtk_list_store_set( GTK_LIST_STORE(treemodel), &iter, 0, map_object->display_name, -1 );
 			list_scan = g_slist_next( list_scan );
 		}
 
@@ -235,7 +233,7 @@ void MegWidget_Spritesheet_SetFile( Spritesheet * spritesheet )
 		if ( spritesheet->image_loaded )
 		{
             /* Next line give warning about %ld, but it the only one that seem to work correctly */
-            gchar * markup = g_markup_printf_escaped( "%s %ld bytes", "File Size:", spritesheet->file_size );
+			gchar * markup = g_markup_printf_escaped( "%s %"G_GINT64_FORMAT" bytes", "File Size:", spritesheet->file_size );
             gtk_label_set_markup( GTK_LABEL(meg_sheet_label_filesize), markup );
             g_free( markup );
 

@@ -49,7 +49,7 @@ OBJ += $(OBJDIR)/ma_misc.o $(OBJDIR)/ma_project.o $(OBJDIR)/ma_project_events.o 
 OBJ += $(OBJDIR)/ma_spritesheets_events.o $(OBJDIR)/ma_git.o $(OBJDIR)/ma_textedit.o $(OBJDIR)/ma_textedit_events.o
 OBJ += $(OBJDIR)/ma_web.o $(OBJDIR)/main.o $(OBJDIR)/ma_audio.o $(OBJDIR)/ma_entitylist.o $(OBJDIR)/gtk_compat.o
 OBJ += $(OBJDIR)/ma_question.o $(OBJDIR)/ma_question_functions.o $(OBJDIR)/ma_map_settings.o
-OBJ += $(OBJDIR)/ma_map_settings_events.o $(OBJDIR)/ma_section.o $(OBJDIR)/ma_section_events.o
+OBJ += $(OBJDIR)/ma_map_settings_events.o $(OBJDIR)/ma_section.o $(OBJDIR)/ma_section_events.o $(OBJDIR)/ma_types.o
 
 OBJ += $(OBJDIR)/widgets/widget_map.o $(OBJDIR)/widgets/display_object.o
 
@@ -66,6 +66,8 @@ OBJ += $(OBJDIR)/data/map_objects.o $(OBJDIR)/data/compression_functions.o $(OBJ
 OBJ += $(OBJDIR)/data/sheets_parser.o $(OBJDIR)/data/entity_compile.o $(OBJDIR)/data/audio_playback.o $(OBJDIR)/data/audio_functions.o
 OBJ += $(OBJDIR)/data/audio_chooser.o $(OBJDIR)/data/animation_dialog.o $(OBJDIR)/data/animation_events.o $(OBJDIR)/data/animation_functions.o
 OBJ += $(OBJDIR)/data/progress_dialog.o $(OBJDIR)/data/runtime_options.o $(OBJDIR)/data/export_functions.o $(OBJDIR)/data/stored_file_info.o
+
+OBJ += $(OBJDIR)/data/data_types.o $(OBJDIR)/data/virtual_sprite_dialog.o
 
 OBJ += $(OBJDIR)/ma_physfs.o $(OBJDIR)/physfs/physfs.o $(OBJDIR)/physfs/physfs_byteorder.o $(OBJDIR)/physfs/physfs_unicode.o $(OBJDIR)/physfs/archivers/dir.o $(OBJDIR)/physfs/archivers/mokoiresource.o $(OBJDIR)/physfs/archivers/zip.o $(OBJDIR)/physfs/platform/macosx.o $(OBJDIR)/physfs/platform/posix.o $(OBJDIR)/physfs/platform/unix.o $(OBJDIR)/physfs/platform/windows.o
 
@@ -91,7 +93,7 @@ all-before:
 
 include/ui/%.gui.h: res/ui/%.gui
 	@echo Converting GUI $<
-	@$(OBJDIR)/buildheader.exe $< $@ $(BUILDHEADER_GUI_TITLE) $(BUILDHEADER_GUI_DESCRIPT) $(BUILDHEADER_GUI_ICON)
+	$(OBJDIR)/buildheader.exe $< $@ $(BUILDHEADER_GUI_TITLE) $(BUILDHEADER_GUI_DESCRIPT) $(BUILDHEADER_GUI_ICON)
 
 buildheader.exe:
 #	@echo Building builderheader

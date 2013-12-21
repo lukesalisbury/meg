@@ -11,84 +11,11 @@ Permission is granted to anyone to use this software for any purpose, including 
 #ifndef STRUCTS
 	#define STRUCTS
 
-#include "widgets/display_object.h"
+#include "data_types.h"
 
-typedef struct {
-	gint16 x;
-	gint16 y;
-	guint32 ms_length;
-} MokoiPath;
 
-typedef struct {
-	guint length_ms;
-	GdkPoint offset;
-	gchar * sprite;
-} MokoiAnimationFrame;
 
-typedef struct {
-	guint ms_length;
-	GtkTreeModel * model;
-	GSList * frames; /* MokoiAnimationFrame */
-	gboolean image_loaded;
-	guint w, h;
-} MokoiAnimation;
 
-typedef struct {
-	gchar * name;
-	gint value;
-} MokoiMask;
-
-typedef struct {
-	gchar * name;
-	guint position;
-	gint repeat; /* Single, Scaled Single, Repeat, Repeat Horizontal, Repeat Vertically */
-} MokoiSpriteChild;
-
-typedef struct {
-/*	guint id;
-	gchar * name;
-	GdkRectangle position;
-	gboolean show_rect;
-*/
-	SheetObject * detail;
-
-	gchar * parent;
-	gchar * ident;
-	gchar * entity;
-
-	gchar flag;
-	gboolean visible;
-
-	gboolean image_loaded;
-	GdkPixbuf * image;
-
-	MokoiAnimation * animation;
-	MokoiMask * mask;
-	GdkRectangle collisions[7];
-
-	MokoiSpriteChild childrens[8]; /* <MokoiSpriteChild> */
-	guint ref;
-} MokoiSprite;
-
-typedef struct {
-/*	GdkPixbuf * image;
-	gboolean image_loaded;
-	gchar * file;
-	gint64 file_size;
-	GSList * children;
-	gboolean visible;
-*/
-	Spritesheet * detail;
-	GSList * children;  /* <MokoiSprite> */
-	guint ref;
-} MokoiSheet;
-
-typedef struct {
-	guint8 red;
-	guint8 green;
-	guint8 blue;
-	guint8 alpha;
-} rgbaColour;
 
 typedef struct {
 	gchar * xml_filename;
