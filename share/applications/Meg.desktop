@@ -1,0 +1,14 @@
+[Desktop Entry]
+Encoding=UTF-8
+Name=Meg
+GenericName=Mokoi Editor
+Comment=
+Exec=../../bin/meg
+Icon=../icons/hicolor/mokoi-game-editor.png
+Terminal=false
+Type=Application
+StartupNotify=true
+MimeType=application/x-mokoi-game-source;
+Categories=Game;
+GenericName[en_AU]=Mokoi Editor
+Comment[en_AU]= 

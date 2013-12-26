@@ -4,24 +4,6 @@ PLATFORM_LIBS =
 PLATFORM_FLAGS =
 GTKVERSION = error
 
-ifeq (${shell pkg-config gtk+-2.0 --exists && echo 1}, 1)
-	GTKVERSION = gtk+-2.0
-	GTKPACKAGES = gtk+-2.0 gmodule-2.0 gthread-2.0
-	ifeq ( ${shell pkg-config libsoup-2.4 --exists && echo 1}, 1)
-		PLATFORM_FLAGS += -DUSE_SOUP
-		GTKPACKAGES += libsoup-2.4
-	else
-$(warning libsoup not found. Will not be able to access internet features.)
-	endif
-
-	ifeq (${shell pkg-config gtksourceview-2.0 --exists && echo 1}, 1)
-		GTKPACKAGES += gtksourceview-2.0
-		PLATFORM_FLAGS += -DUSEGTKSOURCEVIEW
-	else
-$(warning GtkSourceView not found.)
-	endif
-endif
-
 ifeq (${shell pkg-config gtk+-3.0 --exists && echo 1}, 1)
 	GTKVERSION = gtk+-3.0
 	GTKPACKAGES = gtk+-3.0 gmodule-2.0 gthread-2.0
@@ -38,6 +20,25 @@ $(warning libsoup not found. Will not be able to access internet features.)
 	else
 $(warning GtkSourceView not found. )
 	endif
+else
+	ifeq (${shell pkg-config gtk+-2.0 --exists && echo 1}, 1)
+			GTKVERSION = gtk+-2.0
+			GTKPACKAGES = gtk+-2.0 gmodule-2.0 gthread-2.0
+			ifeq ( ${shell pkg-config libsoup-2.4 --exists && echo 1}, 1)
+					PLATFORM_FLAGS += -DUSE_SOUP
+					GTKPACKAGES += libsoup-2.4
+			else
+$(warning libsoup not found. Will not be able to access internet features.)
+			endif
+
+			ifeq (${shell pkg-config gtksourceview-2.0 --exists && echo 1}, 1)
+					GTKPACKAGES += gtksourceview-2.0
+					PLATFORM_FLAGS += -DUSEGTKSOURCEVIEW
+			else
+$(warning GtkSourceView not found.)
+			endif
+	endif
+
 endif
 
 PLATFORM_FLAGS += `pkg-config $(GTKPACKAGES) --cflags` -Dunix
