@@ -50,6 +50,9 @@ static GMarkupParser map_parser_xml = { map_parse_handler_start, map_parse_handl
 static GMarkupParser map_dimension_parser = { map_dimension_parse_start, NULL, NULL, NULL, NULL};
 
 
+
+
+
 /********************************
 * map_parser_colour
 *
@@ -93,6 +96,321 @@ void map_dimension_parse_start( GMarkupParseContext *context, const gchar *eleme
 	}
 }
 
+/********************************
+* map_parse_handler_start_settings
+*
+*/
+void map_parse_handler_start_settings( GMarkupParseContext *context, const gchar *element_name, const gchar **attribute_names, const gchar **attribute_values, MapInfo * map_info, GError **error )
+{
+	/* Settings */
+	/* <settings>
+	 *
+	 * </settings>
+	 */
+	if ( g_ascii_strcasecmp (element_name, "color") == 0 )
+	{
+		map_parser_colour(&MAP_DATA(map_info)->colour8, FALSE, attribute_names, attribute_values);
+	}
+	else if ( g_ascii_strcasecmp (element_name, "option") == 0 )
+	{
+		gchar * key = NULL, *value = NULL, *type = NULL;
+		for (; *attribute_names && *attribute_values; attribute_names++, attribute_values++)
+		{
+			if ( g_ascii_strcasecmp(*attribute_names, "key") == 0 )
+				key = g_strdup(*attribute_values);
+			else if ( g_ascii_strcasecmp(*attribute_names, "value") == 0 )
+				value = g_strdup(*attribute_values);
+			else if ( g_ascii_strcasecmp(*attribute_names, "type") == 0 )
+				type = g_strdup(*attribute_values);
+		}
+
+		if ( key && value )
+		{
+			if ( g_ascii_strcasecmp( value, "(null)" ) )
+				g_hash_table_insert( map_info->settings, (gpointer)key, RuntimeSetting_New(value, type) );
+			else
+				g_hash_table_insert( map_info->settings, (gpointer)key, RuntimeSetting_New("", type) );
+		}
+
+	}
+	else if ( g_ascii_strcasecmp (element_name, "dimensions") == 0 )
+	{
+		for (; *attribute_names && *attribute_values; attribute_names++, attribute_values++)
+		{
+			if ( g_ascii_strcasecmp (*attribute_names, "width") == 0 )
+				MAP_DATA(map_info)->position.width = atoi(*attribute_values);
+			else if ( g_ascii_strcasecmp (*attribute_names, "height") == 0 )
+				MAP_DATA(map_info)->position.height = atoi(*attribute_values);
+			if ( g_ascii_strcasecmp (*attribute_names, "x") == 0 )
+				MAP_DATA(map_info)->position.x = atoi(*attribute_values);
+			else if ( g_ascii_strcasecmp (*attribute_names, "y") == 0 )
+				MAP_DATA(map_info)->position.y = atoi(*attribute_values);
+		}
+	}
+
+}
+
+/********************************
+* map_parse_handler_start_path_element
+*
+*/
+void map_parse_handler_start_path_element( GMarkupParseContext *context, const gchar *element_name, const gchar **attribute_names, const gchar **attribute_values, MapInfo * map_info, GError **error )
+{
+	/* Create Path Object Object */
+	DisplayObject * object_display = g_new0(DisplayObject, 1);
+	object_display->layer = 42;
+	object_display->w = object_display->h = 16;
+	object_display->type = DT_PATHITEM;
+	object_display->resizable = FALSE;
+	for (; *attribute_names && *attribute_values; attribute_names++, attribute_values++)
+	{
+		if ( g_ascii_strcasecmp (*attribute_names, "x") == 0 )
+			object_display->x = atoi(*attribute_values);
+		else if ( g_ascii_strcasecmp (*attribute_names, "y") == 0 )
+			object_display->y = atoi(*attribute_values);
+	}
+
+
+	/* Append Path */
+	GList * last_object = NULL;
+	DisplayObject * object = NULL;
+
+	last_object = g_list_last( map_info->display_list );
+	if ( last_object )
+	{
+		object = (DisplayObject*)last_object->data;
+		object->path = g_slist_append( object->path, object_display );
+	}
+}
+
+/********************************
+* map_parse_handler_start_object_element
+*
+*/
+void map_parse_handler_start_object_element( GMarkupParseContext *context, const gchar *element_name, const gchar **attribute_names, const gchar **attribute_values, MapInfo * map_info, GError **error )
+{
+	DisplayObject * object_display = NULL;
+
+	/* Get Last Object */
+	GList * last_object = g_list_last( map_info->display_list );
+	object_display = (DisplayObject *)last_object->data;
+
+
+	/* Update Object */
+	object_display->resizable = TRUE;
+	if ( g_ascii_strcasecmp (element_name, "position") == 0 )
+	{
+		for (; *attribute_names && *attribute_values; attribute_names++, attribute_values++)
+		{
+			if ( *attribute_names[0] =='x' )
+				object_display->x = g_ascii_strtod(*attribute_values, NULL);
+			else if ( *attribute_names[0] =='y' )
+				object_display->y = g_ascii_strtod(*attribute_values, NULL);
+			else if ( *attribute_names[0] =='l' )
+				object_display->layer = (gint)g_ascii_strtod(*attribute_values, NULL);
+			else if ( *attribute_names[0] =='w' )
+				object_display->w = g_ascii_strtod(*attribute_values, NULL);
+			else if ( *attribute_names[0] =='h' )
+				object_display->h = g_ascii_strtod(*attribute_values, NULL);
+			else if ( *attribute_names[0] =='r' )
+				object_display->rotate = atoi(*attribute_values)/90;
+			else if ( *attribute_names[0] =='f' )
+				object_display->flip = (gboolean)g_ascii_strtod(*attribute_values, NULL);
+		}
+
+		if ( object_display->type == DT_LINE )
+		{
+			object_display->w -= object_display->x;
+			object_display->h -= object_display->y;
+		}
+	}
+	else if ( g_ascii_strcasecmp(element_name, "entity") == 0 )
+	{
+		if ( MAP_OBJECT_DATA(object_display) )
+		{
+			for (; *attribute_names && *attribute_values; attribute_names++, attribute_values++)
+			{
+				if ( !g_ascii_strcasecmp( *attribute_names, "value" ) )
+				{
+					MAP_OBJECT_DATA(object_display)->entity_file = g_strdup(*attribute_values);
+				}
+				else if ( !g_ascii_strcasecmp( *attribute_names, "global" ) )
+				{
+					MAP_OBJECT_DATA(object_display)->entity_global = !g_ascii_strcasecmp(*attribute_values, "true");
+				}
+				else if ( !g_ascii_strcasecmp( *attribute_names, "language" ) )
+				{
+					MAP_OBJECT_DATA(object_display)->entity_language = g_strdup(*attribute_values);
+				}
+			}
+		}
+	}
+	else if ( g_ascii_strcasecmp(element_name, "color") == 0 )
+	{
+		if ( MAP_OBJECT_DATA(object_display) )
+		{
+			map_parser_colour(&MAP_OBJECT_DATA(object_display)->colour8, TRUE, attribute_names, attribute_values);
+			object_display->colour.red = (gdouble)MAP_OBJECT_DATA(object_display)->colour8.red / 255.0;
+			object_display->colour.blue = (gdouble)MAP_OBJECT_DATA(object_display)->colour8.blue / 255.0;
+			object_display->colour.green = (gdouble)MAP_OBJECT_DATA(object_display)->colour8.green / 255.0;
+			object_display->colour.alpha = (gdouble)MAP_OBJECT_DATA(object_display)->colour8.alpha / 255.0;
+		}
+	}
+	else if ( g_ascii_strcasecmp(element_name, "setting") == 0 )
+	{
+		if ( map_info->file_type == 0 )
+		{
+			const gchar * key = NULL, *value = NULL, *type = NULL;
+			for (; *attribute_names && *attribute_values; attribute_names++, attribute_values++)
+			{
+				if ( g_ascii_strcasecmp(*attribute_names, "key") == 0 )
+					key = *attribute_values;
+				else if ( g_ascii_strcasecmp(*attribute_names, "value") == 0 )
+					value = *attribute_values;
+				else if ( g_ascii_strcasecmp(*attribute_names, "type") == 0 )
+					type = *attribute_values;
+			}
+
+			if ( key && value )
+			{
+				if ( !g_ascii_strcasecmp( key, "id" ) )
+				{
+					if ( value[0] != '*')
+						MAP_OBJECT_DATA(object_display)->object_name = "";
+					else
+						MAP_OBJECT_DATA(object_display)->object_name = g_strdup(value);
+				}
+				else if ( !g_ascii_strcasecmp( key, "entity" ) )
+				{
+					gchar ** file = g_strsplit( value, ".", 2);
+					if ( g_strv_length(file) == 2 )
+					{
+						MAP_OBJECT_DATA(object_display)->entity_file = g_strdup(file[0]);
+						MAP_OBJECT_DATA(object_display)->entity_language = g_strdup(file[1]);
+					}
+					g_strfreev( file );
+				}
+				else if ( !g_ascii_strcasecmp( key, "global" ) )
+				{
+					MAP_OBJECT_DATA(object_display)->entity_global = !g_ascii_strcasecmp(value, "true");
+				}
+				else
+				{
+					if ( g_ascii_strcasecmp( value, "(null)" ) )
+						g_hash_table_replace( MAP_OBJECT_DATA(object_display)->settings, (gpointer)g_strdup(key), RuntimeSetting_New(value, type) );
+					else
+						g_hash_table_replace( MAP_OBJECT_DATA(object_display)->settings, (gpointer)g_strdup(key), RuntimeSetting_New("", type) );
+				}
+			}
+		}
+	}
+	else if ( g_ascii_strcasecmp(element_name, "path") == 0 )
+	{
+		map_info->parse_mode = MPM_PATH;
+	}
+	else if ( g_ascii_strcasecmp(element_name, "point") == 0 )
+	{
+
+		DisplayObject * object_point = g_new0(DisplayObject, 1);
+
+		object_point->type = DT_POINT;
+		object_point->layer = 43;
+		object_point->w = object_point->h = 16;
+		object_point->resizable = FALSE;
+		for (; *attribute_names && *attribute_values; attribute_names++, attribute_values++)
+		{
+			if ( g_ascii_strcasecmp (*attribute_names, "x") == 0 )
+				object_point->x = atoi(*attribute_values);
+			else if ( g_ascii_strcasecmp (*attribute_names, "y") == 0 )
+				object_point->y = atoi(*attribute_values);
+		}
+
+		if ( object_point->x > object_display->w )
+		{
+			object_display->w  = object_point->x;
+		}
+		if ( object_point->y > object_display->h )
+		{
+			object_display->h  = object_point->y;
+		}
+
+		object_display->shape = g_slist_append( object_display->shape, object_point );
+	}
+}
+
+/********************************
+* map_parse_handler_start_root_element
+*
+*/
+void map_parse_handler_start_root_element( GMarkupParseContext *context, const gchar *element_name, const gchar **attribute_names, const gchar **attribute_values, MapInfo * map_info, GError **error )
+{
+	if ( g_ascii_strcasecmp( element_name, "settings" ) == 0 )
+	{
+		map_info->parse_mode = MPM_SETTING;
+	}
+	else if ( g_ascii_strcasecmp( element_name, "object" ) == 0 )
+	{
+		map_info->parse_mode = MPM_OBJECT;
+
+		/* Created Display Object */
+		DisplayObject * object_display = NULL;
+
+		/*  */
+		if ( map_info->file_type == 0 )
+		{
+			MapObjectData * object_data = MapObjectData_New(NULL);
+
+			object_data->parent = map_info;
+
+			for (; *attribute_names && *attribute_values; attribute_names++, attribute_values++)
+			{
+				if ( g_ascii_strcasecmp(*attribute_names, "type") == 0 )
+					object_data->type = MapObject_Type(*attribute_values);
+				else if ( g_ascii_strcasecmp (*attribute_names, "value") == 0 )
+					object_data->name = g_strdup(*attribute_values);
+				else if ( g_ascii_strcasecmp(*attribute_names, "id") == 0 )
+					object_data->object_name = g_strdup(*attribute_values);
+				else if ( g_ascii_strcasecmp(*attribute_names, "parent") == 0 || g_ascii_strcasecmp(*attribute_names, "global") == 0 )
+					RuntimeSetting_InsertNew( object_data->settings, *attribute_names, *attribute_values, "hidden" );
+			}
+
+			if ( object_data->type == 't' )
+			{
+				RuntimeSetting_InsertNew( object_data->settings, "number", "-1", "hidden" );
+			}
+
+			object_display = Alchera_DisplayObject_New(object_data, &MapObjectData_FreePointer);
+		}
+		else if ( map_info->file_type == 1 )
+		{
+			VirtualObjectData * virtual_object = g_new0(VirtualObjectData, 1);
+
+
+			for (; *attribute_names && *attribute_values; attribute_names++, attribute_values++)
+			{
+				if ( g_ascii_strcasecmp(*attribute_names, "type") == 0 )
+					virtual_object->type = MapObject_Type(*attribute_values);
+				else if ( g_ascii_strcasecmp (*attribute_names, "value") == 0 )
+					virtual_object->name = g_strdup(*attribute_values);
+				else if ( g_ascii_strcasecmp(*attribute_names, "id") == 0 )
+					virtual_object->ident = g_strdup(*attribute_values);
+
+			}
+			object_display = Alchera_DisplayObject_New(virtual_object, &VirtualObjectData_FreePointer);
+		}
+		else
+		{
+			object_display = Alchera_DisplayObject_New(NULL, NULL);
+		}
+
+		object_display->id = map_info->id_counter++;
+		map_info->display_list = g_list_append(map_info->display_list, object_display);
+	}
+	else
+	{
+
+	}
+}
 
 /********************************
 * map_parse_handler_start
@@ -100,354 +418,25 @@ void map_dimension_parse_start( GMarkupParseContext *context, const gchar *eleme
 */
 void map_parse_handler_start( GMarkupParseContext *context, const gchar *element_name, const gchar **attribute_names, const gchar **attribute_values, gpointer user_data, GError **error )
 {
-	MokoiMap * mokoi_map_info = NULL;
-	VirtualObjectList * virtual_object_list = NULL;
-
-
 	MapInfo * map_info = (MapInfo *)user_data;
-
-
-	if ( map_info->file_type == 0 )
-	{
-		mokoi_map_info = (MokoiMap *)map_info->data;
-	}
-	else if ( map_info->file_type == 1 )
-	{
-		virtual_object_list = (VirtualObjectList *)map_info->data;
-	}
 
 	if ( map_info->parse_mode == MPM_SETTING && map_info->file_type == 0)
 	{
 		/* Settings */
-		if ( g_ascii_strcasecmp (element_name, "color") == 0 )
-		{
-			map_parser_colour(&mokoi_map_info->colour8, FALSE, attribute_names, attribute_values);
-		}
-		else if ( g_ascii_strcasecmp (element_name, "option") == 0 )
-		{
-			gchar * key = NULL, *value = NULL, *type = NULL;
-			for (; *attribute_names && *attribute_values; attribute_names++, attribute_values++)
-			{
-				if ( g_ascii_strcasecmp(*attribute_names, "key") == 0 )
-					key = g_strdup(*attribute_values);
-				else if ( g_ascii_strcasecmp(*attribute_names, "value") == 0 )
-					value = g_strdup(*attribute_values);
-				else if ( g_ascii_strcasecmp(*attribute_names, "type") == 0 )
-					type = g_strdup(*attribute_values);
-			}
-
-			if ( key && value )
-			{
-				if ( g_ascii_strcasecmp( value, "(null)" ) )
-					g_hash_table_insert( map_info->settings, (gpointer)key, RuntimeSetting_New(value, type) );
-				else
-					g_hash_table_insert( map_info->settings, (gpointer)key, RuntimeSetting_New("", type) );
-			}
-
-		}
-		else if ( g_ascii_strcasecmp (element_name, "dimensions") == 0 )
-		{
-			for (; *attribute_names && *attribute_values; attribute_names++, attribute_values++)
-			{
-				if ( g_ascii_strcasecmp (*attribute_names, "width") == 0 )
-					mokoi_map_info->position.width = atoi(*attribute_values);
-				else if ( g_ascii_strcasecmp (*attribute_names, "height") == 0 )
-					mokoi_map_info->position.height = atoi(*attribute_values);
-				if ( g_ascii_strcasecmp (*attribute_names, "x") == 0 )
-					mokoi_map_info->position.x = atoi(*attribute_values);
-				else if ( g_ascii_strcasecmp (*attribute_names, "y") == 0 )
-					mokoi_map_info->position.y = atoi(*attribute_values);
-			}
-		}
+		map_parse_handler_start_settings( context, element_name, attribute_names, attribute_values, map_info, error );
 	}
 	else if ( map_info->parse_mode == MPM_PATH )
 	{
-		/* Create Path Object Object */
-		DisplayObject * object_display = g_new0(DisplayObject, 1);
-		object_display->layer = 42;
-		object_display->w = object_display->h = 16;
-		object_display->type = DT_PATHITEM;
-		object_display->resizable = FALSE;
-		for (; *attribute_names && *attribute_values; attribute_names++, attribute_values++)
-		{
-			if ( g_ascii_strcasecmp (*attribute_names, "x") == 0 )
-				object_display->x = atoi(*attribute_values);
-			else if ( g_ascii_strcasecmp (*attribute_names, "y") == 0 )
-				object_display->y = atoi(*attribute_values);
-		}
-
-
-		/* Append Object */
-		GList * last_object = NULL;
-		if ( map_info->file_type == 0 )
-		{
-			MokoiMapObject * object = NULL;
-
-			last_object = g_list_last(mokoi_map_info->objects);
-			object = (MokoiMapObject *)last_object->data;
-			object->object->path = g_slist_append( object->object->path, object_display );
-
-		}
-		else if ( map_info->file_type == 1 )
-		{
-			VirtualObject * object = NULL;
-
-			last_object = g_list_last(virtual_object_list->objects);
-			object = (VirtualObject *)last_object->data;
-			object->object->path = g_slist_append( object->object->path, object_display );
-
-		}
-
-
+		map_parse_handler_start_path_element( context, element_name, attribute_names, attribute_values, map_info, error );
 	}
 	else if ( map_info->parse_mode == MPM_OBJECT )
 	{
-		MokoiMapObject * map_object = NULL;
-		VirtualObject * virtual_object = NULL;
-		DisplayObject * object_display = NULL;
-
-		/* Get Last Object */
-		GList * last_object = NULL;
-		if ( map_info->file_type == 0 )
-		{
-			last_object = g_list_last(mokoi_map_info->objects);
-			map_object = (MokoiMapObject *)last_object->data;
-			object_display = (DisplayObject*)map_object->object;
-		}
-		else if ( map_info->file_type == 1 )
-		{
-			last_object = g_list_last(virtual_object_list->objects);
-			virtual_object = (VirtualObject *)last_object->data;
-			object_display = (DisplayObject *)virtual_object->object;
-		}
-
-		/* Update Object */
-		object_display->resizable = TRUE;
-		if ( g_ascii_strcasecmp (element_name, "position") == 0 )
-		{
-			for (; *attribute_names && *attribute_values; attribute_names++, attribute_values++)
-			{
-				if ( *attribute_names[0] =='x' )
-					object_display->x = g_ascii_strtod(*attribute_values, NULL);
-				else if ( *attribute_names[0] =='y' )
-					object_display->y = g_ascii_strtod(*attribute_values, NULL);
-				else if ( *attribute_names[0] =='l' )
-					object_display->layer = (gint)g_ascii_strtod(*attribute_values, NULL);
-				else if ( *attribute_names[0] =='w' )
-					object_display->w = g_ascii_strtod(*attribute_values, NULL);
-				else if ( *attribute_names[0] =='h' )
-					object_display->h = g_ascii_strtod(*attribute_values, NULL);
-				else if ( *attribute_names[0] =='r' )
-					object_display->rotate = atoi(*attribute_values)/90;
-				else if ( *attribute_names[0] =='f' )
-					object_display->flip = (gboolean)g_ascii_strtod(*attribute_values, NULL);
-			}
-
-			if ( object_display->type == DT_LINE )
-			{
-				object_display->w -= object_display->x;
-				object_display->h -= object_display->y;
-			}
-		}
-		else if ( g_ascii_strcasecmp(element_name, "entity") == 0 )
-		{
-			if ( map_object )
-			{
-				for (; *attribute_names && *attribute_values; attribute_names++, attribute_values++)
-				{
-					if ( !g_ascii_strcasecmp( *attribute_names, "value" ) )
-					{
-						map_object->entity_file = g_strdup(*attribute_values);
-					}
-					else if ( !g_ascii_strcasecmp( *attribute_names, "global" ) )
-					{
-						map_object->entity_global = !g_ascii_strcasecmp(*attribute_values, "true");
-					}
-					else if ( !g_ascii_strcasecmp( *attribute_names, "language" ) )
-					{
-						map_object->entity_language = g_strdup(*attribute_values);
-					}
-				}
-			}
-		}
-		else if ( g_ascii_strcasecmp(element_name, "color") == 0 )
-		{
-			if ( map_object )
-			{
-				map_parser_colour(&map_object->colour8, TRUE, attribute_names, attribute_values);
-				object_display->colour.red = (gdouble)map_object->colour8.red / 255.0;
-				object_display->colour.blue = (gdouble)map_object->colour8.blue / 255.0;
-				object_display->colour.green = (gdouble)map_object->colour8.green / 255.0;
-				object_display->colour.alpha = (gdouble)map_object->colour8.alpha / 255.0;
-			}
-		}
-		else if ( g_ascii_strcasecmp(element_name, "setting") == 0 )
-		{
-			if ( map_info->file_type == 0 )
-			{
-				const gchar * key = NULL, *value = NULL, *type = NULL;
-				for (; *attribute_names && *attribute_values; attribute_names++, attribute_values++)
-				{
-					if ( g_ascii_strcasecmp(*attribute_names, "key") == 0 )
-						key = *attribute_values;
-					else if ( g_ascii_strcasecmp(*attribute_names, "value") == 0 )
-						value = *attribute_values;
-					else if ( g_ascii_strcasecmp(*attribute_names, "type") == 0 )
-						type = *attribute_values;
-				}
-
-				if ( key && value )
-				{
-					if ( !g_ascii_strcasecmp( key, "id" ) )
-					{
-						if ( value[0] != '*')
-							map_object->object_id = "";
-						else
-							map_object->object_id = g_strdup(value);
-					}
-					else if ( !g_ascii_strcasecmp( key, "entity" ) )
-					{
-						gchar ** file = g_strsplit( value, ".", 2);
-						if ( g_strv_length(file) == 2 )
-						{
-							map_object->entity_file = g_strdup(file[0]);
-							map_object->entity_language = g_strdup(file[1]);
-						}
-						g_strfreev( file );
-					}
-					else if ( !g_ascii_strcasecmp( key, "global" ) )
-					{
-						map_object->entity_global = !g_ascii_strcasecmp(value, "true");
-					}
-					else
-					{
-						if ( g_ascii_strcasecmp( value, "(null)" ) )
-							g_hash_table_replace( map_object->settings, (gpointer)g_strdup(key), RuntimeSetting_New(value, type) );
-						else
-							g_hash_table_replace( map_object->settings, (gpointer)g_strdup(key), RuntimeSetting_New("", type) );
-					}
-				}
-			}
-		}
-		else if ( g_ascii_strcasecmp(element_name, "path") == 0 )
-		{
-			map_info->parse_mode = MPM_PATH;
-		}
-		else if ( g_ascii_strcasecmp(element_name, "point") == 0 )
-		{
-
-			DisplayObject * object_point = g_new0(DisplayObject, 1);
-
-			object_point->type = DT_POINT;
-			object_point->layer = 43;
-			object_point->w = object_point->h = 16;
-			object_point->resizable = FALSE;
-			for (; *attribute_names && *attribute_values; attribute_names++, attribute_values++)
-			{
-				if ( g_ascii_strcasecmp (*attribute_names, "x") == 0 )
-					object_point->x = atoi(*attribute_values);
-				else if ( g_ascii_strcasecmp (*attribute_names, "y") == 0 )
-					object_point->y = atoi(*attribute_values);
-			}
-
-			if ( object_point->x > object_display->w )
-			{
-				object_display->w  = object_point->x;
-			}
-			if ( object_point->y > object_display->h )
-			{
-				object_display->h  = object_point->y;
-			}
-
-			object_display->shape = g_slist_append( object_display->shape, object_point );
-		}
+		map_parse_handler_start_object_element( context, element_name, attribute_names, attribute_values, map_info, error );
 	}
 	else
 	{
 		/* Root Element */
-		if ( g_ascii_strcasecmp( element_name, "settings" ) == 0 )
-		{
-			map_info->parse_mode = MPM_SETTING;
-		}
-		else if ( g_ascii_strcasecmp( element_name, "object" ) == 0 )
-		{
-			map_info->parse_mode = MPM_OBJECT;
-
-			/* Created Display Object */
-			DisplayObject * object_display = g_new0(DisplayObject, 1);
-
-			object_display->supports_path = TRUE;
-			object_display->type = DT_NONE;
-			object_display->layer = 1;
-			object_display->rotate = 0;
-			object_display->flip = 0;
-
-			object_display->colour.red = 1.0;
-			object_display->colour.green = 1.0;
-			object_display->colour.blue = 1.0;
-			object_display->colour.alpha = 1.0;
-
-
-			object_display->id = map_info->id_counter++;
-
-			/*  */
-			if ( map_info->file_type == 0 )
-			{
-				MokoiMapObject * map_object = g_new0(MokoiMapObject, 1);
-
-				map_object->parent = map_info;
-				map_object->settings = g_hash_table_new(g_str_hash, g_str_equal);
-
-				for (; *attribute_names && *attribute_values; attribute_names++, attribute_values++)
-				{
-					if ( g_ascii_strcasecmp(*attribute_names, "type") == 0 )
-						map_object->type = MapObject_Type(*attribute_values);
-					else if ( g_ascii_strcasecmp (*attribute_names, "value") == 0 )
-						map_object->name = g_strdup(*attribute_values);
-					else if ( g_ascii_strcasecmp(*attribute_names, "id") == 0 )
-						map_object->object_id = g_strdup(*attribute_values);
-					else if ( g_ascii_strcasecmp(*attribute_names, "parent") == 0 )
-						g_hash_table_insert( map_object->settings, (gpointer)g_strdup(*attribute_names), RuntimeSetting_New(g_strdup(*attribute_values), "hidden") );
-					else if ( g_ascii_strcasecmp(*attribute_names, "global") == 0 )
-						g_hash_table_insert( map_object->settings, (gpointer)g_strdup(*attribute_names), RuntimeSetting_New(g_strdup(*attribute_values), "hidden") );
-				}
-
-				if ( map_object->type == 't' )
-				{
-					g_hash_table_insert( map_object->settings, "number", RuntimeSetting_New("-1", "hidden") );
-				}
-
-				map_object->object = object_display;
-				mokoi_map_info->objects = g_list_append(mokoi_map_info->objects, (gpointer*)map_object);
-
-			}
-			else if ( map_info->file_type == 1 )
-			{
-				VirtualObject * virtual_object = g_new0(VirtualObject, 1);
-
-
-				for (; *attribute_names && *attribute_values; attribute_names++, attribute_values++)
-				{
-					if ( g_ascii_strcasecmp(*attribute_names, "type") == 0 )
-						virtual_object->type = MapObject_Type(*attribute_values);
-					else if ( g_ascii_strcasecmp (*attribute_names, "value") == 0 )
-						virtual_object->name = g_strdup(*attribute_values);
-					else if ( g_ascii_strcasecmp(*attribute_names, "id") == 0 )
-						virtual_object->ident = g_strdup(*attribute_values);
-
-				}
-
-				virtual_object->object = object_display;
-				virtual_object_list->objects = g_list_append(virtual_object_list->objects, (gpointer*)virtual_object);
-				//map_info->displayList = g_list_append(map_info->displayList, (gpointer*)object_display);
-
-				object_display->id = virtual_object_list->id_count++;
-			}
-		}
-		else
-		{
-
-		}
+		map_parse_handler_start_root_element( context, element_name, attribute_names, attribute_values, map_info, error );
 	}
 }
 

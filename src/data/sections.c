@@ -79,8 +79,8 @@ gchar * AL_MapSection_Pressed( guint id, GtkWindow * window, guint x, guint y, g
 
 	gchar * map_name = NULL;
 	guint8 grid_x = 0, grid_y = 0;
-	guint grid_w = AL_SettingNumber("map.width");
-	guint grid_h = AL_SettingNumber("map.height");
+	guint grid_w = AL_Setting_GetNumber("map.width");
+	guint grid_h = AL_Setting_GetNumber("map.height");
 
 	grid_w = ( grid_w > 4 ? grid_w/4 : 64 );
 	grid_h = ( grid_h > 4 ? grid_h/4 : 48 );
@@ -139,8 +139,8 @@ gboolean AL_MapSection_Redraw( guint id, cairo_t * cr, gint width, gint height )
 	GdkRectangle screen_area;
 
 	guint grid_x = 0, grid_y = 0;
-	guint grid_w = AL_SettingNumber("map.width");
-	guint grid_h = AL_SettingNumber("map.height");
+	guint grid_w = AL_Setting_GetNumber("map.width");
+	guint grid_h = AL_Setting_GetNumber("map.height");
 
 	cairo_text_extents_t label_extents;
 

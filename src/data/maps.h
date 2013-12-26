@@ -20,10 +20,9 @@ gboolean Map_SetStartingPoint( );
 void Map_GetOptions( MapInfo * map_info );
 GHashTable * Map_GetReplacableSheets( MapInfo * map_info );
 
-void Map_ReplacableSheets_Update_ForEach( gchar * key, GtkWidget * text_sheet, MokoiMap * mokoi_map_data );
+void Map_ReplacableSheets_Update_ForEach( gchar * key, GtkWidget * text_sheet, MapInfo * map_info );
 void Map_ReplacableSheets_Widget_ForEach( gchar * key, GtkWidget * text_sheet, GtkWidget * list );
 
 gchar MapObject_Type( const gchar * type_name );
-
 
 gchar * MapChooser_Dialog( gchar * title, gchar * selected_item, gchar * additional_option );

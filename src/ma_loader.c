@@ -86,11 +86,11 @@ gboolean Alchera_Loaders_Init( gchar * project_path )
 * Alchera_Loaders_CreateNew
 *
 */
-gboolean Alchera_Loaders_CreateNew( const gchar * title, char * base_project )
+gboolean Alchera_Loaders_CreateNew( const gchar * title )
 {
 	gboolean loaded = FALSE;
 	gchar * path_string = NULL;
-	path_string = AL_CreateProject( title, base_project );
+	path_string = AL_CreateProject( title );
 	if ( path_string )
 	{
 		Alchera_Loaders_Init( path_string );

@@ -67,11 +67,11 @@ gboolean AL_SettingBoolean( gchar * key )
 
 
 /********************************
-* AL_SettingWidget
+* AL_Setting_Widget
 *
 @ widget: Container widget for Project Info page
 */
-void  AL_SettingWidget( GtkBuilder * ui )
+void  AL_Setting_Widget( GtkBuilder * ui )
 {
 	GtkWidget * custom_display_box;
 
@@ -144,22 +144,22 @@ void  AL_SettingWidget( GtkBuilder * ui )
 }
 
 /********************************
-* AL_SettingsRefreshAdvance
+* AL_Settings_RefreshAdvance
 *
 @ key:
 */
-void AL_SettingsRefreshAdvance()
+void AL_Settings_RefreshAdvance()
 {
 	gtk_list_store_clear( mokoiSettingStore );
 	Setting_ListAdvance();
 }
 
 /********************************
-* AL_SettingsRefresh
+* AL_Settings_Refresh
 *
 @ key:
 */
-void AL_SettingsRefresh()
+void AL_Settings_Refresh()
 {
 
 	/* Packages */
@@ -202,22 +202,22 @@ void AL_SettingsRefresh()
 }
 
 /********************************
-* AL_SettingsClear
+* AL_Settings_Clear
 *
 @ key:
 */
-void AL_SettingsClear()
+void AL_Settings_Clear()
 {
 	g_hash_table_foreach( mokoiSettingsTable, Setting_ClearForeach, mokoiConfigTable );
 	Setting_ClearAdvance();
 }
 
 /********************************
-* AL_SettingsClear
+* AL_Settings_Clear
 *
 @ key:
 */
-gboolean AL_SettingRemove(  gchar * key )
+gboolean AL_Setting_Remove(  gchar * key )
 {
 	if ( Setting_Unlocked(key) )
 	{
@@ -231,32 +231,32 @@ gboolean AL_SettingRemove(  gchar * key )
 }
 
 /********************************
-* AL_SettingString
+* AL_Setting_GetString
 *
 @ key:
 */
-gchar * AL_SettingString( gchar * key )
+gchar * AL_Setting_GetString( gchar * key )
 {
 	return g_key_file_get_string( mokoiConfigTable, "Mokoi", key, NULL);
 }
 
 /********************************
-* AL_SettingNumber
+* AL_Setting_GetNumber
 *
 @ key:
 */
-gint AL_SettingNumber( gchar * key )
+gint AL_Setting_GetNumber( gchar * key )
 {
 	return g_key_file_get_integer( mokoiConfigTable, "Mokoi", key, NULL );
 }
 
 /********************************
-* AL_SettingNumberDefault
+* AL_Setting_GetDefaultNumber
 *
 @ key:
 @ default_value:
 */
-gint AL_SettingNumberDefault( gchar * key, gint default_value )
+gint AL_Setting_GetDefaultNumber( gchar * key, gint default_value )
 {
 	if ( g_key_file_has_key( mokoiConfigTable, "Mokoi", key, NULL ) )
 		return g_key_file_get_integer( mokoiConfigTable, "Mokoi", key, NULL );
@@ -264,21 +264,21 @@ gint AL_SettingNumberDefault( gchar * key, gint default_value )
 		return default_value;
 }
 /********************************
-* AL_SettingDouble
+* AL_Setting_GetDouble
 *
 @ key:
 */
-gdouble AL_SettingDouble( gchar * key )
+gdouble AL_Setting_GetDouble( gchar * key )
 {
 	return g_key_file_get_double( mokoiConfigTable, "Mokoi", key, NULL );
 }
 
 /********************************
-* AL_SettingsSet
+* AL_Settings_Set
 *
 @ store: [ 0=>name, 1=>value, 2=>editable ]
 */
-void AL_SettingSet( gchar * key, gchar * value )
+void AL_Setting_SetString( gchar * key, gchar * value )
 {
 	GObject * wid = g_hash_table_lookup(mokoiSettingsTable, key);
 	g_key_file_set_string( mokoiConfigTable, "Mokoi", key, value );

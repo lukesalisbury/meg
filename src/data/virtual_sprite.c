@@ -14,10 +14,10 @@ Permission is granted to anyone to use this software for any purpose, including 
 #include "widgets/widget_map.h"
 #include "gtk_compat.h"
 #include "maps.h"
+#include "virtual_sprite.h"
 
 /* External Functions */
 gboolean Map_ParseXML( MapInfo * map_info, gchar * content );
-
 gchar * MapObject_TypeName( gchar type );
 
 
@@ -37,7 +37,6 @@ Spritesheet * virtual_spritesheet = NULL;
 MapInfo * VirtualSprite_LoadXML( gchar * id )
 {
 	MapInfo * map_info = g_new0(MapInfo, 1);
-	VirtualObjectList * object_list = NULL;
 	gchar * file_path = NULL, * content = NULL;
 
 	map_info->file_type = 1;
@@ -48,75 +47,74 @@ MapInfo * VirtualSprite_LoadXML( gchar * id )
 
 	if ( Meg_file_get_contents( file_path, &content, NULL, NULL ) )
 	{
-		map_info->data = object_list = g_new0(VirtualObjectList, 1);
-
 		Map_ParseXML( map_info, content );
 
-		/* Update DisplayList */
-		VirtualObject * virtual_object = NULL;
+		/* Update display_list */
+/*
+		VirtualObjectData * virtual_object = NULL;
 		GList * scan = g_list_first( object_list->objects );
 		while ( scan )
 		{
-			virtual_object = (VirtualObject *)scan->data;
+			virtual_object = (VirtualObjectData *)scan->data;
 
-			virtual_object->object->tw = virtual_object->object->th = 1;
-			virtual_object->object->type = DT_NONE;
-			virtual_object->object->timeout = FALSE;
+			virtual_object->tw = virtual_object->th = 1;
+			virtual_object->type = DT_NONE;
+			virtual_object->timeout = FALSE;
 			switch ( virtual_object->type )
 			{
 				case 's':
 					VirtualObject_UpdateSprite( virtual_object );
 					break;
 				case 't':
-					virtual_object->object->type = DT_TEXT;
-					virtual_object->object->data = (gpointer)g_strdup( virtual_object->name );
+					virtual_object->type = DT_TEXT;
+					virtual_object->data = (gpointer)g_strdup( virtual_object->name );
 					break;
 				case 'l':
-					virtual_object->object->type = DT_LINE;
+					virtual_object->type = DT_LINE;
 					break;
 				case 'r':
-					virtual_object->object->type = DT_RECTANGLE;
+					virtual_object->type = DT_RECTANGLE;
 					break;
 				case 'p':
-					virtual_object->object->type = DT_POLYGON;
-					virtual_object->object->resizable = FALSE;
+					virtual_object->type = DT_POLYGON;
+					virtual_object->resizable = FALSE;
 					break;
 				case 'c':
-					virtual_object->object->type = DT_CIRCLE;
+					virtual_object->type = DT_CIRCLE;
 					break;
 				default:
-					virtual_object->object->type = DT_OTHER;
+					virtual_object->type = DT_OTHER;
 					break;
 			}
 
-			if ( virtual_object->object->image )
+			if ( virtual_object->image )
 			{
-				virtual_object->object->type = DT_IMAGE;
-				virtual_object->object->tw = gdk_pixbuf_get_width( virtual_object->object->image );
-				virtual_object->object->th = gdk_pixbuf_get_height( virtual_object->object->image );
+				virtual_object->type = DT_IMAGE;
+				virtual_object->tw = gdk_pixbuf_get_width( virtual_object->image );
+				virtual_object->th = gdk_pixbuf_get_height( virtual_object->image );
 			}
 
-			if ( virtual_object->object->type == DT_IMAGE || virtual_object->object->type == DT_ANIMATION )
+			if ( virtual_object->type == DT_IMAGE || virtual_object->type == DT_ANIMATION )
 			{
-				if ( virtual_object->object->w < 1.00 )
+				if ( virtual_object->w < 1.00 )
 				{
-					virtual_object->object->w = virtual_object->object->tw;
+					virtual_object->w = virtual_object->tw;
 				}
-				if ( virtual_object->object->h < 1.00 )
+				if ( virtual_object->h < 1.00 )
 				{
-					virtual_object->object->h = virtual_object->object->th;
+					virtual_object->h = virtual_object->th;
 				}
 			}
 
-			map_info->width = MAX( map_info->width, virtual_object->object->x + virtual_object->object->w );
-			map_info->height = MAX( map_info->height, virtual_object->object->y + virtual_object->object->h );
+			map_info->width = MAX( map_info->width, virtual_object->x + virtual_object->w );
+			map_info->height = MAX( map_info->height, virtual_object->y + virtual_object->h );
 
-			virtual_object->object->active = virtual_object->object->tile = FALSE;
+			virtual_object->active = virtual_object->tile = FALSE;
 
-			map_info->displayList = g_list_append(map_info->displayList, virtual_object->object);
+			map_info->display_list = g_list_append(map_info->display_list, virtual_object->object);
 			scan = g_list_next( scan );
 		}
-
+*/
 	}
 
 	g_free(file_path);
@@ -139,30 +137,33 @@ GdkPixbuf *  VirtualSprite_BuildPixbuf( gchar * id )
 	}
 	map_info = VirtualSprite_LoadXML( id );
 
-	/* Save Image of Map */
-	cairo_surface_t * cst;
 
-	cst = cairo_image_surface_create( CAIRO_FORMAT_ARGB32, map_info->width, map_info->height );
-
-	if ( cst )
+	if ( map_info->width > 0 && map_info->height > 0 )
 	{
-		cairo_t *  cr = cairo_create( cst );
+		/* Save Image of Map */
+		cairo_surface_t * cst;
 
-		GList * scan = scan = g_list_first( map_info->displayList );
-		while ( scan )
+		cst = cairo_image_surface_create( CAIRO_FORMAT_ARGB32, map_info->width, map_info->height );
+
+		if ( cst )
 		{
-			DisplayObject * obj = (DisplayObject *)scan->data;
-			Alchera_DisplayObject_DrawForeach( obj, cr );
-			scan = g_list_next( scan );
+			cairo_t *  cr = cairo_create( cst );
+
+			GList * scan = scan = g_list_first( map_info->display_list );
+			while ( scan )
+			{
+				DisplayObject * obj = (DisplayObject *)scan->data;
+				Alchera_DisplayObject_DrawForeach( obj, cr );
+				scan = g_list_next( scan );
+			}
+			cairo_destroy( cr );
+
+			image = gdk_pixbuf_get_from_surface( cst, 0, 0, map_info->width, map_info->height );
+
 		}
-		cairo_destroy( cr );
 
-		image = gdk_pixbuf_get_from_surface( cst, 0, 0, map_info->width, map_info->height );
-		cairo_surface_write_to_png( cst, "test.png" );
+		Map_Free( map_info, FALSE );
 	}
-
-	Map_Free( map_info, FALSE );
-
 	return image;
 }
 
@@ -175,28 +176,25 @@ gboolean VirtualSprite_SaveXML( MapInfo * map_info )
 	g_return_val_if_fail( map_info != NULL, FALSE );
 	g_return_val_if_fail( map_info->data != NULL, FALSE );
 
-	VirtualObjectList * virtual_object_list = NULL;
 	GList * scan = NULL;
 	GString * map_string = g_string_new("<map xmlns=\"http://mokoi.info/projects/mokoi\">\n");
 
 
-	virtual_object_list = (VirtualObjectList*) map_info->data;
-
 	/* Objects */
-	scan = g_list_first( virtual_object_list->objects );
+	scan = g_list_first( map_info->display_list );
 	while ( scan )
 	{
 		gint x,y,w,h,z,l;
 
-		VirtualObject * object = NULL;
+		VirtualObjectData * object = NULL;
 		DisplayObject * display_object = NULL;
 
 
-		object = (VirtualObject *)scan->data;
-		g_return_val_if_fail( object != NULL, FALSE );
-
-		display_object = (DisplayObject *)object->object;
+		display_object = (DisplayObject *)scan->data;
 		g_return_val_if_fail( display_object != NULL, FALSE );
+
+		object = (VirtualObjectData *)display_object->data;
+		g_return_val_if_fail( object != NULL, FALSE );
 
 		if ( display_object->type != DT_DELETE )
 		{
@@ -273,8 +271,7 @@ MapInfo * VirtualSprite_GetInfo( gchar * id )
 		map_info->width = 64;
 		map_info->height = 64;
 		map_info->file_type = 1;
-
-		map_info->data = g_new0(VirtualObjectList, 1);
+		map_info->data = g_new0(MapData, 1);
 	}
 	else
 	{
@@ -282,20 +279,6 @@ MapInfo * VirtualSprite_GetInfo( gchar * id )
 
 	}
 
-
-
-	/*
-	typedef struct {
-		DisplayObject * selected;
-		GList * displayList;
-		GHashTable * settings;
-		gchar * name;
-		guint32 visible;
-		guint width, height;
-		GdkRGBA colour;
-		gpointer data;
-	} MapInfo;
-	*/
 	return map_info;
 }
 
@@ -355,19 +338,12 @@ gboolean VirtualSpriteSheet_Insert( gchar * name )
 
 		sprite = SheetObject_New( (gpointer)sprite_data, &SpriteData_FreePointer );
 
-
-
 		sprite->display_name = g_strdup(name);
 		sprite->parent_sheet = g_strdup("Virtual");
 		sprite->ident_string = g_strdup_printf( "Virtual:%s", sprite->display_name );
 		sprite->visible = TRUE;
-		sprite_data->image_loaded = FALSE;
-
-
 
 		virtual_spritesheet->children = g_slist_append( virtual_spritesheet->children, (gpointer)sprite );
-
-		VirtualSprite_BuildPixbuf( name );
 
 		return TRUE;
 	}
@@ -405,7 +381,7 @@ gboolean VirtualSprite_UpdateSpriteInfo( gchar * name )
 * VirtualSpriteSheet_Get
 *
 */
-Spritesheet * VirtualSpriteSheet_Get()
+Spritesheet * VirtualSpriteSheet_Get(gboolean update_sprite_image)
 {
 	if ( virtual_spritesheet == NULL)
 	{
@@ -435,6 +411,25 @@ Spritesheet * VirtualSpriteSheet_Get()
 		VirtualSpriteSheet_Insert( "Add New" );
 
 	}
+
+	if ( update_sprite_image )
+	{
+		GSList * scan = NULL;
+
+		scan = virtual_spritesheet->children;
+
+		while ( scan )
+		{
+			SheetObject * sprite = (SheetObject*)scan->data;
+			if ( sprite )
+			{
+				SPRITE_DATA(sprite)->image = VirtualSprite_BuildPixbuf( sprite->display_name );
+				SPRITE_DATA(sprite)->image_loaded = ( SPRITE_DATA(sprite)->image != NULL );
+			}
+			scan = g_slist_next( scan );
+		}
+	}
+
 
 	return virtual_spritesheet;
 }

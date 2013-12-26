@@ -2,7 +2,7 @@
 #define _ALCHERA_LOADER_H_
 
 	/* info + plugin stuff */
-	gchar * AL_CreateProject( const gchar * title, gchar * base_project  );
+	gchar * AL_CreateProject( const gchar * title  );
 	gchar * AL_LoadProject( const gchar * path );
 	gboolean AL_HasFeature( gint feature );
 	gchar * AL_ResourcePath( gchar * file);
@@ -22,15 +22,15 @@
 	gchar * AL_Title();
 
 	/* Settings */
-	void AL_SettingsRefresh();
-	void AL_SettingsClear();
-	void AL_SettingWidget( GtkBuilder * ui );
-	gchar * AL_SettingString( gchar * key );
-	gint AL_SettingNumber( gchar * key );
-	gint AL_SettingNumberDefault( gchar * key, gint default_value );
-	gdouble AL_SettingDouble( gchar * key );
-	gboolean AL_SettingRemove(  gchar * key );
-	void AL_SettingSet( gchar * key, gchar * value );
+	void AL_Settings_Refresh();
+	void AL_Settings_Clear();
+	void AL_Setting_Widget( GtkBuilder * ui );
+	gchar * AL_Setting_GetString( gchar * key );
+	gint AL_Setting_GetNumber( gchar * key );
+	gint AL_Setting_GetDefaultNumber( gchar * key, gint default_value );
+	gdouble AL_Setting_GetDouble( gchar * key );
+	gboolean AL_Setting_Remove(  gchar * key );
+	void AL_Setting_SetString( gchar * key, gchar * value );
 
 	/* Image Handling */
 	GdkPixbuf * AL_GetSprite( gchar * name );
@@ -64,11 +64,11 @@
 
 	/* Map Display Objects */
 	GList * AL_Object_List( MapInfo * map );
-	DisplayObject * AL_Object_Add( MapInfo * map, gchar * indent, gdouble x, gdouble y, gdouble w, gdouble h, gint z );
-	DisplayObject * AL_Object_Get( MapInfo * map, gint id);
-	gboolean AL_Object_Remove( MapInfo * map, gint id);
-	gboolean AL_Object_Update( MapInfo * map, gint id, gdouble x, gdouble y, gdouble w, gdouble h, gint z );
-	gboolean AL_Object_Advance( MapInfo * map, gint id, GtkWindow * window );
+	DisplayObject * AL_Object_Add( MapInfo * map_info, gchar * indent, gdouble x, gdouble y, gdouble w, gdouble h, gint z );
+	DisplayObject * AL_Object_Get( MapInfo * map_info, gint id);
+	gboolean AL_Object_Remove( MapInfo * map_info, gint id);
+	gboolean AL_Object_Update( MapInfo * map_info, gint id, gdouble x, gdouble y, gdouble w, gdouble h, gint z );
+	gboolean AL_Object_Advance( MapInfo * map_info, gint id, GtkWindow * window );
 
 	void AL_Object_Groups( GtkListStore * list, gboolean display_virtual );
 	void AL_Object_Available( GtkListStore * list, gchar * parent ); /* Icon, Ident, Auto Advance, Type, Width, Height */

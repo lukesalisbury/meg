@@ -13,10 +13,11 @@ Permission is granted to anyone to use this software for any purpose, including 
 
 	#include "loader_global.h"
 
-	Spritesheet * VirtualSpriteSheet_Get();
+	Spritesheet * VirtualSpriteSheet_Get( gboolean update_sprite_image );
 	gboolean VirtualSpriteSheet_Insert( gchar * file_name );
 
 	void VirtualSprite_UpdateName( GtkLabel * label, MapInfo * map_info );
 	void VirtualSprite_Save( GtkButton * button, MapInfo * map_info );
 	MapInfo * VirtualSprite_GetInfo( gchar * id );
+	GdkPixbuf *  VirtualSprite_BuildPixbuf( gchar * id );
 #endif

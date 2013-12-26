@@ -75,17 +75,34 @@ guint RuntimeSetting_Type( const gchar * type )
 */
 RuntimeSettingsStruct * RuntimeSetting_New( const gchar * value, const gchar * type )
 {
-	RuntimeSettingsStruct * options = g_new0(RuntimeSettingsStruct, 1);
+	RuntimeSettingsStruct * option = g_new0(RuntimeSettingsStruct, 1);
 
-	options->value = g_strdup(value);
-	options->type = g_strdup(type);
-	options->removable = FALSE;
-	options->deleted = FALSE;
-	options->widget = NULL;
-	options->internal_type = RuntimeSetting_Type(type);
+	option->value = g_strdup(value);
+	option->type = g_strdup(type);
+	option->removable = FALSE;
+	option->deleted = FALSE;
+	option->widget = NULL;
+	option->internal_type = RuntimeSetting_Type(type);
 
-	return options;
+	return option;
 }
+
+/********************************
+* RuntimeSettings_FreePointer
+*
+*/
+void RuntimeSettings_FreePointer( gpointer data )
+{
+	RuntimeSettingsStruct * option = (RuntimeSettingsStruct *)data;
+	CLEAR_STRING(option->value)
+	CLEAR_STRING(option->type)
+
+	if ( option->widget )
+	{
+		g_object_unref( option->widget );
+	}
+}
+
 
 /********************************
 * RuntimeSetting_Copy
@@ -95,36 +112,49 @@ RuntimeSettingsStruct * RuntimeSetting_Copy( RuntimeSettingsStruct * value )
 {
 	if ( value == NULL )
 		return NULL;
-	RuntimeSettingsStruct * options = g_new0(RuntimeSettingsStruct, 1);
+
+	RuntimeSettingsStruct * option = g_new0(RuntimeSettingsStruct, 1);
 
 	if ( value->value != NULL )
-		options->value = g_strdup(value->value);
+		option->value = g_strdup(value->value);
 	else
-		options->value = NULL;
-	if ( value->type != NULL )
-		options->type = g_strdup(value->type);
-	else
-		options->type = NULL;
+		option->value = NULL;
 
-	options->removable = FALSE;
-	options->deleted = FALSE;
-	options->internal_type = RuntimeSetting_Type(options->type);
-	options->widget = NULL;
-	return options;
+	if ( value->type != NULL )
+		option->type = g_strdup(value->type);
+	else
+		option->type = NULL;
+
+	option->removable = FALSE;
+	option->deleted = FALSE;
+	option->internal_type = RuntimeSetting_Type(option->type);
+	option->widget = NULL;
+	return option;
+}
+
+
+/********************************
+* RuntimeSetting_InsertNew
+*
+*/
+void RuntimeSetting_InsertNew( GHashTable * settings_table, const gchar * key, const gchar * value, const gchar * type )
+{
+	RuntimeSettingsStruct * option = RuntimeSetting_New( value, type );
+	g_hash_table_insert( settings_table, g_strdup(key), option );
 }
 
 /********************************
 * RuntimeSetting_Update
 *
 */
-void RuntimeSetting_Update( GHashTable * settings, gchar * key, gchar * value )
+void RuntimeSetting_Update( GHashTable * settings_table, gchar * key, gchar * value )
 {
-	RuntimeSettingsStruct * option = (RuntimeSettingsStruct*)g_hash_table_lookup(settings, key);
+	RuntimeSettingsStruct * option = (RuntimeSettingsStruct*)g_hash_table_lookup(settings_table, key);
 
 	if ( option == NULL)
 	{
 		option = RuntimeSetting_New( g_strdup(value), NULL );
-		g_hash_table_replace( settings, key, option );
+		g_hash_table_replace( settings_table, key, option );
 	}
 	else
 	{
@@ -141,14 +171,14 @@ void RuntimeSetting_Update( GHashTable * settings, gchar * key, gchar * value )
 * RuntimeSetting_UpdateBoolean
 *
 */
-void RuntimeSetting_UpdateBoolean( GHashTable * settings, gchar * key, gboolean value )
+void RuntimeSetting_UpdateBoolean( GHashTable * settings_table, gchar * key, gboolean value )
 {
-	RuntimeSettingsStruct * option = (RuntimeSettingsStruct*)g_hash_table_lookup(settings, key);
+	RuntimeSettingsStruct * option = (RuntimeSettingsStruct*)g_hash_table_lookup(settings_table, key);
 
 	if ( option == NULL)
 	{
 		option = RuntimeSetting_New( g_strdup( (value ? "true" : "false") ), NULL );
-		g_hash_table_replace( settings, key, option );
+		g_hash_table_replace( settings_table, key, option );
 	}
 	else
 	{
@@ -162,14 +192,14 @@ void RuntimeSetting_UpdateBoolean( GHashTable * settings, gchar * key, gboolean 
 * RuntimeSetting_UpdateValue
 *
 */
-void RuntimeSetting_UpdateValue( GHashTable * settings, gchar * key, gint value )
+void RuntimeSetting_UpdateValue( GHashTable * settings_table, gchar * key, gint value )
 {
-	RuntimeSettingsStruct * option = (RuntimeSettingsStruct*)g_hash_table_lookup(settings, key);
+	RuntimeSettingsStruct * option = (RuntimeSettingsStruct*)g_hash_table_lookup(settings_table, key);
 
 	if ( option == NULL)
 	{
 		option = RuntimeSetting_New( g_strdup_printf("%d", value), NULL );
-		g_hash_table_replace( settings, key, option );
+		g_hash_table_replace( settings_table, key, option );
 	}
 	else
 	{
@@ -184,10 +214,10 @@ void RuntimeSetting_UpdateValue( GHashTable * settings, gchar * key, gint value 
 * RuntimeSetting_GetValue
 *
 */
-gint RuntimeSetting_GetValue( GHashTable * settings, gchar * key )
+gint RuntimeSetting_GetValue( GHashTable * settings_table, gchar * key )
 {
 	gint value = 0;
-	RuntimeSettingsStruct * option = (RuntimeSettingsStruct*)g_hash_table_lookup(settings, key);
+	RuntimeSettingsStruct * option = (RuntimeSettingsStruct*)g_hash_table_lookup(settings_table, key);
 
 	if ( option != NULL && option->value != NULL )
 	{
@@ -338,9 +368,9 @@ void RuntimeSetting_MapChanged( GtkComboBox * widget, GtkWidget * list )
 @
 @
 */
-gboolean RuntimeSetting_BooleanCheck( GHashTable * settings, gchar * value )
+gboolean RuntimeSetting_BooleanCheck( GHashTable * settings_table, gchar * value )
 {
-	RuntimeSettingsStruct * hash_value = (RuntimeSettingsStruct*)g_hash_table_lookup(settings, value);
+	RuntimeSettingsStruct * hash_value = (RuntimeSettingsStruct*)g_hash_table_lookup(settings_table, value);
 	if ( hash_value )
 	{
 		if ( hash_value->value )
@@ -432,15 +462,15 @@ void RuntimeSetting_EditPopup(GtkMenuItem *menuitem, gpointer user_data )
 * RuntimeSetting_MenuItem
 * Event:
 */
-void RuntimeSetting_MenuItem( const gchar * name, RuntimeSettingsStruct * options, GtkWidget * list )
+void RuntimeSetting_MenuItem( const gchar * name, RuntimeSettingsStruct * option, GtkWidget * list )
 {
 
-	g_return_if_fail( options );
+	g_return_if_fail( option );
 
 	GtkWidget * item = gtk_menu_item_new_with_label( name );
 
 	gtk_menu_shell_append( GTK_MENU_SHELL(list), GTK_WIDGET(item) );
-	g_signal_connect( G_OBJECT(item), "activate", G_CALLBACK(RuntimeSetting_EditPopup), options );
+	g_signal_connect( G_OBJECT(item), "activate", G_CALLBACK(RuntimeSetting_EditPopup), option );
 }
 
 /********************************
@@ -451,9 +481,9 @@ void RuntimeSetting_Changed_Combo( GtkComboBox * widget, gpointer data )
 {
 	g_return_if_fail( data );
 
-	RuntimeSettingsStruct * options = (RuntimeSettingsStruct *)data;
+	RuntimeSettingsStruct * option = (RuntimeSettingsStruct *)data;
 
-	RuntimeSetting_SaveWidget_Foreach( NULL, options, NULL );
+	RuntimeSetting_SaveWidget_Foreach( NULL, option, NULL );
 }
 
 /********************************
@@ -464,9 +494,9 @@ void RuntimeSetting_Changed_Toggle( GtkToggleButton * widget, gpointer data )
 {
 	g_return_if_fail( data );
 
-	RuntimeSettingsStruct * options = (RuntimeSettingsStruct *)data;
+	RuntimeSettingsStruct * option = (RuntimeSettingsStruct *)data;
 
-	RuntimeSetting_SaveWidget_Foreach( NULL, options, NULL );
+	RuntimeSetting_SaveWidget_Foreach( NULL, option, NULL );
 }
 
 /********************************
@@ -477,9 +507,9 @@ void RuntimeSetting_Changed_Entry( GtkEntry * widget, gpointer data )
 {
 	g_return_if_fail( data );
 
-	RuntimeSettingsStruct * options = (RuntimeSettingsStruct *)data;
+	RuntimeSettingsStruct * option = (RuntimeSettingsStruct *)data;
 
-	RuntimeSetting_SaveWidget_Foreach( NULL, options, NULL );
+	RuntimeSetting_SaveWidget_Foreach( NULL, option, NULL );
 
 }
 
@@ -487,50 +517,50 @@ void RuntimeSetting_Changed_Entry( GtkEntry * widget, gpointer data )
 * RuntimeSetting_CreateWidget
 * Event:
 */
-void RuntimeSetting_CreateWidget( const gchar * name, RuntimeSettingsStruct * options, GtkWidget * list )
+void RuntimeSetting_CreateWidget( const gchar * name, RuntimeSettingsStruct * option, GtkWidget * list )
 {
-	g_return_if_fail( options );
+	g_return_if_fail( option );
 
 	GtkWidget * value_widget;
-	switch ( options->internal_type )
+	switch ( option->internal_type )
 	{
 		case RUNTIMEOPTION_BOOLEAN:
-			value_widget = options->widget = gtk_check_button_new_with_label("Enable");
-			if ( options->value )
-				gtk_toggle_button_set_active( GTK_TOGGLE_BUTTON(value_widget), (!g_ascii_strcasecmp(options->value, "true") ? 1 : 0) );
+			value_widget = option->widget = gtk_check_button_new_with_label("Enable");
+			if ( option->value )
+				gtk_toggle_button_set_active( GTK_TOGGLE_BUTTON(value_widget), (!g_ascii_strcasecmp(option->value, "true") ? 1 : 0) );
 			break;
 		case RUNTIMEOPTION_MUSIC:
-			value_widget = options->widget = gtk_combo_box_new( );
+			value_widget = option->widget = gtk_combo_box_new( );
 			Meg_ComboText_Setup( value_widget, FALSE );
-			if ( options->value )
+			if ( option->value )
 			{
-				Meg_ComboText_AppendText( GTK_COMBO_BOX(value_widget), options->value );
+				Meg_ComboText_AppendText( GTK_COMBO_BOX(value_widget), option->value );
 				gtk_combo_box_set_active( GTK_COMBO_BOX(value_widget),0);
 			}
 			Meg_ComboFile_Scan( value_widget, "music", NULL, TRUE, 0 );
 			break;
 		case RUNTIMEOPTION_SOUNDFX:
-			value_widget = options->widget = gtk_combo_box_new( );
+			value_widget = option->widget = gtk_combo_box_new( );
 			Meg_ComboText_Setup( value_widget, FALSE );
-			if ( options->value )
+			if ( option->value )
 			{
-				Meg_ComboText_AppendText( GTK_COMBO_BOX(value_widget), options->value );
+				Meg_ComboText_AppendText( GTK_COMBO_BOX(value_widget), option->value );
 				gtk_combo_box_set_active( GTK_COMBO_BOX(value_widget),0);
 			}
 			Meg_ComboFile_Scan( value_widget, "soundfx", NULL, TRUE, 0 );
 			break;
 		case RUNTIMEOPTION_ENTITY:
-			value_widget = options->widget = gtk_combo_box_new( );
+			value_widget = option->widget = gtk_combo_box_new( );
 			Meg_ComboText_Setup( value_widget, FALSE );
-			if ( options->value )
+			if ( option->value )
 			{
-				Meg_ComboText_AppendText( GTK_COMBO_BOX(value_widget), options->value );
+				Meg_ComboText_AppendText( GTK_COMBO_BOX(value_widget), option->value );
 				gtk_combo_box_set_active( GTK_COMBO_BOX(value_widget), 0);
 			}
 			gchar * prefix = NULL;
-			if ( options->type )
+			if ( option->type )
 			{
-				prefix = g_strrstr( options->type, "|");
+				prefix = g_strrstr( option->type, "|");
 				if ( prefix )
 					prefix++;
 			}
@@ -540,145 +570,145 @@ void RuntimeSetting_CreateWidget( const gchar * name, RuntimeSettingsStruct * op
 			return;
 			break;
 		case RUNTIMEOPTION_SECTION:
-			value_widget = options->widget = gtk_combo_box_new( );
+			value_widget = option->widget = gtk_combo_box_new( );
 			Meg_ComboText_Setup( value_widget, FALSE );
-			if ( options->value )
+			if ( option->value )
 			{
-				Meg_ComboText_AppendText( GTK_COMBO_BOX(value_widget), g_strdup_printf("%s.txt",options->value) );
+				Meg_ComboText_AppendText( GTK_COMBO_BOX(value_widget), g_strdup_printf("%s.txt",option->value) );
 				gtk_combo_box_set_active( GTK_COMBO_BOX(value_widget), 0);
 			}
 			Meg_ComboFile_Scan( value_widget, "sections", ".txt", TRUE, 0 );
-			g_object_set_data( G_OBJECT(list), "options-section-widget", value_widget );
+			g_object_set_data( G_OBJECT(list), "option-section-widget", value_widget );
 			break;
 		case RUNTIMEOPTION_MAP:
-			value_widget = options->widget = gtk_combo_box_new( );
+			value_widget = option->widget = gtk_combo_box_new( );
 			Meg_ComboText_Setup( value_widget, FALSE );
-			if ( options->value )
+			if ( option->value )
 			{
-				Meg_ComboText_AppendText( GTK_COMBO_BOX(value_widget), options->value );
+				Meg_ComboText_AppendText( GTK_COMBO_BOX(value_widget), option->value );
 				gtk_combo_box_set_active( GTK_COMBO_BOX(value_widget), 0);
 			}
 
-			g_object_set_data( G_OBJECT(list), "options-map-widget", value_widget );
+			g_object_set_data( G_OBJECT(list), "option-map-widget", value_widget );
 
 			break;
 		case RUNTIMEOPTION_MAPENTITY:
-			value_widget = options->widget = gtk_combo_box_new( );
+			value_widget = option->widget = gtk_combo_box_new( );
 			Meg_ComboText_Setup( value_widget, FALSE );
-			if ( options->value )
+			if ( option->value )
 			{
-				Meg_ComboText_AppendText( GTK_COMBO_BOX(value_widget), options->value );
+				Meg_ComboText_AppendText( GTK_COMBO_BOX(value_widget), option->value );
 				gtk_combo_box_set_active( GTK_COMBO_BOX(value_widget), 0);
 			}
 
-			g_object_set_data( G_OBJECT(list), "options-mapentities-widget", value_widget );
+			g_object_set_data( G_OBJECT(list), "option-mapentities-widget", value_widget );
 			break;
 		default:
-			value_widget = options->widget = gtk_entry_new();
-			if ( options->value )
-				gtk_entry_set_text( GTK_ENTRY(value_widget), options->value );
+			value_widget = option->widget = gtk_entry_new();
+			if ( option->value )
+				gtk_entry_set_text( GTK_ENTRY(value_widget), option->value );
 			break;
 	}
 }
 
-void RuntimeSetting_CreateWidgetWithSignal( const gchar * name, RuntimeSettingsStruct * options, GtkWidget * list )
+void RuntimeSetting_CreateWidgetWithSignal( const gchar * name, RuntimeSettingsStruct * option, GtkWidget * list )
 {
-	g_return_if_fail( options );
+	g_return_if_fail( option );
 
 	GtkWidget * value_widget;
-	switch ( options->internal_type )
+	switch ( option->internal_type )
 	{
 		case RUNTIMEOPTION_BOOLEAN:
-			value_widget = options->widget = gtk_check_button_new_with_label("Enable");
-			if ( options->value )
-				gtk_toggle_button_set_active( GTK_TOGGLE_BUTTON(value_widget), (!g_ascii_strcasecmp(options->value, "true") ? 1 : 0) );
-			g_signal_connect( G_OBJECT(value_widget), "toggled", G_CALLBACK(RuntimeSetting_Changed_Toggle), options );
+			value_widget = option->widget = gtk_check_button_new_with_label("Enable");
+			if ( option->value )
+				gtk_toggle_button_set_active( GTK_TOGGLE_BUTTON(value_widget), (!g_ascii_strcasecmp(option->value, "true") ? 1 : 0) );
+			g_signal_connect( G_OBJECT(value_widget), "toggled", G_CALLBACK(RuntimeSetting_Changed_Toggle), option );
 			break;
 		case RUNTIMEOPTION_MUSIC:
-			value_widget = options->widget = gtk_combo_box_new( );
+			value_widget = option->widget = gtk_combo_box_new( );
 			Meg_ComboText_Setup( value_widget, FALSE );
-			if ( options->value )
+			if ( option->value )
 			{
-				Meg_ComboText_AppendText( GTK_COMBO_BOX(value_widget), options->value );
+				Meg_ComboText_AppendText( GTK_COMBO_BOX(value_widget), option->value );
 				gtk_combo_box_set_active( GTK_COMBO_BOX(value_widget),0);
 			}
 			Meg_ComboFile_Scan( value_widget, "music", NULL, TRUE, 0 );
-			g_signal_connect( G_OBJECT(value_widget), "changed", G_CALLBACK(RuntimeSetting_Changed_Combo), options );
+			g_signal_connect( G_OBJECT(value_widget), "changed", G_CALLBACK(RuntimeSetting_Changed_Combo), option );
 			break;
 		case RUNTIMEOPTION_SOUNDFX:
-			value_widget = options->widget = gtk_combo_box_new( );
+			value_widget = option->widget = gtk_combo_box_new( );
 			Meg_ComboText_Setup( value_widget, FALSE );
-			if ( options->value )
+			if ( option->value )
 			{
-				Meg_ComboText_AppendText( GTK_COMBO_BOX(value_widget), options->value );
+				Meg_ComboText_AppendText( GTK_COMBO_BOX(value_widget), option->value );
 				gtk_combo_box_set_active( GTK_COMBO_BOX(value_widget),0);
 			}
 			Meg_ComboFile_Scan( value_widget, "soundfx", NULL, TRUE, 0 );
-			g_signal_connect( G_OBJECT(value_widget), "changed", G_CALLBACK(RuntimeSetting_Changed_Combo), options );
+			g_signal_connect( G_OBJECT(value_widget), "changed", G_CALLBACK(RuntimeSetting_Changed_Combo), option );
 			break;
 		case RUNTIMEOPTION_ENTITY:
-			value_widget = options->widget = gtk_combo_box_new( );
+			value_widget = option->widget = gtk_combo_box_new( );
 			Meg_ComboText_Setup( value_widget, FALSE );
-			if ( options->value )
+			if ( option->value )
 			{
-				Meg_ComboText_AppendText( GTK_COMBO_BOX(value_widget), options->value );
+				Meg_ComboText_AppendText( GTK_COMBO_BOX(value_widget), option->value );
 				gtk_combo_box_set_active( GTK_COMBO_BOX(value_widget), 0);
 			}
 			gchar * prefix = NULL;
-			if ( options->type )
+			if ( option->type )
 			{
-				prefix = g_strrstr( options->type, "|");
+				prefix = g_strrstr( option->type, "|");
 				if ( prefix )
 					prefix++;
 			}
 			Meg_ComboFile_Scan( value_widget, "scripts", prefix, TRUE, 0 );
-			g_signal_connect( G_OBJECT(value_widget), "changed", G_CALLBACK(RuntimeSetting_Changed_Combo), options );
+			g_signal_connect( G_OBJECT(value_widget), "changed", G_CALLBACK(RuntimeSetting_Changed_Combo), option );
 			break;
 		case RUNTIMEOPTION_HIDDEN:
 			return;
 			break;
 		case RUNTIMEOPTION_SECTION:
-			value_widget = options->widget = gtk_combo_box_new( );
+			value_widget = option->widget = gtk_combo_box_new( );
 			Meg_ComboText_Setup( value_widget, FALSE );
-			if ( options->value )
+			if ( option->value )
 			{
-				Meg_ComboText_AppendText( GTK_COMBO_BOX(value_widget), g_strdup_printf("%s.txt",options->value) );
+				Meg_ComboText_AppendText( GTK_COMBO_BOX(value_widget), g_strdup_printf("%s.txt",option->value) );
 				gtk_combo_box_set_active( GTK_COMBO_BOX(value_widget), 0);
 			}
 			Meg_ComboFile_Scan( value_widget, "sections", ".txt", TRUE, 0 );
-			g_object_set_data( G_OBJECT(list), "options-section-widget", value_widget );
-			g_signal_connect( G_OBJECT(value_widget), "changed", G_CALLBACK(RuntimeSetting_Changed_Combo), options );
+			g_object_set_data( G_OBJECT(list), "option-section-widget", value_widget );
+			g_signal_connect( G_OBJECT(value_widget), "changed", G_CALLBACK(RuntimeSetting_Changed_Combo), option );
 			break;
 		case RUNTIMEOPTION_MAP:
-			value_widget = options->widget = gtk_combo_box_new( );
+			value_widget = option->widget = gtk_combo_box_new( );
 			Meg_ComboText_Setup( value_widget, FALSE );
-			if ( options->value )
+			if ( option->value )
 			{
-				Meg_ComboText_AppendText( GTK_COMBO_BOX(value_widget), options->value );
+				Meg_ComboText_AppendText( GTK_COMBO_BOX(value_widget), option->value );
 				gtk_combo_box_set_active( GTK_COMBO_BOX(value_widget), 0);
 			}
 
-			g_object_set_data( G_OBJECT(list), "options-map-widget", value_widget );
-			g_signal_connect( G_OBJECT(value_widget), "changed", G_CALLBACK(RuntimeSetting_Changed_Combo), options );
+			g_object_set_data( G_OBJECT(list), "option-map-widget", value_widget );
+			g_signal_connect( G_OBJECT(value_widget), "changed", G_CALLBACK(RuntimeSetting_Changed_Combo), option );
 
 			break;
 		case RUNTIMEOPTION_MAPENTITY:
-			value_widget = options->widget = gtk_combo_box_new( );
+			value_widget = option->widget = gtk_combo_box_new( );
 			Meg_ComboText_Setup( value_widget, FALSE );
-			if ( options->value )
+			if ( option->value )
 			{
-				Meg_ComboText_AppendText( GTK_COMBO_BOX(value_widget), options->value );
+				Meg_ComboText_AppendText( GTK_COMBO_BOX(value_widget), option->value );
 				gtk_combo_box_set_active( GTK_COMBO_BOX(value_widget), 0);
 			}
 
-			g_object_set_data( G_OBJECT(list), "options-mapentities-widget", value_widget );
-			g_signal_connect( G_OBJECT(value_widget), "changed", G_CALLBACK(RuntimeSetting_Changed_Combo), options );
+			g_object_set_data( G_OBJECT(list), "option-mapentities-widget", value_widget );
+			g_signal_connect( G_OBJECT(value_widget), "changed", G_CALLBACK(RuntimeSetting_Changed_Combo), option );
 			break;
 		default:
-			value_widget = options->widget = gtk_entry_new();
-			if ( options->value )
-				gtk_entry_set_text( GTK_ENTRY(value_widget), options->value );
-			g_signal_connect( G_OBJECT(value_widget), "activate", G_CALLBACK(RuntimeSetting_Changed_Entry), options );
+			value_widget = option->widget = gtk_entry_new();
+			if ( option->value )
+				gtk_entry_set_text( GTK_ENTRY(value_widget), option->value );
+			g_signal_connect( G_OBJECT(value_widget), "activate", G_CALLBACK(RuntimeSetting_Changed_Entry), option );
 			break;
 	}
 }
@@ -688,28 +718,28 @@ void RuntimeSetting_CreateWidgetWithSignal( const gchar * name, RuntimeSettingsS
 * RuntimeSetting_AttachWidget
 *
 *@ name:
-*@ options:
+*@ option:
 *@ list
 */
-void RuntimeSetting_AttachWidget( const gchar * name, RuntimeSettingsStruct * options, GtkWidget * list )
+void RuntimeSetting_AttachWidget( const gchar * name, RuntimeSettingsStruct * option, GtkWidget * list )
 {
-	g_return_if_fail( options );
+	g_return_if_fail( option );
 
 	guint yvalue = GPOINTER_TO_UINT(g_object_get_data( G_OBJECT(list), "table-y" ));
 	GtkWidget * label = NULL, * delete_button = NULL;
 
-	switch ( options->internal_type )
+	switch ( option->internal_type )
 	{
 		case RUNTIMEOPTION_HIDDEN:
 			return;
 			break;
 		case RUNTIMEOPTION_SECTION: // section widget
 			label = gtk_label_new( name );
-			g_signal_connect( G_OBJECT(options->widget), "changed", G_CALLBACK(RuntimeSetting_SectionChanged), (gpointer) list );
+			g_signal_connect( G_OBJECT(option->widget), "changed", G_CALLBACK(RuntimeSetting_SectionChanged), (gpointer) list );
 			break;
 		case RUNTIMEOPTION_MAP: // map
 			label = gtk_label_new( name );
-			g_signal_connect( G_OBJECT(options->widget), "changed", G_CALLBACK(RuntimeSetting_MapChanged), (gpointer) list );
+			g_signal_connect( G_OBJECT(option->widget), "changed", G_CALLBACK(RuntimeSetting_MapChanged), (gpointer) list );
 			break;
 		case RUNTIMEOPTION_MAPENTITY: // map's entities
 			label = gtk_label_new( name );
@@ -719,7 +749,7 @@ void RuntimeSetting_AttachWidget( const gchar * name, RuntimeSettingsStruct * op
 			break;
 	}
 
-	if ( options->removable )
+	if ( option->removable )
 	{
 		delete_button = gtk_button_new_from_stock( GTK_STOCK_REMOVE );
 	}
@@ -727,12 +757,12 @@ void RuntimeSetting_AttachWidget( const gchar * name, RuntimeSettingsStruct * op
 	gtk_table_attach( GTK_TABLE(list), label, 0,1, yvalue, yvalue+1, GTK_FILL|GTK_EXPAND, 0, 2, 2); /* FIX: GTK3 */
 	if ( delete_button )
 	{
-		gtk_table_attach( GTK_TABLE(list), options->widget, 1,2, yvalue, yvalue+1, GTK_FILL|GTK_EXPAND, 0, 2, 2); /* FIX: GTK3 */
+		gtk_table_attach( GTK_TABLE(list), option->widget, 1,2, yvalue, yvalue+1, GTK_FILL|GTK_EXPAND, 0, 2, 2); /* FIX: GTK3 */
 		gtk_table_attach( GTK_TABLE(list), delete_button, 2,3, yvalue, yvalue+1, GTK_EXPAND, 0, 2, 2); /* FIX: GTK3 */
 	}
 	else
 	{
-		gtk_table_attach( GTK_TABLE(list), options->widget, 1,3, yvalue, yvalue+1, GTK_FILL|GTK_EXPAND, 0, 2, 2); /* FIX: GTK3 */
+		gtk_table_attach( GTK_TABLE(list), option->widget, 1,3, yvalue, yvalue+1, GTK_FILL|GTK_EXPAND, 0, 2, 2); /* FIX: GTK3 */
 	}
 	yvalue++;
 
@@ -744,44 +774,44 @@ void RuntimeSetting_AttachWidget( const gchar * name, RuntimeSettingsStruct * op
 * RuntimeSetting_Save_Foreach
 *
 @ name:
-@ options:
+@ option:
 @ data:
 */
-void RuntimeSetting_SaveWidget_Foreach( const gchar * name, RuntimeSettingsStruct * options, gpointer data )
+void RuntimeSetting_SaveWidget_Foreach( const gchar * name, RuntimeSettingsStruct * option, gpointer data )
 {
-	g_return_if_fail( options );
-	g_return_if_fail( options->widget );
+	g_return_if_fail( option );
+	g_return_if_fail( option->widget );
 
-	if ( !g_ascii_strcasecmp( G_OBJECT_TYPE_NAME(options->widget), "GtkEntry" ) )
+	if ( !g_ascii_strcasecmp( G_OBJECT_TYPE_NAME(option->widget), "GtkEntry" ) )
 	{
-		const gchar * value_str = gtk_entry_get_text( GTK_ENTRY(options->widget) );
-		options->value = g_strdup( value_str );
+		const gchar * value_str = gtk_entry_get_text( GTK_ENTRY(option->widget) );
+		option->value = g_strdup( value_str );
 	}
-	else if ( !g_ascii_strcasecmp( G_OBJECT_TYPE_NAME(options->widget), "GtkSpinButton" ) )
+	else if ( !g_ascii_strcasecmp( G_OBJECT_TYPE_NAME(option->widget), "GtkSpinButton" ) )
 	{
-		/* gtk_spin_button_get_value_as_int(GTK_SPIN_BUTTON(options->widget)) */
+		/* gtk_spin_button_get_value_as_int(GTK_SPIN_BUTTON(option->widget)) */
 	}
-	else if ( !g_ascii_strcasecmp( G_OBJECT_TYPE_NAME(options->widget), "GtkToggleButton" ) || !g_ascii_strcasecmp( G_OBJECT_TYPE_NAME(options->widget), "GtkCheckButton" ) )
+	else if ( !g_ascii_strcasecmp( G_OBJECT_TYPE_NAME(option->widget), "GtkToggleButton" ) || !g_ascii_strcasecmp( G_OBJECT_TYPE_NAME(option->widget), "GtkCheckButton" ) )
 	{
-		options->value = g_strdup( (gtk_toggle_button_get_active( GTK_TOGGLE_BUTTON(options->widget)) ? "true" : "false") );
+		option->value = g_strdup( (gtk_toggle_button_get_active( GTK_TOGGLE_BUTTON(option->widget)) ? "true" : "false") );
 	}
-	else if ( !g_ascii_strcasecmp( G_OBJECT_TYPE_NAME(options->widget), "GtkHScale" ) )
-	{
-
-	}
-	else if ( !g_ascii_strcasecmp( G_OBJECT_TYPE_NAME(options->widget), "GtkComboBox" ) || !g_ascii_strcasecmp( G_OBJECT_TYPE_NAME(options->widget), "GtkComboBoxEntry" ) )
+	else if ( !g_ascii_strcasecmp( G_OBJECT_TYPE_NAME(option->widget), "GtkHScale" ) )
 	{
 
-		if  ( options->internal_type == RUNTIMEOPTION_SECTION )
+	}
+	else if ( !g_ascii_strcasecmp( G_OBJECT_TYPE_NAME(option->widget), "GtkComboBox" ) || !g_ascii_strcasecmp( G_OBJECT_TYPE_NAME(option->widget), "GtkComboBoxEntry" ) )
+	{
+
+		if  ( option->internal_type == RUNTIMEOPTION_SECTION )
 		{
-			gchar * text = Meg_ComboText_GetText( GTK_COMBO_BOX(options->widget) );
+			gchar * text = Meg_ComboText_GetText( GTK_COMBO_BOX(option->widget) );
 
-			options->value = g_strndup(text, g_utf8_strlen(text, -1) - 4 ); // Strip .txt
+			option->value = g_strndup(text, g_utf8_strlen(text, -1) - 4 ); // Strip .txt
 			g_free(text);
 		}
 		else
 		{
-			options->value =  Meg_ComboText_GetText( GTK_COMBO_BOX(options->widget) );
+			option->value =  Meg_ComboText_GetText( GTK_COMBO_BOX(option->widget) );
 		}
 	}
 }
@@ -790,18 +820,18 @@ void RuntimeSetting_SaveWidget_Foreach( const gchar * name, RuntimeSettingsStruc
 * RuntimeSetting_SetDefaultValue
 *
 @ name:
-@ options:
+@ option:
 @ data:
 */
-void RuntimeSetting_SetDefaultValues( MokoiMapObject * object )
+void RuntimeSetting_SetDefaultValues( DisplayObject *object )
 {
-	/* Set Default Runtime options */
-	if ( object->entity_file && object->entity_language )
+	/* Set Default Runtime option */
+	if ( MAP_OBJECT_DATA(object)->entity_file && MAP_OBJECT_DATA(object)->entity_language )
 	{
-		gchar * option_path = g_strdup_printf("/scripts/%s.%s.options", object->entity_file, object->entity_language );
+		gchar * option_path = g_strdup_printf("/scripts/%s.%s.option", MAP_OBJECT_DATA(object)->entity_file, MAP_OBJECT_DATA(object)->entity_language );
 
 		GHashTable * default_settings = RuntimeParser_Load( option_path );
-		g_hash_table_foreach( default_settings, (GHFunc)RuntimeSetting_Append, (gpointer)object->settings );
+		g_hash_table_foreach( default_settings, (GHFunc)RuntimeSetting_Append, (gpointer)MAP_OBJECT_DATA(object)->settings );
 		g_hash_table_remove_all( default_settings );
 		g_free(option_path);
 

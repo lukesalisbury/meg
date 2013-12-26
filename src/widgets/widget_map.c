@@ -440,7 +440,7 @@ void gtk_alchera_map_object_flip( GtkToggleAction * action, AlcheraMap * map )
 
 }
 
-GtkWidget * Object_GetSettingMenu( MapInfo * map, guint id );
+GtkWidget * Object_GetSettingMenu( MapInfo * map_info, guint id );
 /******************************************
  * gtk_alchera_map_object_submenu
  * Sets up menu for different Display Objects
@@ -675,9 +675,9 @@ static gboolean gtk_alchera_map_draw( GtkWidget * widget, cairo_t * cr  )
 	if ( map->info )
 	{
 		gtk_list_store_clear(map->objects_list);
-		if ( map->info->displayList )
+		if ( map->info->display_list )
 		{
-			GList * list = g_list_first( map->info->displayList );
+			GList * list = g_list_first( map->info->display_list );
 			while( list )
 			{
 				DisplayObject * obj = (DisplayObject *)list->data;
@@ -977,7 +977,7 @@ static gboolean gtk_alchera_map_button_release( GtkWidget *widget, GdkEventButto
 				DisplayObject * obj = Alchera_DisplayObject_Add( map->info, map->selection_region.ident, map->selection_region.x, map->selection_region.y, map->selection_region.w, map->selection_region.h, gtk_alchera_map_get_layer(map) );
 				if ( obj )
 				{
-					map->info->displayList = g_list_insert_sorted_with_data( map->info->displayList, (gpointer)obj, (GCompareDataFunc)Alchera_DisplayObject_Order, NULL);
+					map->info->display_list = g_list_insert_sorted_with_data( map->info->display_list, (gpointer)obj, (GCompareDataFunc)Alchera_DisplayObject_Order, NULL);
 
 					/* Remove Active Flag from prevuios selected object */
 					if ( map->selected )
@@ -1152,7 +1152,7 @@ static gboolean gtk_alchera_map_button_release( GtkWidget *widget, GdkEventButto
 
 					if ( !map->selected )
 					{
-						GList * list_scan = g_list_last(map->info->displayList);
+						GList * list_scan = g_list_last(map->info->display_list);
 						while( list_scan )
 						{
 							DisplayObject * object = (DisplayObject *)list_scan->data;
@@ -1373,8 +1373,8 @@ void gtk_alchera_map_destroy( GtkWidget * object )
 
 	if ( wid->info )
 	{
-		if ( wid->info->displayList )
-			g_list_free( wid->info->displayList );
+		if ( wid->info->display_list )
+			g_list_free( wid->info->display_list );
 		g_free( wid->info->name );
 		wid->info = NULL;
 	}
@@ -1395,8 +1395,8 @@ void gtk_alchera_map_destroy( GtkObject * object )
 
 	if ( wid->info )
 	{
-		if ( wid->info->displayList )
-			g_list_free( wid->info->displayList );
+		if ( wid->info->display_list )
+			g_list_free( wid->info->display_list );
 		g_free( wid->info->name );
 		wid->info = NULL;
 	}
@@ -1417,7 +1417,7 @@ void gtk_alchera_map_drop_received( GtkWidget *widget, GdkDragContext *context, 
 	DisplayObject * obj = Alchera_DisplayObject_Add( map->info, ident, x, y, -1.0, -1.0, gtk_alchera_map_get_layer(map) );
 	if ( obj )
 	{
-		map->info->displayList = g_list_insert_sorted_with_data( map->info->displayList, (gpointer)obj, (GCompareDataFunc)Alchera_DisplayObject_Order, NULL);
+		map->info->display_list = g_list_insert_sorted_with_data( map->info->display_list, (gpointer)obj, (GCompareDataFunc)Alchera_DisplayObject_Order, NULL);
 
 		/* Remove Active Flag from prevuios selected object */
 		if ( map->selected )
@@ -1564,7 +1564,7 @@ void gtk_alchera_map_undo( AlcheraMap * wid )
 
 	UndoMapObject * q = (UndoMapObject *)wid->undo->data;
 
-	GList * list_scan = g_list_last(wid->info->displayList);
+	GList * list_scan = g_list_last(wid->info->display_list);
 	while( list_scan )
 	{
 		DisplayObject * object = (DisplayObject *)list_scan->data;
@@ -1685,7 +1685,7 @@ void gtk_alchera_map_refresh( AlcheraMap * wid )
 	g_return_if_fail(GTK_IS_ALCHERA_MAP(wid));
 	g_return_if_fail(wid->info != NULL);
 
-	wid->info->displayList = g_list_sort_with_data(wid->info->displayList, (GCompareDataFunc)Alchera_DisplayObject_Order, NULL);
+	wid->info->display_list = g_list_sort_with_data(wid->info->display_list, (GCompareDataFunc)Alchera_DisplayObject_Order, NULL);
 
 	#if GTK_MAJOR_VERSION > 2
 	GtkWidget * widget  = GTK_WIDGET(wid);
@@ -1719,7 +1719,7 @@ GList * gtk_alchera_map_get_list( AlcheraMap * wid )
 	g_return_val_if_fail(wid != NULL, NULL);
 	g_return_val_if_fail(GTK_IS_ALCHERA_MAP(wid), NULL);
 	g_return_val_if_fail(wid->info != NULL, NULL);
-	return wid->info->displayList;
+	return wid->info->display_list;
 }
 
 /********************************

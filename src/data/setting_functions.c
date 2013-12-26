@@ -14,7 +14,7 @@ Permission is granted to anyone to use this software for any purpose, including 
 
 /* Required Headers */
 #include "setting_functions.h"
-
+#include "package.h"
 
 /* Global Variables */
 extern GError * mokoiError;
@@ -171,8 +171,8 @@ gboolean Setting_Save()
 	/* Check if display.customsize is set */
 	if ( g_key_file_get_boolean( mokoiConfigTable, "Mokoi", "display.customsize", NULL ) )
 	{
-		g_key_file_set_integer( mokoiConfigTable, "Mokoi", "display.width", AL_SettingNumber("screen.width") );
-		g_key_file_set_integer( mokoiConfigTable, "Mokoi", "display.height", AL_SettingNumber("screen.height") );
+		g_key_file_set_integer( mokoiConfigTable, "Mokoi", "display.width", AL_Setting_GetNumber("screen.width") );
+		g_key_file_set_integer( mokoiConfigTable, "Mokoi", "display.height", AL_Setting_GetNumber("screen.height") );
 	}
 
 	string = g_key_file_to_data( mokoiConfigTable, NULL, NULL );
@@ -181,7 +181,7 @@ gboolean Setting_Save()
 
 	g_free( string );
 
-	AL_SettingsRefresh();
+	AL_Settings_Refresh();
 
 	return Meg_Error_Check( local_error, FALSE, "Setting_Save" );
 }
@@ -254,7 +254,7 @@ void Setting_WidgetWrite(gchar * name, GObject * wid )
 		return;
 	if ( !g_ascii_strcasecmp( G_OBJECT_TYPE_NAME(wid), "GtkEntry" ) )
 	{
-		gtk_entry_set_text( GTK_ENTRY(wid), AL_SettingString(name) );
+		gtk_entry_set_text( GTK_ENTRY(wid), AL_Setting_GetString(name) );
 	}
 	else if ( !g_ascii_strcasecmp( G_OBJECT_TYPE_NAME(wid), "GtkButton" ) )
 	{
@@ -291,7 +291,7 @@ void Setting_WidgetWrite(gchar * name, GObject * wid )
 	}
 	else if ( !g_ascii_strcasecmp( G_OBJECT_TYPE_NAME(wid), "GtkSpinButton" ) )
 	{
-		gtk_spin_button_set_value( GTK_SPIN_BUTTON(wid), (gdouble)AL_SettingNumber(name) );
+		gtk_spin_button_set_value( GTK_SPIN_BUTTON(wid), (gdouble)AL_Setting_GetNumber(name) );
 	}
 	else if ( !g_ascii_strcasecmp( G_OBJECT_TYPE_NAME(wid), "GtkCheckButton" ) )
 	{
@@ -299,13 +299,13 @@ void Setting_WidgetWrite(gchar * name, GObject * wid )
 	}
 	else if ( !g_ascii_strcasecmp( G_OBJECT_TYPE_NAME(wid), "GtkHScale" ) )
 	{
-		gtk_range_set_value( GTK_RANGE(wid), (gdouble)AL_SettingNumber(name) );
+		gtk_range_set_value( GTK_RANGE(wid), (gdouble)AL_Setting_GetNumber(name) );
 	}
 	else if ( !g_ascii_strcasecmp( G_OBJECT_TYPE_NAME(wid), "GtkComboBox" ) )
 	{
 		if ( !g_ascii_strcasecmp("display.mode", name) )
 		{
-			gchar * setting = AL_SettingString("display.mode");
+			gchar * setting = AL_Setting_GetString("display.mode");
 			if ( !g_ascii_strcasecmp(setting, "OpenGL") )
 				gtk_combo_box_set_active( GTK_COMBO_BOX(wid), 1);
 			else
@@ -314,14 +314,14 @@ void Setting_WidgetWrite(gchar * name, GObject * wid )
 		}
 		else if ( !g_ascii_strcasecmp("language.default", name) )
 		{
-			gchar * setting = AL_SettingString("language.default");
+			gchar * setting = AL_Setting_GetString("language.default");
 			Meg_ComboText_SetIndex(GTK_COMBO_BOX(wid), setting);
 			g_free(setting);
 			/* TODO read language.available */
 		}
 		else if ( !g_ascii_strcasecmp("package.main", name) )
 		{
-			gchar * setting = AL_SettingString("package.main");
+			gchar * setting = AL_Setting_GetString("package.main");
 			Meg_ComboText_SetIndex(GTK_COMBO_BOX(wid), setting);
 			g_free(setting);
 		}
@@ -330,7 +330,7 @@ void Setting_WidgetWrite(gchar * name, GObject * wid )
 	{
 		if ( !g_ascii_strcasecmp("project.id", name) )
 		{
-			gchar * markup = g_markup_printf_escaped( "<b>%X</b>", AL_SettingNumber("project.id") );
+			gchar * markup = g_markup_printf_escaped( "<b>%X</b>", AL_Setting_GetNumber("project.id") );
 			gtk_label_set_markup( GTK_LABEL(wid), markup );
 			g_free( markup );
 		}

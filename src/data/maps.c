@@ -165,9 +165,6 @@ gboolean AL_Map_Save( MapInfo * map_info, GtkWindow * window )
 	g_return_val_if_fail( map_info->data, FALSE );
 
 
-	MokoiMap * mokoi_map = (MokoiMap *)map_info->data;
-
-
 	/* Save Image of Map */
 	cairo_surface_t * cst;
 
@@ -183,20 +180,20 @@ gboolean AL_Map_Save( MapInfo * map_info, GtkWindow * window )
 		cairo_fill( cr );
 		cairo_restore ( cr );
 
-		GList * scan = scan = g_list_first( mokoi_map->objects );
+		GList * scan = g_list_first( map_info->display_list );
 		while ( scan )
 		{
-			MokoiMapObject * obj = (MokoiMapObject *)scan->data;
-			obj->object->active = FALSE;
-			Alchera_DisplayObject_DrawForeach( obj->object, cr );
+			DisplayObject * object = (DisplayObject *)scan->data;
+			object->active = FALSE;
+			Alchera_DisplayObject_DrawForeach( object, cr );
 			scan = g_list_next( scan );
 		}
 		cairo_destroy( cr );
 
-		cairo_surface_write_to_png( cst, mokoi_map->thumb_filename );
+		cairo_surface_write_to_png( cst, MAP_DATA(map_info)->thumb_filename );
 	}
 
-	gdk2rgbacolor( &map_info->colour, &mokoi_map->colour8 );
+	gdk2rgbacolor( &map_info->colour, &MAP_DATA(map_info)->colour8 );
 	return Map_Save( map_info );
 }
 
@@ -231,10 +228,8 @@ gboolean AL_Map_Options( MapInfo * map_info, GtkWindow * window )
 	g_return_val_if_fail( map_info, FALSE );
 	g_return_val_if_fail( map_info->data, FALSE );
 
-	gdouble map_size_width = AL_SettingDouble("map.width");
-	gdouble map_size_height = AL_SettingDouble("map.height");
-
-	MokoiMap * mokoi_map_data = (MokoiMap *)map_info->data;
+	gdouble map_size_width = AL_Setting_GetDouble("map.width");
+	gdouble map_size_height = AL_Setting_GetDouble("map.height");
 
 	Map_GetOptions( map_info );
 
@@ -280,8 +275,8 @@ gboolean AL_Map_Options( MapInfo * map_info, GtkWindow * window )
 	gtk_toggle_button_set_active( GTK_TOGGLE_BUTTON(check_centerview), RuntimeSetting_BooleanCheck( map_info->settings, "centerview" ) );
 	gtk_toggle_button_set_active( GTK_TOGGLE_BUTTON(check_independent), RuntimeSetting_BooleanCheck( map_info->settings, "independent" )  );
 
-	gtk_spin_button_set_value( GTK_SPIN_BUTTON(spin_w), (gdouble)mokoi_map_data->position.width * map_size_width );
-	gtk_spin_button_set_value( GTK_SPIN_BUTTON(spin_h), (gdouble)mokoi_map_data->position.height * map_size_height );
+	gtk_spin_button_set_value( GTK_SPIN_BUTTON(spin_w), (gdouble)MAP_DATA(map_info)->position.width * map_size_width );
+	gtk_spin_button_set_value( GTK_SPIN_BUTTON(spin_h), (gdouble)MAP_DATA(map_info)->position.height * map_size_height );
 
 	gtk_combo_box_set_active( GTK_COMBO_BOX(combo_wrapmode), RuntimeSetting_GetValue( map_info->settings, "wrap" ) );
 
@@ -320,11 +315,11 @@ gboolean AL_Map_Options( MapInfo * map_info, GtkWindow * window )
 	gint response_id = gtk_dialog_run( GTK_DIALOG(dialog) );
 	if ( response_id == GTK_RESPONSE_APPLY || response_id == 1)
 	{
-		mokoi_map_data->position.width = gtk_spin_button_get_value_as_int( GTK_SPIN_BUTTON(spin_w) ) / AL_SettingNumber("map.width");
-		mokoi_map_data->position.height = gtk_spin_button_get_value_as_int( GTK_SPIN_BUTTON(spin_h) ) / AL_SettingNumber("map.height");
+		MAP_DATA(map_info)->position.width = gtk_spin_button_get_value_as_int( GTK_SPIN_BUTTON(spin_w) ) / AL_Setting_GetNumber("map.width");
+		MAP_DATA(map_info)->position.height = gtk_spin_button_get_value_as_int( GTK_SPIN_BUTTON(spin_h) ) / AL_Setting_GetNumber("map.height");
 
 		g_hash_table_foreach( map_info->settings, (GHFunc)RuntimeSetting_SaveWidget_Foreach, NULL );
-		g_hash_table_foreach( graphic_sheets, (GHFunc)Map_ReplacableSheets_Update_ForEach, mokoi_map_data );
+		g_hash_table_foreach( graphic_sheets, (GHFunc)Map_ReplacableSheets_Update_ForEach, MAP_DATA(map_info) );
 
 		RuntimeSetting_UpdateValue( map_info->settings, "wrap", gtk_combo_box_get_active( GTK_COMBO_BOX(combo_wrapmode) ) );
 		RuntimeSetting_UpdateValue( map_info->settings, "wrap", gtk_combo_box_get_active( GTK_COMBO_BOX(combo_wrapmode) ) );
@@ -338,7 +333,7 @@ gboolean AL_Map_Options( MapInfo * map_info, GtkWindow * window )
 
 		if ( response_id == 1 )
 		{
-			EntityEditor_New( mokoi_map_data->entity_filename );
+			EntityEditor_New( MAP_DATA(map_info)->entity_filename );
 		}
 
 	}
@@ -358,19 +353,19 @@ void AL_Map_Layers( GtkListStore * store )
 	GtkTreeIter iter;
 	gtk_list_store_clear( store );
 	gtk_list_store_append( store, &iter );
-	gtk_list_store_set( store, &iter, 1, TRUE, 0, AL_SettingString("string.layer0"), 2, 0,-1 );
+	gtk_list_store_set( store, &iter, 1, TRUE, 0, AL_Setting_GetString("string.layer0"), 2, 0,-1 );
 	gtk_list_store_append( store, &iter );
-	gtk_list_store_set( store, &iter, 1, TRUE, 0, AL_SettingString("string.layer1"), 2, 1,-1 );
+	gtk_list_store_set( store, &iter, 1, TRUE, 0, AL_Setting_GetString("string.layer1"), 2, 1,-1 );
 	gtk_list_store_append( store, &iter );
-	gtk_list_store_set( store, &iter, 1, TRUE, 0, AL_SettingString("string.layer2"), 2, 2,-1 );
+	gtk_list_store_set( store, &iter, 1, TRUE, 0, AL_Setting_GetString("string.layer2"), 2, 2,-1 );
 	gtk_list_store_append( store, &iter );
-	gtk_list_store_set( store, &iter, 1, TRUE, 0, AL_SettingString("string.layer3"), 2, 3,-1 );
+	gtk_list_store_set( store, &iter, 1, TRUE, 0, AL_Setting_GetString("string.layer3"), 2, 3,-1 );
 	gtk_list_store_append( store, &iter );
-	gtk_list_store_set( store, &iter, 1, TRUE, 0, AL_SettingString("string.layer4"), 2, 4,-1 );
+	gtk_list_store_set( store, &iter, 1, TRUE, 0, AL_Setting_GetString("string.layer4"), 2, 4,-1 );
 	gtk_list_store_append( store, &iter );
-	gtk_list_store_set( store, &iter, 1, TRUE, 0, AL_SettingString("string.layer5"), 2, 5,-1 );
+	gtk_list_store_set( store, &iter, 1, TRUE, 0, AL_Setting_GetString("string.layer5"), 2, 5,-1 );
 	gtk_list_store_append( store, &iter );
-	gtk_list_store_set( store, &iter, 1, TRUE, 0, AL_SettingString("string.layer6"), 2, 6,-1 );
+	gtk_list_store_set( store, &iter, 1, TRUE, 0, AL_Setting_GetString("string.layer6"), 2, 6,-1 );
 }
 
 

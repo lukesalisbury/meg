@@ -25,7 +25,7 @@ Permission is granted to anyone to use this software for any purpose, including 
 #define	RUNTIMEOPTION_MAPENTITY 8
 
 guint RuntimeSetting_Type( const gchar *type );
-gboolean RuntimeSetting_BooleanCheck( GHashTable * settings, gchar * value);
+gboolean RuntimeSetting_BooleanCheck( GHashTable * settings_table, gchar * value);
 
 void RuntimeSetting_AddOption( GtkButton * button, GtkWidget * table );
 void RuntimeSetting_CreateWidget( const gchar * name, RuntimeSettingsStruct * options, GtkWidget * list );
@@ -34,13 +34,16 @@ void RuntimeSetting_AttachWidget( const gchar * name, RuntimeSettingsStruct * op
 void RuntimeSetting_SaveWidget_Foreach( const gchar * name, RuntimeSettingsStruct * options, gpointer data );
 
 RuntimeSettingsStruct * RuntimeSetting_New(const gchar *value, const gchar *type );
+void RuntimeSettings_FreePointer( gpointer data );
+
 RuntimeSettingsStruct * RuntimeSetting_Copy( RuntimeSettingsStruct * value );
-void RuntimeSetting_Update( GHashTable * settings, gchar * key, gchar * value );
-void RuntimeSetting_UpdateValue( GHashTable * settings, gchar * key, gint value );
-void RuntimeSetting_UpdateBoolean( GHashTable * settings, gchar * key, gboolean value );
+void RuntimeSetting_InsertNew( GHashTable * settings_table, const gchar * key, const gchar * value, const gchar * type );
+void RuntimeSetting_Update( GHashTable * settings_table, gchar * key, gchar * value );
+void RuntimeSetting_UpdateValue( GHashTable * settings_table, gchar * key, gint value );
+void RuntimeSetting_UpdateBoolean( GHashTable * settings_table, gchar * key, gboolean value );
 void RuntimeSetting_Delete( RuntimeSettingsStruct * data );
 void RuntimeSetting_Append( gchar * key, RuntimeSettingsStruct * value, GHashTable * table );
-gint RuntimeSetting_GetValue( GHashTable * settings, gchar * key );
-void RuntimeSetting_SetDefaultValues( MokoiMapObject * object );
+gint RuntimeSetting_GetValue( GHashTable * settings_table, gchar * key );
+void RuntimeSetting_SetDefaultValues( DisplayObject * object );
 
 #endif

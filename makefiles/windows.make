@@ -29,8 +29,8 @@ ifeq ($(USEGTKSOURCEVIEW), TRUE)
 	PLATFORM_FLAGS += -DUSEGTKSOURCEVIEW -I"$(SUPPORTPATH)/include/gtksourceview-2.0"
 endif
 ifeq ($(USESOUP), TRUE)
-	PLATFORM_FLAGS += -DUSE_SOUP -I"$(SUPPORTPATH)/custom/include/libsoup-2.4"
-	PLATFORM_LIBS += -L"$(SUPPORTPATH)/custom/lib" -lsoup-2.4.dll
+	PLATFORM_FLAGS += -DUSE_SOUP -I"$(SUPPORTPATH)/include/libsoup-2.4"
+	PLATFORM_LIBS += -L"$(SUPPORTPATH)/lib" -lsoup-2.4.dll
 endif
 
 

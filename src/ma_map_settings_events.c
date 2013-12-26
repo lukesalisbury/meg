@@ -193,8 +193,7 @@ void Meg_MapSettings_OpenEntity( GtkButton * widget, GtkWidget * map_widget )
 	g_return_if_fail( GTK_IS_ALCHERA_MAP(map_widget) );
 
 	MapInfo * map_info = gtk_alchera_map_get_info( GTK_ALCHERA_MAP(map_widget) );
-	MokoiMap * mokoi_map_data = (MokoiMap *)map_info->data;
-	EntityEditor_New( mokoi_map_data->entity_filename );
+	EntityEditor_New( MAP_DATA(map_info)->entity_filename );
 
 }
 

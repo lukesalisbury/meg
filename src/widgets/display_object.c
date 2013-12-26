@@ -25,11 +25,11 @@ Permission is granted to anyone to use this software for any purpose, including 
 guint16	mapGridValue = 16;
 
 /* External Functions */
-DisplayObject * AL_Object_Add( MapInfo * map, gchar * indent, gdouble x, gdouble y, gdouble w, gdouble h, gint z );
-DisplayObject * AL_Object_Get( MapInfo * map, gint id);
-gboolean AL_Object_Remove( MapInfo * map, gint id);
-gboolean AL_Object_Update( MapInfo * map, gint id, gdouble x, gdouble y, gdouble w, gdouble h, gint z );
-gboolean AL_Object_Advance( MapInfo * map, gint id, GtkWindow * window );
+DisplayObject * AL_Object_Add( MapInfo * map_info, gchar * indent, gdouble x, gdouble y, gdouble w, gdouble h, gint z );
+DisplayObject * AL_Object_Get( MapInfo * map_info, gint id);
+gboolean AL_Object_Remove( MapInfo * map_info, gint id);
+gboolean AL_Object_Update( MapInfo * map_info, gint id, gdouble x, gdouble y, gdouble w, gdouble h, gint z );
+gboolean AL_Object_Advance( MapInfo * map_info, gint id, GtkWindow * window );
 
 /* UI */
 
@@ -858,6 +858,32 @@ void Alchera_DisplayObject_RefreshBorder(DisplayObject * object )
 }
 
 
+
+/********************************
+* Alchera_DisplayObject_New
+*
+*/
+DisplayObject * Alchera_DisplayObject_New( gpointer data, gboolean (*free)(gpointer) )
+{
+	DisplayObject * object = g_new0(DisplayObject, 1);
+
+	if ( data )
+	{
+		object->data = data;
+		object->free = free;
+	}
+
+	object->rotate = 0;
+	object->type = DT_OTHER;
+	object->resizable = TRUE;
+	object->supports_path = FALSE;
+	object->flip = 0;
+	object->colour.red = object->colour.blue = object->colour.green = object->colour.alpha = 1.0;
+
+
+
+	return object;
+}
 
 
 

@@ -23,7 +23,7 @@ Permission is granted to anyone to use this software for any purpose, including 
 
 #include "audio_functions.h"
 #include "sheets_functions.h"
-#include "package_dialog.h"
+#include "package.h"
 
 #ifdef CUSTOMSETTINGS
 #include "../custom/default_banner.h"
@@ -192,7 +192,7 @@ gboolean AL_CreateRequiredFiles( gchar * root_dir )
 @ base_project: Name of existing base project, or NULL for none;
 * Returns filename or NULL;
 */
-gchar * AL_CreateProject(  const gchar * title, gchar * base_project )
+gchar * AL_CreateProject( const gchar * title )
 {
 	gchar * path = NULL;
 	gchar * root_dir, * temp_path, * directory_name;
@@ -221,14 +221,6 @@ gchar * AL_CreateProject(  const gchar * title, gchar * base_project )
 
 		#ifdef FORCE_PACKAGE
 		g_string_append_printf(init_config, "package.main=%s\n", FORCE_PACKAGE );
-		#else
-		if ( base_project != NULL )
-		{
-			if ( !Package_ImportInital() )
-			{
-				g_string_append_printf(init_config, "package.main=%s\n", base_project );
-			}
-		}
 		#endif
 
 		/* Write Config */
@@ -414,7 +406,7 @@ gchar * AL_LoadProject(const gchar *path )
 			g_print("PHYSFS_setWriteDir %s", PHYSFS_getLastError() );
 		}
 
-		gchar * package_name = AL_SettingString("package.main");
+		gchar * package_name = AL_Setting_GetString("package.main");
 		if ( package_name )
 		{
 			gchar * package_location = Meg_Directory_DataFile( "packages", package_name );
@@ -567,7 +559,7 @@ void AL_ProjectPackages( GtkTreeView * tree_view )
 	#ifdef FORCE_PACKAGE
 	gtk_tree_store_append( store, &iter, NULL);
 	gtk_tree_store_set( store, &iter, 0, "Standard Content", 1, FORCE_PACKAGE, 2, "Use the default content.", 3, default_pixbuf, -1 );
-	gtk_tree_selection_select_iter(selection, &iter);
+	gtk_tree_selection_select_iter( selection, &iter );
 
 	#else
 	const gchar * current_file;

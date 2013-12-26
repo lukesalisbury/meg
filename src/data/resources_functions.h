@@ -15,7 +15,7 @@ Permission is granted to anyone to use this software for any purpose, including 
 	#include "ma_types.h"
 
 	/* Sheets */
-	GdkPixbuf * SpriteSheet_GetPixbuf(gchar * name, Spritesheet * sheet );
+	GdkPixbuf * Sheet_GetPixbuf(gchar * name, Spritesheet * sheet );
 	void Sheets_ListEach( Spritesheet * sheet, GtkListStore * list );
 	GSList * Sheet_Find( gchar * file_name );
 	Spritesheet * Sheet_Get( gchar * file_name, gboolean create );
@@ -29,23 +29,16 @@ Permission is granted to anyone to use this software for any purpose, including 
 	SheetObject * Sprite_GetFull( gchar * full_ident, gboolean load);
 	GdkPixbuf * Sprite_GetPixbuf( gchar * name, gchar * sheet );
 
-
-	void VirtualObject_UpdateSprite( VirtualObject * object );
-	VirtualObject * VirtualObject_New(gchar * name, gdouble area_width, gdouble area_height );
-
-
+	/* VirtualObject */
+	DisplayObject * VirtualObject_New( gchar * name, gdouble area_width, gdouble area_height );
+	SheetObject * VirtualObject_UpdateSprite( DisplayObject * object );
 
 	/* Animation */
 	AnimationDetail * Animation_Get( gchar * name );
 
-
 	/* Map Object */
-	MokoiMapObject * MapObject_New(gchar * name , gdouble area_width, gdouble area_height);
-	SheetObject * MapObject_UpdateSprite( MokoiMapObject * object );
-	VirtualObject * VirtualObject_New(gchar * name, gdouble area_width, gdouble area_height );
+	DisplayObject * MapObject_New( gchar * name, gdouble area_width, gdouble area_height);
+	SheetObject * MapObject_UpdateSprite(DisplayObject *object );
 
-	/* Sheets */
-	Spritesheet * MokoiSheet_New();
-	gboolean MokoiSheet_Free( Spritesheet * sheet );
 
 #endif

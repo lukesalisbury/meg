@@ -120,7 +120,7 @@ Spritesheet * Sheet_Get( gchar * file_name, gboolean create )
 {
 	if ( !g_ascii_strcasecmp(file_name, "Virtual") )
 	{
-		return VirtualSpriteSheet_Get();
+		return VirtualSpriteSheet_Get( TRUE );
 	}
 
 

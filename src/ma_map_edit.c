@@ -27,7 +27,7 @@ extern GtkWidget * mapNotebook;
 /* Global Variables */
 
 /* External Functions */
-gboolean AL_Map_ContructRuntimeWidget( MapInfo * map, GtkWidget * box_runtime );
+gboolean AL_Map_ContructRuntimeWidget( MapInfo * map_info, GtkWidget * box_runtime );
 
 /* UI */
 #include "ui/map_edit.gui.h"
@@ -42,8 +42,8 @@ void Meg_MapInfo_Destory( MapInfo * data )
 {
 	if ( data )
 	{
-		if ( data->displayList )
-			g_list_free( data->displayList );
+		if ( data->display_list )
+			g_list_free( data->display_list );
 		g_free( data->name );
 		data = NULL;
 	}
@@ -126,8 +126,8 @@ GtkWidget * Meg_MapEdit_Open( gchar * file )
 	MapInfo * map_info = NULL;
 	MapEditAdvanceWidget * settings_widgets = NULL;
 
-	gdouble map_size_width = AL_SettingDouble("map.width");
-	gdouble map_size_height = AL_SettingDouble("map.height");
+	gdouble map_size_width = AL_Setting_GetDouble("map.width");
+	gdouble map_size_height = AL_Setting_GetDouble("map.height");
 
 	/* UI */
 	GtkBuilder * ui = Meg_Builder_Create( alchera_map_edit_ui, __func__, __LINE__ );

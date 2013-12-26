@@ -2,48 +2,9 @@
 <interface>
   <requires lib="gtk+" version="2.20"/>
   <!-- interface-naming-policy toplevel-contextual -->
-  <object class="GtkImage" id="image1">
-    <property name="visible">True</property>
-    <property name="can_focus">False</property>
-    <property name="stock">gtk-network</property>
-  </object>
-  <object class="GtkListStore" id="store_package">
-    <columns>
-      <!-- column-name Installing -->
-      <column type="gboolean"/>
-      <!-- column-name Name -->
-      <column type="gchararray"/>
-      <!-- column-name Path -->
-      <column type="gchararray"/>
-      <!-- column-name Local -->
-      <column type="gboolean"/>
-      <!-- column-name version -->
-      <column type="gchararray"/>
-      <!-- column-name button -->
-      <column type="gchararray"/>
-      <!-- column-name button_image -->
-      <column type="gchararray"/>
-      <!-- column-name type_image -->
-      <column type="GdkPixbuf"/>
-      <!-- column-name type -->
-      <column type="guchar"/>
-      <!-- column-name Description -->
-      <column type="gchararray"/>
-    </columns>
-  </object>
-  <object class="GtkListStore" id="store_type">
-    <columns>
-      <!-- column-name text -->
-      <column type="gchararray"/>
-    </columns>
-    <data>
-      <row>
-        <col id="0" translatable="yes">All</col>
-      </row>
-    </data>
-  </object>
   <object class="GtkDialog" id="dialog">
     <property name="can_focus">False</property>
+    <property name="title" translatable="yes">Import </property>
     <property name="type_hint">normal</property>
     <child internal-child="vbox">
       <object class="GtkVBox" id="dialog-vbox2">
@@ -85,25 +46,6 @@
                     <property name="expand">True</property>
                     <property name="fill">True</property>
                     <property name="position">1</property>
-                  </packing>
-                </child>
-                <child>
-                  <object class="GtkComboBox" id="combobox1">
-                    <property name="visible">True</property>
-                    <property name="can_focus">False</property>
-                    <property name="model">store_type</property>
-                    <property name="active">0</property>
-                    <child>
-                      <object class="GtkCellRendererText" id="cellrenderertext5"/>
-                      <attributes>
-                        <attribute name="text">0</attribute>
-                      </attributes>
-                    </child>
-                  </object>
-                  <packing>
-                    <property name="expand">True</property>
-                    <property name="fill">True</property>
-                    <property name="position">2</property>
                   </packing>
                 </child>
               </object>
@@ -211,9 +153,40 @@
           </packing>
         </child>
         <child>
-          <object class="GtkProgressBar" id="progress_action">
+          <object class="GtkHBox" id="hbox2">
             <property name="visible">True</property>
             <property name="can_focus">False</property>
+            <property name="spacing">4</property>
+            <child>
+              <object class="GtkProgressBar" id="progress_action">
+                <property name="visible">True</property>
+                <property name="can_focus">False</property>
+              </object>
+              <packing>
+                <property name="expand">True</property>
+                <property name="fill">True</property>
+                <property name="position">0</property>
+              </packing>
+            </child>
+            <child>
+              <object class="GtkComboBox" id="combobox1">
+                <property name="visible">True</property>
+                <property name="can_focus">False</property>
+                <property name="model">store_type</property>
+                <property name="active">0</property>
+                <child>
+                  <object class="GtkCellRendererText" id="cellrenderertext5"/>
+                  <attributes>
+                    <attribute name="text">0</attribute>
+                  </attributes>
+                </child>
+              </object>
+              <packing>
+                <property name="expand">True</property>
+                <property name="fill">True</property>
+                <property name="position">1</property>
+              </packing>
+            </child>
           </object>
           <packing>
             <property name="expand">False</property>
@@ -225,30 +198,31 @@
           <object class="GtkHButtonBox" id="dialog-action_area2">
             <property name="visible">True</property>
             <property name="can_focus">False</property>
-            <property name="layout_style">end</property>
+            <property name="layout_style">edge</property>
             <child>
-              <object class="GtkButton" id="button_close">
-                <property name="label">gtk-close</property>
-                <property name="use_action_appearance">False</property>
+              <object class="GtkButton" id="button_update">
+                <property name="label" translatable="yes">Check for Updates</property>
                 <property name="visible">True</property>
                 <property name="can_focus">True</property>
                 <property name="receives_default">True</property>
-                <property name="use_stock">True</property>
+                <property name="image">image2</property>
               </object>
               <packing>
                 <property name="expand">False</property>
                 <property name="fill">False</property>
-                <property name="position">1</property>
+                <property name="position">0</property>
               </packing>
             </child>
             <child>
-              <object class="GtkButton" id="button_update">
-                <property name="label" translatable="yes">Check for Updates</property>
-                <property name="use_action_appearance">False</property>
+              <placeholder/>
+            </child>
+            <child>
+              <object class="GtkButton" id="button_close">
+                <property name="label">gtk-close</property>
                 <property name="visible">True</property>
                 <property name="can_focus">True</property>
                 <property name="receives_default">True</property>
-                <property name="image">image1</property>
+                <property name="use_stock">True</property>
               </object>
               <packing>
                 <property name="expand">False</property>
@@ -268,8 +242,48 @@
       </object>
     </child>
     <action-widgets>
-      <action-widget response="-4">button_close</action-widget>
       <action-widget response="0">button_update</action-widget>
+      <action-widget response="-4">button_close</action-widget>
     </action-widgets>
+  </object>
+  <object class="GtkImage" id="image1">
+    <property name="visible">True</property>
+    <property name="can_focus">False</property>
+    <property name="stock">gtk-network</property>
+  </object>
+  <object class="GtkListStore" id="store_package">
+    <columns>
+      <!-- column-name Installing -->
+      <column type="gboolean"/>
+      <!-- column-name Name -->
+      <column type="gchararray"/>
+      <!-- column-name Path -->
+      <column type="gchararray"/>
+      <!-- column-name Local -->
+      <column type="gboolean"/>
+      <!-- column-name version -->
+      <column type="gchararray"/>
+      <!-- column-name button -->
+      <column type="gchararray"/>
+      <!-- column-name button_image -->
+      <column type="gchararray"/>
+      <!-- column-name type_image -->
+      <column type="GdkPixbuf"/>
+      <!-- column-name type -->
+      <column type="guchar"/>
+      <!-- column-name Description -->
+      <column type="gchararray"/>
+    </columns>
+  </object>
+  <object class="GtkListStore" id="store_type">
+    <columns>
+      <!-- column-name text -->
+      <column type="gchararray"/>
+    </columns>
+    <data>
+      <row>
+        <col id="0" translatable="yes">All</col>
+      </row>
+    </data>
   </object>
 </interface>

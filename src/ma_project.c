@@ -24,7 +24,7 @@ extern gchar * project_file_path;
 void MegWidget_Project_EditSetting( GtkCellRendererText *cellrenderertext, gchar *path_string, gchar *new_text, gpointer user_data );
 void Project_Publish( GtkButton *button, gpointer user_data);
 void MegWidget_Project_Refresh( GtkWidget * widget, gpointer user_data );
-void AL_SettingsRefreshAdvance(  );
+void AL_Settings_RefreshAdvance(  );
 
 /* UI */
 #include "ui/project_settings.gui.h"
@@ -58,11 +58,11 @@ void MegWidget_Project_Create()
 	SET_OBJECT_SIGNAL( ui, "meg_advance_value", "edited", G_CALLBACK(MegWidget_Project_EditSetting), advance);
 	SET_OBJECT_SIGNAL( ui, "alchera_project_config", "button-press-event", G_CALLBACK(MegWidget_Project_Menu_Click), advance);
 	SET_OBJECT_SIGNAL( ui, "alchera_project_config", "popup-menu", G_CALLBACK(MegWidget_Project_Menu_Button), advance);
-	SET_OBJECT_SIGNAL( ui, "alchera_project_config", "realize", G_CALLBACK(AL_SettingsRefreshAdvance), advance);
+	SET_OBJECT_SIGNAL( ui, "alchera_project_config", "realize", G_CALLBACK(AL_Settings_RefreshAdvance), advance);
 
 	//SET_OBJECT_SIGNAL( ui, "publish_button", "clicked", G_CALLBACK(Project_Publish), NULL );
 
-	AL_SettingWidget( ui );
+	AL_Setting_Widget( ui );
 
 	/* tab settings */
 	g_object_set_data( G_OBJECT(widget), "meg-help-page", g_strdup(PROGRAMSHELPDIRECTORY"/Project.xml") );
@@ -76,7 +76,7 @@ void MegWidget_Project_Create()
 void MegWidget_Project_Init()
 {
 	gtk_label_set_label(GTK_LABEL(meg_project_path), project_file_path);
-	AL_SettingsRefresh();
+	AL_Settings_Refresh();
 }
 
 /********************************
@@ -85,7 +85,7 @@ void MegWidget_Project_Init()
 */
 void MegWidget_Project_Refresh( GtkWidget * widget, gpointer user_data )
 {
-	AL_SettingsRefresh();
+	AL_Settings_Refresh();
 }
 
 /********************************
@@ -95,7 +95,7 @@ void MegWidget_Project_Refresh( GtkWidget * widget, gpointer user_data )
 void MegWidget_Project_Close()
 {
 	gtk_label_set_label(GTK_LABEL(meg_project_path), "");
-	AL_SettingsClear();
+	AL_Settings_Clear();
 }
 
 

@@ -25,7 +25,7 @@ Permission is granted to anyone to use this software for any purpose, including 
 /* Global Variables */
 
 /* External Functions */
-gboolean AL_Map_ContructRuntimeWidget( MapInfo * map, GtkWidget * box_runtime );
+gboolean AL_Map_ContructRuntimeWidget( MapInfo * map_info, GtkWidget * box_runtime );
 
 /* UI */
 

@@ -18,7 +18,7 @@ Permission is granted to anyone to use this software for any purpose, including 
 #include "loader_functions.h"
 #include "logger_functions.h"
 #include "maps.h"
-#include "package_dialog.h"
+#include "package.h"
 #include "import_functions.h"
 #include "sheets_functions.h"
 
@@ -166,7 +166,7 @@ gboolean AL_Play()
 */
 gchar * AL_Title()
 {
-	gchar * title = AL_SettingString( "project.title" );
+	gchar * title = AL_Setting_GetString( "project.title" );
 	if ( title )
 		return title;
 	else

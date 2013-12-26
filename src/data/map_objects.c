@@ -17,7 +17,7 @@ Permission is granted to anyone to use this software for any purpose, including 
 #include "object_advance.h"
 #include "sheets_functions.h"
 #include "animation_functions.h"
-
+#include "virtual_sprite.h"
 /* External Functions */
 
 
@@ -46,76 +46,10 @@ GdkPixbuf * mokoiObjectMissing = NULL;
 * AL_Object_List
 * Get the current map list of display objects
 */
-GList * AL_Object_List( MapInfo * map )
+GList * AL_Object_List( MapInfo * map_info )
 {
-	MokoiMap * mokoi_map_data = (MokoiMap *)map->data;
+	return map_info->display_list;
 
-	/* MokoiMapObject hold the Full Details about the Map Object.
-	   This includes the <DisplayObject> used on the map editor.
-	*/
-	MokoiMapObject * obj = NULL;
-	GList * scan = g_list_first( mokoi_map_data->objects );
-
-	while ( scan )
-	{
-		obj = (MokoiMapObject *)scan->data;
-
-		obj->object->tw = obj->object->th = 1;
-		obj->object->type = DT_NONE;
-		obj->object->timeout = FALSE;
-		switch ( obj->type )
-		{
-			case 's':
-				MapObject_UpdateSprite( obj );
-				break;
-			case 't':
-				obj->object->type = DT_TEXT;
-				obj->object->data = (gpointer)g_strdup( obj->name );
-				break;
-			case 'l':
-				obj->object->type = DT_LINE;
-				break;
-			case 'r':
-				obj->object->type = DT_RECTANGLE;
-				break;
-			case 'p':
-				obj->object->type = DT_POLYGON;
-				obj->object->resizable = FALSE;
-				break;
-			case 'c':
-				obj->object->type = DT_CIRCLE;
-				break;
-			default:
-				obj->object->type = DT_OTHER;
-				break;
-		}
-
-		if ( obj->object->image )
-		{
-			obj->object->type = DT_IMAGE;
-			obj->object->tw = gdk_pixbuf_get_width( obj->object->image );
-			obj->object->th = gdk_pixbuf_get_height( obj->object->image );
-		}
-
-		if ( obj->object->type == DT_IMAGE || obj->object->type == DT_ANIMATION )
-		{
-			if ( obj->object->w < 1.00 )
-			{
-				obj->object->w = obj->object->tw;
-			}
-			if ( obj->object->h < 1.00 )
-			{
-				obj->object->h = obj->object->th;
-			}
-		}
-
-
-		obj->object->active = obj->object->tile = FALSE;
-		obj->object->id = obj->id;
-		map->displayList = g_list_append(map->displayList, obj->object);
-		scan = g_list_next( scan );
-	}
-	return NULL;
 }
 
 
@@ -170,45 +104,20 @@ void DisplayObject_UpdateInformation( DisplayObject * object, gchar * ident, gdo
 * Add object to current map
 @ ident: resource id of object.
 */
-DisplayObject * AL_Object_Add( MapInfo * map, gchar * ident, gdouble x, gdouble y, gdouble w, gdouble h, gint z)
+DisplayObject * AL_Object_Add( MapInfo * map_info, gchar * ident, gdouble x, gdouble y, gdouble w, gdouble h, gint z)
 {
 	DisplayObject * object = NULL;
 
-
-	if ( map->file_type == 0 )
+	if ( map_info->file_type == 0 )
 	{
-		MokoiMapObject * map_obj = NULL;
-		MokoiMap * mokoi_map_data = (MokoiMap *)map->data;
-
-		map_obj = MapObject_New( ident, w, h );
-
-		if ( !map_obj )
-			return object;
-
-		object = map_obj->object;
-
-		map_obj->parent = map;
-		mokoi_map_data->objects = g_list_append(mokoi_map_data->objects, (gpointer)map_obj);
-		map_obj->id = object->id = mokoi_map_data->id_count++;
-
+		object = MapObject_New( ident, w, h );
 	}
-	else if ( map->file_type == 1 )
+	else if ( map_info->file_type == 1 )
 	{
-		VirtualObject * virt_obj = NULL;
-		VirtualObjectList * virtual_object_list = (VirtualObjectList *)map->data;
-
-		virt_obj = VirtualObject_New( ident, w, h );
-
-		if ( !virt_obj )
-			return object;
-
-
-		object = virt_obj->object;
-
-		virtual_object_list->objects = g_list_append(virtual_object_list->objects, (gpointer)virt_obj );
-		object->id = virtual_object_list->id_count++;
-
+		object = VirtualObject_New( ident, w, h );
 	}
+
+	object->id = map_info->id_counter++;
 
 	if ( object )
 	{
@@ -223,22 +132,18 @@ DisplayObject * AL_Object_Add( MapInfo * map, gchar * ident, gdouble x, gdouble 
 *
 @ id: id for display object.
 */
-G_MODULE_EXPORT gboolean AL_Object_Remove( MapInfo * map, gint id )
+G_MODULE_EXPORT gboolean AL_Object_Remove( MapInfo * map_info, gint id )
 {
-	MokoiMap * mokoi_map_data = (MokoiMap *)map->data;
-	if ( mokoi_map_data )
+	GList * object_item = g_list_nth( map_info->display_list, id );
+	if ( object_item != NULL )
 	{
-		GList * object = g_list_nth( mokoi_map_data->objects, id );
-		if ( object != NULL )
-		{
-			MokoiMapObject * obj = (MokoiMapObject *)object->data;
-			/*if ( obj->object->data != NULL )
-				g_free(obj->object->data);
-				*/
-			obj->object->type = DT_DELETE;
-			return TRUE;
-		}
+		DisplayObject * object = (DisplayObject *)object_item->data;
+		if ( object->free )
+			object->free(object->data);
+		object->type = DT_DELETE;
+		return TRUE;
 	}
+
 	return FALSE;
 }
 
@@ -248,7 +153,7 @@ G_MODULE_EXPORT gboolean AL_Object_Remove( MapInfo * map, gint id )
 @ map:
 @ id:
 */
-G_MODULE_EXPORT gboolean AL_Object_Update( MapInfo * map, gint id, gdouble x, gdouble y, gdouble w, gdouble h, gint z )
+G_MODULE_EXPORT gboolean AL_Object_Update( MapInfo * map_info, gint id, gdouble x, gdouble y, gdouble w, gdouble h, gint z )
 {
 	return FALSE;
 }
@@ -262,20 +167,19 @@ void RuntimeSetting_MenuItem( gchar * name, RuntimeSettingsStruct * options, Gtk
 @ map:
 @ id:
 */
-GtkWidget * Object_GetSettingMenu(MapInfo * map, guint id )
+GtkWidget * Object_GetSettingMenu(MapInfo * map_info, guint id )
 {
-    MokoiMap * mokoi_map_data = (MokoiMap *)map->data;
-    GList * object = g_list_nth(mokoi_map_data->objects, id);
-    GtkWidget * menu_widget = NULL;
+	GtkWidget * menu_widget = NULL;
+	GList * object_item = g_list_nth(map_info->display_list, id);
 
-    if ( object != NULL )
+	if ( object_item != NULL )
     {
-        MokoiMapObject * current = (MokoiMapObject*)object->data;
+		DisplayObject * object = (DisplayObject*)object_item->data;
 
-        if ( g_hash_table_size(current->settings) )
+		if ( g_hash_table_size( MAP_OBJECT_DATA(object)->settings) )
         {
             menu_widget = gtk_menu_new();
-            g_hash_table_foreach( current->settings, (GHFunc)RuntimeSetting_MenuItem, menu_widget );
+			g_hash_table_foreach( MAP_OBJECT_DATA(object)->settings, (GHFunc)RuntimeSetting_MenuItem, menu_widget );
         }
     }
     return menu_widget;
@@ -287,28 +191,27 @@ GtkWidget * Object_GetSettingMenu(MapInfo * map, guint id )
 @ map:
 @ id:
 */
-G_MODULE_EXPORT gboolean AL_Object_Advance( MapInfo * map, gint id, GtkWindow * window )
+G_MODULE_EXPORT gboolean AL_Object_Advance( MapInfo * map_info, gint id, GtkWindow * window )
 {
 	gboolean result = FALSE;
-	MokoiMap * mokoi_map_data = (MokoiMap *)map->data;
-	GList * object = g_list_nth(mokoi_map_data->objects, id);
+	GList * object_item = g_list_nth(map_info->display_list, id);
 
-	if ( object != NULL )
+	if ( object_item != NULL )
 	{
-		MokoiMapObject * current = (MokoiMapObject*)object->data;
+		DisplayObject * object = (DisplayObject*)object_item->data;
 
-		if ( current->type == 's' || current->type == 'a' )
-			result = ObjectAdvance_Sprite( current, window );
-		else if ( current->type == 't' )
-			result = ObjectAdvance_Text( current, window );
-		else if ( current->type == 'r' || current->type == 'c' || current->type == 'p' )
-			result = ObjectAdvance_Shape( current, window );
-		else if ( current->type == 'l' )
-			result = ObjectAdvance_Line( current, window );
-		else if ( current->type == 'M' || current->type == 'p' )
-			result = ObjectAdvance_File( current, window );
+		if ( MAP_OBJECT_DATA(object)->type == 's'  )
+			result = ObjectAdvance_Sprite( object, window );
+		else if ( MAP_OBJECT_DATA(object)->type == 't' )
+			result = ObjectAdvance_Text( object, window );
+		else if ( MAP_OBJECT_DATA(object)->type == 'r' || MAP_OBJECT_DATA(object)->type == 'c' || MAP_OBJECT_DATA(object)->type == 'p' )
+			result = ObjectAdvance_Shape( object, window );
+		else if ( MAP_OBJECT_DATA(object)->type == 'l' )
+			result = ObjectAdvance_Line( object, window );
+		else if ( MAP_OBJECT_DATA(object)->type == 'M' || MAP_OBJECT_DATA(object)->type == 'p' )
+			result = ObjectAdvance_File( object, window );
 		else
-			Meg_Error_Print( __func__, __LINE__, "No Options for that object type. (%c)", current->type);
+			Meg_Error_Print( __func__, __LINE__, "No Options for that object type. (%c)", MAP_OBJECT_DATA(object)->type);
 	}
 	else
 	{
@@ -324,9 +227,16 @@ G_MODULE_EXPORT gboolean AL_Object_Advance( MapInfo * map, gint id, GtkWindow * 
 @ map:
 @ id:
 */
-G_MODULE_EXPORT DisplayObject * AL_Object_Get( MapInfo * map, gint id)
+G_MODULE_EXPORT DisplayObject * AL_Object_Get( MapInfo * map_info, gint id )
 {
-	return NULL;
+	DisplayObject * object = NULL;
+	GList * object_item = g_list_nth(map_info->display_list, id);
+
+	if ( object_item != NULL )
+	{
+		object = (DisplayObject*)object_item->data;
+	}
+	return object;
 }
 
 /********************************

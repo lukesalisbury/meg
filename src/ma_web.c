@@ -24,7 +24,7 @@ typedef struct {
 /* UI */
 
 #include "ui/retrieve_dialog.gui.h"
-const gchar * Ui_RetrieveDialog = GUIRETRIEVE_DIALOG
+const gchar * UIRetrieveDialog = GUIRETRIEVE_DIALOG
 
 
 #ifdef USE_SOUP
@@ -312,7 +312,7 @@ GAsyncQueue * Meg_Web_RetrieveQueue(const gchar * url, gchar * user, gchar * pas
 	WebRetrieve * download = g_new0( WebRetrieve, 1 );
 
 	/* UI */
-	GtkBuilder * ui = Meg_Builder_Create(Ui_RetrieveDialog, __func__, __LINE__);
+	GtkBuilder * ui = Meg_Builder_Create(UIRetrieveDialog, __func__, __LINE__);
 	g_return_val_if_fail( ui, FALSE );
 
 	/* Widgets */

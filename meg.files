@@ -356,7 +356,7 @@ res/ui/audio_custom_widget.gui
 res/ui/animation_advance.gui
 res/ui/about_window_custom.gui
 res/ui/about_window.gui
-src/data/package_dialog.h
+src/data/package.h
 src/data/progress_dialog.c
 src/data/progress_dialog.h
 res/ui/world_add.gui

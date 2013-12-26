@@ -60,7 +60,7 @@ gpointer GameCompiler_Thread( ProgressDialogWidgets *wids )
 
 	/* Title and ID */
 	g_snprintf( (gchar *)name, 255, "%s", AL_Title() );
-	id = AL_SettingNumber( "project.id" );
+	id = AL_Setting_GetNumber( "project.id" );
 
 	/* Check for Logo */
 	if ( Meg_file_test("/sprites/__icon.png", (G_FILE_TEST_EXISTS | G_FILE_TEST_IS_REGULAR) ) )
@@ -208,7 +208,7 @@ gboolean AL_Compile()
 	title = Project_CleanTitle( NULL );
 	file_name = g_strdup_printf( "%s.%s", title, GAME_EXTENSION );
 	file_path = g_build_filename( Meg_Directory_Document(), file_name, NULL );
-	package_name = AL_SettingString("package.main");
+	package_name = AL_Setting_GetString("package.main");
 
 	/* UI */
 	GtkBuilder * ui = Meg_Builder_Create(mokoiUI_CompileCreate, __func__, __LINE__);

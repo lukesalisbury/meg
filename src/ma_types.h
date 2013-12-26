@@ -12,6 +12,7 @@ extern "C" {
 #define GET_WIDGET(b,n)	GTK_WIDGET( gtk_builder_get_object( (b), (n) ) )
 #define GET_LISTSTORE(b,n)	GTK_LIST_STORE( gtk_builder_get_object( (b), (n) ) )
 #define GET_LABEL_WIDGET(b,n)	GTK_LABEL( gtk_builder_get_object( (b), (n) ) )
+#define GET_SPIN_WIDGET(b,n)	GTK_SPIN_BUTTON( gtk_builder_get_object( (b), (n) ) )
 
 #define SET_OBJECT_SIGNAL(b,n,e,c,d)	g_signal_connect( gtk_builder_get_object( (b), (n) ), (e), (c), (d));
 #define SET_OBJECT_SIGNAL_SWAP(b,n,e,c,d)	g_signal_connect_swapped( gtk_builder_get_object( (b), (n) ), (e), (c), (d));
@@ -53,6 +54,15 @@ typedef struct {
 	gpointer data;
 	gboolean (*free)(gpointer data);
 } Spritesheet;
+
+typedef struct {
+	GdkRectangle shape;
+	guint id;
+	gboolean show_rect;
+	gchar * name;
+	gpointer data;
+} MapSection;
+
 
 typedef enum LogStyle
 {

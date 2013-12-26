@@ -10,13 +10,13 @@ Permission is granted to anyone to use this software for any purpose, including 
 ****************************/
 
 #ifndef OBJECT_ADVANCE_H
-#define OBJECT_ADVANCE_H
+	#define OBJECT_ADVANCE_H
 
-gboolean ObjectAdvance_Sprite( MokoiMapObject * object, GtkWindow * window );
-gboolean ObjectAdvance_Text( MokoiMapObject * object, GtkWindow * window );
-gboolean ObjectAdvance_Shape( MokoiMapObject * object, GtkWindow * window );
-gboolean ObjectAdvance_Line( MokoiMapObject * object, GtkWindow * window );
-gboolean ObjectAdvance_File( MokoiMapObject * object, GtkWindow * window );
-gboolean ObjectAdvance_Polygon( MokoiMapObject * obj, GtkWindow * window );
+	gboolean ObjectAdvance_Sprite( DisplayObject * object, GtkWindow * window );
+	gboolean ObjectAdvance_Text( DisplayObject * object, GtkWindow * window );
+	gboolean ObjectAdvance_Shape( DisplayObject * object, GtkWindow * window );
+	gboolean ObjectAdvance_Line(DisplayObject * object, GtkWindow * window );
+	gboolean ObjectAdvance_File( DisplayObject * object, GtkWindow * window );
+	gboolean ObjectAdvance_Polygon( DisplayObject * object, GtkWindow * window );
 
 #endif

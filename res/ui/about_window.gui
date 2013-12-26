@@ -10,7 +10,7 @@
 	<property name="destroy_with_parent">True</property>
 	<property name="type_hint">dialog</property>
 	<property name="program_name">Meg</property>
-	<property name="version">0.94</property>
+	<property name="version">0.95</property>
 	<property name="copyright" translatable="yes">Copyright © 2007-2013 Luke Salisbury</property>
 	<property name="comments" translatable="yes">Mokoi Game Editor (GTK)</property>
 	<property name="website">http://mokoi.info/</property>

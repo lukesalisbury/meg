@@ -33,17 +33,17 @@ void Patch_Create( gchar * file, GtkListStore * store );
 #include "ui/import_dialog.gui.h"
 #include "ui/patch_page.gui.h"
 
-const gchar * Ui_ImportDialog = GUIIMPORT_DIALOG
-const gchar * Ui_ProjectNew = GUIPROJECT_NEW
-const gchar * Ui_PrefDialog = GUIPREF_DIALOG
-const gchar * Ui_PatchPage = GUIPATCH_PAGE
+const gchar * UIImportDialog = GUIIMPORT_DIALOG
+const gchar * UIProjectNew = GUIPROJECT_NEW
+const gchar * UIPrefDialog = GUIPREF_DIALOG
+const gchar * UIPatchPage = GUIPATCH_PAGE
 
 #ifdef CUSTOMSETTINGS
 #include "ui/about_window_custom.gui.h"
-const gchar * Ui_AboutWindow = GUIABOUT_WINDOW_CUSTOM
+const gchar * UIAboutWindow = GUIABOUT_WINDOW_CUSTOM
 #else
 #include "ui/about_window.gui.h"
-const gchar * Ui_AboutWindow = GUIABOUT_WINDOW
+const gchar * UIAboutWindow = GUIABOUT_WINDOW
 #endif
 
 /* Functions */
@@ -57,7 +57,7 @@ gboolean Meg_Dialog_About( )
 	GtkWidget * dialog = NULL;
 
 	/* UI */
-	GtkBuilder * ui = Meg_Builder_Create(Ui_AboutWindow, __func__, __LINE__);
+	GtkBuilder * ui = Meg_Builder_Create(UIAboutWindow, __func__, __LINE__);
 	g_return_val_if_fail( ui, FALSE );
 
 	/* Widget */
@@ -87,7 +87,7 @@ gboolean Meg_Dialog_NewProject( )
 	GtkWidget * dialog, * entry_title;
 
 	/* UI */
-	GtkBuilder * ui = Meg_Builder_Create(Ui_ProjectNew, __func__, __LINE__);
+	GtkBuilder * ui = Meg_Builder_Create(UIProjectNew, __func__, __LINE__);
 	g_return_val_if_fail( ui, FALSE );
 
 	/* Widget */
@@ -96,9 +96,6 @@ gboolean Meg_Dialog_NewProject( )
 
 
 	/* Signal */
-
-	/* Get List of content packages*/
-	//AL_ProjectPackages( GTK_TREE_VIEW(tree_package) );
 
 
 	/* Run dialog */
@@ -120,22 +117,7 @@ gboolean Meg_Dialog_NewProject( )
 
 	if ( response == GTK_RESPONSE_ACCEPT )
 	{
-#ifdef FORCE_PACKAGE
-		gchar * base = g_strdup(FORCE_PACKAGE);
-#else
-		gchar * base = NULL;
-#endif
-		/*
-		GtkTreeIter iter;
-		GtkTreeModel * model;
-		GtkTreeSelection * selection = gtk_tree_view_get_selection( GTK_TREE_VIEW(tree_package) );
-		if ( gtk_tree_selection_get_selected( selection, &model, &iter ) )
-		{
-			gtk_tree_model_get( model, &iter, 1, &base, -1 );
-		}
-		*/
-
-		if ( Alchera_Loaders_CreateNew( title, base ) )
+		if ( Alchera_Loaders_CreateNew( title ) )
 		{
 			success = TRUE;
 		}
@@ -143,7 +125,6 @@ gboolean Meg_Dialog_NewProject( )
 		{
 			Meg_Error_Print( __func__, __LINE__, "Project '%s' can't be created.", title );
 		}
-		g_free( base );
 	}
 	gtk_widget_destroy( dialog );
 
@@ -209,7 +190,7 @@ gboolean Meg_Dialog_Preference()
 
 
 	/* UI */
-	GtkBuilder * ui = Meg_Builder_Create(Ui_PrefDialog, __func__, __LINE__);
+	GtkBuilder * ui = Meg_Builder_Create(UIPrefDialog, __func__, __LINE__);
 	g_return_val_if_fail( ui, FALSE );
 
 	/* Widget */
@@ -283,7 +264,7 @@ gboolean Meg_Dialog_Import()
 	GtkWidget * dialog, * button_update, * button_close, * tree_package, * progress_action;
 
 	/* UI */
-	GtkBuilder * ui = Meg_Builder_Create(Ui_ImportDialog, __func__, __LINE__);
+	GtkBuilder * ui = Meg_Builder_Create(UIImportDialog, __func__, __LINE__);
 	g_return_val_if_fail( ui, FALSE );
 
 	/* Widget */
@@ -294,6 +275,7 @@ gboolean Meg_Dialog_Import()
 	tree_package = GET_WIDGET( ui, "tree_package" );
 	progress_action = GET_WIDGET( ui, "progress_action" );
 
+
 	/* Signal */
 	g_signal_connect_swapped( button_close, "clicked", G_CALLBACK(gtk_widget_destroy), dialog );
 	g_signal_connect( button_update, "clicked", G_CALLBACK(Import_UpdateList), store_package );
@@ -303,9 +285,12 @@ gboolean Meg_Dialog_Import()
 	/* Fill Treeview */
 	Import_UpdateList( NULL, store_package );
 
+
 	/* Show Dialog */
 	gtk_window_set_transient_for( GTK_WINDOW(dialog), Meg_Main_GetWindow() );
 	gtk_widget_show_all( dialog );
+
+			Import_RequestUpdates( store_package ); // Online List.
 
 	return TRUE;
 }
@@ -323,7 +308,7 @@ gboolean Meg_Dialog_CreatePatch()
 	GtkFileFilter * filter;
 
 	/* UI */
-	GtkBuilder * ui = Meg_Builder_Create(Ui_PatchPage, __func__, __LINE__);
+	GtkBuilder * ui = Meg_Builder_Create(UIPatchPage, __func__, __LINE__);
 	g_return_val_if_fail( ui, FALSE );
 
 	/* Widget */

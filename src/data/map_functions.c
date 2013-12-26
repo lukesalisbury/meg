@@ -103,38 +103,23 @@ void Map_Free( MapInfo * map_info, gboolean save )
 	g_return_if_fail( map_info );
 	g_return_if_fail( map_info->data );
 
-
 	if ( map_info->settings )
 	{
 		g_hash_table_destroy( map_info->settings );
 	}
 
-	if ( map_info->file_type == 0 )
+	GList * scan = g_list_first( map_info->display_list );
+	while ( scan )
 	{
-		MokoiMap * mokoi_map_data = (MokoiMap *)map_info->data;
-
-
-		/*mokoi_map_data->objects = g_list_sort_with_data( mokoi_map_data->objects, (GCompareDataFunc)Alchera_DisplayObject_Order, NULL );*/
-		GList * scan = NULL;
-		scan = g_list_first( mokoi_map_data->objects );
-		while ( scan )
+		DisplayObject * object = (DisplayObject *)scan->data;
+		if ( object->free )
 		{
-			MokoiMapObject * object = (MokoiMapObject *)scan->data;
-			g_hash_table_destroy( object->settings );
-			g_free( object->name );
-			scan = g_list_next( scan );
+			object->free(object->data);
 		}
-		g_list_free( mokoi_map_data->objects );
-
-
-		g_free( mokoi_map_data->entity_filename );
-		g_free( mokoi_map_data->thumb_filename );
-		g_free( mokoi_map_data );
+		scan = g_list_next( scan );
 	}
-	else if ( map_info->file_type == 1 )
-	{
+	g_list_free( map_info->display_list );
 
-	}
 
 }
 
@@ -148,7 +133,6 @@ gboolean Map_Open( gchar * file, MapInfo * map_info )
 {
 	g_return_val_if_fail( map_info, FALSE );
 
-	MokoiMap * mokoi_map = NULL;
 	gchar * runtime_file, * thumbnail_file, * content;
 
 	/* Inital Map Settings */
@@ -158,25 +142,25 @@ gboolean Map_Open( gchar * file, MapInfo * map_info )
 	map_info->name = g_strdup( file );
 	map_info->settings = RuntimeParser_Load( runtime_file );
 
-	mokoi_map = map_info->data = g_new0(MokoiMap, 1);
-	mokoi_map->position = (GdkRectangle){0,0,1,1};
-	mokoi_map->colour8 = (rgbaColour){255,255,255,255};
+	map_info->data = g_new0(MapData, 1);
+	MAP_DATA(map_info)->position = (GdkRectangle){0,0,1,1};
+	MAP_DATA(map_info)->colour8 = (rgbaColour){255,255,255,255};
 
-	mokoi_map->xml_filename = g_strdup_printf( "/maps/%s.xml", file );
-	mokoi_map->entity_filename = g_strdup_printf( "/scripts/maps/%s.%s", file, "mps" );
-	mokoi_map->thumb_filename = PHYSFS_buildLocalFilename( thumbnail_file );
+	MAP_DATA(map_info)->xml_filename = g_strdup_printf( "/maps/%s.xml", file );
+	MAP_DATA(map_info)->entity_filename = g_strdup_printf( "/scripts/maps/%s.%s", file, "mps" );
+	MAP_DATA(map_info)->thumb_filename = PHYSFS_buildLocalFilename( thumbnail_file );
 
 	/* Parse the XML file */
-	if ( Meg_file_get_contents( mokoi_map->xml_filename, &content, NULL, NULL ) )
+	if ( Meg_file_get_contents( MAP_DATA(map_info)->xml_filename, &content, NULL, NULL ) )
 	{
 		Map_ParseXML( map_info, content );
 	}
 
 	/* Match value to one's Meg uses */
-	rgba2gdkcolor(&mokoi_map->colour8, &map_info->colour);
+	rgba2gdkcolor(&MAP_DATA(map_info)->colour8, &map_info->colour);
 
-	map_info->width = mokoi_map->position.width * AL_SettingNumberDefault("map.width", 1);
-	map_info->height = mokoi_map->position.height * AL_SettingNumberDefault("map.height", 1);
+	map_info->width = MAP_DATA(map_info)->position.width * AL_Setting_GetDefaultNumber("map.width", 1);
+	map_info->height = MAP_DATA(map_info)->position.height * AL_Setting_GetDefaultNumber("map.height", 1);
 
 	g_free( runtime_file );
 	g_free( thumbnail_file );
@@ -288,61 +272,59 @@ void Map_Setting_Foreach( gchar* key, RuntimeSettingsStruct * value, GString * c
 @ map_string:
 @ entity_string:
 */
-void Map_SaveObject( MokoiMapObject * object, GString * map_string , GString * entity_string )
+void Map_SaveObject( DisplayObject * object, GString * map_string , GString * entity_list_string )
 {
 	gint x,y,w,h,z,l;
 	GSList * point_scan = NULL;
-	DisplayObject * display_object = NULL;
+	MapObjectData * object_data = MAP_OBJECT_DATA(object);
 
-
-	if ( object->object->type == DT_DELETE )
+	if ( object->type == DT_DELETE )
 		return;
 
-	x = (gint)object->object->x;
-	y = (gint)object->object->y;
-	l = object->object->layer;
+	x = (gint)object->x;
+	y = (gint)object->y;
+	l = object->layer;
 	z = l * 1000;
 
-	if ( object->type == 'l' )
+	if ( object_data->type == 'l' )
 	{
 		// Line Object use w/h as 2nd x/y
-		w = (gint)(object->object->w + object->object->x);
-		h = (gint)(object->object->h + object->object->y);
+		w = (gint)(object->w + object->x);
+		h = (gint)(object->h + object->y);
 	}
 	else
 	{
-		w = (gint)object->object->w;
-		h = (gint)object->object->h;
+		w = (gint)object->w;
+		h = (gint)object->h;
 	}
 
-	g_string_append_printf( map_string, "<object value=\"%s\" type=\"%s\"", object->name, MapObject_TypeName(object->type) );
-	if ( object->object_id && object->object_id[0] != '*' ) // * is old code for random
+	g_string_append_printf( map_string, "<object value=\"%s\" type=\"%s\"", object_data->name, MapObject_TypeName(object_data->type) );
+	if ( object_data->object_name ) // * is old code for random
 	{
-		g_string_append_printf( map_string, " id=\"%s\"", object->object_id );
-		/* Add Entity to list */
-		g_string_append_printf( entity_string, "%s\t%d\t%d\n", object->object_id, (gint)object->object->x, (gint)object->object->y );
+		g_string_append_printf( map_string, " id=\"%s\"", object_data->object_name );
+		g_string_append_printf( entity_list_string, "%s\t%d\t%d\n", object_data->object_name, (gint)object->x, (gint)object->y ) ;/* Add Entity to list */
 	}
 	g_string_append_printf( map_string, ">\n" );
-	g_string_append_printf( map_string, "\t<position x=\"%d\" y=\"%d\" w=\"%d\" h=\"%d\" z=\"%d\" l=\"%d\" r=\"%d\" f=\"%d\"/>\n", x, y, w, h, z, l, object->object->rotate*90, object->object->flip);
-	g_string_append_printf( map_string, "\t<color red=\"%d\" blue=\"%d\" green=\"%d\" alpha=\"%d\" />\n", object->colour8.red, object->colour8.blue, object->colour8.green, object->colour8.alpha );
+	g_string_append_printf( map_string, "\t<position x=\"%d\" y=\"%d\" w=\"%d\" h=\"%d\" z=\"%d\" l=\"%d\" r=\"%d\" f=\"%d\"/>\n", x, y, w, h, z, l, object->rotate*90, object->flip);
+	g_string_append_printf( map_string, "\t<color red=\"%d\" blue=\"%d\" green=\"%d\" alpha=\"%d\" />\n", object_data->colour8.red, object_data->colour8.blue, object_data->colour8.green, object_data->colour8.alpha );
 
-	g_hash_table_foreach( object->settings, (GHFunc) Map_Setting_Foreach, map_string );
+	g_hash_table_foreach( object_data->settings, (GHFunc) Map_Setting_Foreach, map_string );
 
 
 	/* Write Entity */
-	if ( object->entity_file  )
+	if ( object_data->entity_file  )
 	{
-		g_string_append_printf( map_string, "\t<entity value=\"%s\" language=\"%s\" global=\"%s\"/>\n", object->entity_file, object->entity_language, (object->entity_global ? "true" : "false") );
+		g_string_append_printf( map_string, "\t<entity value=\"%s\" language=\"%s\" global=\"%s\"/>\n", object_data->entity_file, object_data->entity_language, (object_data->entity_global ? "true" : "false") );
 	}
 
 	/* Write Path */
-	if ( object->object->path  )
+	if ( object->path  )
 	{
-		point_scan = object->object->path;
+		point_scan = object->path;
 		g_string_append_printf( map_string, "\t<path>\n");
 		while ( point_scan )
 		{
-			display_object = (DisplayObject *)point_scan->data;
+			DisplayObject * display_object = (DisplayObject *)point_scan->data;
 			g_string_append_printf( map_string, "\t\t<point x=\"%d\" y=\"%d\" ms=\"%d\"/>\n", (gint)display_object->x, (gint)display_object->y, 10 );
 			point_scan = g_slist_next( point_scan );
 		}
@@ -350,14 +332,14 @@ void Map_SaveObject( MokoiMapObject * object, GString * map_string , GString * e
 	}
 
 
-	if ( object->type == 'p' )
+	if ( object_data->type == 'p' )
 	{
-		g_string_append_printf( map_string, "\t<option points=\"%u\"/>\n", g_slist_length(object->object->shape) );
+		g_string_append_printf( map_string, "\t<option points=\"%u\"/>\n", g_slist_length(object->shape) );
 
-		point_scan = object->object->shape;
+		point_scan = object->shape;
 		while ( point_scan )
 		{
-			display_object = (DisplayObject *)point_scan->data;
+			DisplayObject * display_object = (DisplayObject *)point_scan->data;
 			g_string_append_printf( map_string, "\t<point x=\"%d\" y=\"%d\"/>\n", (gint)display_object->x, (gint)display_object->y );
 			point_scan = g_slist_next(point_scan);
 		}
@@ -380,31 +362,31 @@ gboolean Map_Save( MapInfo * map_info )
 	g_return_val_if_fail( map_info->data != NULL, FALSE );
 
 
-	MokoiMap * mokoi_map = (MokoiMap*) map_info->data;
+	MapData * map_data = MAP_DATA(map_info);
 	GList * scan = NULL;
 	GString * map_entities = g_string_new(""); // TSV listing of Entities, used in the server and editor
 	GString * map_xml = g_string_new("<map xmlns=\"http://mokoi.info/projects/mokoi\">\n");
 
 	/* Settings */
 	g_string_append_printf( map_xml, "<settings>\n");
-	g_string_append_printf( map_xml, "\t<dimensions width=\"%d\" height=\"%d\" />\n",  mokoi_map->position.width, mokoi_map->position.height);
-	g_string_append_printf( map_xml, "\t<color red=\"%d\" blue=\"%d\" green=\"%d\" mode=\"0\" />\n", mokoi_map->colour8.red, mokoi_map->colour8.blue, mokoi_map->colour8.green);
+	g_string_append_printf( map_xml, "\t<dimensions width=\"%d\" height=\"%d\" />\n",  map_data->position.width, map_data->position.height);
+	g_string_append_printf( map_xml, "\t<color red=\"%d\" blue=\"%d\" green=\"%d\" mode=\"0\" />\n", map_data->colour8.red, map_data->colour8.blue, map_data->colour8.green);
 
 	g_hash_table_foreach(map_info->settings, (GHFunc)RuntimeParser_SaveString, (gpointer)map_xml);
 
 	g_string_append_printf( map_xml, "</settings>\n");
 
 	/* Objects */
-	scan = g_list_first( mokoi_map->objects );
+	scan = g_list_first( map_info->display_list );
 	while ( scan )
 	{
-		Map_SaveObject( (MokoiMapObject *)scan->data, map_xml, map_entities );
+		Map_SaveObject( (DisplayObject *)scan->data, map_xml, map_entities );
 		scan = g_list_next(scan);
 	}
 	g_string_append_printf( map_xml, "</map>");
 
 	/* Write map file */
-	Meg_file_set_contents( mokoi_map->xml_filename, map_xml->str, -1, &mokoiError);
+	Meg_file_set_contents( map_data->xml_filename, map_xml->str, -1, &mokoiError);
 	if ( mokoiError )
 	{
 		Meg_Error_Print( __func__, __LINE__, "Map could not be saved. Reason: %s", mokoiError->message );
@@ -415,7 +397,7 @@ gboolean Map_Save( MapInfo * map_info )
 	/* Map's Named Entity */
 	if ( map_entities->len )
 	{
-		gchar * list_file = g_strconcat( mokoi_map->xml_filename, ".entities", NULL );
+		gchar * list_file = g_strconcat( map_data->xml_filename, ".entities", NULL );
 		Meg_file_set_contents(list_file, map_entities->str, -1, &mokoiError);
 
 		if ( mokoiError )
@@ -426,7 +408,7 @@ gboolean Map_Save( MapInfo * map_info )
 		g_free( list_file );
 	}
 
-	RuntimeParser_Save( mokoi_map->entity_filename, map_info->settings ); // Save Map Entity option file.
+	RuntimeParser_Save( map_data->entity_filename, map_info->settings ); // Save Map Entity option file.
 	return TRUE;
 }
 
@@ -554,22 +536,20 @@ GHashTable * Map_GetReplacableSheets( MapInfo * map_info )
 	g_return_val_if_fail( map_info != NULL, FALSE );
 	g_return_val_if_fail( map_info->data != NULL, FALSE );
 
-
-	MokoiMap * mokoi_map_data = (MokoiMap*) map_info->data;
 	GHashTable * graphic_sheets = g_hash_table_new( g_str_hash, g_str_equal );
 	GRegex * regex = g_regex_new( "^\\w+(\\d+).png:", 0, 0, NULL );
 
-	if ( mokoi_map_data->objects )
+	if ( map_info->display_list )
 	{
-		GList * q = mokoi_map_data->objects;
+		GList * q = map_info->display_list;
 		while ( q )
 		{
-			MokoiMapObject * object = (MokoiMapObject *)(q->data);
-			if ( object->type == 's' )
+			DisplayObject * object = (DisplayObject *)(q->data);
+			if ( MAP_OBJECT_DATA(object)->type == 's' )
 			{
-				if ( g_regex_match(regex, object->name, 0 , NULL) )
+				if ( g_regex_match(regex, MAP_OBJECT_DATA(object)->name, 0 , NULL) )
 				{
-					gchar ** ident_split = g_strsplit_set(object->name, ":", 2);
+					gchar ** ident_split = g_strsplit_set(MAP_OBJECT_DATA(object)->name, ":", 2);
 
 					if ( ident_split )
 					{
@@ -618,7 +598,7 @@ void Map_ReplacableSheets_Widget_ForEach( gchar * key, GtkWidget * text_sheet, G
 * Map_GetReplacableSheets
 *
 */
-void Map_ReplacableSheets_Update_ForEach( gchar * key, GtkWidget * text_sheet, MokoiMap * mokoi_map_data )
+void Map_ReplacableSheets_Update_ForEach( gchar * key, GtkWidget * text_sheet, MapInfo * map_info )
 {
 	const gchar * value = gtk_entry_get_text( GTK_ENTRY(text_sheet) );
 
@@ -626,19 +606,19 @@ void Map_ReplacableSheets_Update_ForEach( gchar * key, GtkWidget * text_sheet, M
 	{
 		GRegex * regex = g_regex_new( key, 0, 0, NULL );
 
-		if ( mokoi_map_data->objects )
+		if ( map_info->display_list )
 		{
-			GList * q = mokoi_map_data->objects;
+			GList * q = map_info->display_list;
 			while ( q )
 			{
-				MokoiMapObject * object = (MokoiMapObject *)(q->data);
-				if ( object->type == 's' )
+				DisplayObject * object = (DisplayObject *)(q->data);
+				if ( MAP_OBJECT_DATA(object)->type == 's' )
 				{
-					if ( g_regex_match_full(regex, object->name, g_utf8_strlen(key,-1), 0, 0, NULL, NULL) )
+					if ( g_regex_match_full(regex, MAP_OBJECT_DATA(object)->name, g_utf8_strlen(key,-1), 0, 0, NULL, NULL) )
 					{
-						gchar * new_name = g_regex_replace_literal( regex, object->name, -1, 0, value, 0, NULL );
-						g_free(object->name);
-						object->name = new_name;
+						gchar * new_name = g_regex_replace_literal( regex, MAP_OBJECT_DATA(object)->name, -1, 0, value, 0, NULL );
+						REPLACE_STRING(MAP_OBJECT_DATA(object)->name, new_name)
+
 						MapObject_UpdateSprite( object );
 					}
 				}

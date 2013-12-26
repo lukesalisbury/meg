@@ -94,7 +94,7 @@ gboolean SpriteGrouping_ShowDialog( GtkWidget * parent_widget, SpriteChild * spr
 		{
 			sprite_child->name = g_strdup(selected_sprite);
 
-			GdkPixbuf * sprite = SpriteSheet_GetPixbuf( sprite_child->name, sheet);
+			GdkPixbuf * sprite = Sheet_GetPixbuf( sprite_child->name, sheet);
 			g_object_set_data( G_OBJECT(parent_widget), "Image", sprite );
 		}
 		else
@@ -201,7 +201,7 @@ GtkWidget * SpriteGrouping_GetWidget(GtkBuilder * ui, gchar * name, Spritesheet 
 	GdkPixbuf * image = NULL;
 	if ( SPRITE_DATA(sprite)->childrens[position].name )
 	{
-		image = SpriteSheet_GetPixbuf( SPRITE_DATA(sprite)->childrens[position].name, sheet );
+		image = Sheet_GetPixbuf( SPRITE_DATA(sprite)->childrens[position].name, sheet );
 	}
 	g_object_set_data( G_OBJECT(widget), "Image", image );
 	gtk_widget_queue_draw( widget );

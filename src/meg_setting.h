@@ -60,7 +60,7 @@
 #endif
 
 #ifndef PACKAGE_URL
-	#define PACKAGE_URL "http://mokoi.info/packages/xml/"
+	#define PACKAGE_URL "http://mokoi.info/packages/xml/0.95"
 #endif
 
 

@@ -13,14 +13,14 @@ FILETYPE VFT_APP
 		BLOCK "0C0904E4"
 		{
 			VALUE "CompanyName", "Mokoi Gaming"
-			VALUE "FileVersion", "0.94"
+			VALUE "FileVersion", "0.95"
 			VALUE "FileDescription", "Mokoi Editor"
 			VALUE "InternalName", "meg"
 			VALUE "LegalCopyright", "Mokoi Gaming mokoi.info"
 			VALUE "LegalTrademarks", ""
 			VALUE "OriginalFilename", ""
 			VALUE "ProductName", "meg"
-			VALUE "ProductVersion", "0.94"
+			VALUE "ProductVersion", "0.95"
 		}
 	}
 BLOCK "VarFileInfo"

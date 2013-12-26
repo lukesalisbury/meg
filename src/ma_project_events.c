@@ -49,7 +49,7 @@ void MegWidget_Project_AddSetting(GtkButton * widget, GtkListStore * config_stor
 			break;
 	}
 	gtk_widget_destroy(dialog);
-	//AL_SettingsSet(config_store, TRUE);
+	//AL_Settings_Set(config_store, TRUE);
 }
 
 /********************************
@@ -67,7 +67,7 @@ void MegWidget_Project_RemoveSetting(GtkButton *widget, GtkWidget * treeview )
 	if ( gtk_tree_selection_get_selected( select, &model, &iter ) )
 	{
 		gtk_tree_model_get( model, &iter, 0, &key, -1 );
-		if ( AL_SettingRemove(key) )
+		if ( AL_Setting_Remove(key) )
 		{
 			gtk_list_store_remove( GTK_LIST_STORE(model), &iter);
 		}
@@ -87,7 +87,7 @@ void MegWidget_Project_EditSetting(GtkCellRendererText * cellrenderertext, gchar
 	gtk_list_store_set(config_store, &iter, 1, new_text, -1);
 	if ( key )
 	{
-		AL_SettingSet( key, new_text );
+		AL_Setting_SetString( key, new_text );
 	}
 	else
 	{

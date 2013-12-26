@@ -13,7 +13,7 @@ Permission is granted to anyone to use this software for any purpose, including 
 #include <zlib.h>
 #include "loader_global.h"
 #include "loader_functions.h"
-#include "package_dialog.h"
+#include "package.h"
 
 #ifndef PACKAGE_URL
 	#define PACKAGE_URL "http://mokoi.info/packages/xml/"
@@ -155,7 +155,7 @@ void Import_InstallButton( GtkTreeView * tree_view, GtkTreePath * path, GtkTreeV
 			if ( local )
 			{
 				Package_Import( file_path, progress_widget, model, iter, FALSE );
-				//gtk_list_store_set( GTK_LIST_STORE(model), &iter, 0, FALSE, 3, 0, 5, "Installed", 6, "gtk-yes", -1 );
+				gtk_list_store_set( GTK_LIST_STORE(model), &iter, 0, FALSE, 3, 0, 5, "Installed", 6, "gtk-yes", -1 );
 			}
 			else
 			{
@@ -165,9 +165,7 @@ void Import_InstallButton( GtkTreeView * tree_view, GtkTreePath * path, GtkTreeV
 				gtk_widget_destroy( question_dialog );
 				if ( question_answer == GTK_RESPONSE_YES )
 				{
-					//gtk_list_store_set( GTK_LIST_STORE(package->model), &package->iter, 0, FALSE, 3, 0, 5, "Extracting", 6, "gtk-yes", -1 );
 					Package_Download( file_path, package_title, package_version, progress_widget, model, iter, FALSE );
-					//gtk_list_store_set( GTK_LIST_STORE(package->model), &package->iter, 0, FALSE, 3, 0, 5, "Installed", 6, "gtk-yes", -1 );
 				}
 			}
 		}
@@ -230,7 +228,7 @@ void Import_UpdateList( GtkWidget * button, GtkListStore * store )
 	}
 
 
-	//Import_RequestUpdates( store ); // Online List.
+
 
 	g_dir_close( current_directory );
 	g_free( packages_dir );

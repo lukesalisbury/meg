@@ -35,7 +35,7 @@ gchar * Project_CleanTitle( gchar * title )
 	if ( title )
 		title_clean = g_strdup(title);
 	else
-		title_clean = AL_SettingString( "project.title" );
+		title_clean = AL_Setting_GetString( "project.title" );
 
 	if ( title_clean )
 	{

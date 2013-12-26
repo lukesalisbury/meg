@@ -162,7 +162,7 @@ gpointer Patch_CreationThread( ProgressDialogWidgets * info )
 
 	/* Title and ID */
 	guint32 id = 0;
-	id = AL_SettingNumber( "project.id" );
+	id = AL_Setting_GetNumber( "project.id" );
 
 	/* Get Selected File */
 	gtk_tree_model_foreach( GTK_TREE_MODEL(info->list), (GtkTreeModelForeachFunc)Patch_AddFile, &file_list );

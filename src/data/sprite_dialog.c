@@ -48,8 +48,9 @@ const gchar * mokoiUI_SpriteAdvance = GUISPRITE_ADVANCE
 */
 gboolean Sprite_AdvanceDialog( Spritesheet * sheet, SheetObject * sprite )
 {
-	GtkWidget * dialog, * entry_name, * spin_mask, * file_mask, * file_entity, * spin_x, * spin_y, * spin_w, * spin_h, *area_collision , *combo_collision, * image_preview, * check_visible, * button_entitysettings;
+	GtkWidget * dialog, * entry_name, * spin_mask, * file_mask, * file_entity, *area_collision , *combo_collision, * image_preview, * check_visible, * button_entitysettings;
 	GtkWidget * image_group, * area_grouptopleft, * area_grouptop, * area_grouptopright, * area_groupright, * area_groupbottomright, * area_groupbottom, * area_groupbottomleft, * area_groupleft;
+	GtkSpinButton  * spin_x, * spin_y, * spin_w, * spin_h;
 	GtkListStore * store_collision;
 
 	/* UI */
@@ -62,10 +63,10 @@ gboolean Sprite_AdvanceDialog( Spritesheet * sheet, SheetObject * sprite )
 	/* Detail Tab */
 	entry_name = GET_WIDGET( ui, "entry_name");
 	check_visible = GET_WIDGET( ui, "check_visible" );
-	spin_x = GET_WIDGET( ui, "spin_x");
-	spin_y = GET_WIDGET( ui, "spin_y");
-	spin_w = GET_WIDGET( ui, "spin_w");
-	spin_h = GET_WIDGET( ui, "spin_h");
+	spin_x = GET_SPIN_WIDGET( ui, "spin_x");
+	spin_y = GET_SPIN_WIDGET( ui, "spin_y");
+	spin_w = GET_SPIN_WIDGET( ui, "spin_w");
+	spin_h = GET_SPIN_WIDGET( ui, "spin_h");
 	spin_mask = GET_WIDGET( ui, "spin_mask");
 	file_mask = GET_WIDGET( ui, "combo_maskfile");
 	image_preview = GET_WIDGET( ui, "image_preview");
@@ -132,35 +133,29 @@ gboolean Sprite_AdvanceDialog( Spritesheet * sheet, SheetObject * sprite )
 	}
 	else
 	{
-
 		gtk_spin_button_set_value( GTK_SPIN_BUTTON(spin_mask), (gdouble) SPRITE_DATA(sprite)->mask.value );
 	}
-
 
 	if ( SPRITE_DATA(sprite)->entity )
 	{
 		Meg_ComboText_SetIndex( GTK_COMBO_BOX(file_entity), SPRITE_DATA(sprite)->entity );
 	}
 
-
 	if ( SPRITE_DATA(sprite)->image )
 	{
 		gtk_image_set_from_pixbuf( GTK_IMAGE(image_preview), SPRITE_DATA(sprite)->image );
 		gtk_image_set_from_pixbuf( GTK_IMAGE(image_group), SPRITE_DATA(sprite)->image );
-
-
 	}
 
 	gtk_toggle_button_set_active( GTK_TOGGLE_BUTTON(check_visible), sprite->visible );
 
-	gtk_spin_button_set_value( GTK_SPIN_BUTTON(spin_x), (gdouble) sprite->position.x );
-	gtk_spin_button_set_value( GTK_SPIN_BUTTON(spin_y), (gdouble) sprite->position.y );
-	gtk_spin_button_set_value( GTK_SPIN_BUTTON(spin_w), (gdouble) sprite->position.width );
-	gtk_spin_button_set_value( GTK_SPIN_BUTTON(spin_h), (gdouble) sprite->position.height );
+	gtk_spin_button_set_value( spin_x, (gdouble) sprite->position.x );
+	gtk_spin_button_set_value( spin_y, (gdouble) sprite->position.y );
+	gtk_spin_button_set_value( spin_w, (gdouble) sprite->position.width );
+	gtk_spin_button_set_value( spin_h, (gdouble) sprite->position.height );
 
 
-
-
+	/* Run Dialog */
 	gtk_widget_show_all( gtk_dialog_get_content_area( GTK_DIALOG(dialog) ) );
 	gtk_window_set_transient_for( GTK_WINDOW(dialog), Meg_Main_GetWindow() );
 
@@ -195,10 +190,10 @@ gboolean Sprite_AdvanceDialog( Spritesheet * sheet, SheetObject * sprite )
 			sprite->visible = gtk_toggle_button_get_active( GTK_TOGGLE_BUTTON(check_visible) );
 
 
-			sprite->position.x = gtk_spin_button_get_value_as_int( GTK_SPIN_BUTTON(spin_x) );
-			sprite->position.y = gtk_spin_button_get_value_as_int( GTK_SPIN_BUTTON(spin_y) );
-			sprite->position.width = gtk_spin_button_get_value_as_int( GTK_SPIN_BUTTON(spin_w) );
-			sprite->position.height = gtk_spin_button_get_value_as_int( GTK_SPIN_BUTTON(spin_h) );
+			sprite->position.x = gtk_spin_button_get_value_as_int( spin_y );
+			sprite->position.y = gtk_spin_button_get_value_as_int( spin_y );
+			sprite->position.width = gtk_spin_button_get_value_as_int( spin_w );
+			sprite->position.height = gtk_spin_button_get_value_as_int( spin_h );
 
 			sprite->visible = gtk_toggle_button_get_active( GTK_TOGGLE_BUTTON(check_visible) );
 

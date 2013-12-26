@@ -14,61 +14,6 @@ Permission is granted to anyone to use this software for any purpose, including 
 #include "data_types.h"
 
 
-
-
-
-typedef struct {
-	gchar * xml_filename;
-	gchar * thumb_filename;
-	gchar * entity_filename;
-	GdkRectangle position;
-	GList * objects; /* MokoiMapObject */
-	rgbaColour colour8;
-	guint id_count;
-	/*guint parse_mode;*/
-} MokoiMap;
-
-typedef struct {
-	gchar * name;
-	gchar * type_name;
-	gchar type;
-	guint id;
-	GHashTable * settings;
-	DisplayObject * object;
-	MapInfo * parent;
-	rgbaColour colour8;
-
-	gchar * entity_file;
-	gchar * object_id;
-	gchar * entity_language;
-	gboolean entity_global;
-
-} MokoiMapObject;
-
-typedef struct {
-	gchar * name;
-	gchar * ident;
-	gint type;
-	DisplayObject * object;
-} VirtualObject;
-
-typedef struct {
-	GList * objects; /* MokoiMapObject */
-	guint id_count;
-} VirtualObjectList;
-
-
-
-typedef struct {
-	gchar * value;
-	gchar * type;
-	guint internal_type;
-	gboolean removable;
-	gboolean deleted;
-	GtkWidget * widget;
-} RuntimeSettingsStruct;
-
-
 typedef struct {
 	gchar * data;
 	guint32 size;

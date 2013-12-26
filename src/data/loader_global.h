@@ -28,8 +28,8 @@ Permission is granted to anyone to use this software for any purpose, including 
 
 
 gboolean AL_SettingBoolean( gchar * key );
-gchar * AL_SettingString( gchar * key );
-gint AL_SettingNumber( gchar * key );
+gchar * AL_Setting_GetString( gchar * key );
+gint AL_Setting_GetNumber( gchar * key );
 
 gboolean EntityCombo_Properties_Open( GtkWidget * button, GdkEventButton * event, GtkComboBox * combo );
 

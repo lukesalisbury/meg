@@ -27,9 +27,6 @@ Permission is granted to anyone to use this software for any purpose, including 
 #include "logger_functions.h"
 
 
-void Package_ImportConfig(gboolean remove_file);
-
-
 /* Global Variables */
 extern gchar * mokoiBasePath;
 extern GError * mokoiError;
@@ -52,8 +49,8 @@ typedef struct {
 /* UI */
 #include "ui/package_question.gui.h"
 #include "ui/package_files.gui.h"
-const gchar * mokoiUI_PackageFiles = GUIPACKAGE_FILES
-const gchar * package_question_ui = GUIPACKAGE_QUESTION
+const gchar * uiPackageFiles = GUIPACKAGE_FILES
+const gchar * uiPackageQuestion = GUIPACKAGE_QUESTION
 
 /********************************
 * Package_ExtractFile
@@ -92,13 +89,15 @@ gboolean Package_ExtractFile( FILE * fd, StoredFileInfo * fi )
 @ in_file:
 @ out_dir:
 */
-gboolean Package_Infomation( const gchar * file, gchar ** package_name, gchar ** package_path, gchar ** package_version,
-						gchar ** package_description, guint8 *package_type )
+gboolean Package_Infomation( const gchar * file, gchar ** package_name, gchar ** package_path, \
+							 gchar ** package_version, gchar ** package_description, \
+							 guint8 *package_type )
 {
 	gboolean valid = FALSE;
 	FILE * fd = NULL;
 	gchar * file_path = NULL;
 	GSList * files = NULL;
+
 	file_path = Meg_Directory_DataFile( "packages", file );
 
 	if ( g_file_test(file_path, G_FILE_TEST_IS_REGULAR) )
@@ -186,7 +185,7 @@ GSList * Package_FileSelectionDialog( const gchar * file, GtkWidget * widget  )
 	file_list = Package_FileList( file );
 
 	/* UI */
-	GtkBuilder * ui = Meg_Builder_Create(mokoiUI_PackageFiles, __func__, __LINE__);
+	GtkBuilder * ui = Meg_Builder_Create( uiPackageFiles, __func__, __LINE__ );
 	g_return_val_if_fail( ui, NULL );
 
 	/* Widgets */
@@ -439,7 +438,7 @@ gboolean Package_ImportWatch( PackageWatch * package )
 
 		/* Save and refresh Setting Widget */
 		Setting_Save();
-		AL_SettingsRefresh();
+		AL_Settings_Refresh();
 
 	}
 
@@ -474,7 +473,7 @@ gboolean Package_ImportDrop(const gchar * file )
 gboolean Package_ChangeMain( const gchar * new_package_name )
 {
 	gchar * package_location = NULL;
-	gchar * package_name = AL_SettingString("package.main");
+	gchar * package_name = AL_Setting_GetString("package.main");
 
 
 	if ( !g_strcmp0(new_package_name, package_name) )
@@ -529,8 +528,7 @@ gboolean Package_ImportInital(const gchar * file, const gchar * root_dir )
 	gchar * package_path;
 	GtkDialog * dialog;
 
-	GtkBuilder * ui = Meg_Builder_Create(package_question_ui, __func__, __LINE__);
-
+	GtkBuilder * ui = Meg_Builder_Create(uiPackageQuestion, __func__, __LINE__);
 
 
 	Meg_Log_Print( LOG_NONE, "Installing Base System: '%s'", file);
@@ -713,7 +711,7 @@ gboolean Package_ExportFolders(const gchar * package_path, const gchar * title, 
 * Package_ExportList
 * Creates Content Packages.
 */
-gboolean Package_ExportList(const gchar * package_path, const gchar * title, const gchar * version, const gchar * description, const gchar * authors, const gchar * terms,
+gboolean Package_ExportList( const gchar * package_path, const gchar * title, const gchar * version, const gchar * description, const gchar * authors, const gchar * terms,
 const gchar * config, GSList * files )
 {
 	g_return_val_if_fail( files, FALSE );
@@ -856,7 +854,7 @@ gboolean Package_DownloadWatch( PackageWatch * download )
 void Package_Download( const gchar * url, const gchar * package_title, const gchar * package_version, GtkWidget * progress_widget, GtkTreeModel * model, GtkTreeIter iter, gboolean initial )
 {
 	// Function causes a crash, so i'll disable it for now
-	/*
+
 	gchar * package_name = NULL;
 	PackageWatch * package = g_new0(PackageWatch, 1);
 
@@ -864,7 +862,7 @@ void Package_Download( const gchar * url, const gchar * package_title, const gch
 	g_strdelimit( package_name, "_-|> <.\\/\"'!@#$%^&*(){}[]", '_' );
 
 	package->queue = g_async_queue_new();
-	package->filename = g_strdup_printf("packages%c%s-%s.package", G_DIR_SEPARATOR, package_name, package_version);
+	package->filename = g_strdup_printf("%s%c%s-%s.package", Meg_Directory_Data("packages"), G_DIR_SEPARATOR, package_name, package_version);
 	package->url = g_strdup(url);
 	package->progress = GTK_PROGRESS_BAR(progress_widget);
 	package->model = model;
@@ -875,6 +873,6 @@ void Package_Download( const gchar * url, const gchar * package_title, const gch
 		g_timeout_add( 20, (GSourceFunc)Package_DownloadWatch, (gpointer)package );
 	}
 	g_free( package_name );
-	*/
+
 
 }

@@ -43,40 +43,47 @@ typedef struct {
 } DisplayObjectBorder;
 
 typedef struct {
+
 	DisplayObjectTypes type;
 	gdouble x, y, w, h;
 	guint tw, th, layer, id, rotate;
 	gboolean active, timeout, tile, resizable, rotation, flip, supports_path;
 	GdkRGBA colour;
-	gpointer data;
-	GdkPixbuf * image;
+
 	GSList * path;
 	GSList * shape;
 	GList * border; /*<DisplayObjectBorder>*/
-	gboolean (* custom_draw) (cairo_t *cr);
+
+	GdkPixbuf * image;
+	gchar * text;
+	gpointer data;
+
+	gboolean (*custom_draw) ( cairo_t *cr );
+	gboolean (*free) ( gpointer data );
+
 } DisplayObject;
 
 typedef struct {
-	GdkRectangle shape;
-	guint id;
-	gboolean show_rect;
-	gchar * name;
-	gpointer data;
-} MapSection;
-
-typedef struct {
 	DisplayObject * selected;
-	GList * displayList;
+	GList * display_list;
 	GHashTable * settings;
 	gchar * name;
-	guint32 visible;
-	guint32 id_counter;
+
+	guint visible;
+	guint id_counter;
 	guint width, height;
 	GdkRGBA colour;
-	gpointer data;
+
 	guint8 parse_mode;
 	guint8 file_type;
+
+	gpointer data;
+	gboolean (*free) ( gpointer data );
+
 } MapInfo;
+
+
+DisplayObject * Alchera_DisplayObject_New( gpointer data, gboolean (*free)(gpointer) );
 
 void Alchera_DisplayObject_DrawForeach( DisplayObject * object, cairo_t *cr );
 gint Alchera_DisplayObject_Order( gconstpointer a, gconstpointer b, gpointer data );

@@ -149,7 +149,7 @@ Spritesheet * AL_Sheet_Get( gchar * file )
 
 	if ( !g_ascii_strcasecmp(file, "Virtual") )
 	{
-		return VirtualSpriteSheet_Get( );
+		return VirtualSpriteSheet_Get( FALSE );
 	}
 	else
 	{
@@ -246,8 +246,8 @@ void AL_Sprite_Add( Spritesheet * spritesheet, GdkRectangle * sprite_rect )
 		return;
 	}
 
-	GtkWidget * dialog, * text_name, * image_preview, * spin_x, * spin_y, * spin_w, * spin_h;
-	GtkWidget * spin_mask, * file_mask, * file_entity, * check_anim, * spin_frames, * radio_align;
+	GtkWidget * dialog, * text_name, * image_preview, * file_mask, * file_entity, * check_anim, * radio_align;
+	GtkSpinButton * spin_mask, * spin_x, * spin_y, * spin_w, * spin_h, * spin_frames;
 
 	/* UI */
 	GError * error = NULL;
@@ -262,24 +262,27 @@ void AL_Sprite_Add( Spritesheet * spritesheet, GdkRectangle * sprite_rect )
 	dialog = GET_WIDGET( ui, "mokoi_sheet_addchild");
 	text_name = GET_WIDGET( ui, "text_name");
 	image_preview = GET_WIDGET( ui, "image_preview");
-	spin_x = GET_WIDGET( ui, "spin_x");
-	spin_y = GET_WIDGET( ui, "spin_y");
-	spin_w = GET_WIDGET( ui, "spin_w");
-	spin_h = GET_WIDGET( ui, "spin_h");
-	spin_mask = GET_WIDGET( ui, "spin_mask");
+	spin_x = GET_SPIN_WIDGET( ui, "spin_x");
+	spin_y = GET_SPIN_WIDGET( ui, "spin_y");
+	spin_w = GET_SPIN_WIDGET( ui, "spin_w");
+	spin_h = GET_SPIN_WIDGET( ui, "spin_h");
+	spin_mask = GET_SPIN_WIDGET( ui, "spin_mask");
+	spin_frames = GET_SPIN_WIDGET( ui, "spin_frames");
+
 	file_mask = GET_WIDGET( ui, "file_mask");
 	file_entity = GET_WIDGET( ui, "file_entity");
 	check_anim = GET_WIDGET( ui, "check_anim");
-	spin_frames = GET_WIDGET( ui, "spin_frames");
+
 	radio_align = GET_WIDGET( ui, "radio_align");
 
 	/* Set Default Values */
 	gtk_file_chooser_set_current_folder( GTK_FILE_CHOOSER(file_mask), mokoiBasePath );
 	gtk_file_chooser_set_current_folder( GTK_FILE_CHOOSER(file_entity), mokoiBasePath );
-	gtk_spin_button_set_value( GTK_SPIN_BUTTON(spin_x), (gdouble)sprite_rect->x );
-	gtk_spin_button_set_value( GTK_SPIN_BUTTON(spin_y), (gdouble)sprite_rect->y );
-	gtk_spin_button_set_value( GTK_SPIN_BUTTON(spin_w), (gdouble)sprite_rect->width );
-	gtk_spin_button_set_value( GTK_SPIN_BUTTON(spin_h), (gdouble)sprite_rect->height );
+
+	gtk_spin_button_set_value( spin_x, (gdouble)sprite_rect->x );
+	gtk_spin_button_set_value( spin_y, (gdouble)sprite_rect->y );
+	gtk_spin_button_set_value( spin_w, (gdouble)sprite_rect->width );
+	gtk_spin_button_set_value( spin_h, (gdouble)sprite_rect->height );
 
 	/* Show Dialog */
 	gtk_widget_show_all( gtk_dialog_get_content_area( GTK_DIALOG(dialog) ) );
@@ -321,15 +324,15 @@ void AL_Sprite_Add( Spritesheet * spritesheet, GdkRectangle * sprite_rect )
 			sprite->visible = TRUE;
 			sprite_data->image_loaded = FALSE;
 
-			sprite->position.x = gtk_spin_button_get_value_as_int( GTK_SPIN_BUTTON(spin_x) );
-			sprite->position.y = gtk_spin_button_get_value_as_int( GTK_SPIN_BUTTON(spin_y) );
-			sprite->position.width = gtk_spin_button_get_value_as_int( GTK_SPIN_BUTTON(spin_w) );
-			sprite->position.height = gtk_spin_button_get_value_as_int( GTK_SPIN_BUTTON(spin_h) );
+			sprite->position.x = gtk_spin_button_get_value_as_int( spin_x );
+			sprite->position.y = gtk_spin_button_get_value_as_int( spin_y );
+			sprite->position.width = gtk_spin_button_get_value_as_int( spin_w );
+			sprite->position.height = gtk_spin_button_get_value_as_int( spin_h );
 
 			if ( mask_file && g_utf8_strlen( mask_file, -1 ) )
 				sprite_data->mask.name = g_strdup(mask_file);
 			else
-				sprite_data->mask.value = gtk_spin_button_get_value_as_int( GTK_SPIN_BUTTON(spin_mask) );
+				sprite_data->mask.value = gtk_spin_button_get_value_as_int( spin_mask );
 
 			GdkPixbuf * parent_image = AL_GetImage( sprite->parent_sheet, NULL );
 			if ( frame_count > 0 )

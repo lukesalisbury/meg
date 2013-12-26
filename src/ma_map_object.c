@@ -62,9 +62,9 @@ gboolean Meg_MapObject_PushAnimation( DisplayObject * object )
 		cairo_scale( cr, mapScale, mapScale );
 		cairo_set_source_rgba( cr, 1, 1, 1, 1 );
 
-		if ( mapDisplayList )
+		if ( mapdisplay_list )
 		{
-			g_list_foreach(mapDisplayList, (GFunc)Alchera_Map_AnimationIdle, cr);
+			g_list_foreach(mapdisplay_list, (GFunc)Alchera_Map_AnimationIdle, cr);
 		}
 		cairo_destroy( cr );
 	}

@@ -13,9 +13,9 @@ Permission is granted to anyone to use this software for any purpose, including 
 #include <stdlib.h>
 #include <glib.h>
 #include <gmodule.h>
-#include <SDL/SDL.h>
-#include <SDL/SDL_mixer.h>
-#include <SDL/SDL_thread.h>
+#include <SDL.h>
+#include <SDL_mixer.h>
+#include <SDL_thread.h>
 
 
 G_MODULE_EXPORT int sdl_playback_play( gchar * file, void (*music_finished)() )

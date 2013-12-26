@@ -26,7 +26,6 @@ extern GError * mokoiError;
 /* Local Function */
 
 
-
 /*-------------------------------
 	Sprite Handling Code
 -------------------------------*/
@@ -139,7 +138,7 @@ GdkPixbuf * Sprite_GetPixbuf(gchar * name, gchar * sheet)
 * Sprite_GetPixbuf
 *
 */
-GdkPixbuf * SpriteSheet_GetPixbuf(gchar * name, Spritesheet * sheet )
+GdkPixbuf * Sheet_GetPixbuf(gchar * name, Spritesheet * sheet )
 {
 	SheetObject * sprite = NULL;
 	GSList * child = Sprite_Find(sheet->children, name);
@@ -199,90 +198,156 @@ AnimationDetail * Animation_Get( gchar * name )
 * MapObject_UpdateSprite
 *
 */
-SheetObject * MapObject_UpdateSprite( MokoiMapObject * object )
+SheetObject * MapObject_UpdateSprite( DisplayObject * object )
 {
-	SheetObject * sprite = NULL;
-	gchar ** ident_split = g_strsplit_set(object->name, ":", 2);
+	SheetObject * sprite = Sprite_GetFull( MAP_OBJECT_DATA(object)->name, TRUE );
 
-	if ( ident_split )
+	if ( object->image )
 	{
-		sprite = Sprite_Get(ident_split[1], ident_split[0], TRUE);
-	}
-	else
-	{
-		return sprite;
-	}
-
-	if ( object->object->image )
-	{
-		g_object_unref( object->object->image );
+		g_object_unref( object->image );
 	}
 
 	if ( !sprite )
 	{
-		object->object->type = DT_NONE;
+		object->type = DT_NONE;
 	}
 	else if ( SPRITE_DATA(sprite)->animation )
 	{
-		object->type = 's';
+		MAP_OBJECT_DATA(object)->type = 's';
 		if ( SPRITE_DATA(sprite)->animation )
 		{
-			object->object->image = SPRITE_DATA(sprite)->image;
-			object->object->type = DT_IMAGE;
-			object->object->tw = SPRITE_DATA(sprite)->animation->w;
-			object->object->th = SPRITE_DATA(sprite)->animation->h;
-			object->object->timeout = TRUE;
-			//g_timeout_add(gdk_pixbuf_animation_iter_get_delay_time((GdkPixbufAnimationIter *)object->object->data ), (GSourceFunc)Meg_MapObject_PushAnimation, (gpointer)object->object);
+			object->image = SPRITE_DATA(sprite)->image;
+			object->type = DT_IMAGE;
+			object->tw = SPRITE_DATA(sprite)->animation->w;
+			object->th = SPRITE_DATA(sprite)->animation->h;
+			object->timeout = TRUE;
 
 		}
 		else if ( SPRITE_DATA(sprite)->image )
 		{
-			Meg_Log_Print( LOG_NONE, "No animation image for '%s' animation, using static image instead.", object->name);
-			object->object->image = SPRITE_DATA(sprite)->image;
-			object->object->tw = gdk_pixbuf_get_width( SPRITE_DATA(sprite)->image );
-			object->object->th = gdk_pixbuf_get_height( SPRITE_DATA(sprite)->image );
-			object->object->type = DT_IMAGE;
+			Meg_Log_Print( LOG_NONE, "No animation image for '%s' animation, using static image instead.", MAP_OBJECT_DATA(object)->name );
+			object->image = SPRITE_DATA(sprite)->image;
+			object->tw = gdk_pixbuf_get_width( object->image );
+			object->th = gdk_pixbuf_get_height( object->image );
+			object->type = DT_IMAGE;
 		}
 		else
-			Meg_Log_Print( LOG_NONE,"No static image for '%s' animation", object->name);
+			Meg_Log_Print( LOG_NONE,"No static image for '%s' animation", MAP_OBJECT_DATA(object)->name );
 	}
 	else if ( !SPRITE_DATA(sprite)->image )
 	{
-		object->object->type = DT_NONE;
+		object->type = DT_NONE;
 	}
 	else
 	{
-		object->type = 's';
-		object->object->type = DT_IMAGE;
-		object->object->image = SPRITE_DATA(sprite)->image;
-		object->object->supports_path = TRUE;
+		MAP_OBJECT_DATA(object)->type = 's';
 
-		object->object->tw = gdk_pixbuf_get_width( SPRITE_DATA(sprite)->image );
-		object->object->th = gdk_pixbuf_get_height( SPRITE_DATA(sprite)->image );
+		object->type = DT_IMAGE;
+		object->image = SPRITE_DATA(sprite)->image;
+		object->tw = gdk_pixbuf_get_width( object->image );
+		object->th = gdk_pixbuf_get_height( object->image );
 	}
 
 	if ( sprite )
 	{
+		gchar ** ident_split = g_strsplit_set(MAP_OBJECT_DATA(object)->name, ":", 2);
 		guint c = 0;
 		while ( c < 8 )
 		{
 			if ( SPRITE_DATA(sprite)->childrens[c].position != -1 && SPRITE_DATA(sprite)->childrens[c].name != NULL )
 			{
 				SheetObject * border_image = Sprite_Get( SPRITE_DATA(sprite)->childrens[c].name, ident_split[0], FALSE );
-				Alchera_DisplayObject_AddBorder( object->object, SPRITE_DATA(border_image)->image, SPRITE_DATA(sprite)->childrens[c].position, SPRITE_DATA(sprite)->childrens[c].repeat );
+				Alchera_DisplayObject_AddBorder( object, SPRITE_DATA(border_image)->image, SPRITE_DATA(sprite)->childrens[c].position, SPRITE_DATA(sprite)->childrens[c].repeat );
 				g_object_ref( SPRITE_DATA(border_image)->image );
 			}
 			c++;
 		}
+		g_strfreev(ident_split);
 
 	}
 
-	g_strfreev(ident_split);
-
-
-	g_object_ref( object->object->image );
+	g_object_ref( object->image );
 
 	return sprite;
+}
+
+/********************************
+* MapObject_AddSimplePolygonPoint
+*
+*/
+inline void MapObject_AddSimplePolygonPoint( DisplayObject * object, gint x, gint y)
+{
+	DisplayObject * obj_point = g_new0(DisplayObject, 1);
+	obj_point->type = DT_POINT;
+	obj_point->layer = 43;
+	obj_point->w = obj_point->h = 16;
+	obj_point->x = x;
+	obj_point->y = y;
+	obj_point->resizable = FALSE;
+	object->shape = g_slist_append( object->shape, obj_point );
+}
+
+/********************************
+* MapObject_SetInitialType
+*
+*/
+inline char MapObject_SetInitialType( DisplayObject * object, gchar * name, gdouble area_width, gdouble area_height )
+{
+	char internal_type = 's';
+	if ( !g_ascii_strcasecmp( name, "Rectangle") )
+	{
+		internal_type = 'r'; // Internal Type
+		object->type = DT_RECTANGLE; // Type for Widget
+		object->w = area_width;
+		object->h = area_height;
+	}
+	else if ( !g_ascii_strcasecmp( name, "Circle") )
+	{
+		internal_type = 'c';
+		object->type = DT_CIRCLE;
+		object->w = area_width;
+		object->h = area_height;
+	}
+	else if ( !g_ascii_strcasecmp( name, "Polygon") )
+	{
+		internal_type = 'p';
+		object->type = DT_POLYGON;
+		object->w = area_width;
+		object->h = area_height;
+		object->resizable = FALSE;
+
+
+		MapObject_AddSimplePolygonPoint( object, area_width/2, 0);
+		MapObject_AddSimplePolygonPoint( object, area_width, area_height);
+		MapObject_AddSimplePolygonPoint( object, 0, area_height);
+	}
+	else if ( !g_ascii_strcasecmp( name, "Text") )
+	{
+		internal_type = 't';
+
+		object->type = DT_TEXT;
+		object->text = g_strdup("New Text");
+		object->resizable = FALSE;
+
+		object->w = 64;
+		object->h = 8;
+		object->tw = 64;
+		object->th = 8;
+	}
+	else if ( !g_ascii_strcasecmp( name, "Line") )
+	{
+		internal_type = 'l';
+		object->type = DT_LINE;
+		object->data = NULL;
+		object->w = area_width;
+		object->h = area_height;
+	}
+	else
+	{
+		internal_type = 's';
+	}
+
+	return internal_type;
 }
 
 
@@ -291,109 +356,30 @@ SheetObject * MapObject_UpdateSprite( MokoiMapObject * object )
 * MapObject_New
 *
 */
-MokoiMapObject * MapObject_New(gchar * name, gdouble area_width, gdouble area_height )
+DisplayObject * MapObject_New( gchar * name, gdouble area_width, gdouble area_height )
 {
-	MokoiMapObject * object = g_new0(MokoiMapObject, 1);
-	object->type = 'u';
-	object->name = g_strdup(name);
-	object->settings = g_hash_table_new(g_str_hash, g_str_equal);
-	object->object = g_new0(DisplayObject, 1);
-	object->object->rotate = 0;
-	object->object->type = DT_OTHER;
-	object->object->resizable = TRUE;
-	object->object->supports_path = FALSE;
-	object->object->flip = 0;
-	object->object->colour.red = object->object->colour.blue \
-							= object->object->colour.green \
-							= object->object->colour.alpha \
-							= 1.0;
-	object->colour8.red = object->colour8.blue \
-			= object->colour8.green \
-			= object->colour8.alpha \
-			= 255;
-
+	/* Set a position area */
 	if ( area_width <= 0.0 )
 		area_width = 32.0;
 
 	if ( area_height <= 0.0 )
 		area_height = 32.0;
 
-	if ( !g_ascii_strcasecmp( name, "Rectangle") )
+
+	//
+	DisplayObject * object = NULL;
+	MapObjectData * object_data = MapObjectData_New( name );
+
+	object = Alchera_DisplayObject_New( object_data, &MapObjectData_FreePointer );
+
+	object_data->type = MapObject_SetInitialType( object, name, area_width, area_height );
+
+	if ( object_data->type == 't' )
 	{
-		object->type = 'r'; // Internal Type
-		object->object->type = DT_RECTANGLE; // Type for Widget
-		object->object->w = area_width;
-		object->object->h = area_height;
+		RuntimeSetting_InsertNew( object_data->settings, "number", "-1", "" );
 	}
-	else if ( !g_ascii_strcasecmp( name, "Circle") )
+	else if ( object_data->type == 's' )
 	{
-		object->type = 'c';
-		object->object->type = DT_CIRCLE;
-		object->object->w = area_width;
-		object->object->h = area_height;
-	}
-	else if ( !g_ascii_strcasecmp( name, "Polygon") )
-	{
-
-		object->type = 'p';
-		object->object->type = DT_POLYGON;
-		object->object->w = area_width;
-		object->object->h = area_height;
-		object->object->resizable = FALSE;
-
-		DisplayObject * objn = g_new0(DisplayObject, 1);
-		object->object->shape = g_slist_append( object->object->shape, objn );
-		objn->type = DT_POINT;
-		objn->layer = 43;
-		objn->w = objn->h = 16;
-		objn->x = area_width/2;
-		objn->y = 0;
-		objn->resizable = FALSE;
-
-		objn = g_new0(DisplayObject, 1);
-		object->object->shape = g_slist_append( object->object->shape, objn );
-		objn->type = DT_POINT;
-		objn->layer = 43;
-		objn->w = objn->h = 16;
-		objn->x = area_width;
-		objn->y = area_height;
-		objn->resizable = FALSE;
-
-		objn = g_new0(DisplayObject, 1);
-		object->object->shape = g_slist_append( object->object->shape, objn );
-		objn->type = DT_POINT;
-		objn->layer = 43;
-		objn->w = objn->h = 16;
-		objn->x = 0;
-		objn->y = area_height;
-		objn->resizable = FALSE;
-
-	}
-	else if ( !g_ascii_strcasecmp( name, "Text") )
-	{
-		object->type = 't';
-		object->object->type = DT_TEXT;
-		object->object->data = g_strdup("New Text");
-		object->object->resizable = FALSE;
-
-		object->object->w = 64;
-		object->object->h = 8;
-		object->object->tw = 64;
-		object->object->th = 8;
-		RuntimeSettingsStruct * option = RuntimeSetting_New( "-1", "" );
-		g_hash_table_replace( object->settings, "number", (gpointer)option );
-	}
-	else if ( !g_ascii_strcasecmp( name, "Line") )
-	{
-		object->type = 'l';
-		object->object->type = DT_LINE;
-		object->object->data = NULL;
-		object->object->w = area_width;
-		object->object->h = area_height;
-	}
-	else
-	{
-		object->type = 's';
 		SheetObject * sprite = MapObject_UpdateSprite( object );
 
 		/* Set Default Runtime options */
@@ -404,212 +390,108 @@ MokoiMapObject * MapObject_New(gchar * name, gdouble area_width, gdouble area_he
 			gchar ** file = g_strsplit( SPRITE_DATA(sprite)->entity, ".", 2);
 			if ( g_strv_length(file) == 2 )
 			{
-				REPLACE_STRING( object->entity_file, g_strdup(file[0]) );
-				REPLACE_STRING( object->entity_language, g_strdup(file[1]) );
+				REPLACE_STRING( object_data->entity_file, g_strdup(file[0]) );
+				REPLACE_STRING( object_data->entity_language, g_strdup(file[1]) );
 			}
 			g_strfreev( file );
-
 		}
+
 	}
 
 	return object;
 }
+
 
 
 /********************************
 * VirtualObject_UpdateSprite
 *
 */
-void VirtualObject_UpdateSprite( VirtualObject * object )
+SheetObject * VirtualObject_UpdateSprite( DisplayObject * object )
 {
-	SheetObject * sprite = NULL;
-	gchar ** ident_split = g_strsplit_set(object->name, ":", 2);
+	SheetObject * sprite = Sprite_GetFull( VIRTUAL_OBJECT_DATA(object)->name, TRUE );
 
-	if ( ident_split )
+	if ( object->image )
 	{
-		sprite = Sprite_Get(ident_split[1], ident_split[0], TRUE);
-	}
-	else
-	{
-		return;
-	}
-
-	if ( object->object->image )
-	{
-		g_object_unref( object->object->image );
+		g_object_unref( object->image );
 	}
 
 	if ( !sprite )
 	{
-		object->object->type = DT_NONE;
-	}
-	else if ( SPRITE_DATA(sprite)->animation )
-	{
-		object->type = 's';
-		if ( SPRITE_DATA(sprite)->animation )
-		{
-			object->object->image = SPRITE_DATA(sprite)->image;
-			object->object->type = DT_IMAGE;
-			object->object->tw = SPRITE_DATA(sprite)->animation->w;
-			object->object->th = SPRITE_DATA(sprite)->animation->h;
-			object->object->timeout = TRUE;
-		}
-		else if ( SPRITE_DATA(sprite)->image )
-		{
-			Meg_Log_Print( LOG_NONE, "No animation image for '%s' animation, using static image instead.", object->name);
-			object->object->image = SPRITE_DATA(sprite)->image;
-			object->object->tw = gdk_pixbuf_get_width( SPRITE_DATA(sprite)->image );
-			object->object->th = gdk_pixbuf_get_height( SPRITE_DATA(sprite)->image );
-			object->object->type = DT_IMAGE;
-		}
-		else
-			Meg_Log_Print( LOG_NONE,"No static image for '%s' animation", object->name);
+		object->type = DT_NONE;
 	}
 	else if ( !SPRITE_DATA(sprite)->image )
 	{
-		object->object->type = DT_NONE;
+		object->type = DT_NONE;
 	}
 	else
 	{
-		object->type = 's';
-		object->object->type = DT_IMAGE;
-		object->object->image = SPRITE_DATA(sprite)->image;
-		object->object->supports_path = TRUE;
+		VIRTUAL_OBJECT_DATA(object)->type = 's';
 
-		object->object->tw = gdk_pixbuf_get_width( SPRITE_DATA(sprite)->image );
-		object->object->th = gdk_pixbuf_get_height( SPRITE_DATA(sprite)->image );
+		object->type = DT_IMAGE;
+		object->image = SPRITE_DATA(sprite)->image;
+		object->tw = gdk_pixbuf_get_width( object->image );
+		object->th = gdk_pixbuf_get_height( object->image );
 	}
 
-	if ( sprite )
-	{
-		guint c = 0;
-		while ( c < 8 )
-		{
-			if ( SPRITE_DATA(sprite)->childrens[c].position != -1 && SPRITE_DATA(sprite)->childrens[c].name != NULL )
-			{
-				SheetObject * border_image = Sprite_Get( SPRITE_DATA(sprite)->childrens[c].name, ident_split[0], FALSE );
-				Alchera_DisplayObject_AddBorder( object->object, SPRITE_DATA(border_image)->image, SPRITE_DATA(sprite)->childrens[c].position, SPRITE_DATA(sprite)->childrens[c].repeat );
-				g_object_ref( SPRITE_DATA(border_image)->image );
-			}
-			c++;
-		}
 
-	}
+	g_object_ref( object->image );
 
-	g_strfreev(ident_split);
-
-
-	g_object_ref( object->object->image );
-
-	return;
+	return sprite;
 }
 
 /********************************
 * VirtualObject_New
 *
 */
-VirtualObject * VirtualObject_New(gchar * name, gdouble area_width, gdouble area_height )
+DisplayObject * VirtualObject_New(gchar * name, gdouble area_width, gdouble area_height )
 {
-	VirtualObject * object = g_new0(VirtualObject, 1);
-	object->type = 'u';
-	object->name = g_strdup(name);
-	object->object = g_new0(DisplayObject, 1);
-	object->object->rotate = 0;
-	object->object->type = DT_OTHER;
-	object->object->resizable = TRUE;
-	object->object->supports_path = FALSE;
-	object->object->flip = 0;
-	object->object->colour.red = object->object->colour.blue \
-							= object->object->colour.green \
-							= object->object->colour.alpha \
-							= 1.0;
 
+	/* Set a position area */
 	if ( area_width <= 0.0 )
 		area_width = 32.0;
 
 	if ( area_height <= 0.0 )
 		area_height = 32.0;
 
-	if ( !g_ascii_strcasecmp( name, "Rectangle") )
+	//
+	DisplayObject * object = NULL;
+	MapObjectData * object_data = MapObjectData_New( name );
+
+	object = Alchera_DisplayObject_New( object_data, &MapObjectData_FreePointer );
+
+	object_data->type = MapObject_SetInitialType( object, name, area_width, area_height );
+
+	MAP_OBJECT_DATA(object)->type = 's';
+	VirtualObject_UpdateSprite( object );
+
+
+	if ( object_data->type == 't' )
 	{
-		object->type = 'r'; // Internal Type
-		object->object->type = DT_RECTANGLE; // Type for Widget
-		object->object->w = area_width;
-		object->object->h = area_height;
+		RuntimeSetting_InsertNew( object_data->settings, "number", "-1", "" );
 	}
-	else if ( !g_ascii_strcasecmp( name, "Circle") )
+	else if ( object_data->type == 's' )
 	{
-		object->type = 'c';
-		object->object->type = DT_CIRCLE;
-		object->object->w = area_width;
-		object->object->h = area_height;
-	}
-	else if ( !g_ascii_strcasecmp( name, "Polygon") )
-	{
+		SheetObject * sprite = MapObject_UpdateSprite( object );
 
-		object->type = 'p';
-		object->object->type = DT_POLYGON;
-		object->object->w = area_width;
-		object->object->h = area_height;
-		object->object->resizable = FALSE;
+		/* Set Default Runtime options */
+		if ( sprite && SPRITE_DATA(sprite)->entity )
+		{
+			RuntimeSetting_SetDefaultValues( object );
 
-		DisplayObject * objn = g_new0(DisplayObject, 1);
-		object->object->shape = g_slist_append( object->object->shape, objn );
-		objn->type = DT_POINT;
-		objn->layer = 43;
-		objn->w = objn->h = 16;
-		objn->x = area_width/2;
-		objn->y = 0;
-		objn->resizable = FALSE;
-
-		objn = g_new0(DisplayObject, 1);
-		object->object->shape = g_slist_append( object->object->shape, objn );
-		objn->type = DT_POINT;
-		objn->layer = 43;
-		objn->w = objn->h = 16;
-		objn->x = area_width;
-		objn->y = area_height;
-		objn->resizable = FALSE;
-
-		objn = g_new0(DisplayObject, 1);
-		object->object->shape = g_slist_append( object->object->shape, objn );
-		objn->type = DT_POINT;
-		objn->layer = 43;
-		objn->w = objn->h = 16;
-		objn->x = 0;
-		objn->y = area_height;
-		objn->resizable = FALSE;
-
-	}
-	else if ( !g_ascii_strcasecmp( name, "Text") )
-	{
-		object->type = 't';
-		object->object->type = DT_TEXT;
-		object->object->data = g_strdup("New Text");
-		object->object->resizable = FALSE;
-
-		object->object->w = 64;
-		object->object->h = 8;
-		object->object->tw = 64;
-		object->object->th = 8;
-
-	}
-	else if ( !g_ascii_strcasecmp( name, "Line") )
-	{
-		object->type = 'l';
-		object->object->type = DT_LINE;
-		object->object->data = NULL;
-		object->object->w = area_width;
-		object->object->h = area_height;
-	}
-	else
-	{
-		object->type = 's';
-		VirtualObject_UpdateSprite( object );
+			gchar ** file = g_strsplit( SPRITE_DATA(sprite)->entity, ".", 2);
+			if ( g_strv_length(file) == 2 )
+			{
+				REPLACE_STRING( object_data->entity_file, g_strdup(file[0]) );
+				REPLACE_STRING( object_data->entity_language, g_strdup(file[1]) );
+			}
+			g_strfreev( file );
+		}
 
 	}
 
 	return object;
+
 }
 
 /********************************

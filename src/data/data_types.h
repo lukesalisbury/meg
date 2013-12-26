@@ -22,7 +22,6 @@ Permission is granted to anyone to use this software for any purpose, including 
 		guint8 alpha;
 	} rgbaColour;
 
-
 	typedef struct {
 		gint16 x;
 		gint16 y;
@@ -63,9 +62,9 @@ Permission is granted to anyone to use this software for any purpose, including 
 
 		AnimationDetail * animation;
 		ObjectMask mask;
-		GdkRectangle collisions[7];
 
-		SpriteChild childrens[8]; /* <SpriteChild> */
+		GdkRectangle collisions[7];
+		SpriteChild childrens[8];
 
 	} SpriteData;
 
@@ -74,4 +73,57 @@ Permission is granted to anyone to use this software for any purpose, including 
 	SpriteData * SpriteData_New( );
 	gboolean SpriteData_Free( SpriteData * sheet );
 	gboolean SpriteData_FreePointer( gpointer sheet );
+
+
+	typedef struct {
+		gchar * xml_filename;
+		gchar * thumb_filename;
+		gchar * entity_filename;
+		GdkRectangle position;
+		rgbaColour colour8;
+	} MapData;
+
+	#define MAP_DATA(obj) ((MapData *)(obj)->data)
+
+
+	typedef struct {
+		gchar * name;
+		gchar * type_name;
+		gchar type;
+
+		GHashTable * settings;
+		MapInfo * parent;
+		rgbaColour colour8;
+
+		gchar * object_name;
+		gchar * entity_file;
+		gchar * entity_language;
+		gboolean entity_global;
+
+	} MapObjectData;
+
+	#define MAP_OBJECT_DATA(obj) ((MapObjectData *)(obj)->data)
+	MapObjectData * MapObjectData_New( const gchar * name );
+	gboolean MapObjectData_Free( MapObjectData * object_data );
+	gboolean MapObjectData_FreePointer( gpointer sheet );
+
+
+	typedef struct {
+		gchar * name;
+		gchar * ident;
+		gint type;
+	} VirtualObjectData;
+	#define VIRTUAL_OBJECT_DATA(obj) ((VirtualObjectData *)(obj)->data)
+	gboolean VirtualObjectData_FreePointer( gpointer sheet );
+
+	typedef struct {
+		gchar * value;
+		gchar * type;
+		guint internal_type;
+		gboolean removable;
+		gboolean deleted;
+		GtkWidget * widget;
+	} RuntimeSettingsStruct;
+
+
 #endif // DATA_TYPES_H
