@@ -102,7 +102,8 @@ gboolean VirtualSpriteDialog_Display( gchar * id )
 	store_groups = GET_LISTSTORE( ui, "store_groups" );
 
 	if ( store_groups  )
-	{		/* Spritesheet loading */
+	{
+		/* Spritesheet loading */
 		char ** files = PHYSFS_enumerateFiles("/sprites/virtual/");
 		char ** current;
 
@@ -111,7 +112,7 @@ gboolean VirtualSpriteDialog_Display( gchar * id )
 			if ( g_str_has_suffix( *current, ".xml" ) )
 			{
 				gchar * file_name = g_strndup(*current, g_utf8_strlen(*current, -1) - 4 ); // Strip .xml
-				VirtualSpriteSheet_Insert( file_name );
+				VirtualSpriteSheet_Insert( file_name, TRUE );
 				g_free(file_name);
 			}
 		}
@@ -132,6 +133,7 @@ gboolean VirtualSpriteDialog_Display( gchar * id )
 	{
 		gtk_alchera_map_set_support_widget( GTK_ALCHERA_MAP(widget_map), store_current_objects, NULL, NULL );
 		gtk_widget_set_size_request( GTK_WIDGET(editor_viewport), 320, 240 );
+		gtk_alchera_map_set_align( GTK_ALCHERA_MAP(widget_map), TRUE );
 		gtk_widget_show_all( widget_map );
 	}
 	gtk_container_add( GTK_CONTAINER(editor_viewport), widget_map );

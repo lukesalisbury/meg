@@ -117,7 +117,6 @@ void Meg_Preference_Load( )
 */
 gint main (gint argc, char *argv[])
 {
-
 	GtkSettings * settings;
 
 	/* Set up GTK */

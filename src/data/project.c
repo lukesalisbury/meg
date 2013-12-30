@@ -109,8 +109,19 @@ gboolean AL_Play()
 	#endif
 
 	#ifdef G_OS_WIN32
-		argv[0] = g_build_filename( Meg_Directory(), ENGINE_FILENAME, NULL);
+		gchar * batch_file = g_build_filename( Meg_Directory(), ENGINE_FILENAME".bat", NULL);
+
+		if ( g_file_test(batch_file, G_FILE_TEST_EXISTS) )
+		{
+			argv[0] = g_build_filename( Meg_Directory(), ENGINE_FILENAME".bat", NULL);
+		}
+		else
+		{
+			argv[0] = g_build_filename( Meg_Directory(), ENGINE_FILENAME".exe", NULL);
+		}
 		argv[1] = g_strconcat( "'", g_strescape( mokoiBasePath, "" ), "\\\\", "'", NULL);
+
+		g_free(batch_file);
 	#else
 		argv[0] = g_build_filename( Meg_Directory(), ENGINE_FILENAME, NULL);
 		argv[1] = g_strconcat( "'", mokoiBasePath, G_DIR_SEPARATOR_S, "'", NULL);

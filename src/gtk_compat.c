@@ -28,17 +28,23 @@ void gdk_cairo_set_source_rgba( cairo_t *cr, const GdkRGBA * rgba )
 
 guint32 cairo_surface_get_pixel( cairo_surface_t * surface, gint src_x, gint src_y )
 {
-	guint32 colour = 0xFA118ac4;
+	guint32 colour = 0xFF118aff;
 	guchar * data = cairo_image_surface_get_data(surface);
 	gint stride = cairo_image_surface_get_stride(surface);
-
+	cairo_format_t  format = cairo_image_surface_get_format(surface);
+	gint channels = 4;
 	guchar * pixel = NULL;
+
+	g_return_val_if_fail( format == CAIRO_FORMAT_ARGB32, 0xFF0000FF );
+
+
 
 	if ( data )
 	{
-		pixel = data + (src_y * stride) + src_x * 4;
+		pixel = data + (src_y * stride) + src_x * channels;
 
 		colour = pixel[0] << 24 | pixel[1] << 16 | pixel[2] << 8 | pixel[3];
+
 	}
 
 	return colour;
@@ -48,13 +54,25 @@ gboolean gdk_pixbuf_set_pixel( GdkPixbuf * pixbuf, gint src_x, gint src_y, guint
 {
 	guchar * data = gdk_pixbuf_get_pixels(pixbuf);
 	gint stride = gdk_pixbuf_get_rowstride(pixbuf);
+	gint channels = gdk_pixbuf_get_n_channels( pixbuf );
 	guchar * pixel = NULL;
-
+	guchar r, g, b, a;
 	if ( data )
 	{
-		pixel = data + (src_y * stride) + src_x * 4;
+		b = ( colour  ) >> 24;
+		g = ( colour  ) >> 16;
+		r = ( colour  ) >> 8;
+		a = ( colour  );
 
-		pixel[0] = colour;
+
+		pixel = data + (src_y * stride) + src_x * channels;
+
+		pixel[0] = r;
+		pixel[1] = g;
+		pixel[2] = b;
+		if ( channels == 4)
+			pixel[3] = a;
+
 		return TRUE;
 	}
 	return FALSE;
@@ -76,7 +94,7 @@ GdkPixbuf * gdk_pixbuf_get_from_surface( cairo_surface_t * surface, gint src_x, 
 		for ( x = 0; x < width; x++ )
 		{
 			guint32 c = cairo_surface_get_pixel( surface, src_x+x, src_y+y );
-			gdk_pixbuf_set_pixel( pixbuf, src_x, src_y, c );
+			gdk_pixbuf_set_pixel( pixbuf, src_x+x, src_y+y, c );
 		}
 	}
 

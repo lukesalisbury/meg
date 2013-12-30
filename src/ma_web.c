@@ -17,14 +17,16 @@ typedef struct {
 	GAsyncQueue * global_queue;
 	gchar * url;
 	gchar * filename;
+	gchar * content;
 	GtkWidget * dialog;
+	gint (*return_function)( gchar * content, gpointer data );
+	gpointer return_function_data;
 } WebRetrieve;
 
 
 /* UI */
-
 #include "ui/retrieve_dialog.gui.h"
-const gchar * UIRetrieveDialog = GUIRETRIEVE_DIALOG
+const gchar * UIRetrieveDialog = GUIRETRIEVE_DIALOG;
 
 
 #ifdef USE_SOUP
@@ -45,27 +47,13 @@ G_MODULE_EXPORT gboolean Meg_Web_Enable( )
 
 
 /*****************************
-* Meg_Web_RetrieveFile
+* Meg_Web_RetrieveFileOverwrite
 *
 */
-gboolean Meg_Web_RetrieveFile( GString * address, gchar * user, gchar * pass, gchar * file_name, guint directory )
+gboolean Meg_Web_RetrieveFileOverwrite( GString * address, gchar * user, gchar * pass, gchar * file_name, guint directory )
 {
 	guint status;
 	SoupMessage * msg;
-
-
-	if ( g_file_test( file_name, (G_FILE_TEST_EXISTS | G_FILE_TEST_IS_REGULAR)) )
-	{
-		GtkWidget * question = gtk_message_dialog_new( NULL, GTK_DIALOG_MODAL, GTK_MESSAGE_QUESTION, GTK_BUTTONS_YES_NO, "Do you want to overwrite '%s'", file_name);
-		gint answer = gtk_dialog_run( GTK_DIALOG(question) );
-		gtk_widget_destroy( question );
-
-		if ( answer != GTK_RESPONSE_YES )
-		{
-			Meg_Log_Print(LOG_ERROR, "'%s' already exists", file_name );
-			return FALSE;
-		}
-	}
 
 	if ( !session )
 	{
@@ -96,7 +84,28 @@ gboolean Meg_Web_RetrieveFile( GString * address, gchar * user, gchar * pass, gc
 	return FALSE;
 }
 
+/*****************************
+* Meg_Web_RetrieveFile
+*
+*/
+gboolean Meg_Web_RetrieveFile( GString * address, gchar * user, gchar * pass, gchar * file_name, guint directory )
+{
 
+	if ( g_file_test( file_name, (G_FILE_TEST_EXISTS | G_FILE_TEST_IS_REGULAR)) )
+	{
+		GtkWidget * question = gtk_message_dialog_new( NULL, GTK_DIALOG_MODAL, GTK_MESSAGE_QUESTION, GTK_BUTTONS_YES_NO, "Do you want to overwrite '%s'", file_name);
+		gint answer = gtk_dialog_run( GTK_DIALOG(question) );
+		gtk_widget_destroy( question );
+
+		if ( answer != GTK_RESPONSE_YES )
+		{
+			Meg_Log_Print(LOG_ERROR, "'%s' already exists", file_name );
+			return FALSE;
+		}
+	}
+
+	return Meg_Web_RetrieveFileOverwrite( address, user, pass, file_name, directory );
+}
 /*****************************
 * Meg_Web_RetrieveText
 *
@@ -115,7 +124,7 @@ gchar * Meg_Web_RetrieveText( GString * address, gchar * user, gchar * pass )
 	}
 
 	msg = soup_message_new( SOUP_METHOD_GET, address->str );
-	soup_message_headers_append( msg->request_headers, "User-Agent", "MokoiEditor" );
+	soup_message_headers_append( msg->request_headers, "User-Agent", "Mozilla/5.0 (MokoiEditor)" );
 	status = soup_session_send_message( session, msg );
 	if ( status == 200 )
 	{
@@ -163,7 +172,7 @@ gboolean Meg_Web_SendFile( GString * address, gchar * user, gchar * pass, gchar 
 	soup_buffer_free(buffer);
 
 	msg = soup_form_request_new_from_multipart( address->str, multipart );
-	soup_message_headers_append( msg->request_headers, "User-Agent", "Alchera" );
+	soup_message_headers_append( msg->request_headers, "User-Agent", "Mozilla/5.0 (MokoiEditor)" );
 	soup_session_send_message( session, msg );
 
 	soup_multipart_free( multipart );
@@ -190,7 +199,7 @@ gboolean Meg_Web_SendText( GString * address, gchar * user, gchar * pass, gchar 
 	}
 
 	msg = soup_form_request_new( SOUP_METHOD_POST, address->str, "data", text, NULL );
-	soup_message_headers_append( msg->request_headers, "User-Agent", "Alchera" );
+	soup_message_headers_append( msg->request_headers, "User-Agent", "Mozilla/5.0 (MokoiEditor)" );
 	soup_session_send_message( session, msg );
 
 	if ( !SOUP_STATUS_IS_SUCCESSFUL(msg->status_code) )
@@ -219,6 +228,14 @@ gboolean Meg_Web_RetrieveFile( GString * address, gchar * user, gchar * pass, gc
 	return FALSE;
 }
 
+/*****************************
+* Meg_Web_RetrieveFileOverwrite
+*
+*/
+gboolean Meg_Web_RetrieveFileOverwrite( GString * address, gchar * user, gchar * pass, gchar * file_name, guint directory )
+{
+	return FALSE;
+}
 
 /*****************************
 * Meg_Web_RetrieveText
@@ -260,7 +277,15 @@ gpointer Meg_Web_RetrieveThread( gpointer data )
 	WebRetrieve * download = (WebRetrieve *)data;
 
 	GString * url = g_string_new(download->url);
-	Meg_Web_RetrieveFile( url, NULL, NULL, download->filename, 1);//
+
+	if ( download->filename )
+	{
+		Meg_Web_RetrieveFileOverwrite( url, NULL, NULL, download->filename, 1);
+	}
+	else
+	{
+		download->content = Meg_Web_RetrieveText( url, NULL, NULL );
+	}
 	g_string_free(url, FALSE);
 
 	g_async_queue_push( download->queue, download );
@@ -279,12 +304,23 @@ gboolean Meg_Web_RetrieveWatch( WebRetrieve * download )
 	{
 		gtk_widget_destroy(download->dialog);
 
-		if ( !g_file_test(download->filename, G_FILE_TEST_IS_REGULAR) )
+		if ( download->filename )
 		{
-			GtkWidget * message = gtk_message_dialog_new( NULL, GTK_DIALOG_MODAL, GTK_MESSAGE_ERROR, GTK_BUTTONS_CLOSE, "Error Downloading File '%s'", download->url );
-			gtk_dialog_run( GTK_DIALOG(message) );
-			gtk_widget_destroy( message );
-
+			if ( !g_file_test(download->filename, G_FILE_TEST_IS_REGULAR) )
+			{
+				GtkWidget * message = gtk_message_dialog_new( NULL, GTK_DIALOG_MODAL, GTK_MESSAGE_ERROR, GTK_BUTTONS_CLOSE, "Error Downloading File '%s'", download->url );
+				gtk_dialog_run( GTK_DIALOG(message) );
+				gtk_widget_destroy( message );
+			}
+			if ( download->return_function )
+			{
+				download->return_function( download->filename, download->return_function_data );
+			}
+		}
+		else if ( download->return_function )
+		{
+			download->return_function( download->content, download->return_function_data );
+			g_free( download->content );
 		}
 
 		g_async_queue_push( download->global_queue, download->global_queue );
@@ -306,7 +342,62 @@ gboolean Meg_Web_RetrieveWatch( WebRetrieve * download )
 * Meg_Web_RetrieveQueue
 *
 */
-GAsyncQueue * Meg_Web_RetrieveQueue(const gchar * url, gchar * user, gchar * pass, const gchar * file_name, guint directory )
+GAsyncQueue * Meg_Web_RetrieveQueue(GtkWidget * parent, const gchar * url, gchar * user, gchar * pass, const gchar * file_name, gint (*return_function)(gchar *,gpointer), gpointer data )
+{
+	GtkWidget * label_text;
+	WebRetrieve * download = NULL;
+
+	/* Confirm File overwrite */
+	if ( g_file_test( file_name, (G_FILE_TEST_EXISTS | G_FILE_TEST_IS_REGULAR)) )
+	{
+		GtkWidget * question = gtk_message_dialog_new( Meg_Misc_ParentWindow(parent), GTK_DIALOG_MODAL, GTK_MESSAGE_QUESTION, GTK_BUTTONS_YES_NO, "Do you want to overwrite '%s'", file_name);
+		gint answer = gtk_dialog_run( GTK_DIALOG(question) );
+		gtk_widget_destroy( question );
+
+		if ( answer != GTK_RESPONSE_YES )
+		{
+			return NULL;
+		}
+	}
+
+	/* UI */
+	GtkBuilder * ui = Meg_Builder_Create(UIRetrieveDialog, __func__, __LINE__);
+	g_return_val_if_fail( ui, FALSE );
+
+	/* Widgets */
+	label_text = GET_WIDGET( ui, "label_text" );
+
+	download = g_new0( WebRetrieve, 1 );
+	download->dialog = GET_WIDGET( ui, "window");
+
+	download->queue = g_async_queue_new();
+	download->global_queue = g_async_queue_new();
+	download->url = g_strdup(url);
+	download->filename = g_strdup(file_name);
+	download->return_function = return_function;
+	download->return_function_data = data;
+
+	gtk_label_set_text( GTK_LABEL(label_text), url );
+
+
+	gtk_window_set_transient_for( GTK_WINDOW(download->dialog), GTK_WINDOW(parent) );
+	gtk_widget_show_all( download->dialog );
+
+	Meg_Log_SetBuffer( NULL );
+	if ( g_thread_create( (GThreadFunc)Meg_Web_RetrieveThread, (gpointer)download, FALSE, NULL ) )
+	{
+		g_timeout_add( 20, (GSourceFunc)Meg_Web_RetrieveWatch, (gpointer)download );
+	}
+
+	return download->global_queue;
+
+}
+
+/********************************
+* Meg_Web_RetrieveTextQueue
+*
+*/
+GAsyncQueue * Meg_Web_RetrieveTextQueue(GtkWidget *parent, const gchar * url, gchar * user, gchar * pass, gint (*return_text)(gchar *, gpointer), gpointer data )
 {
 	GtkWidget * label_text;
 	WebRetrieve * download = g_new0( WebRetrieve, 1 );
@@ -322,10 +413,13 @@ GAsyncQueue * Meg_Web_RetrieveQueue(const gchar * url, gchar * user, gchar * pas
 	download->queue = g_async_queue_new();
 	download->global_queue = g_async_queue_new();
 	download->url = g_strdup(url);
-	download->filename = g_strdup(file_name);
+	download->filename = NULL;
+	download->return_function = return_text;
+	download->return_function_data = data;
 
 	gtk_label_set_text( GTK_LABEL(label_text), url );
 
+	gtk_window_set_transient_for( GTK_WINDOW(download->dialog), GTK_WINDOW(parent) );
 	gtk_widget_show_all( download->dialog );
 
 	Meg_Log_SetBuffer( NULL );

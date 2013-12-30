@@ -50,71 +50,38 @@ MapInfo * VirtualSprite_LoadXML( gchar * id )
 		Map_ParseXML( map_info, content );
 
 		/* Update display_list */
-/*
-		VirtualObjectData * virtual_object = NULL;
-		GList * scan = g_list_first( object_list->objects );
+
+		DisplayObject * object = NULL;
+		GList * scan = g_list_first( map_info->display_list );
 		while ( scan )
 		{
-			virtual_object = (VirtualObjectData *)scan->data;
+			object = (DisplayObject *)scan->data;
 
-			virtual_object->tw = virtual_object->th = 1;
-			virtual_object->type = DT_NONE;
-			virtual_object->timeout = FALSE;
-			switch ( virtual_object->type )
+			switch ( MAP_OBJECT_DATA(object)->type )
 			{
 				case 's':
-					VirtualObject_UpdateSprite( virtual_object );
+					MapObject_UpdateSprite( object );
 					break;
 				case 't':
-					virtual_object->type = DT_TEXT;
-					virtual_object->data = (gpointer)g_strdup( virtual_object->name );
-					break;
 				case 'l':
-					virtual_object->type = DT_LINE;
-					break;
 				case 'r':
-					virtual_object->type = DT_RECTANGLE;
-					break;
 				case 'p':
-					virtual_object->type = DT_POLYGON;
-					virtual_object->resizable = FALSE;
-					break;
 				case 'c':
-					virtual_object->type = DT_CIRCLE;
 					break;
 				default:
-					virtual_object->type = DT_OTHER;
+
 					break;
 			}
 
-			if ( virtual_object->image )
-			{
-				virtual_object->type = DT_IMAGE;
-				virtual_object->tw = gdk_pixbuf_get_width( virtual_object->image );
-				virtual_object->th = gdk_pixbuf_get_height( virtual_object->image );
-			}
 
-			if ( virtual_object->type == DT_IMAGE || virtual_object->type == DT_ANIMATION )
-			{
-				if ( virtual_object->w < 1.00 )
-				{
-					virtual_object->w = virtual_object->tw;
-				}
-				if ( virtual_object->h < 1.00 )
-				{
-					virtual_object->h = virtual_object->th;
-				}
-			}
 
-			map_info->width = MAX( map_info->width, virtual_object->x + virtual_object->w );
-			map_info->height = MAX( map_info->height, virtual_object->y + virtual_object->h );
+			map_info->width = MAX( map_info->width, object->x + object->w );
+			map_info->height = MAX( map_info->height, object->y + object->h );
 
-			virtual_object->active = virtual_object->tile = FALSE;
 
-			map_info->display_list = g_list_append(map_info->display_list, virtual_object->object);
 			scan = g_list_next( scan );
 		}
-*/
+
 	}
 
 	g_free(file_path);
@@ -159,11 +126,15 @@ GdkPixbuf *  VirtualSprite_BuildPixbuf( gchar * id )
 			cairo_destroy( cr );
 
 			image = gdk_pixbuf_get_from_surface( cst, 0, 0, map_info->width, map_info->height );
-
+			cairo_surface_write_to_png(cst, "temp-cairo.png");
+			gdk_pixbuf_save( image, "temp-pixbuf.png", "png", NULL, NULL);
 		}
 
 		Map_Free( map_info, FALSE );
 	}
+
+
+
 	return image;
 }
 
@@ -174,11 +145,9 @@ GdkPixbuf *  VirtualSprite_BuildPixbuf( gchar * id )
 gboolean VirtualSprite_SaveXML( MapInfo * map_info )
 {
 	g_return_val_if_fail( map_info != NULL, FALSE );
-	g_return_val_if_fail( map_info->data != NULL, FALSE );
 
 	GList * scan = NULL;
 	GString * map_string = g_string_new("<map xmlns=\"http://mokoi.info/projects/mokoi\">\n");
-
 
 	/* Objects */
 	scan = g_list_first( map_info->display_list );
@@ -251,7 +220,7 @@ gboolean VirtualSprite_SaveXML( MapInfo * map_info )
 	Meg_file_set_contents( file_path, map_string->str, -1, NULL);
 	g_free( file_path );
 
-	VirtualSpriteSheet_Insert( map_info->name );
+	VirtualSpriteSheet_Insert( map_info->name, TRUE );
 
 	return TRUE;
 }
@@ -325,7 +294,7 @@ gint VirtualSprite_FindCompare(gconstpointer a, gconstpointer b)
 * VirtualSpriteSheet_Insert
 *
 */
-gboolean VirtualSpriteSheet_Insert( gchar * name )
+gboolean VirtualSpriteSheet_Insert( gchar * name, gboolean visible )
 {
 	GSList * scan = NULL;
 
@@ -341,7 +310,7 @@ gboolean VirtualSpriteSheet_Insert( gchar * name )
 		sprite->display_name = g_strdup(name);
 		sprite->parent_sheet = g_strdup("Virtual");
 		sprite->ident_string = g_strdup_printf( "Virtual:%s", sprite->display_name );
-		sprite->visible = TRUE;
+		sprite->visible = visible;
 
 		virtual_spritesheet->children = g_slist_append( virtual_spritesheet->children, (gpointer)sprite );
 
@@ -402,13 +371,13 @@ Spritesheet * VirtualSpriteSheet_Get(gboolean update_sprite_image)
 			if ( g_str_has_suffix( *current, ".xml" ) )
 			{
 				gchar * file_name = g_strndup(*current, g_utf8_strlen(*current, -1) - 4 ); // Strip .xml
-				VirtualSpriteSheet_Insert( file_name );
+				VirtualSpriteSheet_Insert( file_name, TRUE );
 				g_free(file_name);
 			}
 		}
 		PHYSFS_freeList(files);
 
-		VirtualSpriteSheet_Insert( "Add New" );
+		VirtualSpriteSheet_Insert( "Add New", FALSE );
 
 	}
 

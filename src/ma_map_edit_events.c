@@ -387,15 +387,3 @@ void Meg_MapEdit_EditorMenu( GtkMenuToolButton * button, GtkWidget * map_widget 
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-

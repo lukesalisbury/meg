@@ -407,6 +407,8 @@ void Alchera_DisplayObject_DrawPixbuf(DisplayObject * object, cairo_t *cr)
 */
 void Alchera_DisplayObject_DrawAnimation( DisplayObject * object, cairo_t * cr )
 {
+	// Disabled for now
+	/*
 	if ( !object->data )
 		return;
 
@@ -433,6 +435,7 @@ void Alchera_DisplayObject_DrawAnimation( DisplayObject * object, cairo_t * cr )
 		cairo_pattern_set_matrix( pattern, &matrix );
 	}
 	cairo_fill( cr );
+	*/
 }
 
 /********************************
@@ -501,18 +504,17 @@ void Alchera_DisplayObject_DrawLine(DisplayObject* object, cairo_t *cr)
 */
 void Alchera_DisplayObject_DrawBitText(DisplayObject* object, cairo_t *cr)
 {
-	if ( !object->data )
+	if ( !object->text )
 		return;
-	gchar * text = (gchar*)object->data;
 	cairo_text_extents_t extents;
 	cairo_select_font_face( cr, "monospace", CAIRO_FONT_SLANT_NORMAL, CAIRO_FONT_WEIGHT_NORMAL );
 	cairo_set_font_size( cr, 8.0 );
-	cairo_text_extents( cr, text, &extents );
+	cairo_text_extents( cr, object->text, &extents );
 	cairo_move_to( cr, object->x , object->y + extents.height );
 	gdk_cairo_set_source_rgba( cr, &object->colour );
 	object->w = extents.width;
 	object->h = extents.height;
-	cairo_show_text( cr, text );
+	cairo_show_text( cr, object->text );
 }
 
 /********************************
@@ -521,18 +523,17 @@ void Alchera_DisplayObject_DrawBitText(DisplayObject* object, cairo_t *cr)
 */
 void Alchera_DisplayObject_DrawText(DisplayObject* object, cairo_t *cr)
 {
-	if ( !object->data )
+	if ( !object->text )
 		return;
-	gchar * text = (gchar*)object->data;
 	cairo_text_extents_t extents;
 	cairo_select_font_face( cr, "Sans", CAIRO_FONT_SLANT_NORMAL, CAIRO_FONT_WEIGHT_NORMAL );
 	cairo_set_font_size( cr, 10.0 );
-	cairo_text_extents( cr, text, &extents );
+	cairo_text_extents( cr, object->text, &extents );
 	cairo_move_to( cr, object->x , object->y + extents.height );
 	gdk_cairo_set_source_rgba( cr, &object->colour );
 	object->w = extents.width;
 	object->h = extents.height;
-	cairo_show_text( cr, text );
+	cairo_show_text( cr, object->text );
 
 
 	//gunichar g_utf8_get_char                     (const gchar *p);

@@ -99,6 +99,8 @@ void gtk_alchera_map_edit_path(AlcheraMap * map);
 
 void gtk_alchera_map_refresh( AlcheraMap * wid );
 void gtk_alchera_map_change_scale( AlcheraMap * wid, gdouble value );
+void gtk_alchera_map_set_align( AlcheraMap * wid, gboolean able );
+
 
 GList * gtk_alchera_map_get_list( AlcheraMap * wid );
 DisplayObject * gtk_alchera_map_get_selected( AlcheraMap * wid );

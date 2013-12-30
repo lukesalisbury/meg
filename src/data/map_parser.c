@@ -195,7 +195,6 @@ void map_parse_handler_start_object_element( GMarkupParseContext *context, const
 	GList * last_object = g_list_last( map_info->display_list );
 	object_display = (DisplayObject *)last_object->data;
 
-
 	/* Update Object */
 	object_display->resizable = TRUE;
 	if ( g_ascii_strcasecmp (element_name, "position") == 0 )
@@ -384,7 +383,6 @@ void map_parse_handler_start_root_element( GMarkupParseContext *context, const g
 		else if ( map_info->file_type == 1 )
 		{
 			VirtualObjectData * virtual_object = g_new0(VirtualObjectData, 1);
-
 
 			for (; *attribute_names && *attribute_values; attribute_names++, attribute_values++)
 			{

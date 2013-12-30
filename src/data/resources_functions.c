@@ -465,7 +465,7 @@ DisplayObject * VirtualObject_New(gchar * name, gdouble area_width, gdouble area
 	MAP_OBJECT_DATA(object)->type = 's';
 	VirtualObject_UpdateSprite( object );
 
-
+/*
 	if ( object_data->type == 't' )
 	{
 		RuntimeSetting_InsertNew( object_data->settings, "number", "-1", "" );
@@ -474,7 +474,6 @@ DisplayObject * VirtualObject_New(gchar * name, gdouble area_width, gdouble area
 	{
 		SheetObject * sprite = MapObject_UpdateSprite( object );
 
-		/* Set Default Runtime options */
 		if ( sprite && SPRITE_DATA(sprite)->entity )
 		{
 			RuntimeSetting_SetDefaultValues( object );
@@ -489,7 +488,7 @@ DisplayObject * VirtualObject_New(gchar * name, gdouble area_width, gdouble area
 		}
 
 	}
-
+*/
 	return object;
 
 }

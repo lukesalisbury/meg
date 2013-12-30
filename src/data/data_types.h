@@ -16,6 +16,11 @@ Permission is granted to anyone to use this software for any purpose, including 
 	#include "ma_types.h"
 
 	typedef struct {
+		GtkTreeModel * model;
+		GtkTreeIter iter;
+	} TreeItem;
+
+	typedef struct {
 		guint8 red;
 		guint8 green;
 		guint8 blue;

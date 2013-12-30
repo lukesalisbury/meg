@@ -48,6 +48,30 @@ GdkPixbuf * mokoiObjectMissing = NULL;
 */
 GList * AL_Object_List( MapInfo * map_info )
 {
+	/* Load resources if needed*/
+	DisplayObject * object = NULL;
+	GList * scan = g_list_first( map_info->display_list );
+
+	while ( scan )
+	{
+		object = (DisplayObject *)scan->data;
+
+		switch ( MAP_OBJECT_DATA(object)->type )
+		{
+			case 's':
+				MapObject_UpdateSprite( object );
+				break;
+			case 't':
+			case 'l':
+			case 'r':
+			case 'p':
+			case 'c':
+			default:
+			break;
+		}
+		scan = g_list_next(scan);
+	}
+
 	return map_info->display_list;
 
 }
@@ -345,30 +369,6 @@ void AL_Object_Available( GtkListStore * list, gchar * parent )
 		gtk_list_store_set( list, &iter, 0, mokoiObjectImage[OT_TEXT], 1, "Text", 2, "Text", 3, TRUE, 4, OT_TEXT, 5, 1, 6, 1, -1 );
 		gtk_list_store_append( list, &iter );
 		gtk_list_store_set( list, &iter, 0, mokoiObjectImage[OT_POLYGON], 1, "Polygon", 2, "Polygon", 3, TRUE, 4, OT_POLYGON, 5, 1, 6, 1, -1 );
-
-	}
-	else if ( !g_ascii_strcasecmp( parent, "Virtual") )
-	{
-		/* Spritesheet loading */
-		char ** files = PHYSFS_enumerateFiles("/sprites/virtual/");
-		char ** current;
-
-		for (current = files; *current != NULL; current++)
-		{
-			if ( g_str_has_suffix( *current, ".xml" ) )
-			{
-				gchar * file_name = g_strndup(*current, g_utf8_strlen(*current, -1) - 4 ); // Strip .xml
-				GdkPixbuf * image = VirtualSprite_BuildPixbuf(file_name);
-
-				gtk_list_store_append( list, &iter );
-				gtk_list_store_set( list, &iter, 1, g_strdup(file_name), 2, g_strdup_printf("virtual:%s",file_name), 3, FALSE, 4, DT_IMAGE, -1 );
-				gtk_list_store_set( list, &iter, 0, image, 5, gdk_pixbuf_get_width( image ), 6, gdk_pixbuf_get_height( image ), -1 );
-
-
-				g_free(file_name);
-			}
-		}
-		PHYSFS_freeList(files);
 
 	}
 	else

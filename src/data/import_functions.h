@@ -12,7 +12,7 @@ Permission is granted to anyone to use this software for any purpose, including 
 #include <gtk/gtk.h>
 
 gboolean Import_InstallPackage( GtkTreeModel * model, GtkTreePath * path, GtkTreeIter * iter, gpointer data );
-void Import_UpdateList( GtkWidget * button , GtkListStore * store );
-void Import_InstallButton( GtkTreeView * tree_view, GtkTreePath * path, GtkTreeViewColumn * column, gpointer user_data );
+void ImportDialog_ScanLocal( GtkWidget * button , GtkListStore * store );
+void ImportDialog_InstallSelected( GtkTreeView * tree_view, GtkTreePath * path, GtkTreeViewColumn * column, gpointer user_data );
 void Import_AddListing( GtkListStore * store, gchar * package_name, gchar * package_path, gchar * package_author, gchar * package_version, gchar * package_description, guchar package_type, gboolean is_local );
-void Import_RequestUpdates( GtkListStore * store );
+void ImportDialog_RequestUpdates( GtkWidget * widget, GtkListStore * store );

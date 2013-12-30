@@ -431,6 +431,7 @@ gchar * AL_LoadProject(const gchar *path )
 
 	return mokoiBasePath;
 }
+
 /********************************
 * AL_PrecheckFiles
 *
@@ -448,7 +449,7 @@ GAsyncQueue * AL_PrecheckFiles()
 	/* Check if package exist */
 	if ( !g_file_test(package_location, G_FILE_TEST_IS_DIR | G_FILE_TEST_IS_REGULAR) )
 	{
-		queue = Meg_Web_RetrieveQueue(FORCE_PACKAGE_URL, NULL, NULL, package_location, 0 );
+		queue = Meg_Web_RetrieveQueue(NULL, FORCE_PACKAGE_URL, NULL, NULL, package_location, NULL, NULL );
 		//queue = Meg_Web_RetrieveQueue("https://www.assembla.com/spaces/OpenZelda/documents/ds_ng2QzCr4P_cacwqEsg8/download/ds_ng2QzCr4P_cacwqEsg8", NULL, NULL, package_location, 0 );
 	}
 	else

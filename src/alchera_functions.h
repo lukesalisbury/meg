@@ -64,7 +64,8 @@
 	gchar * Meg_Web_RetrieveText( GString * address, gchar * user, gchar * pass );
 	gboolean Meg_Web_SendFile( GString * address, gchar * user, gchar * pass, gchar * file_name, guint directory );
 	gboolean Meg_Web_SendText( GString * address, gchar * user, gchar * pass, gchar * text );
-	GAsyncQueue * Meg_Web_RetrieveQueue( const gchar * url, gchar * user, gchar * pass, const gchar * file_name, guint directory );
+	GAsyncQueue * Meg_Web_RetrieveQueue(GtkWidget * parent, const gchar * url, gchar * user, gchar * pass, const gchar * file_name, gint (*return_function)(gchar *,gpointer), gpointer data );
+	GAsyncQueue * Meg_Web_RetrieveTextQueue(GtkWidget *parent, const gchar * url, gchar * user, gchar * pass, gint (*return_text)( gchar *, gpointer ) , gpointer data);
 
 	/* */
 	void Meg_ComboText_Setup(GtkWidget * combo_box , gboolean force_model);

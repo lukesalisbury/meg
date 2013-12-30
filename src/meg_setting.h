@@ -52,11 +52,7 @@
 #endif
 
 #ifndef ENGINE_FILENAME
-	#ifdef G_OS_WIN32
-		#define ENGINE_FILENAME "luxengine.exe"
-	#else
-		#define ENGINE_FILENAME "luxengine"
-	#endif
+	#define ENGINE_FILENAME "luxengine"
 #endif
 
 #ifndef PACKAGE_URL

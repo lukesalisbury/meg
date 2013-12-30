@@ -101,7 +101,6 @@ gchar * MapObject_TypeName( gchar type )
 void Map_Free( MapInfo * map_info, gboolean save )
 {
 	g_return_if_fail( map_info );
-	g_return_if_fail( map_info->data );
 
 	if ( map_info->settings )
 	{

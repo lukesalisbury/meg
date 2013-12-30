@@ -21,29 +21,6 @@ extern GKeyFile * meg_pref_storage;
 /* UI */
 
 
-/********************************
-* Spritesheet_Free
-
-*/
-/*
-void Spritesheet_Free( gpointer data )
-{
-	if ( data )
-	{
-		Spritesheet * content = (Spritesheet*)data;
-
-		content->image_loaded = FALSE;
-
-		g_free(content->file);
-		g_slist_free(content->children);
-		g_object_unref(content->image);
-
-
-		content = NULL;
-	}
-
-}
-*/
 
 /********************************
 * Meg_Builder_Create

@@ -1654,7 +1654,7 @@ void gtk_alchera_map_set_dimension( AlcheraMap * wid, guint width, guint height 
 }
 
 /********************************
-* gtk_alchera_map_get_list
+* gtk_alchera_map_set_support_widget
 *
 */
 void gtk_alchera_map_set_support_widget(AlcheraMap * wid, GtkListStore * store, GtkStatusbar * status , GtkWidget * object_menu)
@@ -1666,7 +1666,7 @@ void gtk_alchera_map_set_support_widget(AlcheraMap * wid, GtkListStore * store, 
 }
 
 /********************************
-* gtk_alchera_map_get_list
+* gtk_alchera_map_change_scale
 *
 */
 void gtk_alchera_map_change_scale( AlcheraMap * wid, gdouble value )
@@ -1674,6 +1674,17 @@ void gtk_alchera_map_change_scale( AlcheraMap * wid, gdouble value )
 	wid->scale += value;
 	gtk_alchera_map_set_scale( wid, wid->scale );
 }
+
+/********************************
+* gtk_alchera_map_set_align
+*
+*/
+void gtk_alchera_map_set_align( AlcheraMap * wid, gboolean able )
+{
+	wid->align = able;
+
+}
+
 
 /********************************
 * gtk_alchera_map_get_list

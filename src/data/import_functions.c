@@ -83,25 +83,69 @@ void Import_AddListing( GtkListStore * store, const gchar * package_name, const 
 
 }
 
+
 /********************************
-* Import_InstallButton
+* ImportDialog_Download
+*
+@ url:
+@ target_file_name
+-
+*/
+GAsyncQueue * ImportDialog_Download( GtkWidget * parent, const gchar * url, const gchar * target_file_name, gint (*return_text)( gchar *,  gpointer ), gpointer data )
+{
+	GAsyncQueue * queue = NULL;
+
+	if ( target_file_name )
+	{
+		queue = Meg_Web_RetrieveQueue( parent, url, NULL, NULL, target_file_name, return_text, data );
+	}
+	else if ( return_text )
+	{
+		queue = Meg_Web_RetrieveTextQueue( parent, url, NULL, NULL, return_text, data );
+	}
+
+	return queue;
+}
+
+/********************************
+* ImportDialog_UpdatePackageListing
 *
 @
-@
-@
-@
+-
 */
-void Import_RequestUpdates( GtkListStore * store )
+gint ImportDialog_UpdatePackageListing( gchar * filename, gpointer data )
 {
-	GMarkupParseContext * ctx;
-	gchar * content = NULL;
-	GString * url = g_string_new(PACKAGE_URL);
+	if ( filename )
+	{
+		TreeItem * tree_item = (TreeItem*)data;
+		if ( g_file_test( filename, G_FILE_TEST_EXISTS) )
+		{
+			gtk_list_store_set( GTK_LIST_STORE(tree_item->model), &tree_item->iter, 0, TRUE, 2, filename, 3, 1, 5, "Install", 6, "gtk-harddisk", -1 );
+		}
+		else
+		{
+			gtk_list_store_set( GTK_LIST_STORE(tree_item->model), &tree_item->iter, 0, TRUE, 2, filename, 3, 1, 5, "Error", 6, GTK_STOCK_STOP, -1 );
+		}
+	}
+	if ( data )
+	{
+		g_free(data);
+	}
+	return 0;
+}
 
-	content = Meg_Web_RetrieveText( url, NULL, NULL );
-
+/********************************
+* Import_HandleXML
+*
+@
+-
+*/
+gint Import_HandleXML( gchar * content, gpointer data )
+{
 	if ( content )
 	{
-		ctx = g_markup_parse_context_new( &updates_parser,( GMarkupParseFlags)0, (gpointer)store, NULL );
+		GMarkupParseContext * ctx = NULL;
+		ctx = g_markup_parse_context_new( &updates_parser,( GMarkupParseFlags)0, data, NULL );
 		if ( !g_markup_parse_context_parse( ctx, content, -1, &mokoiError ) )
 		{
 			Meg_Log_Print(LOG_ERROR, "Package listing XML parse error: %s", mokoiError->message );
@@ -119,20 +163,64 @@ void Import_RequestUpdates( GtkListStore * store )
 				g_markup_parse_context_free (ctx);
 			}
 		}
-		g_free( content );
+		return 1;
 	}
+	return 0;
 }
 
 
 /********************************
-* Import_InstallButton
+* ImportDialog_RequestUpdates
 *
 @
 @
 @
 @
 */
-void Import_InstallButton( GtkTreeView * tree_view, GtkTreePath * path, GtkTreeViewColumn * column, gpointer user_data )
+void ImportDialog_RequestUpdates( GtkWidget * widget,  GtkListStore * store )
+{
+	GAsyncQueue * queue = ImportDialog_Download( gtk_widget_get_toplevel(widget), PACKAGE_URL, NULL, &Import_HandleXML, store );
+
+}
+
+/********************************
+* ImportDialog_RequestPackage
+*
+@
+@
+@
+@
+*/
+void ImportDialog_RequestPackage( GtkWidget * widget,  gchar * package_title, gchar * package_version,  gchar * url,  TreeItem * tree_item )
+{
+	GtkWidget * question_dialog = NULL;
+	//GAsyncQueue * queue = NULL;
+	gchar * file_name = NULL;
+	gchar * package_name = g_strdup(package_title);
+	g_strdelimit( package_name, "_-|> <.\\/\"'!@#$%^&*(){}[]", '_' );
+
+	file_name = g_strdup_printf("%s%c%s-%s.package", Meg_Directory_Data("packages"), G_DIR_SEPARATOR, package_name, package_version);
+
+	question_dialog = gtk_message_dialog_new( Meg_Misc_ParentWindow(widget), GTK_DIALOG_MODAL, GTK_MESSAGE_QUESTION, GTK_BUTTONS_YES_NO, "Are you sure you want to download '%s'?", file_name );
+	if ( gtk_dialog_run( GTK_DIALOG(question_dialog) ) == GTK_RESPONSE_YES )
+	{
+		ImportDialog_Download( gtk_widget_get_toplevel(widget), url, file_name, &ImportDialog_UpdatePackageListing, (gpointer)tree_item );
+	}
+	gtk_widget_destroy( question_dialog );
+
+
+}
+
+
+/********************************
+* ImportDialog_InstallSelected
+*
+@
+@
+@
+@
+*/
+void ImportDialog_InstallSelected( GtkTreeView * tree_view, GtkTreePath * path, GtkTreeViewColumn * column, gpointer user_data )
 {
 	GtkTreeSelection * select;
 	GtkTreeModel * model;
@@ -140,9 +228,6 @@ void Import_InstallButton( GtkTreeView * tree_view, GtkTreePath * path, GtkTreeV
 	gboolean installable = FALSE, local = FALSE;
 	gchar * package_title = NULL, * package_version = NULL, * file_path = NULL;
 	GtkWidget * progress_widget = NULL;
-	GtkWidget * question_dialog = NULL;
-	GtkWindow * parent_window =  Meg_Misc_ParentWindow( GTK_WIDGET(tree_view) );
-	gint question_answer = 0;
 
 	select = gtk_tree_view_get_selection(tree_view);
 	progress_widget = (GtkWidget *)user_data;
@@ -159,14 +244,11 @@ void Import_InstallButton( GtkTreeView * tree_view, GtkTreePath * path, GtkTreeV
 			}
 			else
 			{
+				TreeItem * tree_item = g_new0(TreeItem, 1);
+				tree_item->model = model;
+				tree_item->iter = iter;
+				ImportDialog_RequestPackage( GTK_WIDGET(tree_view),  package_title, package_version,  file_path,  tree_item );
 
-				question_dialog = gtk_message_dialog_new( parent_window, GTK_DIALOG_MODAL, GTK_MESSAGE_QUESTION, GTK_BUTTONS_YES_NO, "Are you sure you want to download '%s'?", file_path );
-				question_answer = gtk_dialog_run( GTK_DIALOG(question_dialog) );
-				gtk_widget_destroy( question_dialog );
-				if ( question_answer == GTK_RESPONSE_YES )
-				{
-					Package_Download( file_path, package_title, package_version, progress_widget, model, iter, FALSE );
-				}
 			}
 		}
 
@@ -178,15 +260,18 @@ void Import_InstallButton( GtkTreeView * tree_view, GtkTreePath * path, GtkTreeV
 }
 
 
+
+
+
 /********************************
-* Import_UpdateList
+* ImportDialog_ScanLocal
 *
 @button:
 @store:
 Active (gboolean), Name (char*), Path (char*), Local (gboolean), Version (char*), button text (char*), button image (char*), type_image (GdkPixbuf*), type (guchar), Description (char*)
 
 */
-void Import_UpdateList( GtkWidget * button, GtkListStore * store )
+void ImportDialog_ScanLocal( GtkWidget * button, GtkListStore * store )
 {
 	gtk_list_store_clear(store); // Clear Old List
 
@@ -226,9 +311,6 @@ void Import_UpdateList( GtkWidget * button, GtkListStore * store )
 	{
 		g_mkdir_with_parents( packages_dir, 0755 );
 	}
-
-
-
 
 	g_dir_close( current_directory );
 	g_free( packages_dir );
