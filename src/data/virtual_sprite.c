@@ -149,6 +149,12 @@ gboolean VirtualSprite_SaveXML( MapInfo * map_info )
 	GList * scan = NULL;
 	GString * map_string = g_string_new("<map xmlns=\"http://mokoi.info/projects/mokoi\">\n");
 
+	g_string_append( map_string, "\t<settings>\n" );
+
+	g_string_append_printf( map_string, "\t\t<dimensions width=\"%d\" height=\"%d\"/>\n", map_info->width, map_info->height);
+
+	g_string_append( map_string, "\t</settings>\n" );
+
 	/* Objects */
 	scan = g_list_first( map_info->display_list );
 	while ( scan )
@@ -185,30 +191,30 @@ gboolean VirtualSprite_SaveXML( MapInfo * map_info )
 			}
 			if ( object->ident )
 			{
-				g_string_append_printf( map_string, "<object value=\"%s\" type=\"%s\" id=\"%s\">\n", object->name, MapObject_TypeName(object->type), object->ident );
+				g_string_append_printf( map_string, "\t<object value=\"%s\" type=\"%s\" id=\"%s\">\n", object->name, MapObject_TypeName(object->type), object->ident );
 			}
 			else
 			{
-				g_string_append_printf( map_string, "<object value=\"%s\" type=\"%s\">\n", object->name, MapObject_TypeName(object->type) );
+				g_string_append_printf( map_string, "\t<object value=\"%s\" type=\"%s\">\n", object->name, MapObject_TypeName(object->type) );
 			}
-			g_string_append_printf( map_string, "\t<position x=\"%d\" y=\"%d\" w=\"%d\" h=\"%d\" z=\"%d\" l=\"%d\" r=\"%d\" f=\"%d\"/>\n", x, y, w, h, z, l, display_object->rotate*90, display_object->flip);
+			g_string_append_printf( map_string, "\t\t<position x=\"%d\" y=\"%d\" w=\"%d\" h=\"%d\" z=\"%d\" l=\"%d\" r=\"%d\" f=\"%d\"/>\n", x, y, w, h, z, l, display_object->rotate*90, display_object->flip);
 
 			if ( display_object->type == DT_POLYGON )
 			{
 				GSList * point_scan = NULL;
 				DisplayObject * point_object = NULL;
-				g_string_append_printf( map_string, "\t<option points=\"%u\"/>\n", g_slist_length(display_object->shape) );
+				g_string_append_printf( map_string, "\t\t<option points=\"%u\"/>\n", g_slist_length(display_object->shape) );
 
 				point_scan = display_object->shape;
 				while ( point_scan )
 				{
 					point_object = (DisplayObject *)point_scan->data;
-					g_string_append_printf( map_string, "\t<point x=\"%d\" y=\"%d\"/>\n", (gint)point_object->x, (gint)point_object->y );
+					g_string_append_printf( map_string, "\t\t<point x=\"%d\" y=\"%d\"/>\n", (gint)point_object->x, (gint)point_object->y );
 					point_scan = g_slist_next(point_scan);
 				}
 			}
 
-			g_string_append_printf( map_string, "</object>\n");
+			g_string_append_printf( map_string, "\t</object>\n");
 		}
 
 		scan = g_list_next(scan);
