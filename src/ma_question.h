@@ -13,8 +13,10 @@ Permission is granted to anyone to use this software for any purpose, including 
 #define MA_QUESTION
 
 
-void Meg_Questions_Get();
+void Meg_Questions_Get( guint ident );
+void Meg_Questions_GetAll();
 
+void Meg_Questions_DisplayItem( GtkTreeView * tree_view, GtkTreeViewColumn *column, GtkTreePath *path, gpointer data );
 
 #endif
 

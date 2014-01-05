@@ -22,6 +22,8 @@ Permission is granted to anyone to use this software for any purpose, including 
 
 /* External Functions */
 gboolean MegWidget_Questions_Destroy(GtkWidget * widget, GdkEvent * event, gpointer user_data );
+void MegWidget_Questions_Refresh(GtkWidget * widget, gpointer user_data);
+void help_parser_apply_tags( GtkTextBuffer * buffer );
 
 /* Local Type */
 
@@ -30,7 +32,7 @@ extern GError * mokoiError;
 
 /* Local Variables */
 GtkWidget * mokoi_questions_treeview = NULL;
-
+GtkWidget * mokoi_questions_text = NULL;
 
 /* UI */
 #include "ui/question_page.gui.h"
@@ -50,10 +52,16 @@ void MegWidget_Questions_Create()
 
 	widget = GET_WIDGET( ui, "questions_widget" );
 	mokoi_questions_treeview = GET_WIDGET( ui, "questions_main_treeview" );
+	mokoi_questions_text = GET_WIDGET( ui, "questions_text_answers" );
 
 	/* Signals */
-	SET_OBJECT_SIGNAL( ui, "button1", "clicked", G_CALLBACK(Meg_Questions_Get), NULL );
+	//SET_OBJECT_SIGNAL( ui, "button1", "clicked", G_CALLBACK(Meg_Questions_Get), NULL );
 	SET_OBJECT_SIGNAL( ui, "questions_widget", "delete-event", G_CALLBACK(MegWidget_Questions_Destroy), NULL );
+	SET_OBJECT_SIGNAL( ui, "questions_widget", "realize", G_CALLBACK(MegWidget_Questions_Refresh), NULL );
+	SET_OBJECT_SIGNAL( ui, "questions_main_treeview", "row-activated", G_CALLBACK(Meg_Questions_DisplayItem), NULL );
+
+
+	help_parser_apply_tags( gtk_text_view_get_buffer( GTK_TEXT_VIEW(mokoi_questions_text) ) );
 
 	Meg_Main_AddPage( widget, "Question", GTK_STOCK_FIND );
 
@@ -74,7 +82,7 @@ gboolean MegWidget_Questions_Destroy(GtkWidget * widget, GdkEvent * event, gpoin
 */
 void MegWidget_Questions_Refresh(GtkWidget * widget, gpointer user_data)
 {
-
+	Meg_Questions_GetAll();
 }
 
 /********************************

@@ -11,7 +11,7 @@
     </columns>
     <data>
       <row>
-        <col id="0" translatable="yes">test</col>
+        <col id="0" translatable="yes">No online access</col>
         <col id="1">1</col>
       </row>
     </data>
@@ -44,20 +44,28 @@
             <property name="visible">True</property>
             <property name="can_focus">False</property>
             <child>
-              <object class="GtkTreeView" id="questions_main_treeview">
+              <object class="GtkScrolledWindow" id="scrolledwindow1">
                 <property name="visible">True</property>
                 <property name="can_focus">True</property>
-                <property name="model">store_questions</property>
-                <property name="headers_clickable">False</property>
-                <property name="search_column">0</property>
+                <property name="hscrollbar_policy">automatic</property>
+                <property name="vscrollbar_policy">automatic</property>
                 <child>
-                  <object class="GtkTreeViewColumn" id="treeviewcolumn1">
-                    <property name="title" translatable="yes">Questions</property>
+                  <object class="GtkTreeView" id="questions_main_treeview">
+                    <property name="visible">True</property>
+                    <property name="can_focus">True</property>
+                    <property name="model">store_questions</property>
+                    <property name="headers_clickable">False</property>
+                    <property name="search_column">0</property>
                     <child>
-                      <object class="GtkCellRendererText" id="cellrenderertext1"/>
-                      <attributes>
-                        <attribute name="text">0</attribute>
-                      </attributes>
+                      <object class="GtkTreeViewColumn" id="treeviewcolumn1">
+                        <property name="title" translatable="yes">Questions</property>
+                        <child>
+                          <object class="GtkCellRendererText" id="cellrenderertext1"/>
+                          <attributes>
+                            <attribute name="text">0</attribute>
+                          </attributes>
+                        </child>
+                      </object>
                     </child>
                   </object>
                 </child>
@@ -91,7 +99,6 @@
                 <child>
                   <object class="GtkButton" id="button1">
                     <property name="label">gtk-find</property>
-                    <property name="use_action_appearance">False</property>
                     <property name="visible">True</property>
                     <property name="can_focus">True</property>
                     <property name="receives_default">True</property>
@@ -117,9 +124,23 @@
           </packing>
         </child>
         <child>
-          <object class="GtkTextView" id="textview1">
+          <object class="GtkScrolledWindow" id="scrolledwindow2">
             <property name="visible">True</property>
             <property name="can_focus">True</property>
+            <property name="hscrollbar_policy">automatic</property>
+            <property name="vscrollbar_policy">automatic</property>
+            <child>
+              <object class="GtkViewport" id="viewport1">
+                <property name="visible">True</property>
+                <property name="can_focus">False</property>
+                <child>
+                  <object class="GtkTextView" id="questions_text_answers">
+                    <property name="visible">True</property>
+                    <property name="can_focus">True</property>
+                  </object>
+                </child>
+              </object>
+            </child>
           </object>
           <packing>
             <property name="resize">True</property>

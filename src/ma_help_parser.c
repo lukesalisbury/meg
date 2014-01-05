@@ -126,7 +126,7 @@ void help_parser_apply_tags( GtkTextBuffer * buffer )
 		gtk_text_buffer_create_tag( buffer, "bold", "weight", PANGO_WEIGHT_BOLD, NULL);
 		gtk_text_buffer_create_tag( buffer, "italic", "font", "Italic", NULL);
 		gtk_text_buffer_create_tag( buffer, "large", "font", "Sans 16", NULL);
-		gtk_text_buffer_create_tag( buffer, "normal", "wrap-mode", GTK_WRAP_WORD, NULL);
+		gtk_text_buffer_create_tag( buffer, "normal", "wrap-mode", GTK_WRAP_WORD, "justification", GTK_JUSTIFY_LEFT, NULL);
 		gtk_text_buffer_create_tag( buffer, "mono", "font", "Monospace", "paragraph-background", "#BBBBBB", "foreground", "black", "left-margin", 10, NULL);
 		gtk_text_buffer_create_tag( buffer, "center", "justification", GTK_JUSTIFY_CENTER, "wrap-mode", GTK_WRAP_NONE, NULL);
 		gtk_text_buffer_create_tag( buffer, "special", "paragraph-background", "#EEEEEE", "foreground", "black", "left-margin", 10, "right-margin", 10, "justification", GTK_JUSTIFY_CENTER, NULL);
