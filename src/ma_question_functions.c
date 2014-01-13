@@ -11,12 +11,15 @@ Permission is granted to anyone to use this software for any purpose, including 
 
 /* Standard Headers */
 #include "global.h"
+#include "ma_web.h"
 
 /* Required Headers */
 #include <libsoup/soup.h>
 #include <libsoup/soup-method.h>
 
 /* External Functions */
+
+
 
 /* Local Type */
 
@@ -138,6 +141,12 @@ void Meg_Questions_GetAll()
 }
 
 
+void Meg_Questions_Get_Download( gpointer data)
+{
+
+
+}
+
 /********************************
 * Meg_Questions_Get
 *
@@ -212,4 +221,10 @@ void Meg_Questions_DisplayItem( GtkTreeView * tree_view, GtkTreeViewColumn *colu
 		}
 	}
 }
+
+
+
+
+
+
 

@@ -11,17 +11,8 @@ Permission is granted to anyone to use this software for any purpose, including 
 
 /* Global Header */
 #include "global.h"
+#include "ma_web.h"
 
-typedef struct {
-	GAsyncQueue * queue;
-	GAsyncQueue * global_queue;
-	gchar * url;
-	gchar * filename;
-	gchar * content;
-	GtkWidget * dialog;
-	gint (*return_function)( gchar * content, gpointer data );
-	gpointer return_function_data;
-} WebRetrieve;
 
 
 /* UI */
@@ -431,3 +422,5 @@ GAsyncQueue * Meg_Web_RetrieveTextQueue(GtkWidget *parent, const gchar * url, gc
 	return download->global_queue;
 
 }
+
+

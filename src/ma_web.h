@@ -9,9 +9,28 @@ Permission is granted to anyone to use this software for any purpose, including 
 3. This notice may not be removed or altered from any source distribution.
 ****************************/
 
+typedef struct {
+	GAsyncQueue * queue;
+	GAsyncQueue * global_queue;
+	gchar * url;
+	gchar * filename;
+	gchar * content;
+	GtkWidget * dialog;
+	gint (*return_function)( gchar * content, gpointer data );
+	gpointer return_function_data;
+} WebRetrieve;
+
+typedef struct {
+	GAsyncQueue * queue;
+	GtkWidget * dialog;
+	void (*download_function)(gpointer);
+	void (*callback_function)(gpointer);
+} WebRetrieveCallback;
 
 	gboolean Meg_Web_Enable( );
 	gboolean Meg_Web_RetrieveFile( GString * address, gchar * user, gchar * pass, gchar * file_name, guint directory );
 	gchar * Meg_Web_RetrieveText( GString * address, gchar * user, gchar * pass );
 	gboolean Meg_Web_SendFile( GString * address, gchar * user, gchar * pass, gchar * file_name, guint directory );
 	gboolean Meg_Web_SendText( GString * address, gchar * user, gchar * pass, gchar * text );
+
+
