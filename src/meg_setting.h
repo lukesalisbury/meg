@@ -47,6 +47,10 @@
 	#define ICON_MIMETYPE "application-x-mokoi-game-source"
 #endif
 
+#ifndef MIMETYPE_DESCRIPTION
+	#define MIMETYPE_DESCRIPTION "Mokoi Game Source"
+#endif
+
 #ifndef GAME_EXTENSION
 	#define GAME_EXTENSION "game"
 #endif

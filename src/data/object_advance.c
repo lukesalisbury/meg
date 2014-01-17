@@ -641,12 +641,13 @@ gboolean ObjectAdvance_Text( DisplayObject * object, GtkWindow * window )
 			ObjectAdvance_EntityWidget_Save( widget_entity, object );
 
 			g_object_set_data_full( G_OBJECT(edit_text), "old-string", (gchar*)object->data, NULL );
-			RuntimeSetting_UpdateValue( object_data->settings, "number", str_value );
+			RuntimeSetting_UpdateValue( object_data->settings, "number", str_value, NULL );
 
 			if ( str_value != -1 )
 			{
-				REPLACE_STRING( object_data->name, g_strdup_printf("String %d", str_value) );
-				REPLACE_STRING( object->text, g_strdup_printf("String %d", str_value) );
+				gchar * text =  AL_String_Get( "00.txt", str_value );
+				REPLACE_STRING_DUPE( object_data->name, text );
+				REPLACE_STRING_DUPE( object->text, text );
 			}
 			else
 			{

@@ -28,35 +28,54 @@ gchar * project_file_path = NULL;
 
 /* External Functions */
 
+
 /********************************
-* Alchera_Loaders_Init
+* Meg_Loaders_AddRecent
 *
 */
-gboolean Alchera_Loaders_Init( gchar * project_path )
+gboolean Meg_Loaders_AddRecent( const gchar * file_path )
 {
+	/* Update recent manager */
+	gchar * file_url = g_filename_to_uri(file_path, NULL, NULL);
+	GtkRecentManager * manager = gtk_recent_manager_get_default();
+
+	GtkRecentData * recent_data;
+	static gchar *groups[1] = { NULL };
+
+	recent_data = g_slice_new(GtkRecentData);
+	recent_data->display_name = MegProject_Title();
+	recent_data->description = g_strdup(MIMETYPE_DESCRIPTION);
+	recent_data->mime_type = ROOT_MIMETYPE;
+	recent_data->app_name = (gchar *) g_get_application_name();
+	recent_data->app_exec = g_strjoin (" ", g_get_prgname(), "%u", NULL);
+	recent_data->groups = groups;
+	recent_data->is_private = FALSE;
+
+	gtk_recent_manager_add_full( manager, file_url, recent_data );
+
+	g_free( recent_data->app_exec );
+	g_slice_free( GtkRecentData, recent_data );
+
+
+
+	g_free(file_url);
+
+	return TRUE;
+}
+
+/********************************
+* Meg_Loaders_Init
+*
+*/
+gboolean Meg_Loaders_Init( gchar * project_path )
+{
+	GtkToolItem * default_item = NULL;
 	gchar * project_directory = NULL;
 
 	project_directory = AL_LoadProject( project_path );
 
 	if ( project_directory )
 	{
-		/* Update recent manager */
-		GtkRecentManager * manager = gtk_recent_manager_get_default();
-		GtkRecentData * recent_data;
-		static gchar *groups[1] = { NULL };
-
-		recent_data = g_slice_new(GtkRecentData);
-		recent_data->display_name = AL_Title();
-		recent_data->description = g_strdup(project_directory);
-		recent_data->mime_type = ROOT_MIMETYPE;
-		recent_data->app_name = (gchar *) g_get_application_name();
-		recent_data->app_exec = g_strjoin (" ", g_get_prgname(), "%u", NULL);
-		recent_data->groups = groups;
-		recent_data->is_private = FALSE;
-		gtk_recent_manager_add_full( manager, g_filename_to_uri(project_directory, NULL,NULL), recent_data );
-		g_free( recent_data->app_exec );
-		g_slice_free( GtkRecentData, recent_data );
-
 		/* Update Widgets */
 		project_file_path = g_strdup(project_directory);
 
@@ -70,30 +89,33 @@ gboolean Alchera_Loaders_Init( gchar * project_path )
 		MegWidget_Questions_Init();
 
 		/* Switch to project info widget */
-		GtkToolItem * default_item = gtk_toolbar_get_nth_item( GTK_TOOLBAR(alchera_main_toolbar), 0 );
+		default_item = gtk_toolbar_get_nth_item( GTK_TOOLBAR(alchera_main_toolbar), 0 );
 		g_signal_emit_by_name( default_item, "clicked" );
+
+		g_free(project_directory);
 
 		return TRUE;
 	}
 
-	g_free(project_directory);
+
 
 	Meg_Error_Print( __func__, __LINE__, "Invalid Project: %s", project_path);
 	return FALSE;
 }
 
 /********************************
-* Alchera_Loaders_CreateNew
+* Meg_Loaders_CreateNew
 *
 */
-gboolean Alchera_Loaders_CreateNew( const gchar * title )
+gboolean Meg_Loaders_CreateNew( const gchar * title )
 {
 	gboolean loaded = FALSE;
 	gchar * path_string = NULL;
+
 	path_string = AL_CreateProject( title );
 	if ( path_string )
 	{
-		Alchera_Loaders_Init( path_string );
+		Meg_Loaders_Init( path_string );
 		loaded = TRUE;
 	}
 
@@ -105,10 +127,10 @@ gboolean Alchera_Loaders_CreateNew( const gchar * title )
 }
 
 /********************************
-* Alchera_Loaders_Close
+* Meg_Loaders_Close
 *
 */
-gboolean Alchera_Loaders_Close(  )
+gboolean Meg_Loaders_Close(  )
 {
 	if ( project_file_path )
 	{
@@ -123,14 +145,10 @@ gboolean Alchera_Loaders_Close(  )
 
 		AL_CloseProject( );
 
-		g_free(project_file_path);
-		project_file_path = NULL;
+		CLEAR_STRING(project_file_path);
 
 		return TRUE;
 	}
-
-
-
 
 	return FALSE;
 

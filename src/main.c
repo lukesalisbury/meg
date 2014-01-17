@@ -96,7 +96,7 @@ void Meg_Preference_Load( )
 	pref_file = g_build_filename( config_directory, "mokoi-editor.ini", NULL);
 	if ( !g_key_file_load_from_file( meg_pref_storage, pref_file, 0, NULL) )
 	{
-	/*
+		/*
 		g_key_file_set_string(meg_pref_storage, "path","texteditor", NULL);
 		g_key_file_set_string(meg_pref_storage, "path","imageeditor",NULL);
 		g_key_file_set_string(meg_pref_storage, "path","audioeditor", NULL);
@@ -123,6 +123,7 @@ gint main (gint argc, char *argv[])
 	g_set_application_name( PROGRAM_TITLE );
 
 	gtk_init( &argc, &argv );
+
 	#if GLIB_CHECK_VERSION(2,32,0)
 	#else
 	g_thread_init( NULL );
@@ -146,35 +147,13 @@ gint main (gint argc, char *argv[])
 
 	gtk_icon_theme_append_search_path( gtk_icon_theme_get_default(), Meg_Directory_ProgramShare("icons") );
 
-
-
-/*
-	#ifdef DEBUG
-		#ifdef G_OS_WIN32
-		g_freopen( "CON", "w", stdout );
-		g_freopen( "CON", "w", stderr );
-		#else
-		g_freopen( NULL, "w", stdout );
-		g_freopen( NULL, "w", stderr );
-		#endif
-	#else
-		gchar * log_path;
-		log_path = g_build_path( G_DIR_SEPARATOR_S, config_directory, "mokoi-editor.log", NULL );
-		g_freopen( log_path, "w", stderr );
-		g_free(log_path);
-
-	#endif
-*/
-
-
 	Meg_Preference_Load();
-	checkDirectoryValues();
 
+	checkDirectoryValues();
 
 	/* Handle arguments */
 	gchar * project_path = NULL;
 	gint8 project_action = 0;
-
 
 	if ( argc > 1 )
 	{
@@ -196,7 +175,6 @@ gint main (gint argc, char *argv[])
 		}
 	}
 
-
 	if ( project_path )
 	{
 		switch ( project_action )
@@ -213,13 +191,13 @@ gint main (gint argc, char *argv[])
 			{
 				g_print("Compile Game\n");
 				AL_LoadProject( project_path );
-				AL_Compile();
+				MegProject_Compile();
 				return 0;
 				break;
 			}
 			default:
 			{
-				Alchera_Loaders_Init( project_path );
+				Meg_Loaders_Init( project_path );
 			}
 		}
 	}

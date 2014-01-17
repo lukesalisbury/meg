@@ -74,20 +74,20 @@ gboolean AL_CloseProject()
 
 
 /********************************
-* AL_Save
+* MegProject_Save
 *
 */
-gboolean AL_Save()
+gboolean MegProject_Save()
 {
 	Setting_Save();
 	return TRUE;
 }
 
 /********************************
-* AL_Play
+* MegProject_Play
 *
 */
-gboolean AL_Play()
+gboolean MegProject_Play()
 {
 	if ( !Map_SetStartingPoint() )
 	{
@@ -171,11 +171,11 @@ gboolean AL_Play()
 }
 
 /********************************
-* AL_Title
+* MegProject_Title
 *
 *
 */
-gchar * AL_Title()
+gchar * MegProject_Title()
 {
 	gchar * title = AL_Setting_GetString( "project.title" );
 	if ( title )

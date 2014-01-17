@@ -3,6 +3,9 @@
 	#include "ma_types.h"
 	#include "ma_misc.h"
 
+	/**/
+	gboolean Meg_Loaders_AddRecent( const gchar * file_path );
+
 
 	/**/
 	void Meg_Log_SetBuffer( GtkTextBuffer * buffer );

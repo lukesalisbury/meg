@@ -31,7 +31,7 @@ const gchar * alchera_init_ui = GUIINIT
 */
 void Meg_Event_OpenByButton( GtkButton * button, gchar * path )
 {
-	if ( Alchera_Loaders_Init( path ) )
+	if ( Meg_Loaders_Init( path ) )
 	{
 		gtk_widget_destroy( alchera_init_window );
 	}
@@ -49,7 +49,7 @@ void Meg_Event_OpenRecent( GtkRecentChooser * chooser, gpointer user_data )
 
 	uri = gtk_recent_chooser_get_current_uri( chooser );
 	filename = g_filename_from_uri( uri, NULL, NULL );
-	if ( Alchera_Loaders_Init( filename ) )
+	if ( Meg_Loaders_Init( filename ) )
 	{
 		gtk_widget_destroy(alchera_init_window);
 	}
@@ -89,8 +89,8 @@ void Meg_Project_Open()
 	g_signal_connect( button_open_game, "clicked", G_CALLBACK(Meg_Event_OpenProjectDialog), NULL);
 
 	/* Setup recent project window */
+	gtk_recent_filter_add_pattern( filter_recent, ROOT_FILENAME);
 	gtk_recent_filter_add_mime_type( filter_recent, ROOT_MIMETYPE );
-	gtk_recent_filter_add_pattern( filter_recent, "*."ROOT_FILENAME_EXT);
 	gtk_recent_filter_add_mime_type( filter_recent, "application/x-ext-"ROOT_FILENAME_EXT );
 
 	gtk_recent_chooser_set_filter( GTK_RECENT_CHOOSER(chooser_recent), filter_recent );
@@ -128,11 +128,12 @@ void Meg_Project_Open()
 
 
 
-	//gtk_show_uri( NULL, "http://mokoi.info/community/", GDK_CURRENT_TIME, NULL);
 	gtk_widget_show_all(Meg_Main_GetWidget());
+
 	gtk_window_set_transient_for( GTK_WINDOW(alchera_init_window), Meg_Main_GetWindow() );
 	gtk_widget_show_all(alchera_init_window);
 	gtk_dialog_run( GTK_DIALOG(alchera_init_window) );
+
 	gtk_widget_destroy(alchera_init_window);
 
 }

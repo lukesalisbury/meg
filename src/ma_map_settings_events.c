@@ -76,7 +76,7 @@ void Meg_MapSettings_Centerview_Set( GtkToggleButton * togglebutton, GtkWidget *
 
 	MapInfo * map_info = gtk_alchera_map_get_info( GTK_ALCHERA_MAP(map_widget) );
 
-	RuntimeSetting_UpdateBoolean( map_info->settings, "centerview", gtk_toggle_button_get_active( togglebutton ) );
+	RuntimeSetting_UpdateBoolean( map_info->settings, "centerview", gtk_toggle_button_get_active( togglebutton ), "hidden" );
 }
 
 /********************************
@@ -91,7 +91,7 @@ void Meg_MapSettings_Independent_Set( GtkToggleButton * togglebutton, GtkWidget 
 
 	MapInfo * map_info = gtk_alchera_map_get_info( GTK_ALCHERA_MAP(map_widget) );
 
-	RuntimeSetting_UpdateBoolean( map_info->settings, "independent", gtk_toggle_button_get_active( togglebutton ) );
+	RuntimeSetting_UpdateBoolean( map_info->settings, "independent", gtk_toggle_button_get_active( togglebutton ), "hidden" );
 }
 
 /********************************
@@ -106,7 +106,7 @@ void Meg_MapSettings_Wrap_Set( GtkComboBox * widget, GtkWidget * map_widget )
 
 	MapInfo * map_info = gtk_alchera_map_get_info( GTK_ALCHERA_MAP(map_widget) );
 
-	RuntimeSetting_UpdateValue( map_info->settings, "wrap", gtk_combo_box_get_active( GTK_COMBO_BOX(widget) ) );
+	RuntimeSetting_UpdateValue( map_info->settings, "wrap", gtk_combo_box_get_active( GTK_COMBO_BOX(widget) ), "hidden" );
 }
 
 

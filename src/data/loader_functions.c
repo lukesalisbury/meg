@@ -28,7 +28,7 @@ extern GKeyFile * mokoiConfigTable;
 @ title: string to clean up, if NULL will get it from settings
 * Returns clean up project title, may return NULL
 */
-gchar * Project_CleanTitle( gchar * title )
+gchar * Project_CleanTitle( const gchar * title )
 {
 	gchar * title_clean = NULL;
 

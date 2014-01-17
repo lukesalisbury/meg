@@ -140,6 +140,12 @@ RuntimeSettingsStruct * RuntimeSetting_Copy( RuntimeSettingsStruct * value )
 void RuntimeSetting_InsertNew( GHashTable * settings_table, const gchar * key, const gchar * value, const gchar * type )
 {
 	RuntimeSettingsStruct * option = RuntimeSetting_New( value, type );
+
+	if ( !g_ascii_strcasecmp( key, "id" ) || !g_ascii_strcasecmp(key, "global") || !g_ascii_strcasecmp( key, "entity" ) )
+	{
+		REPLACE_STRING( option->type, g_strdup("hidden") );
+	}
+
 	g_hash_table_insert( settings_table, g_strdup(key), option );
 }
 
@@ -147,23 +153,22 @@ void RuntimeSetting_InsertNew( GHashTable * settings_table, const gchar * key, c
 * RuntimeSetting_Update
 *
 */
-void RuntimeSetting_Update( GHashTable * settings_table, gchar * key, gchar * value )
+void RuntimeSetting_Update( GHashTable * settings_table, const gchar * key, const gchar * value, const gchar * type  )
 {
 	RuntimeSettingsStruct * option = (RuntimeSettingsStruct*)g_hash_table_lookup(settings_table, key);
 
-	if ( option == NULL)
+	if ( option == NULL )
 	{
-		option = RuntimeSetting_New( g_strdup(value), NULL );
-		g_hash_table_replace( settings_table, key, option );
+		RuntimeSetting_InsertNew( settings_table, key, value, type );
 	}
 	else
 	{
-		REPLACE_STRING( option->value, g_strdup(value) );
-	}
+		REPLACE_STRING_DUPE( option->value, value );
 
-	if ( !g_ascii_strcasecmp( key, "id" ) || !g_ascii_strcasecmp(key, "global") || !g_ascii_strcasecmp( key, "entity" ) )
-	{
-		REPLACE_STRING( option->type, g_strdup("hidden") );
+		if ( type ) // Only Change if need
+		{
+			REPLACE_STRING_DUPE( option->type, type );
+		}
 	}
 }
 
@@ -171,43 +176,49 @@ void RuntimeSetting_Update( GHashTable * settings_table, gchar * key, gchar * va
 * RuntimeSetting_UpdateBoolean
 *
 */
-void RuntimeSetting_UpdateBoolean( GHashTable * settings_table, gchar * key, gboolean value )
+void RuntimeSetting_UpdateBoolean( GHashTable * settings_table, const gchar * key, const gboolean value, const gchar * type )
 {
 	RuntimeSettingsStruct * option = (RuntimeSettingsStruct*)g_hash_table_lookup(settings_table, key);
 
-	if ( option == NULL)
+	if ( option == NULL )
 	{
-		option = RuntimeSetting_New( g_strdup( (value ? "true" : "false") ), NULL );
-		g_hash_table_replace( settings_table, key, option );
+		RuntimeSetting_InsertNew( settings_table, key, (value ? "true" : "false"), type );
 	}
 	else
 	{
-		if ( option->value )
-			g_free( option->value );
-		option->value = NULL;
-		option->value = g_strdup( (value ? "true" : "false") );
+		REPLACE_STRING_DUPE( option->value, (value ? "true" : "false") );
+
+		if ( type ) // Only Change if need
+		{
+			REPLACE_STRING_DUPE( option->type, type );
+		}
 	}
 }
 /********************************
 * RuntimeSetting_UpdateValue
 *
 */
-void RuntimeSetting_UpdateValue( GHashTable * settings_table, gchar * key, gint value )
+void RuntimeSetting_UpdateValue( GHashTable * settings_table,const gchar * key, const gint value, const gchar * type )
 {
 	RuntimeSettingsStruct * option = (RuntimeSettingsStruct*)g_hash_table_lookup(settings_table, key);
 
-	if ( option == NULL)
+	gchar * text = g_strdup_printf("%d", value);
+
+	if ( option == NULL )
 	{
-		option = RuntimeSetting_New( g_strdup_printf("%d", value), NULL );
-		g_hash_table_replace( settings_table, key, option );
+		RuntimeSetting_InsertNew( settings_table, key, text, type );
 	}
 	else
 	{
-		if ( option->value )
-			g_free( option->value );
-		option->value = NULL;
-		option->value = g_strdup_printf("%d", value);
+		REPLACE_STRING_DUPE( option->value, text );
+
+		if ( type ) // Only Change if need
+		{
+			REPLACE_STRING_DUPE( option->type, type );
+		}
 	}
+
+	g_free(text);
 }
 
 /********************************
@@ -235,29 +246,17 @@ void RuntimeSetting_Delete( RuntimeSettingsStruct * data )
 	if ( data == NULL )
 		return;
 
-	if ( data->value )
-		g_free( data->value );
-	if ( data->type )
-		g_free( data->type );
+	CLEAR_STRING( data->value );
+	CLEAR_STRING( data->type );
 
-	data->value = NULL;
-	data->type = NULL;
 }
 
 /********************************
 * RuntimeParser_Append
 *
 */
-void RuntimeSetting_Append( gchar * key, RuntimeSettingsStruct * value, GHashTable * table )
+void RuntimeSetting_Append( const gchar * key, RuntimeSettingsStruct * value, GHashTable * table )
 {
-	/*
-	if ( !g_hash_table_lookup_extended( table, key, NULL, NULL) )
-	{
-		g_hash_table_insert( table, g_strdup(key), RuntimeSetting_Copy(value) );
-	}
-	*/
-
-
 	RuntimeSettingsStruct * setting = (RuntimeSettingsStruct *)g_hash_table_lookup( table, key );
 	if ( setting == NULL )
 	{

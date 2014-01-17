@@ -9,17 +9,16 @@
 	gboolean AL_CloseProject();
 	GAsyncQueue *AL_PrecheckFiles();
 
-	void AL_ProjectPackages( GtkTreeView *tree_view ); /*  Title (G_TYPE_STRING), base_id (G_TYPE_STRING), tooltip (G_TYPE_STRING) */
-	gboolean AL_Updates( GtkWidget * parent );
-	void AL_Pages();
 
 	/* Project Handling */
-	gboolean AL_Save();
-	gboolean AL_Compile();
-	gboolean AL_Play();
+	gboolean MegProject_Save();
+	gboolean MegProject_Compile();
+	gboolean MegProject_Play();
+	gchar * MegProject_Title();
+
 	gboolean Meg_Dialog_Export();
 
-	gchar * AL_Title();
+
 
 	/* Settings */
 	void AL_Settings_Refresh();

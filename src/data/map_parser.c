@@ -51,7 +51,30 @@ static GMarkupParser map_dimension_parser = { map_dimension_parse_start, NULL, N
 
 
 
-
+/********************************
+* MapObject_Internal2DisplayObjectType
+*
+*/
+DisplayObjectTypes MapObject_Internal2DisplayObjectType( char internal_type )
+{
+	switch ( internal_type )
+	{
+		case 's':
+			return DT_IMAGE;
+		case 't':
+			return DT_TEXT;
+		case 'l':
+			return DT_LINE;
+		case 'r':
+			return DT_RECTANGLE;
+		case 'p':
+			return DT_POLYGON;
+		case 'c':
+			return DT_CIRCLE;
+		default:
+			return DT_NONE;
+	}
+}
 
 /********************************
 * map_parser_colour
@@ -295,10 +318,7 @@ void map_parse_handler_start_object_element( GMarkupParseContext *context, const
 				}
 				else
 				{
-					if ( g_ascii_strcasecmp( value, "(null)" ) )
-						g_hash_table_replace( MAP_OBJECT_DATA(object_display)->settings, (gpointer)g_strdup(key), RuntimeSetting_New(value, type) );
-					else
-						g_hash_table_replace( MAP_OBJECT_DATA(object_display)->settings, (gpointer)g_strdup(key), RuntimeSetting_New("", type) );
+					RuntimeSetting_InsertNew( MAP_OBJECT_DATA(object_display)->settings, key, (g_ascii_strcasecmp( value, "(null)" ) ? "" : value), type );
 				}
 			}
 		}
@@ -373,12 +393,16 @@ void map_parse_handler_start_root_element( GMarkupParseContext *context, const g
 					RuntimeSetting_InsertNew( object_data->settings, *attribute_names, *attribute_values, "hidden" );
 			}
 
-			if ( object_data->type == 't' )
-			{
-				RuntimeSetting_InsertNew( object_data->settings, "number", "-1", "hidden" );
-			}
+
 
 			object_display = Alchera_DisplayObject_New(object_data, &MapObjectData_FreePointer);
+
+			object_display->type = MapObject_Internal2DisplayObjectType(object_data->type);
+
+			if ( object_data->type == 't' )
+			{
+				object_display->text = g_strdup(object_data->name);
+			}
 		}
 		else if ( map_info->file_type == 1 )
 		{
@@ -394,7 +418,10 @@ void map_parse_handler_start_root_element( GMarkupParseContext *context, const g
 					virtual_object->ident = g_strdup(*attribute_values);
 
 			}
+
 			object_display = Alchera_DisplayObject_New(virtual_object, &VirtualObjectData_FreePointer);
+			object_display->type = MapObject_Internal2DisplayObjectType(virtual_object->type);
+
 		}
 		else
 		{

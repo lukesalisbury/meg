@@ -51,7 +51,7 @@ gboolean Meg_Event_AboutProgram( )
 gboolean Meg_Event_Play()
 {
 	if ( project_file_path )
-		AL_Play();
+		MegProject_Play();
 	return TRUE;
 }
 
@@ -63,7 +63,7 @@ gboolean Meg_Event_Play()
 gboolean Meg_Event_Compile()
 {
 	if ( project_file_path )
-		AL_Compile();
+		MegProject_Compile();
 	return TRUE;
 }
 
@@ -111,7 +111,7 @@ gboolean Meg_Event_Import()
 gboolean Meg_Event_Save()
 {
 	if ( project_file_path )
-		AL_Save();
+		MegProject_Save();
 	return TRUE;
 }
 
@@ -145,6 +145,7 @@ gboolean Meg_Event_NewProjectDialog()
 	{
 		gtk_widget_destroy( alchera_init_window );
 		alchera_init_window = NULL;
+
 		Meg_Help_Open( "welcome.xml" );
 	}
 
@@ -160,7 +161,7 @@ gboolean Meg_Event_CloseProject()
 {
 	gboolean success = FALSE;
 
-	Alchera_Loaders_Close();
+	Meg_Loaders_Close();
 
 	project_file_path = NULL;
 
@@ -173,6 +174,7 @@ gboolean Meg_Event_CloseProject()
 	}
 	gtk_container_add( GTK_CONTAINER(alchera_main_frame), meg_main_empty );
 	gtk_widget_show_all( alchera_main_frame );
+
 	return success;
 }
 
@@ -194,14 +196,17 @@ gboolean Meg_Event_OpenProject()
 */
 gboolean Meg_Event_CloseProgram( void )
 {
+	GtkWidget * dialog, * label;
 	GtkWindow * parent = Meg_Main_GetWindow();
 	if ( !parent )
 		parent = GTK_WINDOW(alchera_init_window);
 
-	GtkWidget * dialog = gtk_dialog_new_with_buttons( "Exit?", parent, GTK_DIALOG_MODAL | GTK_DIALOG_DESTROY_WITH_PARENT, GTK_STOCK_OK, GTK_RESPONSE_ACCEPT, GTK_STOCK_CANCEL, GTK_RESPONSE_REJECT, NULL);
-	GtkWidget * label = gtk_label_new( "Are you sure you wish to exit?" );
+	dialog = gtk_dialog_new_with_buttons( "Exit?", parent, GTK_DIALOG_MODAL | GTK_DIALOG_DESTROY_WITH_PARENT, GTK_STOCK_OK, GTK_RESPONSE_ACCEPT, GTK_STOCK_CANCEL, GTK_RESPONSE_REJECT, NULL);
+	label = gtk_label_new( "Are you sure you wish to exit?" );
 	gtk_container_add( GTK_CONTAINER(gtk_dialog_get_content_area( GTK_DIALOG(dialog) )), label );
 	gtk_widget_show( label );
+
+
 	if ( gtk_dialog_run( GTK_DIALOG(dialog) ) == GTK_RESPONSE_ACCEPT )
 	{
 		gtk_widget_destroy( dialog );
@@ -276,11 +281,11 @@ void Meg_Event_DropReceived( GtkWidget *widget, GdkDragContext *context, gint x,
 				{
 					if (  g_strcmp0( ROOT_MIMETYPE, mimetype) == 0 || g_str_has_suffix(filename, ROOT_FILENAME) )
 					{
-						Alchera_Loaders_Init( filename );
+						Meg_Loaders_Init( filename );
 					}
 				}
 
-				g_print( "Meg_Event_DropReceived '%s' %s\n", filename, mimetype );
+				// g_print( "Meg_Event_DropReceived '%s' %s\n", filename, mimetype );
 
 				g_free(filetype);
 				g_free(filename);

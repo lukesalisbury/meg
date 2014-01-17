@@ -16,8 +16,8 @@ Permission is granted to anyone to use this software for any purpose, including 
 #include "ma_types.h"
 #include "alchera_loader.h"
 
-gboolean Alchera_Loaders_CreateNew( const gchar * title );
-gboolean Alchera_Loaders_Init( gchar * project_path );
-gboolean Alchera_Loaders_Close( );
+gboolean Meg_Loaders_CreateNew( const gchar * title );
+gboolean Meg_Loaders_Init( gchar * project_path );
+gboolean Meg_Loaders_Close( );
 
 #endif

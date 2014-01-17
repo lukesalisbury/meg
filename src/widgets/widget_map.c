@@ -38,6 +38,23 @@ gboolean Alchera_Map_RectCollided( gdouble ox, gdouble oy, gdouble w, gdouble h,
 
 G_DEFINE_TYPE( AlcheraMap, gtk_alchera_map, GTK_TYPE_DRAWING_AREA );
 
+
+/********************************
+* Alchera_DisplayObject_OpenAdvance
+* Event:
+* Result:
+*/
+void Alchera_DisplayObject_OpenAdvance( GtkAction * action, AlcheraMap * map )
+{
+	DisplayObject * obj = gtk_alchera_map_get_selected( map );
+	GtkWindow * window = GTK_WINDOW( gtk_widget_get_toplevel( GTK_WIDGET(map) ) );
+
+	if ( Alchera_DisplayObject_Advance( gtk_alchera_map_get_info( map ), obj, window ) )
+	{
+		gtk_alchera_map_refresh( map );
+	}
+}
+
 /********************************
 * gtk_alchera_map_toplevel_window
 */
@@ -501,6 +518,11 @@ GtkWidget * gtk_alchera_map_object_submenu( AlcheraMap * map, DisplayObject * se
 				/* Remove old sub menu */
 				gtk_menu_item_set_submenu( GTK_MENU_ITEM(menu_item), NULL );
 
+				GtkWidget * sub_menu = gtk_menu_new();
+
+
+
+
 				if ( selected->type == DT_POLYGON )
 				{
 					GtkWidget * sub_menu = gtk_menu_new();
@@ -509,11 +531,10 @@ GtkWidget * gtk_alchera_map_object_submenu( AlcheraMap * map, DisplayObject * se
 					gtk_menu_shell_append( GTK_MENU_SHELL(sub_menu), sub_menu_item );
 					gtk_widget_show(sub_menu_item);
 
-					gtk_menu_item_set_submenu( GTK_MENU_ITEM(menu_item), sub_menu );
 				}
 				else if ( selected->type == DT_IMAGE )
 				{
-					GtkWidget * sub_menu = gtk_menu_new();
+
 					GtkWidget * sub_menu_mirror = gtk_menu_item_new_with_label( "Flip Image" );
 					GtkWidget * sub_menu_rotate = gtk_menu_item_new_with_label( "Rotate" );
 
@@ -527,8 +548,12 @@ GtkWidget * gtk_alchera_map_object_submenu( AlcheraMap * map, DisplayObject * se
 					gtk_widget_show(sub_menu_mirror);
 					gtk_widget_show(sub_menu_rotate);
 
-					gtk_menu_item_set_submenu( GTK_MENU_ITEM(menu_item), sub_menu );
+
 				}
+				gtk_menu_item_set_submenu( GTK_MENU_ITEM(menu_item), sub_menu );
+
+
+
 
 				/* Create Sub menu for setting */
 				GtkWidget * setting_menu_item = GTK_WIDGET(g_list_nth_data(list, 1));
@@ -544,7 +569,11 @@ GtkWidget * gtk_alchera_map_object_submenu( AlcheraMap * map, DisplayObject * se
 					{
 						gtk_menu_item_set_submenu( GTK_MENU_ITEM(setting_menu_item), NULL );
 					}
+
+
 				}
+
+
 			}
 		}
 

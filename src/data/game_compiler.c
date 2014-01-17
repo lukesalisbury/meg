@@ -59,7 +59,7 @@ gpointer GameCompiler_Thread( ProgressDialogWidgets *wids )
 	gchar * logo_content;
 
 	/* Title and ID */
-	g_snprintf( (gchar *)name, 255, "%s", AL_Title() );
+	g_snprintf( (gchar *)name, 255, "%s", MegProject_Title() );
 	id = AL_Setting_GetNumber( "project.id" );
 
 	/* Check for Logo */
@@ -190,10 +190,10 @@ gboolean GameCompiler_FileChooser( GtkWidget * button, GdkEventButton * event, G
 
 
 /********************************
-* AL_Compile
+* MegProject_Compile
 * Compiles project for distro
 */
-gboolean AL_Compile()
+gboolean MegProject_Compile()
 {
 	if ( !Map_SetStartingPoint() )
 	{

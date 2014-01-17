@@ -38,11 +38,11 @@ void RuntimeSettings_FreePointer( gpointer data );
 
 RuntimeSettingsStruct * RuntimeSetting_Copy( RuntimeSettingsStruct * value );
 void RuntimeSetting_InsertNew( GHashTable * settings_table, const gchar * key, const gchar * value, const gchar * type );
-void RuntimeSetting_Update( GHashTable * settings_table, gchar * key, gchar * value );
-void RuntimeSetting_UpdateValue( GHashTable * settings_table, gchar * key, gint value );
-void RuntimeSetting_UpdateBoolean( GHashTable * settings_table, gchar * key, gboolean value );
+void RuntimeSetting_Update( GHashTable * settings_table, const gchar *key, const gchar *value, const gchar  *type);
+void RuntimeSetting_UpdateValue(GHashTable * settings_table, const gchar *key, const gint value , const gchar * type);
+void RuntimeSetting_UpdateBoolean( GHashTable * settings_table, const gchar * key, const gboolean value, const gchar *type );
 void RuntimeSetting_Delete( RuntimeSettingsStruct * data );
-void RuntimeSetting_Append( gchar * key, RuntimeSettingsStruct * value, GHashTable * table );
+void RuntimeSetting_Append(const gchar *key, RuntimeSettingsStruct * value, GHashTable * table );
 gint RuntimeSetting_GetValue( GHashTable * settings_table, gchar * key );
 void RuntimeSetting_SetDefaultValues( DisplayObject * object );
 

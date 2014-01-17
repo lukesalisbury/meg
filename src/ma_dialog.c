@@ -117,7 +117,7 @@ gboolean Meg_Dialog_NewProject( )
 
 	if ( response == GTK_RESPONSE_ACCEPT )
 	{
-		if ( Alchera_Loaders_CreateNew( title ) )
+		if ( Meg_Loaders_CreateNew( title ) )
 		{
 			success = TRUE;
 		}
@@ -139,8 +139,8 @@ gboolean Meg_Dialog_NewProject( )
 */
 gboolean Meg_Dialog_OpenProject( )
 {
-	GtkFileFilter * open_project_filter = gtk_file_filter_new();
 	gboolean success = FALSE;
+	GtkFileFilter * open_project_filter = gtk_file_filter_new();
 	GtkWidget * file_chooser = gtk_file_chooser_dialog_new( "Open Project",
 		GTK_WINDOW(alchera_init_window),
 		GTK_FILE_CHOOSER_ACTION_OPEN,
@@ -155,20 +155,23 @@ gboolean Meg_Dialog_OpenProject( )
 	gtk_file_chooser_add_shortcut_folder( GTK_FILE_CHOOSER(file_chooser), Meg_Directory_Document(), NULL );
 
 	/* File Filter */
-	gtk_file_filter_add_pattern(open_project_filter, ROOT_FILENAME);
-	gtk_file_filter_add_mime_type(open_project_filter, ROOT_MIMETYPE);
+	gtk_file_filter_add_pattern( open_project_filter, ROOT_FILENAME);
+	gtk_file_filter_add_mime_type( open_project_filter, ROOT_MIMETYPE);
+	gtk_file_filter_add_mime_type( open_project_filter, "application/x-ext-"ROOT_FILENAME_EXT );
+
 	gtk_file_chooser_set_filter( GTK_FILE_CHOOSER(file_chooser), open_project_filter );
 
 	if ( gtk_dialog_run( GTK_DIALOG(file_chooser) ) == GTK_RESPONSE_ACCEPT )
 	{
-		gchar * filename;
-		filename = gtk_file_chooser_get_filename( GTK_FILE_CHOOSER(file_chooser) );
-		if ( Alchera_Loaders_Init(filename) )
+		gchar * filename = gtk_file_chooser_get_filename( GTK_FILE_CHOOSER(file_chooser) );
+		if ( Meg_Loaders_Init(filename) )
 		{
 			success = TRUE;
 		}
 		g_free( filename );
 	}
+
+
 	gtk_widget_destroy(file_chooser);
 
 	return success;

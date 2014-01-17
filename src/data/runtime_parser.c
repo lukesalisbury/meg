@@ -254,7 +254,7 @@ void RuntimeEditor_EditStoreValue( GtkCellRendererText * cellrenderertext, gchar
 	GHashTable * settings = g_object_get_data( G_OBJECT(model), "runtime-hashtable" );
 	if ( key )
 	{
-		RuntimeSetting_Update( settings, key, new_text );
+		RuntimeSetting_Update( settings, key, new_text, NULL );
 		gtk_list_store_set( GTK_LIST_STORE(model), &iter, 1, g_strdup(new_text), -1 );
 	}
 

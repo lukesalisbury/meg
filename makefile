@@ -93,7 +93,7 @@ all-before:
 
 include/ui/%.gui.h: res/ui/%.gui
 	@echo Converting GUI $<
-	$(OBJDIR)/buildheader.exe $< $@ $(BUILDHEADER_GUI_TITLE) $(BUILDHEADER_GUI_DESCRIPT) $(BUILDHEADER_GUI_ICON)
+	@$(OBJDIR)/buildheader.exe $< $@ $(BUILDHEADER_GUI_TITLE) $(BUILDHEADER_GUI_DESCRIPT) $(BUILDHEADER_GUI_ICON)
 
 buildheader.exe:
 #	@echo Building builderheader
@@ -110,12 +110,11 @@ clean:
 	@$(MAKE) -C meg_audio clean
 
 $(OBJDIR)/%.o : src/%.c
-#	@echo Compiling $@ $(MESSAGE)
+	@echo Compiling $@ $(MESSAGE)
 	@-$(MKDIR) $(dir $@)
 	@$(CC) -c $(COMPILER_FLAGS) -o $@ $<
 
 $(BIN): $(OBJ)
-
 	@echo Building $(BIN) $(MESSAGE)
 	@-$(MKDIR) $(BUILDDIR)
 	@$(CC) $(OBJ) -o $(BUILDDIR)/$(BIN) $(COMPILER_LIBS)

@@ -249,7 +249,7 @@ GtkWidget * Meg_MapEdit_Open( gchar * file )
 	SET_OBJECT_SIGNAL( ui, "action_layer_tofront" , "activate", G_CALLBACK(Meg_MapObject_LayerUp), widget_map );
 	SET_OBJECT_SIGNAL( ui, "action_layer_toback" , "activate", G_CALLBACK(Meg_MapObject_LayerDown), widget_map );
 	SET_OBJECT_SIGNAL( ui, "action_object_remove" , "activate", G_CALLBACK(Meg_MapObject_Remove), widget_map );
-	SET_OBJECT_SIGNAL( ui, "action_object_advance" , "activate", G_CALLBACK(Meg_MapObject_Advance), widget_map );
+
 
 	SET_OBJECT_SIGNAL( ui, "action_object_path" , "activate", G_CALLBACK(Meg_MapObject_Path), widget_map );
 	SET_OBJECT_SIGNAL( ui, "action_object_attach" , "activate", G_CALLBACK(Meg_MapObject_Attach), widget_map );

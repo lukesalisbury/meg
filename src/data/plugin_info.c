@@ -200,7 +200,7 @@ gchar * AL_CreateProject( const gchar * title )
 	GTimeVal timestamp;
 	guint array_count = 0;
 
-	directory_name = Project_CleanTitle((gchar *)title); //Trims Project Title
+	directory_name = Project_CleanTitle( title ); //Trims Project Title
 	root_dir = g_build_path( G_DIR_SEPARATOR_S, Meg_Directory_Document(), directory_name, NULL );/* Create Nice name that can be used as the directory */
 
 
@@ -362,8 +362,6 @@ gchar * AL_LoadProject(const gchar *path )
 
 	gchar * config_file_path = NULL;
 
-
-
 	if ( g_file_test( path, G_FILE_TEST_IS_DIR ) )
 	{
 		config_file_path = g_build_path( G_DIR_SEPARATOR_S, path, ROOT_FILENAME, NULL );
@@ -425,8 +423,11 @@ gchar * AL_LoadProject(const gchar *path )
 		Project_LoadSpritesheet();
 
 	}
+	Meg_Loaders_AddRecent( config_file_path );
 
 	g_free( config_file_path );
+
+
 
 
 	return mokoiBasePath;
@@ -442,30 +443,29 @@ GAsyncQueue * AL_PrecheckFiles()
 
 	#ifdef FORCE_PACKAGE
 	gchar * package_location = Meg_Directory_DataFile( "packages", FORCE_PACKAGE );
-	g_print( "Package Load %s\n", package_location );
-
-
 
 	/* Check if package exist */
 	if ( !g_file_test(package_location, G_FILE_TEST_IS_DIR | G_FILE_TEST_IS_REGULAR) )
 	{
 		queue = Meg_Web_RetrieveQueue(NULL, FORCE_PACKAGE_URL, NULL, NULL, package_location, NULL, NULL );
-		//queue = Meg_Web_RetrieveQueue("https://www.assembla.com/spaces/OpenZelda/documents/ds_ng2QzCr4P_cacwqEsg8/download/ds_ng2QzCr4P_cacwqEsg8", NULL, NULL, package_location, 0 );
 	}
 	else
 	{
+		#define FORCE_PACKAGE_CHECKSUM_URL "http://openzelda.net/package/2_0alpha1.txt"
+
 		/* Check if package is up to date */
 		gchar * content = NULL;
 		gchar ** lines_contents = NULL;
-		GString * address = g_string_new("http://openzelda.net/package/2_0alpha1.txt");
+		GString * address = g_string_new(FORCE_PACKAGE_CHECKSUM_URL);
 		gulong crc = 0;
 		gulong latest_crc = 0;
 		gchar * message = NULL;
 		gchar * latest_url = NULL;
 
 		if ( !g_file_test(package_location, G_FILE_TEST_IS_DIR ) )
+		{
 			content = Meg_Web_RetrieveText( address, NULL, NULL );
-
+		}
 
 		if ( content )
 		{
@@ -473,7 +473,6 @@ GAsyncQueue * AL_PrecheckFiles()
 
 			if ( g_strv_length(lines_contents) > 2 )
 			{
-
 				gchar * latest_crc_string = strpbrk( lines_contents[1], ":" )+1;
 				latest_url = strpbrk( lines_contents[2], ":" )+1;
 				message = strpbrk( lines_contents[0], ":" )+1;
@@ -483,15 +482,10 @@ GAsyncQueue * AL_PrecheckFiles()
 					latest_crc = strtoul(latest_crc_string,NULL, 10);
 				}
 			}
-
 		}
-
-
-
 
 		if ( latest_crc )
 		{
-
 			crc = Meg_FileCRC( package_location );
 			if ( crc ) // A Directory won't return a value, so we know it's a file.
 			{
@@ -505,8 +499,7 @@ GAsyncQueue * AL_PrecheckFiles()
 						}
 						else
 						{
-							GtkWidget * dialog;
-							dialog = gtk_message_dialog_new( NULL, GTK_DIALOG_DESTROY_WITH_PARENT, GTK_MESSAGE_QUESTION, GTK_BUTTONS_NONE, "%s", message );
+							GtkWidget * dialog = gtk_message_dialog_new( NULL, GTK_DIALOG_DESTROY_WITH_PARENT, GTK_MESSAGE_QUESTION, GTK_BUTTONS_NONE, "%s", message );
 							gtk_dialog_add_buttons( GTK_DIALOG(dialog), GTK_STOCK_OK, 1, NULL );
 							gtk_dialog_run( GTK_DIALOG(dialog) );
 							gtk_widget_destroy( dialog );
@@ -514,95 +507,20 @@ GAsyncQueue * AL_PrecheckFiles()
 					}
 
 				}
-
-
-
-
-
 			}
 		}
 		g_strfreev( lines_contents );
 		g_free(content);
 
-
-
 	}
-
-
-
-
 
 	g_free(package_location);
 	#endif
+
 	return queue;
 }
 
 
-
-/********************************
-* AL_ProjectPackages
-* GtkTreeStore: Title (G_TYPE_STRING), base_id (G_TYPE_STRING), tooltip (G_TYPE_STRING), icon (g_TYPE_POINTER)
-@tree_view:
-*/
-void AL_ProjectPackages( GtkTreeView * tree_view )
-{
-	GtkTreeSelection * selection;
-	GtkTreeStore * store;
-	GtkTreeIter iter;
-
-	GdkPixbuf * default_pixbuf = gtk_icon_theme_load_icon( gtk_icon_theme_get_default(), ICON_MIMETYPE, 32, 0, NULL);
-	gchar * packages_dir = Meg_Directory_Data("packages");
-
-
-	store = GTK_TREE_STORE(gtk_tree_view_get_model( GTK_TREE_VIEW(tree_view) ));
-	selection = gtk_tree_view_get_selection( GTK_TREE_VIEW(tree_view) );
-
-	#ifdef FORCE_PACKAGE
-	gtk_tree_store_append( store, &iter, NULL);
-	gtk_tree_store_set( store, &iter, 0, "Standard Content", 1, FORCE_PACKAGE, 2, "Use the default content.", 3, default_pixbuf, -1 );
-	gtk_tree_selection_select_iter( selection, &iter );
-
-	#else
-	const gchar * current_file;
-	GDir * current_directory;
-
-	current_directory = g_dir_open( packages_dir, 0, &mokoiError );
-	if ( !Meg_Error_Check(mokoiError, FALSE, __func__) )
-	{
-		current_file = g_dir_read_name(current_directory);
-		while ( current_file != NULL )
-		{
-			if ( g_str_has_suffix(current_file, ".package") )
-			{
-				guint8 package_type;
-				gchar * package_path = NULL, * package_name = NULL, * package_version = NULL, * package_description = NULL;
-
-				if ( Package_Infomation( current_file, &package_name, &package_path, &package_version, &package_description, &package_type ) )
-				{
-					if ( package_type == 0 )
-					{
-						gtk_tree_store_append( store, &iter, NULL);
-						gtk_tree_store_set( store, &iter, 0, package_name, 1, current_file, 2, package_description, 3, default_pixbuf, -1 );
-					}
-				}
-
-				g_free(package_path);
-				g_free(package_name);
-				g_free(package_version);
-				g_free(package_description);
-
-
-			}
-			current_file = g_dir_read_name( current_directory );
-		}
-	}
-
-
-
-	#endif
-
-	g_free( packages_dir );
-}
 
 
 

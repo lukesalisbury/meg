@@ -298,7 +298,7 @@ void Map_SaveObject( DisplayObject * object, GString * map_string , GString * en
 	}
 
 	g_string_append_printf( map_string, "<object value=\"%s\" type=\"%s\"", object_data->name, MapObject_TypeName(object_data->type) );
-	if ( object_data->object_name ) // * is old code for random
+	if ( object_data->object_name )
 	{
 		g_string_append_printf( map_string, " id=\"%s\"", object_data->object_name );
 		g_string_append_printf( entity_list_string, "%s\t%d\t%d\n", object_data->object_name, (gint)object->x, (gint)object->y ) ;/* Add Entity to list */
@@ -379,7 +379,8 @@ gboolean Map_Save( MapInfo * map_info )
 	scan = g_list_first( map_info->display_list );
 	while ( scan )
 	{
-		Map_SaveObject( (DisplayObject *)scan->data, map_xml, map_entities );
+		DisplayObject * object = (DisplayObject *)scan->data;
+		Map_SaveObject( object, map_xml, map_entities );
 		scan = g_list_next(scan);
 	}
 	g_string_append_printf( map_xml, "</map>");

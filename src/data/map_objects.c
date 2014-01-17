@@ -18,8 +18,11 @@ Permission is granted to anyone to use this software for any purpose, including 
 #include "sheets_functions.h"
 #include "animation_functions.h"
 #include "virtual_sprite.h"
-/* External Functions */
 
+
+/* External Functions */
+DisplayObjectTypes MapObject_Internal2DisplayObjectType( char internal_type );
+void RuntimeSetting_MenuItem( gchar * name, RuntimeSettingsStruct * options, GtkWidget * list );
 
 /* Local Type */
 typedef enum {
@@ -34,7 +37,7 @@ typedef enum {
 extern GSList * mokoiSpritesheets;
 
 /* Local Variables */
-GdkPixbuf * mokoiObjectImage[4] = { NULL, NULL, NULL, NULL };
+GdkPixbuf * mokoiObjectImage[5] = { NULL, NULL, NULL, NULL, NULL };
 GdkPixbuf * mokoiObjectMissing = NULL;
 
 /* UI */
@@ -66,8 +69,10 @@ GList * AL_Object_List( MapInfo * map_info )
 			case 'r':
 			case 'p':
 			case 'c':
+				object->type = MapObject_Internal2DisplayObjectType(MAP_OBJECT_DATA(object)->type);
+				break;
 			default:
-			break;
+				break;
 		}
 		scan = g_list_next(scan);
 	}
@@ -182,16 +187,48 @@ G_MODULE_EXPORT gboolean AL_Object_Update( MapInfo * map_info, gint id, gdouble 
 	return FALSE;
 }
 
+/********************************
+* Object_OpenAdvance
+*
+@ map:
+@ id:
+*/
+void AL_Object_OpenAdvance( GtkWidget * widget, MapInfo * map_info )
+{
+
+	GtkWindow * window = Meg_Misc_ParentWindow(widget);
+	DisplayObject * object = map_info->selected;
+
+	if ( object != NULL )
+	{
+
+		if ( MAP_OBJECT_DATA(object)->type == 's'  )
+			ObjectAdvance_Sprite( object, window );
+		else if ( MAP_OBJECT_DATA(object)->type == 't' )
+			ObjectAdvance_Text( object, window );
+		else if ( MAP_OBJECT_DATA(object)->type == 'r' || MAP_OBJECT_DATA(object)->type == 'c' || MAP_OBJECT_DATA(object)->type == 'p' )
+			ObjectAdvance_Shape( object, window );
+		else if ( MAP_OBJECT_DATA(object)->type == 'l' )
+			ObjectAdvance_Line( object, window );
+		else if ( MAP_OBJECT_DATA(object)->type == 'M' || MAP_OBJECT_DATA(object)->type == 'p' )
+			ObjectAdvance_File( object, window );
+		else
+			Meg_Error_Print( __func__, __LINE__, "No Options for that object type. (%c)", MAP_OBJECT_DATA(object)->type);
+	}
+	else
+	{
+		Meg_Error_Print( __func__, __LINE__, "AL_Object_AdvanceObject can't find object.");
+	}
+}
 
 
-void RuntimeSetting_MenuItem( gchar * name, RuntimeSettingsStruct * options, GtkWidget * list );
 /********************************
 * AL_Object_Advance
 *
 @ map:
 @ id:
 */
-GtkWidget * Object_GetSettingMenu(MapInfo * map_info, guint id )
+GtkWidget * Object_GetSettingMenu( MapInfo * map_info, guint id )
 {
 	GtkWidget * menu_widget = NULL;
 	GList * object_item = g_list_nth(map_info->display_list, id);
@@ -200,18 +237,26 @@ GtkWidget * Object_GetSettingMenu(MapInfo * map_info, guint id )
     {
 		DisplayObject * object = (DisplayObject*)object_item->data;
 
+		menu_widget = gtk_menu_new();
+
 		if ( g_hash_table_size( MAP_OBJECT_DATA(object)->settings) )
         {
-            menu_widget = gtk_menu_new();
 			g_hash_table_foreach( MAP_OBJECT_DATA(object)->settings, (GHFunc)RuntimeSetting_MenuItem, menu_widget );
-        }
+		}
+
+		/* Add Advance */
+		GtkWidget * sub_menu_advance = gtk_menu_item_new_with_label( "Advance" );
+		g_signal_connect( G_OBJECT(sub_menu_advance), "activate", G_CALLBACK(AL_Object_OpenAdvance), map_info );
+		gtk_menu_shell_append( GTK_MENU_SHELL(menu_widget), sub_menu_advance );
+		gtk_widget_show(sub_menu_advance);
+
     }
     return menu_widget;
 }
 
 /********************************
 * AL_Object_Advance
-*VirtualSprite_DialogDisplay
+*
 @ map:
 @ id:
 */
@@ -244,6 +289,7 @@ G_MODULE_EXPORT gboolean AL_Object_Advance( MapInfo * map_info, gint id, GtkWind
 
 	return result;
 }
+
 
 /********************************
 * AL_Object_Get
@@ -330,7 +376,7 @@ void AL_Object_Available( GtkListStore * list, gchar * parent )
 		}
 		if ( !mokoiObjectImage[OT_LINE] )
 		{
-			mokoiObjectImage[OT_LINE]= gtk_icon_theme_load_icon( icon_theme, "draw-line", 22, GTK_ICON_LOOKUP_GENERIC_FALLBACK, NULL );
+			mokoiObjectImage[OT_LINE]= gtk_icon_theme_load_icon( icon_theme, "draw-path", 22, GTK_ICON_LOOKUP_GENERIC_FALLBACK, NULL );
 			if (!mokoiObjectImage[OT_LINE])
 			{
 				mokoiObjectImage[OT_LINE] = gdk_pixbuf_new( GDK_COLORSPACE_RGB, TRUE, 8, 4, 22 );
@@ -348,7 +394,7 @@ void AL_Object_Available( GtkListStore * list, gchar * parent )
 		}
 		if ( !mokoiObjectImage[OT_POLYGON] )
 		{
-			mokoiObjectImage[OT_POLYGON]= gtk_icon_theme_load_icon( icon_theme, "draw-text", 22, GTK_ICON_LOOKUP_GENERIC_FALLBACK, NULL );
+			mokoiObjectImage[OT_POLYGON]= gtk_icon_theme_load_icon( icon_theme, "draw-polygon", 22, GTK_ICON_LOOKUP_GENERIC_FALLBACK, NULL );
 			if (!mokoiObjectImage[OT_POLYGON])
 			{
 				mokoiObjectImage[OT_POLYGON] = gdk_pixbuf_new( GDK_COLORSPACE_RGB, TRUE, 8, 22, 22 );

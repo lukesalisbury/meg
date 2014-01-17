@@ -20,7 +20,7 @@ extern "C" {
 
 #define STRIP_FILE_EXTENSION(t,n)	g_strndup(t, g_utf8_strlen(t, -1) - n );
 #define REPLACE_STRING(s,v)	g_free( s ); s = v;
-#define REPLACE_STRING_DUPE(s,v)	g_free( s ); s = g_strdup(v);
+#define REPLACE_STRING_DUPE(s,v)	g_free( s ); if (v) { s = g_strdup(v); } else { s = NULL; }
 #define CLEAR_STRING(s)	if (s) { g_free( s ); s = NULL; }
 
 typedef struct {

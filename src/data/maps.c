@@ -321,11 +321,11 @@ gboolean AL_Map_Options( MapInfo * map_info, GtkWindow * window )
 		g_hash_table_foreach( map_info->settings, (GHFunc)RuntimeSetting_SaveWidget_Foreach, NULL );
 		g_hash_table_foreach( graphic_sheets, (GHFunc)Map_ReplacableSheets_Update_ForEach, MAP_DATA(map_info) );
 
-		RuntimeSetting_UpdateValue( map_info->settings, "wrap", gtk_combo_box_get_active( GTK_COMBO_BOX(combo_wrapmode) ) );
-		RuntimeSetting_UpdateValue( map_info->settings, "wrap", gtk_combo_box_get_active( GTK_COMBO_BOX(combo_wrapmode) ) );
+		RuntimeSetting_UpdateValue( map_info->settings, "wrap", gtk_combo_box_get_active( GTK_COMBO_BOX(combo_wrapmode) ), NULL );
+		RuntimeSetting_UpdateValue( map_info->settings, "wrap", gtk_combo_box_get_active( GTK_COMBO_BOX(combo_wrapmode) ), NULL );
 
-		RuntimeSetting_UpdateBoolean( map_info->settings, "centerview", gtk_toggle_button_get_active( GTK_TOGGLE_BUTTON(check_centerview) ) );
-		RuntimeSetting_UpdateBoolean( map_info->settings, "independent", gtk_toggle_button_get_active( GTK_TOGGLE_BUTTON(check_independent) ) );
+		RuntimeSetting_UpdateBoolean( map_info->settings, "centerview", gtk_toggle_button_get_active( GTK_TOGGLE_BUTTON(check_centerview) ), NULL );
+		RuntimeSetting_UpdateBoolean( map_info->settings, "independent", gtk_toggle_button_get_active( GTK_TOGGLE_BUTTON(check_independent) ), NULL );
 
 		Meg_ColorButton_GetColor( GTK_COLOR_BUTTON(button_colour), &map_info->colour );
 

@@ -287,6 +287,8 @@ inline void MapObject_AddSimplePolygonPoint( DisplayObject * object, gint x, gin
 	object->shape = g_slist_append( object->shape, obj_point );
 }
 
+
+
 /********************************
 * MapObject_SetInitialType
 *
@@ -338,7 +340,6 @@ inline char MapObject_SetInitialType( DisplayObject * object, gchar * name, gdou
 	{
 		internal_type = 'l';
 		object->type = DT_LINE;
-		object->data = NULL;
 		object->w = area_width;
 		object->h = area_height;
 	}
@@ -358,6 +359,9 @@ inline char MapObject_SetInitialType( DisplayObject * object, gchar * name, gdou
 */
 DisplayObject * MapObject_New( gchar * name, gdouble area_width, gdouble area_height )
 {
+	DisplayObject * object = NULL;
+	MapObjectData * object_data = NULL;
+
 	/* Set a position area */
 	if ( area_width <= 0.0 )
 		area_width = 32.0;
@@ -365,18 +369,14 @@ DisplayObject * MapObject_New( gchar * name, gdouble area_width, gdouble area_he
 	if ( area_height <= 0.0 )
 		area_height = 32.0;
 
-
-	//
-	DisplayObject * object = NULL;
-	MapObjectData * object_data = MapObjectData_New( name );
-
+	object_data = MapObjectData_New( name );
 	object = Alchera_DisplayObject_New( object_data, &MapObjectData_FreePointer );
 
 	object_data->type = MapObject_SetInitialType( object, name, area_width, area_height );
 
 	if ( object_data->type == 't' )
 	{
-		RuntimeSetting_InsertNew( object_data->settings, "number", "-1", "" );
+		RuntimeSetting_InsertNew( object_data->settings, "number", "-1", "hidden" );
 	}
 	else if ( object_data->type == 's' )
 	{

@@ -14,7 +14,7 @@ Permission is granted to anyone to use this software for any purpose, including 
 #include <zlib.h>
 
 /* Project */
-gchar * Project_CleanTitle( gchar * title );
+gchar * Project_CleanTitle( const gchar * title );
 gboolean Project_ValidDir();
 gchar * Project_Directory( gchar * path );
 gchar * Project_Directory2( gchar * path,  gchar * path2 );
