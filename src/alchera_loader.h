@@ -5,7 +5,8 @@
 	gchar * AL_CreateProject( const gchar * title  );
 	gchar * AL_LoadProject( const gchar * path );
 	gboolean AL_HasFeature( gint feature );
-	gchar * AL_ResourcePath( gchar * file);
+	gchar * AL_ProjectPath( );
+	gchar * AL_ResourcePath( gchar * file );
 	gboolean AL_CloseProject();
 	GAsyncQueue *AL_PrecheckFiles();
 

@@ -125,6 +125,22 @@ gchar * mokoiInitalConfig = "[Mokoi]\n" \
 
 /* UI */
 
+/********************************
+* AL_ProjectPath
+*
+@
+*/
+gchar * AL_ProjectPath( )
+{
+	if ( mokoiBasePath )
+	{
+		g_print("Project Directory: '%s'\n", mokoiBasePath);
+		return mokoiBasePath;
+	}
+
+	g_print("Project Directory is empty\n");
+	return NULL;
+}
 
 /********************************
 * AL_CreateDirectories
@@ -387,6 +403,7 @@ gchar * AL_LoadProject(const gchar *path )
 	if ( config_file_path == NULL )
 		return NULL;
 
+	g_print("Project Directory: '%s'\n", mokoiBasePath);
 	mokoiBasePath = g_path_get_dirname( config_file_path );
 	mokoiConfigTable = AL_LoadConfig( config_file_path );
 
@@ -427,10 +444,7 @@ gchar * AL_LoadProject(const gchar *path )
 
 	g_free( config_file_path );
 
-
-
-
-	return mokoiBasePath;
+	return g_strdup(mokoiBasePath);
 }
 
 /********************************

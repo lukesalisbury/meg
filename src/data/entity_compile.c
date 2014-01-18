@@ -28,9 +28,9 @@ Permission is granted to anyone to use this software for any purpose, including 
 
 
 #if PAWN_VERSION == 4
-#define PAWN_COMPILER "mokoipawnc4"
+#define PAWN_COMPILER "pawn_compiler4"
 #else
-#define PAWN_COMPILER "mokoipawnc3"
+#define PAWN_COMPILER "pawn_compiler3"
 #endif
 
 typedef struct {
@@ -271,16 +271,16 @@ static void EntityCompiler_RebuildForEach(void *data, const char *origdir, const
 */
 gchar * EntityCompiler_PawnScript( gchar * inputfile, gchar * file_name, gchar * output_directory  )
 {
-
 	gchar * working_directory = NULL;
-	gchar * full_output_directory = NULL, * full_compiler_path = NULL;
+	gchar * full_output_directory = NULL;
 	gchar * args[7] = { NULL, NULL, NULL, NULL, NULL, NULL, NULL};
 	gchar * output = NULL;
 	gchar * output_error = NULL;
+	gchar * entity_file = NULL, * compiled_entity_file = NULL;
 	GError * err = NULL;
 	gint exit_status;
-	full_output_directory = g_build_path( G_DIR_SEPARATOR_S, mokoiBasePath, "c", output_directory+1, NULL);
-	//full_compiler_path = g_build_filename( Meg_Directory(), PAWN_COMPILER, NULL);
+
+	full_output_directory = g_build_path( G_DIR_SEPARATOR_S, AL_ProjectPath( ), "c", output_directory+1, NULL);
 
 	g_mkdir_with_parents( full_output_directory, 0755 );
 
@@ -288,11 +288,10 @@ gchar * EntityCompiler_PawnScript( gchar * inputfile, gchar * file_name, gchar *
 	working_directory = Meg_Directory();
 	#endif
 	
-	//args[0] = g_strconcat( "'", full_compiler_path, "'", NULL);
 	args[0] = g_build_filename( Meg_Directory(), PAWN_COMPILER, NULL);
-	args[1] = g_strdup("--xmloutput");
-	args[2] = g_strconcat(inputfile, NULL );
-	args[3] = g_strconcat("--routines-dir=", mokoiBasePath, G_DIR_SEPARATOR_S, "scripts", G_DIR_SEPARATOR_S, "routines",  NULL );
+	args[1] = g_strconcat(inputfile, NULL );
+	args[2] = g_strdup("--xmloutput");
+	args[3] = g_strconcat("--routines-dir=", AL_ProjectPath( ), G_DIR_SEPARATOR_S, "scripts", G_DIR_SEPARATOR_S, "routines",  NULL );
 	args[4] = g_strconcat("--output-dir=", full_output_directory, NULL );
 	args[5] = g_strconcat("--name=", file_name, NULL );
 
@@ -320,8 +319,11 @@ gchar * EntityCompiler_PawnScript( gchar * inputfile, gchar * file_name, gchar *
 		output = g_strdup_printf("<results><fatalerror message=\"Possible Compiler Crash.\" file=\"%s\" /></results>", args[0] );
 	}
 
-	gchar * entity_file = g_strconcat(full_output_directory, G_DIR_SEPARATOR_S, file_name, NULL );
-	gchar * compiled_entity_file = Meg_String_ReplaceFileExtension( entity_file, ".mps", ".amx" );
+
+
+	/**/
+	entity_file = g_strconcat(full_output_directory, G_DIR_SEPARATOR_S, file_name, NULL );
+	compiled_entity_file = Meg_String_ReplaceFileExtension( entity_file, ".mps", ".amx" );
 	if ( file_get_size( compiled_entity_file ) == 0 )
 	{
 		g_unlink(compiled_entity_file);
@@ -331,6 +333,7 @@ gchar * EntityCompiler_PawnScript( gchar * inputfile, gchar * file_name, gchar *
 
 
 	g_free(full_output_directory);
+	g_strfreev(args);
 
 	return output;
 }
@@ -418,6 +421,7 @@ gboolean EntityCompiler_File( gchar * inputfile, GtkWidget * logwidget, GtkWidge
 
 	output_directory = g_path_get_dirname(inputfile);
 	filepath = EntityCompiler_TemporaryFile( inputfile, &free_file );
+
 	output = EntityCompiler_PawnScript( filepath, basename, output_directory );
 
 	/* Being called from Text Editor */

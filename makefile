@@ -108,6 +108,7 @@ clean:
 	@echo Clean up Mokoi Editor
 	${RM} $(OBJ) $(BIN) $(OBJDIR)/buildheader.exe $(wildcard include/ui/*.gui.h)
 	@$(MAKE) -C meg_audio clean
+	@$(MAKE) -C meg_pawn clean
 
 $(OBJDIR)/%.o : src/%.c
 	@echo Compiling $@ $(MESSAGE)
@@ -119,8 +120,10 @@ $(BIN): $(OBJ)
 	@-$(MKDIR) $(BUILDDIR)
 	@$(CC) $(OBJ) -o $(BUILDDIR)/$(BIN) $(COMPILER_LIBS)
 	@$(MAKE) -C meg_audio all BUILDDIR=$(CURDIR)/$(BUILDDIR)
+	@$(MAKE) -C meg_pawn all BUILDDIR=$(CURDIR)/$(BUILDDIR)
 
 install: $(BIN)
 	@echo Installing $< to $(INSTALLDIR)
 	@cp $(BUILDDIR)/$(BIN) $(INSTALLDIR)
 	@$(MAKE) -C meg_audio install
+	@$(MAKE) -C meg_pawn install

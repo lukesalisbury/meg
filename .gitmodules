@@ -1,0 +1,4 @@
+[submodule "meg_pawn"]
+	path = meg_pawn
+	url = https://github.com/lukesalisbury/pawn.git
+	branch = submodule
