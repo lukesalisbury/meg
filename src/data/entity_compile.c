@@ -333,7 +333,12 @@ gchar * EntityCompiler_PawnScript( gchar * inputfile, gchar * file_name, gchar *
 
 
 	g_free(full_output_directory);
-	g_strfreev(args);
+	g_free(args[0]);
+	g_free(args[1]);
+	g_free(args[2]);
+	g_free(args[3]);
+	g_free(args[4]);
+	g_free(args[5]);
 
 	return output;
 }

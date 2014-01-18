@@ -2,3 +2,6 @@
 	path = meg_pawn
 	url = https://github.com/lukesalisbury/pawn.git
 	branch = submodule
+[submodule "share/mokoigaming-1.0/help"]
+	path = share/mokoigaming-1.0/help
+	url = https://github.com/mokoi/mokoi-docs.git

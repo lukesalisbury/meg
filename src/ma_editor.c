@@ -72,8 +72,8 @@ GtkWidget * Meg_Editor_New( gchar * language )
 			GtkSourceStyleSchemeManager * styles = gtk_source_style_scheme_manager_get_default();
 			GtkSourceLanguageManager * manager = gtk_source_language_manager_new();
 			gchar * paths[3];
-			paths[0] = Meg_Directory_GlobalShare( "gtksourceview-2.0/language-specs" );
-			paths[1] = Meg_Directory_GlobalShare( "gtksourceview-3.0/language-specs" );
+			paths[0] = Meg_Directory_ProgramShare( "gtksourceview-2.0/language-specs" );
+			paths[1] = Meg_Directory_ProgramShare( "gtksourceview-3.0/language-specs" );
 			paths[2] = NULL;
 
 			gtk_source_language_manager_set_search_path( manager, paths );
