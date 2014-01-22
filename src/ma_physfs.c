@@ -89,7 +89,7 @@ void Meg_ComboFile_Scan(GtkWidget * widget, gchar * path, gchar * suffix, gboole
 
 	if ( none )
 	{
-		Meg_ComboText_AppendText( GTK_COMBO_BOX(widget), g_strdup("(None)") );
+		Meg_ComboText_AppendText( GTK_COMBO_BOX(widget), g_strdup(MEG_COMBOFILE_NONE) );
 	}
 
 	for (current_file = directory_listing; *current_file != NULL; current_file++)

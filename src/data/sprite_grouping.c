@@ -63,7 +63,7 @@ gboolean SpriteGrouping_ShowDialog( GtkWidget * parent_widget, SpriteChild * spr
 	label_parentsprite = GET_WIDGET( ui, "label_parentsprite" );
 
 	/* Sprite Listing */
-	SpriteGrouping_ComboAppend( GTK_COMBO_BOX(combo_sprite), "(None)", NULL );
+	SpriteGrouping_ComboAppend( GTK_COMBO_BOX(combo_sprite), MEG_COMBOFILE_NONE, NULL );
 
 	if ( sheet )
 	{

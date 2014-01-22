@@ -146,7 +146,7 @@ gchar * Meg_ComboText_GetText( GtkComboBox * widget )
 		gtk_tree_model_get( gtk_combo_box_get_model( widget ), &iter, 0, &text, -1 );
 	if ( !text )
 		return NULL;
-	if ( g_ascii_strcasecmp("(None)", text) == 0 )
+	if ( g_ascii_strcasecmp(MEG_COMBOFILE_NONE, text) == 0 )
 		return NULL;
 	return text;
 }

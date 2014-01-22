@@ -282,6 +282,7 @@ gboolean Meg_Dialog_Import()
 	/* Signal */
 	g_signal_connect_swapped( button_close, "clicked", G_CALLBACK(gtk_widget_destroy), dialog );
 	g_signal_connect( button_update, "clicked", G_CALLBACK(ImportDialog_ScanLocal), store_package );
+	g_signal_connect( button_update, "clicked", G_CALLBACK(ImportDialog_RequestUpdates), store_package );
 	g_signal_connect( tree_package, "row-activated", G_CALLBACK(ImportDialog_InstallSelected), progress_action);
 	g_signal_connect( dialog, "delete-event", G_CALLBACK(gtk_widget_destroy), dialog );
 

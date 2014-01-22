@@ -21,6 +21,8 @@ Permission is granted to anyone to use this software for any purpose, including 
 #include "progress_dialog.h"
 #include "maps.h"
 
+#include "distribution/distro_windows.h"
+
 void Entity_RebuildDirectory( ProgressDialogWidgets * wids, const gchar * directory  );
 
 /* Global Variables */
@@ -31,6 +33,7 @@ ProgressDialogWidgets mokoiGameComplier;
 gboolean mokoiCompileStripEntities = FALSE;
 gboolean mokoiCompileStripColours = FALSE;
 gboolean mokoiCompileLocalFiles = FALSE;
+
 /*
 gboolean mokoiCompileFinished = FALSE;
 gboolean mokoiCompileError = FALSE;
@@ -38,7 +41,84 @@ gboolean mokoiCompileError = FALSE;
 
 /* UI */
 #include "ui/compilecreate_dialog.gui.h"
-const gchar * mokoiUI_CompileCreate = GUICOMPILECREATE_DIALOG
+const gchar * mokoiUI_CompileCreate = GUICOMPILECREATE_DIALOG;
+
+
+
+
+/********************************
+* GameCompiler_DistroForeach
+*
+*/
+gboolean GameCompiler_DistroForeach( GtkTreeModel * model, GtkTreePath * path, GtkTreeIter * iter, ProgressDialogWidgets * wids )
+{
+	gboolean selected;
+	gchar * project_title = NULL;
+	guint ident = 0;
+
+
+	project_title = Project_CleanTitle( NULL );
+	gtk_tree_model_get( model, iter, 0, &selected, 3, &ident, -1 );
+
+	if ( selected )
+	{
+		switch (ident) {
+		case 1:
+			Logger_FormattedLog( NULL, LOG_FINE, "Creating Windows binaries.\n");
+			Distro_WindowsCreate( project_title, wids->filename );
+			break;
+		default:
+			break;
+		}
+	}
+	g_free( project_title );
+
+	return FALSE;
+}
+
+
+/********************************
+* GameCompiler_Thread
+*
+*/
+void GameCompiler_PackFiles( GSList ** file_list, gboolean include_pawn64, ProgressDialogWidgets *wids )
+{
+	Compression_PackFile( file_list, "game.mokoi", ROOT_FILENAME, mokoiCompileLocalFiles );
+	Compression_PackFolder( file_list,"preload", ".txt", mokoiCompileLocalFiles );
+	Compression_PackFolder( file_list,"lang", ".txt", mokoiCompileLocalFiles );
+	Compression_PackFolder( file_list,"dialog", ".txt", mokoiCompileLocalFiles );
+
+	Compression_PackFolder( file_list,"c/scripts", ".amx", mokoiCompileLocalFiles );
+	Compression_PackFolder( file_list,"c/scripts/maps", ".amx", mokoiCompileLocalFiles );
+	if ( include_pawn64 )
+	{
+		Compression_PackFolder( file_list,"c/scripts", ".amx64", mokoiCompileLocalFiles );
+		Compression_PackFolder( file_list,"c/scripts/maps", ".amx64", mokoiCompileLocalFiles );
+	}
+
+	Compression_PackFolder( file_list, "scripts", ".managed", mokoiCompileLocalFiles );
+	Compression_PackFolder( file_list, "scripts", ".js", mokoiCompileLocalFiles );
+	Compression_PackFolder( file_list, "scripts", ".sq", mokoiCompileLocalFiles );
+	Compression_PackFolder( file_list, "scripts", ".lua", mokoiCompileLocalFiles );
+
+	Compression_PackFolder( file_list, "scripts/maps", ".js", mokoiCompileLocalFiles );
+	Compression_PackFolder( file_list, "scripts/maps", ".sq", mokoiCompileLocalFiles );
+	Compression_PackFolder( file_list, "scripts/maps", ".managed", mokoiCompileLocalFiles );
+	Compression_PackFolder( file_list, "scripts/maps", ".lua", mokoiCompileLocalFiles );
+
+	Compression_PackFolder( file_list, "dialog", ".ogg", mokoiCompileLocalFiles );
+	Compression_PackFolder( file_list, "dialog", ".opus", mokoiCompileLocalFiles );
+
+	Compression_PackFolder( file_list, "maps", ".xml", mokoiCompileLocalFiles );
+	Compression_PackFolder( file_list, "maps", ".entities", mokoiCompileLocalFiles );
+	Compression_PackFolder( file_list, "sprites", ".png.xml", mokoiCompileLocalFiles );
+	Compression_PackFolder( file_list, "sprites", ".png", mokoiCompileLocalFiles );
+	Compression_PackFolder( file_list, "sections", ".txt", mokoiCompileLocalFiles );
+	Compression_PackFolder( file_list, "masks", ".xpm", mokoiCompileLocalFiles );
+	Compression_PackFolder( file_list, "soundfx", NULL, mokoiCompileLocalFiles );
+	Compression_PackFolder( file_list, "music", NULL, mokoiCompileLocalFiles );
+
+}
 
 /********************************
 * GameCompiler_Thread
@@ -71,49 +151,26 @@ gpointer GameCompiler_Thread( ProgressDialogWidgets *wids )
 		}
 	}
 
+	/* Recompile Entities */
+	Entity_RebuildDirectory(wids, "/scripts/");
+	Entity_RebuildDirectory(wids, "/scripts/maps/");
+
 
 	/* Start Packing Files */
-	Compression_PackFile( &file_list, "game.mokoi", ROOT_FILENAME, mokoiCompileLocalFiles );
-	Compression_PackFolder( &file_list,"preload", ".txt", mokoiCompileLocalFiles );
-	Compression_PackFolder( &file_list,"lang", ".txt", mokoiCompileLocalFiles );
-	Compression_PackFolder( &file_list,"dialog", ".txt", mokoiCompileLocalFiles );
-
-
-	Entity_RebuildDirectory(wids, "/scripts/maps/");
-	Compression_PackFolder( &file_list,"c/scripts", ".amx", mokoiCompileLocalFiles );
-	Compression_PackFolder( &file_list,"c/scripts/maps", ".amx", mokoiCompileLocalFiles );
-	if ( !mokoiCompileStripEntities )
-	{
-		Compression_PackFolder( &file_list,"c/scripts", ".amx64", mokoiCompileLocalFiles );
-		Compression_PackFolder( &file_list,"c/scripts/maps", ".amx64", mokoiCompileLocalFiles );
-	}
-
-	Compression_PackFolder( &file_list,"scripts", ".managed", mokoiCompileLocalFiles );
-	Compression_PackFolder( &file_list,"scripts", ".js", mokoiCompileLocalFiles );
-	Compression_PackFolder( &file_list,"scripts", ".sq", mokoiCompileLocalFiles );
-	Compression_PackFolder( &file_list,"scripts", ".lua", mokoiCompileLocalFiles );
-
-	Compression_PackFolder( &file_list,"scripts/maps", ".js", mokoiCompileLocalFiles );
-	Compression_PackFolder( &file_list,"scripts/maps", ".sq", mokoiCompileLocalFiles );
-	Compression_PackFolder( &file_list,"scripts/maps", ".managed", mokoiCompileLocalFiles );
-	Compression_PackFolder( &file_list,"scripts/maps", ".lua", mokoiCompileLocalFiles );
-
-	Compression_PackFolder( &file_list,"dialog", ".ogg", mokoiCompileLocalFiles );
-	Compression_PackFolder( &file_list,"dialog", ".opus", mokoiCompileLocalFiles );
-
-	Compression_PackFolder( &file_list,"maps", ".xml", mokoiCompileLocalFiles );
-	Compression_PackFolder( &file_list,"maps", ".entities", mokoiCompileLocalFiles );
-	Compression_PackFolder( &file_list,"sprites", ".png.xml", mokoiCompileLocalFiles );
-	Compression_PackFolder( &file_list,"sprites", ".png", mokoiCompileLocalFiles );
-	Compression_PackFolder( &file_list,"sections", ".txt", mokoiCompileLocalFiles );
-	Compression_PackFolder( &file_list,"masks", ".xpm", mokoiCompileLocalFiles );
-	Compression_PackFolder( &file_list,"soundfx", NULL, mokoiCompileLocalFiles );
-	Compression_PackFolder( &file_list,"music", NULL, mokoiCompileLocalFiles );
+	GameCompiler_PackFiles( &file_list, !mokoiCompileStripEntities, wids );
 
 	/* Save package file */
 	MokoiPackage_SaveGame( wids->filename, file_list, name, id, logo_content, logo_len);
 	Logger_FormattedLog(NULL, LOG_BOLD, "Game saved to %s.\n", wids->filename);
 
+
+	/* Distribution */
+	gtk_tree_model_foreach( GTK_TREE_MODEL(wids->list), (GtkTreeModelForeachFunc)GameCompiler_DistroForeach, wids );
+
+
+
+
+	g_object_unref(wids->list);
 	Logger_SetQueue( NULL );  // resets logger
 	g_async_queue_push( wids->queue, g_thread_self() ); // closes thread
 	return NULL;
@@ -128,7 +185,7 @@ gpointer GameCompiler_Thread( ProgressDialogWidgets *wids )
 @ strip_colours:
 -
 */
-gboolean GameCompiler_Run( const gchar * file_name, gboolean strip_entities, gboolean strip_colours, gboolean local_files  )
+gboolean GameCompiler_Run( const gchar * file_name, gboolean strip_entities, gboolean strip_colours, gboolean local_files, GtkListStore * distro_store )
 {
 	ProgressDialog_Clear( &mokoiGameComplier );
 	if ( ProgressDialog_Create( &mokoiGameComplier, "Compiling Game", (gchar *)file_name ) )
@@ -136,6 +193,11 @@ gboolean GameCompiler_Run( const gchar * file_name, gboolean strip_entities, gbo
 		mokoiCompileStripEntities = strip_entities;
 		mokoiCompileStripColours = strip_colours;
 		mokoiCompileLocalFiles = local_files;
+
+		mokoiGameComplier.list = distro_store;
+
+		g_object_ref(distro_store);
+
 		ProgressDialog_Activate( &mokoiGameComplier, (GThreadFunc)GameCompiler_Thread, (GSourceFunc)ProgressDialog_Watch );
 		return TRUE;
 	}
@@ -257,15 +319,16 @@ gboolean MegProject_Compile()
 	gboolean strip_colours = gtk_toggle_button_get_active( GTK_TOGGLE_BUTTON(check_strip64) );
 	gboolean local_files_only = gtk_toggle_button_get_active( GTK_TOGGLE_BUTTON(check_localcontent) );
 
-	gtk_widget_destroy( dialog );
+
+
 
 
 	if ( response == 1 )
 	{
-		GameCompiler_Run( output_file_name, strip_entities, strip_colours, local_files_only );
+		GameCompiler_Run( output_file_name, strip_entities, strip_colours, local_files_only, store_distrib );
 	}
 
-
+	gtk_widget_destroy( dialog );
 	g_free(file_path);
 	g_free(file_name);
 	g_free(title);

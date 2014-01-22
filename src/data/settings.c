@@ -110,10 +110,15 @@ void  AL_Setting_Widget( GtkBuilder * ui )
 	g_hash_table_replace(mokoiSettingsTable, "language.default", gtk_builder_get_object( ui, "w_language_default" ) ); /* GtkComboBox */
 	g_hash_table_replace(mokoiSettingsTable, "language.choose", gtk_builder_get_object( ui, "w_language_choose" ) ); /* GtkCheckButton */
 
+	GObject * obja = gtk_builder_get_object( ui, "w_package_main" );
+
 	g_hash_table_replace(mokoiSettingsTable, "package.main", gtk_builder_get_object( ui, "w_package_main" ) ); /* GtkComboBox */
+
+
 
 	GObject * obj = NULL;
 	GObject * preview_widget = NULL;
+
 
 	obj = gtk_builder_get_object( ui, "w_display_custom" ); /* GtkCheckButton */
 	gtk_toggle_button_set_active( GTK_TOGGLE_BUTTON(obj), AL_SettingBoolean("display.customsize") );
@@ -164,10 +169,15 @@ void AL_Settings_Refresh()
 
 	/* Packages */
 	GtkWidget * package = g_hash_table_lookup( mokoiSettingsTable, "package.main");
+	Setting_Package( GTK_COMBO_BOX(package), NULL );
 	if ( package )
 	{
-		Setting_Package( GTK_COMBO_BOX(package), NULL  );
-		gtk_combo_box_set_active( GTK_COMBO_BOX(package), 0  );
+		gchar * setting = AL_Setting_GetString("package.main");
+		if ( setting )
+		{
+			Meg_ComboText_SetIndex(GTK_COMBO_BOX(package), setting);
+			g_free(setting);
+		}
 	}
 
 	GtkWidget * lang = g_hash_table_lookup( mokoiSettingsTable, "language.default");

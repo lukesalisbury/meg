@@ -69,6 +69,8 @@ OBJ += $(OBJDIR)/data/progress_dialog.o $(OBJDIR)/data/runtime_options.o $(OBJDI
 
 OBJ += $(OBJDIR)/data/data_types.o $(OBJDIR)/data/virtual_sprite_dialog.o
 
+OBJ += $(OBJDIR)/distribution/distro_windows.o
+
 OBJ += $(OBJDIR)/ma_physfs.o $(OBJDIR)/physfs/physfs.o $(OBJDIR)/physfs/physfs_byteorder.o $(OBJDIR)/physfs/physfs_unicode.o $(OBJDIR)/physfs/archivers/dir.o $(OBJDIR)/physfs/archivers/mokoiresource.o $(OBJDIR)/physfs/archivers/zip.o $(OBJDIR)/physfs/platform/macosx.o $(OBJDIR)/physfs/platform/posix.o $(OBJDIR)/physfs/platform/unix.o $(OBJDIR)/physfs/platform/windows.o
 
 OBJ += $(RES)

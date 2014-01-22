@@ -11,7 +11,8 @@ Permission is granted to anyone to use this software for any purpose, including 
 
 /* Standard Headers */
 #include "../data/loader_global.h"
-#include <gio/gio.h>
+#include <glib/gstdio.h>
+#include <zlib.h>
 
 /* Required Headers */
 
@@ -34,46 +35,65 @@ Permission is granted to anyone to use this software for any purpose, including 
 
 
 
-gboolean Distro_WindowsCreate( const gchar * file_name, const gchar * game_path )
+gboolean Distro_WindowsCreate( const gchar * project_title, const gchar * game_path )
 {
-	gchar * blank_buffer = g_new(512);
+	gchar * blank_buffer = g_new(gchar, 512);
 	gchar * game_buffer = NULL;
 	gsize game_buffer_length = 0;
-	GFile * source_file, * dest_file;
-	GZlibDecompressor * file_decompressor;
-	GFileOutputStream * binary_output;
-	GOutputStream * decompress_output;
+	gsize bytes_read = 0;
 
 
-	gchar * shared_directory;
+
+	gzFile binary_original;
+	FILE * binary_temporary;
+
+	gchar * shared_directory = Meg_Directory_Share("binaries");
 	gchar * binary_original_path;
-	gchar * output_file_path;
-
+	gchar * binary_temporary_path;
 
 	if ( g_file_get_contents( game_path, &game_buffer, &game_buffer_length, NULL ) )
 	{
+		binary_original_path = g_build_filename(shared_directory, "windows-exe.gz", NULL);
+		binary_temporary_path = g_build_filename( g_get_tmp_dir(), project_title, NULL);
 
-		output_file_path = Meg_String_ReplaceFileExtension( file_name, "."GAME_EXTENSION, ".exe" );
-		shared_directory = Meg_Directory_Share("binaries");
-		binary_original_path = g_build_filename(shared_directory, "windows.exe.gz");
+		binary_original = gzopen( binary_original_path, "rb" );
+		binary_temporary = g_fopen( binary_temporary_path, "wb" );
+
+		g_print( "binary_original: %p\n", binary_original );
+		g_print( "binary_temporary: %p\n", binary_temporary );
+		g_print("binary_original_path: %s\n", binary_original_path );
+		g_print("binary_temporary_path: %s\n", binary_temporary_path );
+
+		if ( binary_original && binary_temporary )
+		{
+			while ( TRUE ) // Read gzip
+			{
+				bytes_read = gzread( binary_original, blank_buffer, 512);
+				if ( bytes_read > 0 )
+				{
+					fwrite( blank_buffer, bytes_read, 1, binary_temporary );
+				}
+				else
+				{
+					break;
+				}
+
+			}
+			fwrite( game_buffer, game_buffer_length, 1, binary_temporary );
+		}
 
 
-		source_file = g_file_new_for_path( binary_original_path );
-		dest_file = g_file_new_for_path( output_file_path );
 
-		/* Extract */
-		file_decompressor = g_zlib_decompressor_new( G_ZLIB_COMPRESSOR_FORMAT_GZIP );
 
-		binary_output = g_file_replace( dest_file, NULL, FALSE, 0, NULL, NULL); // Replace Dest file
+		gzclose(binary_original);
+		fclose(binary_temporary);
 
-		decompress_output = g_converter_output_stream_new( file_output, G_CONVERTER(file_decompressor) );
-		g_output_stream_splice( decompress_output, source_file, 0, NULL, NULL); // Write decompressed output.
-		g_output_stream_close( decompress_output, NULL, NULL );
 
-		/* Append Game File to binary. */
-		g_output_stream_write( binary_output, blank_buffer, 512, NULL, NULL);
-		g_output_stream_write( binary_output, game_buffer, game_buffer_length, NULL, NULL);
+		g_free(binary_temporary_path);
+		g_free(binary_original_path);
 
+		return TRUE;
 	}
 
+	return FALSE;
 }

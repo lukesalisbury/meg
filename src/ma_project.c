@@ -28,7 +28,8 @@ void AL_Settings_RefreshAdvance(  );
 
 /* UI */
 #include "ui/project_settings.gui.h"
-const gchar * alchera_project_ui = GUIPROJECT_SETTINGS
+const gchar * alchera_project_ui = GUIPROJECT_SETTINGS;
+
 
 /********************************
 * MegWidget_Project_Create

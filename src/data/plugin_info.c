@@ -134,7 +134,6 @@ gchar * AL_ProjectPath( )
 {
 	if ( mokoiBasePath )
 	{
-		g_print("Project Directory: '%s'\n", mokoiBasePath);
 		return mokoiBasePath;
 	}
 
@@ -403,7 +402,6 @@ gchar * AL_LoadProject(const gchar *path )
 	if ( config_file_path == NULL )
 		return NULL;
 
-	g_print("Project Directory: '%s'\n", mokoiBasePath);
 	mokoiBasePath = g_path_get_dirname( config_file_path );
 	mokoiConfigTable = AL_LoadConfig( config_file_path );
 

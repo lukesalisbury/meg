@@ -217,7 +217,7 @@ void ObjectAdvance_EntityWidget_Save( GtkWidget * parent, DisplayObject * object
 		object_data->entity_global = FALSE;
 
 	}
-	else if ( g_ascii_strcasecmp("(None)", entity) ) // Entity Selected
+	else if ( g_ascii_strcasecmp(MEG_COMBOFILE_NONE, entity) ) // Entity Selected
 	{
 		if ( gtk_entry_get_text_length( GTK_ENTRY(edit_id) ) )
 		{

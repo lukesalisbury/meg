@@ -14,5 +14,5 @@ Permission is granted to anyone to use this software for any purpose, including 
 #include "progress_dialog.h"
 
 gpointer GameCompiler_Thread( ProgressDialogWidgets * wids );
-gboolean GameCompiler_Run(const gchar * file_name, gboolean strip_entities, gboolean strip_colours , gboolean all_files);
+gboolean GameCompiler_Run(const gchar * file_name, gboolean strip_entities, gboolean strip_colours , gboolean all_files, GtkListStore * distro_store);
 

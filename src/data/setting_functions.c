@@ -122,7 +122,8 @@ void Setting_Package( GtkComboBox * combo, gchar * prefix )
 	else
 	{
 		Meg_ComboText_Clear( combo );
-		Meg_ComboText_AppendText( combo, g_strdup("(None)") );
+		Meg_ComboText_AppendText( combo, g_strdup(MEG_COMBOFILE_NONE) );
+		gtk_combo_box_set_active( combo, 0 );
 
 		current_file = g_dir_read_name(current_directory);
 		while ( current_file != NULL )
@@ -135,6 +136,8 @@ void Setting_Package( GtkComboBox * combo, gchar * prefix )
 		}
 	}
 	g_free( packages_dir );
+
+
 
 }
 
@@ -225,7 +228,7 @@ void Setting_WidgetRead(gchar * name, GObject * wid )
 		}
 		else if ( !g_strcmp0(name, "package.main") )
 		{
-			if ( !g_strcmp0("None", string) )
+			if ( !string )
 			{
 				g_key_file_remove_key( mokoiConfigTable, "Mokoi", name, NULL );
 			}

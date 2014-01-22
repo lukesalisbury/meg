@@ -16,6 +16,8 @@ Permission is granted to anyone to use this software for any purpose, including 
 #include <gdk-pixbuf/gdk-pixbuf.h>
 #include "physfs/physfs.h"
 
+#define MEG_COMBOFILE_NONE "(None)"
+
 
 gulong Meg_FileCRC( const gchar * filename );
 gboolean Meg_RunProgram( gchar * program, ...);

@@ -313,7 +313,7 @@ gchar * EntityCompiler_PawnScript( gchar * inputfile, gchar * file_name, gchar *
 		g_clear_error(&err);
 	}
 
-	g_print("%s\n", g_strjoinv(" ", args) );
+	//g_print("%s\n", g_strjoinv(" ", args) );
 	if ( exit_status && !output )
 	{
 		output = g_strdup_printf("<results><fatalerror message=\"Possible Compiler Crash.\" file=\"%s\" /></results>", args[0] );

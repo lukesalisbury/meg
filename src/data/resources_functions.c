@@ -462,33 +462,14 @@ DisplayObject * VirtualObject_New(gchar * name, gdouble area_width, gdouble area
 
 	object_data->type = MapObject_SetInitialType( object, name, area_width, area_height );
 
-	MAP_OBJECT_DATA(object)->type = 's';
-	VirtualObject_UpdateSprite( object );
 
-/*
-	if ( object_data->type == 't' )
+
+	if ( object_data->type == 's' )
 	{
-		RuntimeSetting_InsertNew( object_data->settings, "number", "-1", "" );
-	}
-	else if ( object_data->type == 's' )
-	{
-		SheetObject * sprite = MapObject_UpdateSprite( object );
-
-		if ( sprite && SPRITE_DATA(sprite)->entity )
-		{
-			RuntimeSetting_SetDefaultValues( object );
-
-			gchar ** file = g_strsplit( SPRITE_DATA(sprite)->entity, ".", 2);
-			if ( g_strv_length(file) == 2 )
-			{
-				REPLACE_STRING( object_data->entity_file, g_strdup(file[0]) );
-				REPLACE_STRING( object_data->entity_language, g_strdup(file[1]) );
-			}
-			g_strfreev( file );
-		}
+		VirtualObject_UpdateSprite( object );
 
 	}
-*/
+
 	return object;
 
 }

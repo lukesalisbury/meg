@@ -2,6 +2,26 @@
 <interface>
   <requires lib="gtk+" version="2.20"/>
   <!-- interface-naming-policy toplevel-contextual -->
+  <object class="GtkListStore" id="store_distrib">
+    <columns>
+      <!-- column-name selected -->
+      <column type="gboolean"/>
+      <!-- column-name name -->
+      <column type="gchararray"/>
+      <!-- column-name notes -->
+      <column type="gchararray"/>
+      <!-- column-name ident -->
+      <column type="guint"/>
+    </columns>
+    <data>
+      <row>
+        <col id="0">False</col>
+        <col id="1" translatable="yes">Windows</col>
+        <col id="2" translatable="yes">blah blah</col>
+        <col id="3">1</col>
+      </row>
+    </data>
+  </object>
   <object class="GtkDialog" id="dialog">
     <property name="can_focus">False</property>
     <property name="border_width">5</property>
@@ -23,7 +43,6 @@
                 <property name="visible">True</property>
                 <property name="can_focus">True</property>
                 <property name="receives_default">True</property>
-                <property name="use_action_appearance">False</property>
                 <property name="use_stock">True</property>
               </object>
               <packing>
@@ -38,7 +57,6 @@
                 <property name="visible">True</property>
                 <property name="can_focus">True</property>
                 <property name="receives_default">True</property>
-                <property name="use_action_appearance">False</property>
                 <property name="use_stock">True</property>
               </object>
               <packing>
@@ -83,7 +101,6 @@
                     <property name="visible">True</property>
                     <property name="can_focus">True</property>
                     <property name="receives_default">True</property>
-                    <property name="use_action_appearance">False</property>
                     <property name="use_stock">True</property>
                   </object>
                   <packing>
@@ -127,9 +144,9 @@
                       <object class="GtkCheckButton" id="check_rgba5551">
                         <property name="label" translatable="yes">Use R5G5B5A1 graphics</property>
                         <property name="visible">True</property>
+                        <property name="sensitive">False</property>
                         <property name="can_focus">True</property>
                         <property name="receives_default">False</property>
-                        <property name="use_action_appearance">False</property>
                         <property name="draw_indicator">True</property>
                       </object>
                       <packing>
@@ -142,9 +159,9 @@
                       <object class="GtkCheckButton" id="check_strip64">
                         <property name="label" translatable="yes">Strip 64bit entities</property>
                         <property name="visible">True</property>
+                        <property name="sensitive">False</property>
                         <property name="can_focus">True</property>
                         <property name="receives_default">False</property>
-                        <property name="use_action_appearance">False</property>
                         <property name="draw_indicator">True</property>
                       </object>
                       <packing>
@@ -159,7 +176,6 @@
                         <property name="visible">True</property>
                         <property name="can_focus">True</property>
                         <property name="receives_default">False</property>
-                        <property name="use_action_appearance">False</property>
                         <property name="active">True</property>
                         <property name="draw_indicator">True</property>
                       </object>
@@ -208,7 +224,6 @@
                         <property name="visible">True</property>
                         <property name="can_focus">True</property>
                         <property name="receives_default">False</property>
-                        <property name="use_action_appearance">False</property>
                         <property name="draw_indicator">True</property>
                       </object>
                       <packing>
@@ -242,6 +257,17 @@
                               </object>
                               <attributes>
                                 <attribute name="text">1</attribute>
+                              </attributes>
+                            </child>
+                          </object>
+                        </child>
+                        <child>
+                          <object class="GtkTreeViewColumn" id="treeviewcolumn2">
+                            <property name="title" translatable="yes">column</property>
+                            <child>
+                              <object class="GtkCellRendererText" id="cellrenderertext2"/>
+                              <attributes>
+                                <attribute name="text">2</attribute>
                               </attributes>
                             </child>
                           </object>
@@ -296,22 +322,5 @@ http://mokoi.info/docs/SupportedPlatform#distribution</property>
       <action-widget response="1">button1</action-widget>
       <action-widget response="2">button2</action-widget>
     </action-widgets>
-  </object>
-  <object class="GtkListStore" id="store_distrib">
-    <columns>
-      <!-- column-name selected -->
-      <column type="gboolean"/>
-      <!-- column-name name -->
-      <column type="gchararray"/>
-      <!-- column-name notes -->
-      <column type="gchararray"/>
-    </columns>
-    <data>
-      <row>
-        <col id="0">False</col>
-        <col id="1" translatable="yes">Windows</col>
-        <col id="2" translatable="yes">blah blah</col>
-      </row>
-    </data>
   </object>
 </interface>
