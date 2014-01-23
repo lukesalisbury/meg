@@ -13,6 +13,7 @@ Permission is granted to anyone to use this software for any purpose, including 
 #include "../data/loader_global.h"
 #include <glib/gstdio.h>
 #include <zlib.h>
+#include "miniz.c"
 
 /* Required Headers */
 
@@ -39,7 +40,9 @@ gboolean Distro_WindowsCreate( const gchar * project_title, const gchar * game_p
 {
 	gchar * blank_buffer = g_new(gchar, 512);
 	gchar * game_buffer = NULL;
+	gchar * binary_buffer = NULL;
 	gsize game_buffer_length = 0;
+	gsize binary_buffer_length = 0;
 	gsize bytes_read = 0;
 
 
@@ -50,19 +53,32 @@ gboolean Distro_WindowsCreate( const gchar * project_title, const gchar * game_p
 	gchar * shared_directory = Meg_Directory_Share("binaries");
 	gchar * binary_original_path;
 	gchar * binary_temporary_path;
+	gchar * target_name;
+	gchar * zip_original_path;
+	gchar * zip_target_path;
+
 
 	if ( g_file_get_contents( game_path, &game_buffer, &game_buffer_length, NULL ) )
 	{
-		binary_original_path = g_build_filename(shared_directory, "windows-exe.gz", NULL);
-		binary_temporary_path = g_build_filename( g_get_tmp_dir(), project_title, NULL);
+		target_name = g_strdup_printf("%s.exe", project_title );
+
+		binary_original_path = g_build_filename( shared_directory, "windows-exe.gz", NULL);
+		binary_temporary_path = g_build_filename( g_get_tmp_dir(), target_name, NULL);
+
+		zip_original_path = g_build_filename( shared_directory, "windows-dll.zip", NULL);
+		zip_target_path = g_strdup_printf( "%s"G_DIR_SEPARATOR_S"%s-windows.zip", Meg_Directory_Document(), project_title );
+
 
 		binary_original = gzopen( binary_original_path, "rb" );
 		binary_temporary = g_fopen( binary_temporary_path, "wb" );
 
 		g_print( "binary_original: %p\n", binary_original );
 		g_print( "binary_temporary: %p\n", binary_temporary );
-		g_print("binary_original_path: %s\n", binary_original_path );
-		g_print("binary_temporary_path: %s\n", binary_temporary_path );
+		g_print( "binary_original_path: %s\n", binary_original_path );
+		g_print( "binary_temporary_path: %s\n", binary_temporary_path );
+		g_print( "zip_original_path: %s\n", zip_original_path );
+		g_print( "zip_target_path: %s\n", zip_target_path );
+
 
 		if ( binary_original && binary_temporary )
 		{
@@ -80,6 +96,17 @@ gboolean Distro_WindowsCreate( const gchar * project_title, const gchar * game_p
 
 			}
 			fwrite( game_buffer, game_buffer_length, 1, binary_temporary );
+
+			if ( g_file_get_contents( binary_temporary_path, &binary_buffer, &binary_buffer_length, NULL ) )
+			{
+				Meg_FileCopy( zip_original_path, zip_target_path );
+				mz_zip_add_mem_to_archive_file_in_place( zip_target_path, target_name, binary_buffer, binary_buffer_length, NULL, 0, 0 );
+			}
+			g_free(binary_buffer);
+		}
+		else
+		{
+			g_warning("Distro_WindowsCreate Failed");
 		}
 
 
@@ -88,6 +115,10 @@ gboolean Distro_WindowsCreate( const gchar * project_title, const gchar * game_p
 		gzclose(binary_original);
 		fclose(binary_temporary);
 
+		g_free(game_buffer);
+
+		g_free(zip_original_path);
+		g_free(zip_target_path);
 
 		g_free(binary_temporary_path);
 		g_free(binary_original_path);
