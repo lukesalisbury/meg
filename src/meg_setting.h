@@ -79,28 +79,28 @@
 
 #ifndef GTK_STOCK_INDEX
 	#define PAGE_ICON_LANGUAGE NULL
-	#define PAGE_ICON_PLAY NULL
+	#define PAGE_ICON_PLAY "media-playback-start"
 	#define PAGE_ICON_LOG NULL
 	#define PAGE_ICON_AUDIO NULL
 	#define PAGE_ICON_SCRIPTS NULL
 	#define PAGE_ICON_HELP NULL
 	#define PAGE_ICON_MAP NULL
 	#define PAGE_ICON_PROJECT NULL
-	#define PAGE_ICON_QUESTION NULL
+	#define PAGE_ICON_QUESTION "system-search"
 	#define PAGE_ICON_SECTION NULL
-	#define PAGE_ICON_SPRITE NULL
+	#define PAGE_ICON_SPRITE "edit-cut"
 #else
 	#define PAGE_ICON_LANGUAGE GTK_STOCK_INDEX
-	#define PAGE_ICON_PLAY GTK_STOCK_MEDIA_PLAY
+	#define PAGE_ICON_PLAY "media-playback-start"
 	#define PAGE_ICON_LOG GTK_STOCK_FILE
-	#define PAGE_ICON_AUDIO GTK_STOCK_MEDIA_FORWARD
+	#define PAGE_ICON_AUDIO "stock-volume"
 	#define PAGE_ICON_SCRIPTS GTK_STOCK_EXECUTE
 	#define PAGE_ICON_HELP GTK_STOCK_HELP
 	#define PAGE_ICON_MAP "gtk-zoom-fit"
-	#define PAGE_ICON_PROJECT GTK_STOCK_INFO
-	#define PAGE_ICON_QUESTION GTK_STOCK_FIND
+	#define PAGE_ICON_PROJECT "dialog-infomation"
+	#define PAGE_ICON_QUESTION "system-search"
 	#define PAGE_ICON_SECTION "gtk-justify-fill"
-	#define PAGE_ICON_SPRITE GTK_STOCK_CUT
+	#define PAGE_ICON_SPRITE "edit-cut"
 #endif
 
 

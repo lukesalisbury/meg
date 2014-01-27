@@ -121,8 +121,10 @@ $(BIN): $(OBJ)
 	@echo Building $(BIN) $(MESSAGE)
 	@-$(MKDIR) $(BUILDDIR)
 	@$(CC) $(OBJ) -o $(BUILDDIR)/$(BIN) $(COMPILER_LIBS)
+ifneq ($(SKIPMODULES), TRUE)
 	@$(MAKE) -C meg_audio all BUILDDIR=$(CURDIR)/$(BUILDDIR)
 	@$(MAKE) -C meg_pawn all BUILDDIR=$(CURDIR)/$(BUILDDIR)
+endif
 
 install: $(BIN)
 	@echo Installing $< to $(INSTALLDIR)
