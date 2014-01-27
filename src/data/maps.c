@@ -194,6 +194,9 @@ gboolean AL_Map_Save( MapInfo * map_info, GtkWindow * window )
 	}
 
 	gdk2rgbacolor( &map_info->colour, &MAP_DATA(map_info)->colour8 );
+
+
+
 	return Map_Save( map_info );
 }
 

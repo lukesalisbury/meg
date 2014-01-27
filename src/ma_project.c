@@ -67,7 +67,7 @@ void MegWidget_Project_Create()
 
 	/* tab settings */
 	g_object_set_data( G_OBJECT(widget), "meg-help-page", g_strdup(PROGRAMSHELPDIRECTORY"/Project.xml") );
-	Meg_Main_AddSection( widget, "Game", GTK_STOCK_INFO );
+	Meg_Main_AddSection( widget, "Settings", PAGE_ICON_PROJECT );
 }
 
 /********************************

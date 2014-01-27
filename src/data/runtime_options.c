@@ -463,7 +463,6 @@ void RuntimeSetting_EditPopup(GtkMenuItem *menuitem, gpointer user_data )
 */
 void RuntimeSetting_MenuItem( const gchar * name, RuntimeSettingsStruct * option, GtkWidget * list )
 {
-
 	g_return_if_fail( option );
 
 	GtkWidget * item = gtk_menu_item_new_with_label( name );

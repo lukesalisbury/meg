@@ -85,7 +85,7 @@ void MegWidget_EntityList_Create()
 	//g_signal_connect( mokoiEntityTreeview, "show", G_CALLBACK(MegWidget_EntityList_Refresh), NULL );
 
 
-	Meg_Main_AddPage( widget, "Game Scripts", GTK_STOCK_EXECUTE );
+	Meg_Main_AddSection( widget, "Scripts", PAGE_ICON_SCRIPTS );
 
 }
 

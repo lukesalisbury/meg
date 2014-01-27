@@ -72,7 +72,11 @@ void gtk_alchera_map_clear_selection_region( GtkWidget * widget, AlcheraMap * ma
 	map->selection_region.id = 0;
 	map->selection_region.offset_x = 0;
 	map->selection_region.offset_y = 0;
+#if GTK_MAJOR_VERSION == 2
 	gdk_pointer_ungrab( map->grab_time );
+#else
+	gdk_device_ungrab( gtk_get_current_event_device(), map->grab_time );
+#endif
 	gdk_window_set_cursor( gtk_widget_get_window(widget), NULL );
 	gtk_grab_remove(widget);
 }
@@ -518,7 +522,7 @@ GtkWidget * gtk_alchera_map_object_submenu( AlcheraMap * map, DisplayObject * se
 				/* Remove old sub menu */
 				gtk_menu_item_set_submenu( GTK_MENU_ITEM(menu_item), NULL );
 
-				GtkWidget * sub_menu = gtk_menu_new();
+
 
 
 
@@ -526,14 +530,16 @@ GtkWidget * gtk_alchera_map_object_submenu( AlcheraMap * map, DisplayObject * se
 				if ( selected->type == DT_POLYGON )
 				{
 					GtkWidget * sub_menu = gtk_menu_new();
+
 					GtkWidget * sub_menu_item = gtk_menu_item_new_with_label( "Convert to Sprite" );
 					//g_signal_connect( G_OBJECT(sub_menu_item), "activate", G_CALLBACK(Alchera_DisplayObject_PolygonToSprite), map );
 					gtk_menu_shell_append( GTK_MENU_SHELL(sub_menu), sub_menu_item );
 					gtk_widget_show(sub_menu_item);
-
+					gtk_menu_item_set_submenu( GTK_MENU_ITEM(menu_item), sub_menu );
 				}
 				else if ( selected->type == DT_IMAGE )
 				{
+					GtkWidget * sub_menu = gtk_menu_new();
 
 					GtkWidget * sub_menu_mirror = gtk_menu_item_new_with_label( "Flip Image" );
 					GtkWidget * sub_menu_rotate = gtk_menu_item_new_with_label( "Rotate" );
@@ -548,11 +554,8 @@ GtkWidget * gtk_alchera_map_object_submenu( AlcheraMap * map, DisplayObject * se
 					gtk_widget_show(sub_menu_mirror);
 					gtk_widget_show(sub_menu_rotate);
 
-
+					gtk_menu_item_set_submenu( GTK_MENU_ITEM(menu_item), sub_menu );
 				}
-				gtk_menu_item_set_submenu( GTK_MENU_ITEM(menu_item), sub_menu );
-
-
 
 
 				/* Create Sub menu for setting */
@@ -613,7 +616,7 @@ void gtk_alchera_map_edit_path( AlcheraMap * map )
 		map->map_mode = WIDGETMAP_PATH;
 		map->parent = map->selected;
 		map->selected = NULL;
-		gtk_alchera_map_status_text( map->status_widget, "gtk_alchera_map_edit_path");
+		gtk_alchera_map_status_text( map->status_widget, "Editting Path.");
 	}
 
 }
@@ -666,6 +669,11 @@ void gtk_alchera_map_select_object( GtkWidget * widget, AlcheraMap * map, GdkEve
 		map->map_mode = WIDGETMAP_NORMAL;
 		gtk_alchera_map_status_text( map->status_widget, "Resize Object by holding Shift and the arrow keys. 'F' to Flip Object. 'Space' to rotate. Right Click for more options ");
 
+	}
+
+	if ( object == parent_object && map->info )
+	{
+		map->info->selected = object;
 	}
 }
 
@@ -1074,7 +1082,13 @@ static gboolean gtk_alchera_map_button_release( GtkWidget *widget, GdkEventButto
 			map->selection_region.id = 0;
 			map->selection_region.offset_x = 0;
 			map->selection_region.offset_y = 0;
-			gdk_pointer_ungrab( map->grab_time ); /* FIX: GTK3 */
+
+#if GTK_MAJOR_VERSION == 2
+			gdk_pointer_ungrab( map->grab_time );
+#else
+			gdk_device_ungrab( gtk_get_current_event_device(), map->grab_time );
+#endif
+
 			gdk_window_set_cursor( gtk_widget_get_window(widget), NULL );
 			gtk_grab_remove(widget);
 		}
@@ -1099,7 +1113,11 @@ static gboolean gtk_alchera_map_button_release( GtkWidget *widget, GdkEventButto
 				map->selection_region.id = 0;
 				map->selection_region.offset_x = 0;
 				map->selection_region.offset_y = 0;
-				gdk_pointer_ungrab( map->grab_time ); /* FIX: GTK3 */
+#if GTK_MAJOR_VERSION == 2
+				gdk_pointer_ungrab( map->grab_time );
+#else
+				gdk_device_ungrab( gtk_get_current_event_device(), map->grab_time );
+#endif
 				gdk_window_set_cursor( gtk_widget_get_window(widget), NULL );
 				gtk_grab_remove(widget);
 			}
@@ -1174,6 +1192,7 @@ static gboolean gtk_alchera_map_button_release( GtkWidget *widget, GdkEventButto
 
 						/* reset selection */
 						map->selected = NULL;
+						map->info->selected = NULL;
 						map->object_held = 0;
 
 
@@ -1284,7 +1303,11 @@ static gboolean gtk_alchera_map_button_press( GtkWidget * widget, GdkEventKey *e
 		/*
 		if ( gdk_pointer_is_grabbed () )
 		{*/
-			gdk_pointer_ungrab( map->grab_time ); /* FIX: GTK3 */
+#if GTK_MAJOR_VERSION == 2
+			gdk_pointer_ungrab( map->grab_time );
+#else
+			gdk_device_ungrab( gtk_get_current_event_device(), map->grab_time );
+#endif
 			gdk_window_set_cursor( gtk_widget_get_window(widget), NULL );
 			gtk_grab_remove(widget);
 		/*}*/
@@ -1551,7 +1574,7 @@ GtkWidget * gtk_alchera_map_new( MapInfo * data )
 	wid->undo = NULL;
 	wid->path = NULL;
 	wid->status_widget = NULL;
-	gtk_alchera_map_set_dimension( wid, wid->info->width, wid->info->height);
+
 	return GTK_WIDGET(wid);
 }
 
@@ -1629,13 +1652,15 @@ void gtk_alchera_map_undo( AlcheraMap * wid )
 */
 void gtk_alchera_map_set_scale( AlcheraMap * wid, gdouble scale )
 {
+	g_return_if_fail(wid->info != NULL);
+
 	wid->scale = scale;
-	wid->scale_width = ((gdouble)wid->map_width * scale);
-	wid->scale_height = ((gdouble)wid->map_height * scale);
+	wid->scale_width = ((gdouble)wid->info->width * scale);
+	wid->scale_height = ((gdouble)wid->info->height * scale);
 
 	GtkWidget * widget  = GTK_WIDGET(wid);
 
-	gtk_widget_set_size_request( widget, wid->scale_width, wid->scale_height);
+	gtk_widget_set_size_request( widget, (gint)wid->scale_width, (gint)wid->scale_height);
 
 	if ( !gtk_widget_get_window(widget) )
 		return;
@@ -1669,17 +1694,6 @@ void gtk_alchera_map_set_scale( AlcheraMap * wid, gdouble scale )
 void gtk_alchera_map_set_selected_object( AlcheraMap * wid, DisplayObject * obj )
 {
 	wid->selected = obj;
-}
-
-/********************************
-* gtk_alchera_map_get_list
-*
-*/
-void gtk_alchera_map_set_dimension( AlcheraMap * wid, guint width, guint height )
-{
-	wid->map_width = width;
-	wid->map_height = height;
-	gtk_widget_set_size_request( GTK_WIDGET(wid), width, height);
 }
 
 /********************************

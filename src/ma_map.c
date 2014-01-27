@@ -17,7 +17,6 @@ Permission is granted to anyone to use this software for any purpose, including 
 #include "ma_map_edit.h"
 #include "ma_map_section.h"
 
-
 /* GtkWidget */
 GtkWidget * widget_map_notebook = NULL;
 GtkWidget * widget_object_menu = NULL;
@@ -60,7 +59,7 @@ void MegWidget_Map_Create()
 
 	/* Tab Setting */
 	g_object_set_data( G_OBJECT(widget), "meg-help-page", g_strdup(PROGRAMSHELPDIRECTORY"/MapPage.xml") ); //Set the help page
-	Meg_Main_AddSection(widget, "Maps", "gtk-zoom-fit");
+	Meg_Main_AddSection(widget, "Maps", PAGE_ICON_MAP);
 
 	/* Signals */
 	g_signal_connect( G_OBJECT(treeview_map), "row-activated", G_CALLBACK(Meg_MapEdit_OpenFile), NULL);

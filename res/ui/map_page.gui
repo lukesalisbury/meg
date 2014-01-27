@@ -78,6 +78,7 @@
       <object class="GtkNotebook" id="map_notebook">
         <property name="visible">True</property>
         <property name="can_focus">True</property>
+        <property name="group_id">1</property>
         <child>
           <object class="GtkHBox" id="hbox2">
             <property name="visible">True</property>

@@ -116,7 +116,7 @@ void MegWidget_Spritesheet_Create()
 
 	/* tab settings */
 	g_object_set_data( G_OBJECT(widget), "meg-help-page", g_strdup(PROGRAMSHELPDIRECTORY"/Spritesheet.xml") );
-	Meg_Main_AddSection( widget, "Sprite Sheets", GTK_STOCK_CUT );
+	Meg_Main_AddSection( widget, "Sprite Sheets", PAGE_ICON_SPRITE );
 
 	g_object_unref(ui);
 

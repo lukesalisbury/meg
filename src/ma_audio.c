@@ -63,7 +63,7 @@ void MegWidget_Audio_Create()
 
 	Audio_Payback_Register();
 
-	Meg_Main_AddPage( widget, "Audio", GTK_STOCK_MEDIA_FORWARD );
+	Meg_Main_AddSection( widget, "Audio", PAGE_ICON_AUDIO );
 
 }
 /********************************

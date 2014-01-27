@@ -184,9 +184,10 @@ GtkWidget * Meg_MapEdit_Open( gchar * file )
 	if ( GTK_IS_ALCHERA_MAP(widget_map) )
 	{
 		gtk_alchera_map_set_support_widget( GTK_ALCHERA_MAP(widget_map), store_current_objects, GTK_STATUSBAR(alchera_main_statusbar), object_menu );
-		gtk_widget_set_size_request( GTK_WIDGET(viewport_display), MIN(GTK_ALCHERA_MAP(widget_map)->map_width, 640), MIN(GTK_ALCHERA_MAP(widget_map)->map_height, 480) );
+		gtk_widget_set_size_request( GTK_WIDGET(viewport_display), MIN(GTK_ALCHERA_MAP(widget_map)->info->width, 640), MIN(GTK_ALCHERA_MAP(widget_map)->info->height, 480) );
 	}
 	gtk_container_add( GTK_CONTAINER(viewport_display), widget_map );
+
 
 	/* Settings Widgets */
 	gtk_adjustment_configure( adjust_map_width,  map_size_width, map_size_width,  map_size_width * 64, map_size_width, 0.0, 0.0);
@@ -220,20 +221,15 @@ GtkWidget * Meg_MapEdit_Open( gchar * file )
 	SET_OBJECT_SIGNAL( ui, "button_visible", "clicked", G_CALLBACK(Meg_MapEdit_ToggleLayer), combo_layers );
 
 	g_signal_connect( G_OBJECT(widget_editor), "key-press-event", G_CALLBACK(Meg_MapEdit_KeyPress), combo_layers);
-
 	g_signal_connect( G_OBJECT(combo_groups), "changed", G_CALLBACK(Meg_MapEdit_GroupChanged), iconview_objects );
 
 	SET_OBJECT_SIGNAL( ui, "button_nextgroup", "clicked", G_CALLBACK(Meg_MapEdit_GroupChangedNext), combo_groups );
 	SET_OBJECT_SIGNAL( ui, "button_prevgroup", "clicked", G_CALLBACK(Meg_MapEdit_GroupChangedPrev), combo_groups );
-
 	SET_OBJECT_SIGNAL( ui, "button_showkey", "clicked", G_CALLBACK(Meg_MapEdit_ButtonKeys), box_virtualkeys );
 
-
 	g_signal_connect( G_OBJECT(combo_layers), "changed", G_CALLBACK(Meg_MapEdit_LayerChanged), widget_map );
-
 	g_signal_connect( G_OBJECT(iconview_objects), "item-activated", G_CALLBACK(Meg_MapEdit_ObjectSelected), widget_map );
 	g_signal_connect( G_OBJECT(iconview_objects), "drag-data-get", G_CALLBACK(Meg_MapEdit_ObjectDrop), widget_map );
-
 	g_signal_connect( G_OBJECT(button_objectmenu), "show-menu", G_CALLBACK(Meg_MapEdit_EditorMenu), widget_map );
 
 	SET_OBJECT_SIGNAL( ui, "button_save", "clicked", G_CALLBACK(Meg_MapEdit_ButtonSave), widget_map );
@@ -243,13 +239,11 @@ GtkWidget * Meg_MapEdit_Open( gchar * file )
 	SET_OBJECT_SIGNAL( ui, "button_zoomout", "clicked", G_CALLBACK(Meg_MapEdit_ButtonZoomOut), widget_map );
 	SET_OBJECT_SIGNAL( ui, "button_align", "toggled", G_CALLBACK(Meg_MapEdit_ButtonAlign), widget_map );
 
-
 	SET_OBJECT_SIGNAL( ui, "treeview_objects", "row-activated", G_CALLBACK(Meg_MapEdit_DisplayObjectAdvance), widget_map );
 
 	SET_OBJECT_SIGNAL( ui, "action_layer_tofront" , "activate", G_CALLBACK(Meg_MapObject_LayerUp), widget_map );
 	SET_OBJECT_SIGNAL( ui, "action_layer_toback" , "activate", G_CALLBACK(Meg_MapObject_LayerDown), widget_map );
 	SET_OBJECT_SIGNAL( ui, "action_object_remove" , "activate", G_CALLBACK(Meg_MapObject_Remove), widget_map );
-
 
 	SET_OBJECT_SIGNAL( ui, "action_object_path" , "activate", G_CALLBACK(Meg_MapObject_Path), widget_map );
 	SET_OBJECT_SIGNAL( ui, "action_object_attach" , "activate", G_CALLBACK(Meg_MapObject_Attach), widget_map );
@@ -284,7 +278,7 @@ GtkWidget * Meg_MapEdit_Open( gchar * file )
 
 	/* Tab Widget */
 	notebook_label = gtk_label_new(NULL);
-	notebook_box = gtk_hbox_new( FALSE, 2 );/* FIX: GTK3 */
+	notebook_box = gtk_box_new( GTK_ORIENTATION_HORIZONTAL, 2 );
 	notebook_close = gtk_event_box_new();
 	notebook_image = gtk_image_new_from_stock( GTK_STOCK_CLOSE, GTK_ICON_SIZE_MENU );
 

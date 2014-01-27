@@ -54,7 +54,7 @@ void Meg_MapSettings_Refresh( GtkWidget * map_widget )
 		Meg_MapSettings_Width_Get( GTK_SPIN_BUTTON(settings_widgets->spin_w), map_widget );
 		Meg_MapSettings_Height_Get( GTK_SPIN_BUTTON(settings_widgets->spin_h), map_widget );
 
-		Meg_MapSettings_Colour_Set( GTK_COLOR_BUTTON(settings_widgets->button_colour), map_widget );
+		Meg_MapSettings_Colour_Get( GTK_COLOR_BUTTON(settings_widgets->button_colour), map_widget );
 	}
 }
 

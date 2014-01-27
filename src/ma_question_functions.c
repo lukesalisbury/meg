@@ -14,8 +14,10 @@ Permission is granted to anyone to use this software for any purpose, including 
 #include "ma_web.h"
 
 /* Required Headers */
+#ifdef USE_SOUP
 #include <libsoup/soup.h>
 #include <libsoup/soup-method.h>
+#endif
 
 /* External Functions */
 
@@ -36,6 +38,7 @@ extern GtkWidget * mokoi_questions_text;
 
 
 /* Functions */
+#ifdef USE_SOUP
 void Meg_Questions_AppendAnswerText( GHashTable * table, GtkTextBuffer * buffer )
 {
 	gchar * title = NULL;
@@ -133,11 +136,7 @@ void Meg_Questions_GetAll()
 
 
 	}
-	//g_hash_table_foreach (hash, print_struct_field, NULL);
 	g_hash_table_destroy (hash);
-
-
-
 }
 
 
@@ -203,7 +202,10 @@ void Meg_Questions_Get( gint ident )
 
 }
 
-
+/********************************
+* Meg_Questions_DisplayItem
+*
+*/
 void Meg_Questions_DisplayItem( GtkTreeView * tree_view, GtkTreeViewColumn *column, GtkTreePath *path, gpointer data )
 {
 	gint id = -1;
@@ -221,7 +223,7 @@ void Meg_Questions_DisplayItem( GtkTreeView * tree_view, GtkTreeViewColumn *colu
 		}
 	}
 }
-
+#endif
 
 
 

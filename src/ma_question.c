@@ -14,9 +14,11 @@ Permission is granted to anyone to use this software for any purpose, including 
 
 /* Required Headers */
 #include "ma_question.h"
+
+#ifdef USE_SOUP
 #include <libsoup/soup.h>
 #include <libsoup/soup-method.h>
-
+#endif
 
 
 
@@ -45,6 +47,7 @@ const gchar * mokoiUI_Questions = GUIQUESTION_PAGE
 */
 void MegWidget_Questions_Create()
 {
+	#ifdef USE_SOUP
 	GtkWidget * widget;
 
 	/* UI */
@@ -63,9 +66,10 @@ void MegWidget_Questions_Create()
 
 	help_parser_apply_tags( gtk_text_view_get_buffer( GTK_TEXT_VIEW(mokoi_questions_text) ) );
 
-	Meg_Main_AddPage( widget, "Question", GTK_STOCK_FIND );
-
+	Meg_Main_AddSection( widget, "Question", PAGE_ICON_QUESTION );
+	#endif
 }
+
 /********************************
 * MegWidget_Questions_Destroy
 *
@@ -82,7 +86,9 @@ gboolean MegWidget_Questions_Destroy(GtkWidget * widget, GdkEvent * event, gpoin
 */
 void MegWidget_Questions_Refresh(GtkWidget * widget, gpointer user_data)
 {
+	#ifdef USE_SOUP
 	Meg_Questions_GetAll();
+	#endif
 }
 
 /********************************

@@ -10,15 +10,9 @@ Permission is granted to anyone to use this software for any purpose, including 
 ****************************/
 
 #ifndef MA_MAP
-#define MA_MAP
+	#define MA_MAP
 
-
-
-
-void MegWidget_Map_Refresh();
-
-void Alchera_Map_SetLabel(gchar * text);
-void Alchera_Map_OpenAndSwitch(gchar * map);
+	void MegWidget_Map_Refresh();
 
 #endif
 

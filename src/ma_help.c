@@ -379,7 +379,7 @@ void MegWidget_Help_Create()
 	/* Setting */
 	g_object_ref( main_widget );
 
-	alchera_help_toolbutton = Meg_Main_AddSection( main_widget, "Help (F1)", GTK_STOCK_HELP );
+	alchera_help_toolbutton = Meg_Main_AddSection( main_widget, "Help (F1)", PAGE_ICON_HELP );
 
 	g_object_unref(ui);
 

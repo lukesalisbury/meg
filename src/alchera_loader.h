@@ -1,6 +1,8 @@
 #ifndef _ALCHERA_LOADER_H_
 #define _ALCHERA_LOADER_H_
 
+	#include <gtk/gtk.h>
+
 	/* info + plugin stuff */
 	gchar * AL_CreateProject( const gchar * title  );
 	gchar * AL_LoadProject( const gchar * path );

@@ -18,7 +18,6 @@
 	gboolean Meg_Error_Check( GError * error, gboolean fatal, const gchar * function_name );
 
 	/**/
-	void Meg_Main_AddPage( GtkWidget * section_widget, gchar * section_title, gchar * section_icon );
 	GtkWidget * Meg_Main_AddSection( GtkWidget * section_widget, gchar * section_title, gchar * section_icon );
 	GtkWindow * Meg_Main_GetWindow();
 	GtkWidget * Meg_Main_GetWidget();

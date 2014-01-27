@@ -217,7 +217,7 @@ void AL_Object_OpenAdvance( GtkWidget * widget, MapInfo * map_info )
 	}
 	else
 	{
-		Meg_Error_Print( __func__, __LINE__, "AL_Object_AdvanceObject can't find object.");
+		Meg_Error_Print( __func__, __LINE__, "AL_Object_OpenAdvance can't find object.");
 	}
 }
 
@@ -239,16 +239,24 @@ GtkWidget * Object_GetSettingMenu( MapInfo * map_info, guint id )
 
 		menu_widget = gtk_menu_new();
 
-		if ( g_hash_table_size( MAP_OBJECT_DATA(object)->settings) )
-        {
-			g_hash_table_foreach( MAP_OBJECT_DATA(object)->settings, (GHFunc)RuntimeSetting_MenuItem, menu_widget );
-		}
-
 		/* Add Advance */
 		GtkWidget * sub_menu_advance = gtk_menu_item_new_with_label( "Advance" );
 		g_signal_connect( G_OBJECT(sub_menu_advance), "activate", G_CALLBACK(AL_Object_OpenAdvance), map_info );
 		gtk_menu_shell_append( GTK_MENU_SHELL(menu_widget), sub_menu_advance );
 		gtk_widget_show(sub_menu_advance);
+
+		if ( g_hash_table_size( MAP_OBJECT_DATA(object)->settings) )
+        {
+			GtkWidget * sep = gtk_separator_menu_item_new();
+			gtk_menu_shell_append( GTK_MENU_SHELL(menu_widget), sep );
+			gtk_widget_show(sep);
+
+			g_hash_table_foreach( MAP_OBJECT_DATA(object)->settings, (GHFunc)RuntimeSetting_MenuItem, menu_widget );
+
+
+		}
+
+
 
     }
     return menu_widget;
@@ -284,7 +292,7 @@ G_MODULE_EXPORT gboolean AL_Object_Advance( MapInfo * map_info, gint id, GtkWind
 	}
 	else
 	{
-		Meg_Error_Print( __func__, __LINE__, "AL_Object_AdvanceObject can't find object.");
+		Meg_Error_Print( __func__, __LINE__, "AL_Object_Advance can't find object.");
 	}
 
 	return result;

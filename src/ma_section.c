@@ -56,7 +56,7 @@ void MegWidget_Section_Create()
 
 	/* Tab Setting */
 	g_object_set_data( G_OBJECT(widget), "meg-help-page", g_strdup(PROGRAMSHELPDIRECTORY"/SectionPage.xml") ); //Set the help page
-	Meg_Main_AddSection(widget, "Sections", "gtk-justify-fill");
+	Meg_Main_AddSection(widget, "Sections", PAGE_ICON_SECTION);
 
 	/* Signals */
 	g_signal_connect( G_OBJECT(treeview_section), "row-activated", G_CALLBACK(Meg_MapSection_OpenFile), NULL);

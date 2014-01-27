@@ -4,10 +4,14 @@ $(error Please set SUPPORTPATH variable before running make.   )
 
 endif
 
-USEGTKSOURCEVIEW=TRUE
-USESOUP=TRUE
-USEGTK3=FALSE
-
+ifeq ($(GTKVERSION), 3)
+	USEGTKSOURCEVIEW=FALSE
+	USESOUP=FALSE
+	OBJDIR = objects-gtk3
+else
+	USEGTKSOURCEVIEW=TRUE
+	USESOUP=TRUE
+endif
 
 PLATFORM = __GNUWIN32__
 PLATFORM_LIBS = -Wl,--enable-auto-import -L"$(SUPPORTPATH)/lib" -limm32 -lshell32 -lole32 -luuid  -lintl
@@ -16,9 +20,9 @@ PLATFORM_LIBS += -lgobject-2.0.dll -lgthread-2.0.dll -lpango-1.0.dll -lgio-2.0.d
 
 PLATFORM_FLAGS = -mms-bitfields  -I"$(SUPPORTPATH)/include" -I"$(SUPPORTPATH)/include/atk-1.0" -I"$(SUPPORTPATH)/include/cairo" -I"$(SUPPORTPATH)/include/gdk-pixbuf-2.0" -I"$(SUPPORTPATH)/include/glib-2.0"  -I"$(SUPPORTPATH)/include/pango-1.0" -I"$(SUPPORTPATH)/lib/glib-2.0/include"
 
-ifeq ($(USEGTK3), TRUE)
+ifeq ($(GTKVERSION), 3)
 	PLATFORM_LIBS += -lgdk-3.dll -lgtk-3.dll
-	PLATFORM_FLAGS += -I"$(SUPPORTPATH)/include/gtk-3.0" -I"$(SUPPORTPATH)/lib/gtk-3.0/include" -DGTK_DISABLE_SINGLE_INCLUDES -DGDK_DISABLE_DEPRECATED -DGTK_DISABLE_DEPRECATED -DGSEAL_ENABLE
+	PLATFORM_FLAGS += -I"$(SUPPORTPATH)/include/gtk-3.0" -I"$(SUPPORTPATH)/lib/gtk-3.0/include" -DGTK_DISABLE_SINGLE_INCLUDES -DGSEAL_ENABLE
 else
 	PLATFORM_LIBS += -lgdk-win32-2.0.dll -lgtk-win32-2.0.dll
 	PLATFORM_FLAGS += -I"$(SUPPORTPATH)/include/gtk-2.0" -I"$(SUPPORTPATH)/lib/gtk-2.0/include" -DGTK_DISABLE_SINGLE_INCLUDES -DGDK_DISABLE_DEPRECATED -DGTK_DISABLE_DEPRECATED -DGSEAL_ENABLE
@@ -41,7 +45,12 @@ ifeq ($(PLATFORMBITS), 64)
 	RES_OUTPUT = pe-x86-64
 endif
 
-BIN  = meg.exe
+ifeq ($(GTKVERSION), 3)
+	BIN = meg-gtk3.exe
+else
+	BIN  = meg.exe
+endif
+
 CC = gcc
 
 ifeq ($(BUILDDEBUG), TRUE)

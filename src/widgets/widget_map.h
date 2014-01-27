@@ -50,7 +50,7 @@ struct _AlcheraMap {
 	GtkDrawingArea widget;
 	gdouble mouse[2];
 	gdouble scale_width, scale_height, scale;
-	guint map_width, map_height;
+	//guint map_width, map_height;
 	guint32 visible;
 	guint16 grid_value;
 	guint8 current_layer;
@@ -65,11 +65,9 @@ struct _AlcheraMap {
 
 	guint32 grab_time;
 	GSList * undo;
-
 	GSList * path;
 
 	WidgetMapMode map_mode;
-
 
 	/* Support Widgets */
 	GtkListStore * objects_list;
@@ -92,7 +90,6 @@ GType gtk_alchera_map_get_type(void);
 
 void gtk_alchera_map_set_scale( AlcheraMap * wid, gdouble scale );
 void gtk_alchera_map_set_selected_object( AlcheraMap *wid, DisplayObject * obj );
-void gtk_alchera_map_set_dimension( AlcheraMap * wid, guint width, guint height );
 void gtk_alchera_map_set_support_widget( AlcheraMap * wid, GtkListStore * store, GtkStatusbar * status, GtkWidget * object_menu  );
 
 void gtk_alchera_map_edit_path(AlcheraMap * map);

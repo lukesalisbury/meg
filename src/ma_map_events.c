@@ -158,6 +158,7 @@ void Meg_MapEdit_OpenFile( GtkTreeView * tree_view, GtkTreePath * path, GtkTreeV
 			window = Meg_MapEdit_Open( filename );
 			gtk_list_store_set( GTK_LIST_STORE(model), &iter, 1, "<i>opened</i>", 3, window, -1);
 			g_object_set_data( G_OBJECT(window), "alchera-list-path", gtk_tree_model_get_string_from_iter( model, &iter) );
+
 		}
 		g_free( filename );
 	}

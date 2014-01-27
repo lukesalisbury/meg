@@ -136,7 +136,7 @@ gboolean Map_Open( gchar * file, MapInfo * map_info )
 
 	/* Inital Map Settings */
 	runtime_file = g_strdup_printf( "/scripts/maps/%s.%s.options", file, "mps" );
-	thumbnail_file = g_strdup_printf( "/maps/%s.png", file );
+	thumbnail_file = g_strdup_printf( "/maps/thumbs/%s.png", file );
 
 	map_info->name = g_strdup( file );
 	map_info->settings = RuntimeParser_Load( runtime_file );
@@ -365,6 +365,9 @@ gboolean Map_Save( MapInfo * map_info )
 	GList * scan = NULL;
 	GString * map_entities = g_string_new(""); // TSV listing of Entities, used in the server and editor
 	GString * map_xml = g_string_new("<map xmlns=\"http://mokoi.info/projects/mokoi\">\n");
+
+	map_data->position.width = map_info->width / AL_Setting_GetDefaultNumber("map.width", 1);
+	map_data->position.height = map_info->height / AL_Setting_GetDefaultNumber("map.height", 1);
 
 	/* Settings */
 	g_string_append_printf( map_xml, "<settings>\n");

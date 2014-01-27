@@ -24,5 +24,8 @@ void Map_ReplacableSheets_Update_ForEach( gchar * key, GtkWidget * text_sheet, M
 void Map_ReplacableSheets_Widget_ForEach( gchar * key, GtkWidget * text_sheet, GtkWidget * list );
 
 gchar MapObject_Type( const gchar * type_name );
+DisplayObjectTypes MapObject_Internal2DisplayObjectType( char internal_type );
+
 
 gchar * MapChooser_Dialog( gchar * title, gchar * selected_item, gchar * additional_option );
+

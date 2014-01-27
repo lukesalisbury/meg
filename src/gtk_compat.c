@@ -102,6 +102,23 @@ GdkPixbuf * gdk_pixbuf_get_from_surface( cairo_surface_t * surface, gint src_x, 
 	return pixbuf;
 }
 
+void gtk_widget_get_preferred_size( GtkWidget *widget, GtkRequisition *minimum_size, GtkRequisition *natural_size);
+
+
+GtkWidget * gtk_box_new( GtkOrientation orientation, gint spacing)
+{
+	GtkWidget * widget = NULL;
+
+	if ( orientation == GTK_ORIENTATION_HORIZONTAL )
+	{
+		widget = gtk_hbox_new( FALSE, spacing );
+	}
+	else if ( orientation == GTK_ORIENTATION_VERTICAL )
+	{
+		widget = gtk_vbox_new( FALSE, spacing );
+	}
+	return widget;
+}
 
 #endif
 

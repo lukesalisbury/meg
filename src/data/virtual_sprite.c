@@ -127,8 +127,6 @@ GdkPixbuf *  VirtualSprite_BuildPixbuf( gchar * id )
 			cairo_destroy( cr );
 
 			image = gdk_pixbuf_get_from_surface( cst, 0, 0, map_info->width, map_info->height );
-			cairo_surface_write_to_png(cst, "temp-cairo.png");
-			gdk_pixbuf_save( image, "temp-pixbuf.png", "png", NULL, NULL);
 		}
 
 		Map_Free( map_info, FALSE );

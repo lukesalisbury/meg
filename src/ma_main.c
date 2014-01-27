@@ -233,7 +233,9 @@ gboolean Meg_Main_Init()
 	alchera_map_cursor = gdk_pixbuf_add_alpha( gdk_pixbuf_new_from_inline( -1, dnd_cursor_copy, FALSE, NULL ), FALSE, 0, 0, 0 );
 
 	/* Add Play button to toolbar */
-	GtkWidget * widget_play_icon = gtk_image_new_from_stock(GTK_STOCK_MEDIA_PLAY, GTK_ICON_SIZE_LARGE_TOOLBAR);
+	//GtkWidget * widget_play_icon = gtk_image_new_from_stock(GTK_STOCK_MEDIA_PLAY, GTK_ICON_SIZE_LARGE_TOOLBAR);
+	GtkWidget * widget_play_icon = gtk_image_new_from_icon_name(PAGE_ICON_PLAY, GTK_ICON_SIZE_LARGE_TOOLBAR);
+
 	GtkToolItem * button_play = gtk_tool_button_new(widget_play_icon, "Play Game");
 	g_signal_connect(button_play, "clicked", G_CALLBACK(Meg_Event_Play), NULL);
 	gtk_toolbar_insert(GTK_TOOLBAR(alchera_main_toolbar), button_play, 0);
@@ -249,7 +251,7 @@ gboolean Meg_Main_Init()
 	/* Tab pages */
 
 	g_print("----Meg_Log_Init: ");
-	Meg_Main_AddSection( GET_WIDGET(ui, "scrolledwindow3"), "Log", GTK_STOCK_FILE );
+	Meg_Main_AddSection( GET_WIDGET(ui, "scrolledwindow3"), "Log", PAGE_ICON_LOG );
 	g_print("%f\n", g_timer_elapsed(yimer, NULL) );
 
 	g_print("----MegWidget_Questions_Create: ");
@@ -311,39 +313,22 @@ gboolean Meg_Main_Init()
 */
 GtkWidget * Meg_Main_AddSection( GtkWidget * section_widget, gchar * section_title, gchar * section_icon )
 {
-	GtkWidget * icon_widget = NULL;
-	if ( section_icon )
-	{
-		icon_widget = gtk_image_new_from_stock(section_icon, GTK_ICON_SIZE_LARGE_TOOLBAR);
-	}
-	GtkToolItem * toolbutton = gtk_tool_button_new(icon_widget, section_title);
-	g_signal_connect(toolbutton, "clicked", G_CALLBACK (Meg_Main_ToolbarClicked), section_widget);
-
-	gtk_toolbar_insert(GTK_TOOLBAR(alchera_main_toolbar), toolbutton, 0);
-	gtk_widget_show_all(alchera_main_toolbar);
-	return GTK_WIDGET(toolbutton);
-}
-
-/********************************
-* Meg_Main_AddPage
-*
-*/
-void Meg_Main_AddPage( GtkWidget * section_widget, gchar * section_title, gchar * section_icon )
-{
 	GtkToolItem * toolbutton = NULL;
 	GtkWidget * icon_widget = NULL;
 
 	if ( section_icon )
 	{
-		icon_widget = gtk_image_new_from_stock(section_icon, GTK_ICON_SIZE_LARGE_TOOLBAR);
+		//icon_widget = gtk_image_new_from_stock(section_icon, GTK_ICON_SIZE_LARGE_TOOLBAR);
+		icon_widget = gtk_image_new_from_icon_name(section_icon, GTK_ICON_SIZE_LARGE_TOOLBAR);
 	}
-
 	toolbutton = gtk_tool_button_new(icon_widget, section_title);
 
-	g_signal_connect(toolbutton, "clicked", G_CALLBACK(Meg_Main_ToolbarClicked), section_widget);
+	g_signal_connect(toolbutton, "clicked", G_CALLBACK (Meg_Main_ToolbarClicked), section_widget);
 
 	gtk_toolbar_insert(GTK_TOOLBAR(alchera_main_toolbar), toolbutton, 0);
 	gtk_widget_show_all(alchera_main_toolbar);
-	g_object_ref(section_widget);
+
+	return GTK_WIDGET(toolbutton);
 }
+
 
