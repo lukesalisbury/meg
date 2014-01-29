@@ -41,7 +41,7 @@ GdkPixbuf * Section_GetMapThumb( gchar * map )
 	gchar * src = NULL;
 	GdkPixbuf * image = NULL, * scaled = NULL;
 
-	src = g_strdup_printf( "/maps/%s.png", map );
+	src = g_strdup_printf( "/maps/thumbs/%s.png", map );
 	image = Megdk_pixbuf_new_from_file( src, NULL );
 
 	if ( image )
@@ -67,7 +67,7 @@ GdkPixbuf * Section_GetMapThumbSized( gchar * map, guint x, guint y )
 	gchar * src = NULL;
 	GdkPixbuf * image = NULL, * scaled = NULL;
 
-	src = g_strdup_printf( "/maps/%s.png", map );
+	src = g_strdup_printf( "/maps/thumbs/%s.png", map );
 	image = Megdk_pixbuf_new_from_file( src, NULL );
 
 	if ( image )

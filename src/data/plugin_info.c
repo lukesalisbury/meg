@@ -58,7 +58,7 @@ gchar * mokoiGameDirectories[] = {
 	"doc",
 	"lang",
 	"maps",
-	"maps/thumbs"
+	"maps/thumbs",
 	"music",
 	"masks",
 	"scripts",

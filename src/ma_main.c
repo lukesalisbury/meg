@@ -233,7 +233,6 @@ gboolean Meg_Main_Init()
 	alchera_map_cursor = gdk_pixbuf_add_alpha( gdk_pixbuf_new_from_inline( -1, dnd_cursor_copy, FALSE, NULL ), FALSE, 0, 0, 0 );
 
 	/* Add Play button to toolbar */
-	//GtkWidget * widget_play_icon = gtk_image_new_from_stock(GTK_STOCK_MEDIA_PLAY, GTK_ICON_SIZE_LARGE_TOOLBAR);
 	GtkWidget * widget_play_icon = gtk_image_new_from_icon_name(PAGE_ICON_PLAY, GTK_ICON_SIZE_LARGE_TOOLBAR);
 
 	GtkToolItem * button_play = gtk_tool_button_new(widget_play_icon, "Play Game");

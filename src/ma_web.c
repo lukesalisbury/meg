@@ -375,7 +375,7 @@ GAsyncQueue * Meg_Web_RetrieveQueue(GtkWidget * parent, const gchar * url, gchar
 	gtk_widget_show_all( download->dialog );
 
 	Meg_Log_SetBuffer( NULL );
-	if ( g_thread_create( (GThreadFunc)Meg_Web_RetrieveThread, (gpointer)download, FALSE, NULL ) )
+	if ( g_thread_try_new( "WebRetrieve", (GThreadFunc)Meg_Web_RetrieveThread, (gpointer)download, NULL ) )
 	{
 		g_timeout_add( 20, (GSourceFunc)Meg_Web_RetrieveWatch, (gpointer)download );
 	}
@@ -414,7 +414,7 @@ GAsyncQueue * Meg_Web_RetrieveTextQueue(GtkWidget *parent, const gchar * url, gc
 	gtk_widget_show_all( download->dialog );
 
 	Meg_Log_SetBuffer( NULL );
-	if ( g_thread_create( (GThreadFunc)Meg_Web_RetrieveThread, (gpointer)download, FALSE, NULL ) )
+	if ( g_thread_try_new( "WebRetrieveT", (GThreadFunc)Meg_Web_RetrieveThread, (gpointer)download, NULL ) )
 	{
 		g_timeout_add( 20, (GSourceFunc)Meg_Web_RetrieveWatch, (gpointer)download );
 	}

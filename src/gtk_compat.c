@@ -120,6 +120,18 @@ GtkWidget * gtk_box_new( GtkOrientation orientation, gint spacing)
 	return widget;
 }
 
+
+
+#endif
+
+#if !GLIB_CHECK_VERSION(2,32,0)
+GThread * g_thread_try_new( const gchar *name, GThreadFunc func, gpointer data, GError **error)
+{
+
+	return g_thread_create( func, data, FALSE, error );
+
+}
+
 #endif
 
 #if !GLIB_CHECK_VERSION(2,28,0)

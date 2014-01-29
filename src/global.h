@@ -16,5 +16,5 @@ Permission is granted to anyone to use this software for any purpose, including 
 #include "widgets/widget_map.h"
 #include "ma_dialog.h"
 #include "ma_events.h"
-
+#include "gtk_compat.h"
 

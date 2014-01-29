@@ -84,6 +84,7 @@ void Meg_ColorButton_GetColor( GtkColorButton * button, GdkRGBA * rgbacolour )
 #elif GTK_CHECK_VERSION(3,0,0)
 	gtk_color_button_get_rgba( button, rgbacolour );
 #else
+
 	GdkColor c;
 	guint16 a;
 

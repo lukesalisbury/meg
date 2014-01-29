@@ -30,7 +30,12 @@ GtkWidget * gtk_box_new( GtkOrientation orientation, gint spacing );
 
 #endif
 
+#if !GLIB_CHECK_VERSION(2,32,0)
+GThread * g_thread_try_new( const gchar *name, GThreadFunc func, gpointer data, GError **error);
+#endif
+
 #if !GLIB_CHECK_VERSION(2,28,0)
+
 void g_slist_free_full( GSList * list, GDestroyNotify free_func);
 void g_list_free_full( GList * list, GDestroyNotify free_func);
 #endif

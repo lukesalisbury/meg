@@ -432,8 +432,7 @@ void help_parser_start_element( GMarkupParseContext *context, const gchar *eleme
 				else if ( !g_ascii_strcasecmp( *attribute_values, "columns" ) )
 				{
 					alcheraHelpStyle = TEXT_COLUMNS | TEXT_BLOCK;
-					alchera_help_viewcolumn = gtk_hbox_new( TRUE, 4 );/* FIX: GTK3 */
-					/* alchera_help_viewcolumn = gtk_box_new( GTK_ORIENTATION_HORIZONTAL, 4); */
+					alchera_help_viewcolumn = gtk_box_new( GTK_ORIENTATION_HORIZONTAL, 4 );
 
 					GtkTextIter iter;
 					GtkTextChildAnchor * alchera_help_col_widget = NULL;

@@ -58,7 +58,9 @@ typedef struct {
 	gchar * text;
 	gpointer data;
 
-	gboolean (*custom_draw) ( cairo_t *cr );
+	gboolean (*draw_function) ( cairo_t *cr );
+	/*GtkWidget * (*get_submenu ) ( MapInfo * map_info, guint id );*/
+
 	gboolean (*free) ( gpointer data );
 
 } DisplayObject;

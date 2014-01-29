@@ -224,19 +224,19 @@ void map_parse_handler_start_object_element( GMarkupParseContext *context, const
 	{
 		for (; *attribute_names && *attribute_values; attribute_names++, attribute_values++)
 		{
-			if ( *attribute_names[0] =='x' )
+			if ( *attribute_names[0] == 'x' )
 				object_display->x = g_ascii_strtod(*attribute_values, NULL);
-			else if ( *attribute_names[0] =='y' )
+			else if ( *attribute_names[0] == 'y' )
 				object_display->y = g_ascii_strtod(*attribute_values, NULL);
-			else if ( *attribute_names[0] =='l' )
+			else if ( *attribute_names[0] == 'l' )
 				object_display->layer = (gint)g_ascii_strtod(*attribute_values, NULL);
-			else if ( *attribute_names[0] =='w' )
+			else if ( *attribute_names[0] == 'w' )
 				object_display->w = g_ascii_strtod(*attribute_values, NULL);
-			else if ( *attribute_names[0] =='h' )
+			else if ( *attribute_names[0] == 'h' )
 				object_display->h = g_ascii_strtod(*attribute_values, NULL);
-			else if ( *attribute_names[0] =='r' )
+			else if ( *attribute_names[0] == 'r' )
 				object_display->rotate = atoi(*attribute_values)/90;
-			else if ( *attribute_names[0] =='f' )
+			else if ( *attribute_names[0] == 'f' )
 				object_display->flip = (gboolean)g_ascii_strtod(*attribute_values, NULL);
 		}
 

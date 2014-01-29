@@ -169,10 +169,10 @@ void rgba2gdkcolor(rgbaColour * rgba, GdkRGBA * gdk)
 */
 void gdk2rgbacolor(GdkRGBA * gdk, rgbaColour * rgba)
 {
-	rgba->red = (guint8)(gdk->red * 255);
-	rgba->blue = (guint8)(gdk->blue * 255);
-	rgba->green = (guint8)(gdk->green * 255);
-	rgba->alpha = (guint8)(gdk->alpha * 255);
+	rgba->red = (guint8)(gdk->red * 255.0);
+	rgba->blue = (guint8)(gdk->blue * 255.0);
+	rgba->green = (guint8)(gdk->green * 255.0);
+	rgba->alpha = (guint8)(gdk->alpha * 255.0);
 }
 
 

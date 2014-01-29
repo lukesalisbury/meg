@@ -78,16 +78,16 @@
 
 
 #ifndef GTK_STOCK_INDEX
-	#define PAGE_ICON_LANGUAGE NULL
+	#define PAGE_ICON_LANGUAGE "preferences-desktop-locale"
 	#define PAGE_ICON_PLAY "media-playback-start"
-	#define PAGE_ICON_LOG NULL
-	#define PAGE_ICON_AUDIO NULL
-	#define PAGE_ICON_SCRIPTS NULL
-	#define PAGE_ICON_HELP NULL
-	#define PAGE_ICON_MAP NULL
-	#define PAGE_ICON_PROJECT NULL
+	#define PAGE_ICON_LOG "text-x-generic"
+	#define PAGE_ICON_AUDIO "audio-volume-medium"
+	#define PAGE_ICON_SCRIPTS "text-x-script"
+	#define PAGE_ICON_HELP "help-browser"
+	#define PAGE_ICON_MAP "stock-zoom-fit"
+	#define PAGE_ICON_PROJECT "preferences-system"
 	#define PAGE_ICON_QUESTION "system-search"
-	#define PAGE_ICON_SECTION NULL
+	#define PAGE_ICON_SECTION "image-loading"
 	#define PAGE_ICON_SPRITE "edit-cut"
 #else
 	#define PAGE_ICON_LANGUAGE GTK_STOCK_INDEX

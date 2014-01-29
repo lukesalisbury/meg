@@ -50,7 +50,6 @@ struct _AlcheraMap {
 	GtkDrawingArea widget;
 	gdouble mouse[2];
 	gdouble scale_width, scale_height, scale;
-	//guint map_width, map_height;
 	guint32 visible;
 	guint16 grid_value;
 	guint8 current_layer;
