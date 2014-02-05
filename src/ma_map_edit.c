@@ -18,6 +18,8 @@ Permission is granted to anyone to use this software for any purpose, including 
 #include "ma_map_edit.h"
 #include "ma_map_settings.h"
 
+#include "widgets/map_info.h"
+
 /* GtkWidget */
 extern GtkListStore * mapFileStore;
 extern GtkWidget * alchera_main_statusbar;
@@ -32,22 +34,6 @@ gboolean AL_Map_ContructRuntimeWidget( MapInfo * map_info, GtkWidget * box_runti
 /* UI */
 #include "ui/map_edit.gui.h"
 const gchar * alchera_map_edit_ui = GUIMAP_EDIT;
-
-
-/********************************
-* Meg_MapInfo_Destory
-*
-*/
-void Meg_MapInfo_Destory( MapInfo * data )
-{
-	if ( data )
-	{
-		if ( data->display_list )
-			g_list_free( data->display_list );
-		g_free( data->name );
-		data = NULL;
-	}
-}
 
 /********************************
 * Meg_MapEdit_GetMapInfo
@@ -143,7 +129,7 @@ GtkWidget * Meg_MapEdit_Open( gchar * file )
 		gtk_dialog_run( GTK_DIALOG(dialog) );
 		gtk_widget_destroy( dialog );
 
-		Meg_MapInfo_Destory( map_info );
+		MapInfo_Destroy( map_info );
 		return NULL;
 	}
 

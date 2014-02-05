@@ -407,7 +407,7 @@ gboolean ObjectAdvance_Sprite( DisplayObject * object, GtkWindow * window )
 
 	Meg_ColorButton_SetColor( GTK_COLOR_BUTTON(button_colour), &object->colour );
 
-	gtk_toggle_button_set_active( GTK_TOGGLE_BUTTON(check_mirror), object->flip );
+	gtk_toggle_button_set_active( GTK_TOGGLE_BUTTON(check_mirror), object->is_flipped );
 
 	/* Add Entity Widget to notebook */
 	GtkWidget * notebookpage = NULL;
@@ -433,7 +433,7 @@ gboolean ObjectAdvance_Sprite( DisplayObject * object, GtkWindow * window )
 			object->h = gtk_spin_button_get_value(GTK_SPIN_BUTTON(spin_h));
 			object->layer = gtk_spin_button_get_value_as_int(spin_z);
 
-			object->flip = gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(check_mirror));
+			object->is_flipped = gtk_toggle_button_get_active(GTK_TOGGLE_BUTTON(check_mirror));
 			object->rotate = gtk_spin_button_get_value_as_int(GTK_SPIN_BUTTON(spin_rot)) /90;
 
 			Meg_ColorButton_GetColor( GTK_COLOR_BUTTON(button_colour), &object->colour );

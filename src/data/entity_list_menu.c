@@ -77,11 +77,16 @@ void EntityListMenu_CompileAction(GtkMenuItem * menuitem , GtkTreeView * tree_vi
 		dialog = gtk_dialog_new_with_buttons( "Compiling file", Meg_Main_GetWindow(), GTK_DIALOG_MODAL, GTK_STOCK_OK, GTK_RESPONSE_ACCEPT, NULL );
 		log = gtk_text_view_new();
 
+
+#if GTK_CHECK_VERSION(3,8,0)
+		gtk_container_add( GTK_CONTAINER(gtk_dialog_get_content_area( GTK_DIALOG(dialog) )), log );
+#else
 		scroll = gtk_scrolled_window_new( NULL, NULL );
 		gtk_scrolled_window_add_with_viewport( GTK_SCROLLED_WINDOW(scroll), log );/* FIX: GTK3 */
+		gtk_widget_set_size_request(scroll, 300, 200);
 
 		gtk_container_add( GTK_CONTAINER(gtk_dialog_get_content_area( GTK_DIALOG(dialog) )), scroll );
-		gtk_widget_set_size_request(scroll, 300, 200);
+#endif
 
 		g_signal_connect( dialog, "close", (GCallback)gtk_widget_destroy, NULL );
 		g_signal_connect( dialog, "response", (GCallback)gtk_widget_destroy, NULL );

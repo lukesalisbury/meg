@@ -198,10 +198,7 @@ gchar * EntityCompiler_TemporaryFile( gchar * filename, gboolean * remove )
 			close(fd);
 		}
 	}
-	else
-	{
-		filepath = g_strdup_printf("%s%s", mokoiBasePath, filename);
-	}
+
 
 	return filepath;
 }
@@ -269,33 +266,36 @@ static void EntityCompiler_RebuildForEach(void *data, const char *origdir, const
 @ string_inputfile
 - returns XML error handling
 */
-gchar * EntityCompiler_PawnScript( gchar * inputfile, gchar * file_name, gchar * output_directory  )
+gchar * EntityCompiler_PawnScript( gchar * input_file, gchar * temporary_filepath  )
 {
-	gchar * working_directory = NULL;
-	gchar * full_output_directory = NULL;
-	gchar * args[7] = { NULL, NULL, NULL, NULL, NULL, NULL, NULL};
-	gchar * output = NULL;
-	gchar * output_error = NULL;
-	gchar * entity_file = NULL, * compiled_entity_file = NULL;
 	GError * err = NULL;
 	gint exit_status;
 
-	full_output_directory = g_build_path( G_DIR_SEPARATOR_S, AL_ProjectPath( ), "c", output_directory+1, NULL);
+	gchar * entity_file = NULL, * compiled_entity_file = NULL;
+	gchar * working_directory = NULL;
+	gchar * full_output_directory = NULL;
+
+	gchar * args[6] = { NULL, NULL, NULL, NULL, NULL, NULL };
+	gchar * output = NULL;
+	gchar * output_error = NULL;
+
+	full_output_directory = g_build_path( "/", AL_ProjectPath(), "c", g_path_get_dirname(input_file), NULL);
 
 	g_mkdir_with_parents( full_output_directory, 0755 );
 
 	#ifdef apple
 	working_directory = Meg_Directory();
 	#endif
-	
-	args[0] = g_build_filename( Meg_Directory(), PAWN_COMPILER, NULL);
-	args[1] = g_strconcat(inputfile, NULL );
-	args[2] = g_strdup("--xmloutput");
-	args[3] = g_strconcat("--routines-dir=", AL_ProjectPath( ), G_DIR_SEPARATOR_S, "scripts", G_DIR_SEPARATOR_S, "routines",  NULL );
-	args[4] = g_strconcat("--output-dir=", full_output_directory, NULL );
-	args[5] = g_strconcat("--name=", file_name, NULL );
 
-	
+	args[0] = g_build_filename( Meg_Directory(), PAWN_COMPILER, NULL );
+	args[1] = g_strconcat( AL_ProjectPath(), input_file, NULL );
+	args[2] = g_strdup( "--xmloutput");
+	args[3] = g_strconcat( "--project=", AL_ProjectPath(), NULL );
+
+	if ( temporary_filepath )
+		args[4] = g_strconcat( "--temporary=", temporary_filepath,  NULL );
+	else
+		args[4] = g_strdup( "--notemporary" );
 
 	if ( !g_spawn_sync( working_directory, //working_directory
 		args, //gchar **argv,
@@ -313,16 +313,21 @@ gchar * EntityCompiler_PawnScript( gchar * inputfile, gchar * file_name, gchar *
 		g_clear_error(&err);
 	}
 
-	//g_print("%s\n", g_strjoinv(" ", args) );
 	if ( exit_status && !output )
 	{
 		output = g_strdup_printf("<results><fatalerror message=\"Possible Compiler Crash.\" file=\"%s\" /></results>", args[0] );
 	}
 
+	g_free(full_output_directory);
 
+	g_free(args[0]);
+	g_free(args[1]);
+	g_free(args[2]);
+	g_free(args[3]);
+	g_free(args[4]);
 
-	/**/
-	entity_file = g_strconcat(full_output_directory, G_DIR_SEPARATOR_S, file_name, NULL );
+	/* Check if compiler left an empty file */
+	entity_file = g_build_filename( AL_ProjectPath(), "c", input_file, NULL);
 	compiled_entity_file = Meg_String_ReplaceFileExtension( entity_file, ".mps", ".amx" );
 	if ( file_get_size( compiled_entity_file ) == 0 )
 	{
@@ -332,13 +337,6 @@ gchar * EntityCompiler_PawnScript( gchar * inputfile, gchar * file_name, gchar *
 	g_free(entity_file);
 
 
-	g_free(full_output_directory);
-	g_free(args[0]);
-	g_free(args[1]);
-	g_free(args[2]);
-	g_free(args[3]);
-	g_free(args[4]);
-	g_free(args[5]);
 
 	return output;
 }
@@ -388,7 +386,7 @@ void Entity_ExtractRoutines()
 {
 	if ( mokoiUsingPackage )
 	{
-		Meg_enumerateFilesCallback("/scripts/routines/map_features", EntityCompiler_ExtractRoutines, NULL);
+		Meg_enumerateFilesCallback("/scripts/maps/routines", EntityCompiler_ExtractRoutines, NULL);
 		Meg_enumerateFilesCallback("/scripts/routines", EntityCompiler_ExtractRoutines, NULL);
 	}
 }
@@ -415,19 +413,17 @@ gboolean EntityCompiler_FileWithRountines( gchar * inputfile, GtkWidget * logwid
 @ logwidget:  TextView Widget to output errors to.
 @ textwidget: TextView Widget to mark with errors.
 */
-gboolean EntityCompiler_File( gchar * inputfile, GtkWidget * logwidget, GtkWidget * textwidget )
+gboolean EntityCompiler_File( gchar * input_file, GtkWidget * logwidget, GtkWidget * textwidget )
 {
 	gboolean error_compiling = FALSE;
 	gboolean free_file = FALSE;
-	gchar * basename = g_path_get_basename(inputfile);
+	gchar * basename = g_path_get_basename(input_file);
 	gchar * output = NULL;
-	gchar * filepath = NULL;
-	gchar * output_directory = NULL;
+	gchar * temporary_filepath = NULL;
 
-	output_directory = g_path_get_dirname(inputfile);
-	filepath = EntityCompiler_TemporaryFile( inputfile, &free_file );
+	temporary_filepath = EntityCompiler_TemporaryFile( input_file, &free_file );
 
-	output = EntityCompiler_PawnScript( filepath, basename, output_directory );
+	output = EntityCompiler_PawnScript( input_file, temporary_filepath );
 
 	/* Being called from Text Editor */
 	if ( textwidget != NULL )
@@ -451,7 +447,7 @@ gboolean EntityCompiler_File( gchar * inputfile, GtkWidget * logwidget, GtkWidge
 	}
 
 	g_free(basename);
-	g_free(output_directory);
+	g_free(temporary_filepath);
 	return !error_compiling;
 }
 

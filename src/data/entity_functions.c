@@ -397,6 +397,6 @@ void EntityList_UpdatePage( GtkTreeStore * list )
 	EntityList_ScanDirectory( NULL, ".mps", FALSE, list, "<b>Object Scripts</b>" );
 	EntityList_ScanDirectory( "routines/", ".inc", TRUE, list, "<b>Routines</b>" );
 	EntityList_ScanDirectory( "maps/", ".mps", FALSE, list, "<b>Maps</b>" );
-	EntityList_ScanDirectory( "routines/map_features/", ".inc", TRUE, list, "<b>Maps Routines</b>" );
+	EntityList_ScanDirectory( "maps/routines/", ".inc", TRUE, list, "<b>Maps Routines</b>" );
 }
 

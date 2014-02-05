@@ -419,7 +419,7 @@ gboolean EntityEditor_InsertDialog( GtkWidget * widget, GtkWidget * view )
 		Meg_Error_Print( __func__, __LINE__, "UI creation error '%s'.", error->message );
 		return FALSE;
 	}
-	//gtk_builder_connect_signals( ui, NULL );
+
 	/* < UI */
 
 	dialog = GET_WIDGET( ui, "dialog1");

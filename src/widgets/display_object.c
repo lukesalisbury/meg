@@ -172,7 +172,7 @@ gboolean Alchera_DisplayObject_Flip( MapInfo * map_info, DisplayObject * obj, Gt
 {
 	if ( obj && map_info )
 	{
-		obj->flip = !obj->flip;
+		obj->is_flipped = !obj->is_flipped;
 		return TRUE;
 	}
 	return FALSE;
@@ -193,11 +193,11 @@ gboolean Alchera_DisplayObject_KeyInput( MapInfo * map_info, DisplayObject * obj
 			obj->h -= height;
 			if (obj->h <= height)
 			{
-				obj->tile = FALSE;
+				obj->tiled_image = FALSE;
 				obj->h = height;
 			}
 			else
-				obj->tile = TRUE;
+				obj->tiled_image = TRUE;
 		}
 		else
 		{
@@ -213,11 +213,11 @@ gboolean Alchera_DisplayObject_KeyInput( MapInfo * map_info, DisplayObject * obj
 			obj->h += height;
 			if (obj->h <= height)
 			{
-				obj->tile = FALSE;
+				obj->tiled_image = FALSE;
 				obj->h = height;
 			}
 			else
-				obj->tile = TRUE;
+				obj->tiled_image = TRUE;
 		}
 		else
 		{
@@ -233,11 +233,11 @@ gboolean Alchera_DisplayObject_KeyInput( MapInfo * map_info, DisplayObject * obj
 			obj->w -= width;
 			if (obj->w <= width)
 			{
-				obj->tile = FALSE;
+				obj->tiled_image = FALSE;
 				obj->w = width;
 			}
 			else
-				obj->tile = TRUE;
+				obj->tiled_image = TRUE;
 		}
 		else
 		{
@@ -253,11 +253,11 @@ gboolean Alchera_DisplayObject_KeyInput( MapInfo * map_info, DisplayObject * obj
 			obj->w += width;
 			if (obj->w <= width)
 			{
-				obj->tile = FALSE;
+				obj->tiled_image = FALSE;
 				obj->w = width;
 			}
 			else
-				obj->tile = TRUE;
+				obj->tiled_image = TRUE;
 		}
 		else
 		{
@@ -387,7 +387,7 @@ void Alchera_DisplayObject_DrawPixbuf(DisplayObject * object, cairo_t *cr)
 	gdk_cairo_set_source_pixbuf( cr, object->image, object->x, object->y );
 	pattern = cairo_get_source( cr );
 	cairo_pattern_set_extend( pattern, CAIRO_EXTEND_REPEAT);
-	if ( object->flip )
+	if ( object->is_flipped )
 	{
 		cairo_matrix_init_scale( &matrix, -1, 1 );
 		cairo_matrix_translate( &matrix, -object->x, -object->y );
@@ -458,14 +458,27 @@ void Alchera_DisplayObject_DrawPolygon( DisplayObject * object, cairo_t * cr )
 {
 	gdk_cairo_set_source_rgba( cr, &object->colour );
 
+	gdouble w = 0;
+	gdouble h = 0;
 	GSList * list  = object->shape;
+
 	cairo_new_path( cr );
 	while ( list )
 	{
 		DisplayObject * point = (DisplayObject*) list->data;
 		cairo_line_to( cr, object->x + point->x, object->y + point->y );
+
+		w = MAX( w, point->x );
+		h = MAX( h, point->y );
+
 		list = g_slist_next(list);
 	}
+
+	if ( w > 0 )
+		object->w = w;
+	if ( h > 0 )
+		object->h = h;
+
 	cairo_close_path( cr );
 	cairo_fill( cr );
 }
@@ -877,8 +890,9 @@ DisplayObject * Alchera_DisplayObject_New( gpointer data, gboolean (*free)(gpoin
 	object->rotate = 0;
 	object->type = DT_OTHER;
 	object->resizable = TRUE;
+	object->rotatable = FALSE;
 	object->supports_path = FALSE;
-	object->flip = 0;
+	object->is_flipped = 0;
 	object->colour.red = object->colour.blue = object->colour.green = object->colour.alpha = 1.0;
 
 

@@ -304,7 +304,7 @@ void Map_SaveObject( DisplayObject * object, GString * map_string , GString * en
 		g_string_append_printf( entity_list_string, "%s\t%d\t%d\n", object_data->object_name, (gint)object->x, (gint)object->y ) ;/* Add Entity to list */
 	}
 	g_string_append_printf( map_string, ">\n" );
-	g_string_append_printf( map_string, "\t<position x=\"%d\" y=\"%d\" w=\"%d\" h=\"%d\" z=\"%d\" l=\"%d\" r=\"%d\" f=\"%d\"/>\n", x, y, w, h, z, l, object->rotate*90, object->flip);
+	g_string_append_printf( map_string, "\t<position x=\"%d\" y=\"%d\" w=\"%d\" h=\"%d\" z=\"%d\" l=\"%d\" r=\"%d\" f=\"%d\"/>\n", x, y, w, h, z, l, object->rotate*90, object->is_flipped);
 	g_string_append_printf( map_string, "\t<color red=\"%d\" blue=\"%d\" green=\"%d\" alpha=\"%d\" />\n", object_data->colour8.red, object_data->colour8.blue, object_data->colour8.green, object_data->colour8.alpha );
 
 	g_hash_table_foreach( object_data->settings, (GHFunc) Map_Setting_Foreach, map_string );

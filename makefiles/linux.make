@@ -56,6 +56,9 @@ BIN = meg
 
 ifeq ($(GTKVERSION), error)
 $(error GTK+ is required. Please install it via your Package Manager )
+else
+$(info Gtk Version $(GTKVERSION))
+
 endif
 
 

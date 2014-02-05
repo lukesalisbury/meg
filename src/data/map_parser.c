@@ -52,27 +52,39 @@ static GMarkupParser map_dimension_parser = { map_dimension_parse_start, NULL, N
 
 
 /********************************
-* MapObject_Internal2DisplayObjectType
+* MapObject_UpdateDisplayObject
 *
 */
-DisplayObjectTypes MapObject_Internal2DisplayObjectType( char internal_type )
+void MapObject_UpdateDisplayObject( char internal_type, DisplayObject * object )
 {
 	switch ( internal_type )
 	{
 		case 's':
-			return DT_IMAGE;
+			object->type = DT_IMAGE;
+			break;
 		case 't':
-			return DT_TEXT;
+			object->type = DT_TEXT;
+			object->w = 64;
+			object->h = 8;
+			object->tw = 64;
+			object->th = 8;
+			object->resizable = FALSE;
+			break;
 		case 'l':
-			return DT_LINE;
+			object->type = DT_LINE;
+			break;
 		case 'r':
-			return DT_RECTANGLE;
+			object->type = DT_RECTANGLE;
+			break;
 		case 'p':
-			return DT_POLYGON;
+			object->type = DT_POLYGON;
+			object->resizable = FALSE;
+			break;
 		case 'c':
-			return DT_CIRCLE;
+			object->type = DT_CIRCLE;
+			break;
 		default:
-			return DT_NONE;
+			break;
 	}
 }
 
@@ -237,7 +249,7 @@ void map_parse_handler_start_object_element( GMarkupParseContext *context, const
 			else if ( *attribute_names[0] == 'r' )
 				object_display->rotate = atoi(*attribute_values)/90;
 			else if ( *attribute_names[0] == 'f' )
-				object_display->flip = (gboolean)g_ascii_strtod(*attribute_values, NULL);
+				object_display->is_flipped = (gboolean)g_ascii_strtod(*attribute_values, NULL);
 		}
 
 		if ( object_display->type == DT_LINE )
@@ -329,7 +341,6 @@ void map_parse_handler_start_object_element( GMarkupParseContext *context, const
 	}
 	else if ( g_ascii_strcasecmp(element_name, "point") == 0 )
 	{
-
 		DisplayObject * object_point = g_new0(DisplayObject, 1);
 
 		object_point->type = DT_POINT;
@@ -393,16 +404,15 @@ void map_parse_handler_start_root_element( GMarkupParseContext *context, const g
 					RuntimeSetting_InsertNew( object_data->settings, *attribute_names, *attribute_values, "hidden" );
 			}
 
-
-
 			object_display = Alchera_DisplayObject_New(object_data, &MapObjectData_FreePointer);
 
-			object_display->type = MapObject_Internal2DisplayObjectType(object_data->type);
+			MapObject_UpdateDisplayObject(object_data->type, object_display);
 
 			if ( object_data->type == 't' )
 			{
 				object_display->text = g_strdup(object_data->name);
 			}
+
 		}
 		else if ( map_info->file_type == 1 )
 		{
@@ -420,7 +430,7 @@ void map_parse_handler_start_root_element( GMarkupParseContext *context, const g
 			}
 
 			object_display = Alchera_DisplayObject_New(virtual_object, &VirtualObjectData_FreePointer);
-			object_display->type = MapObject_Internal2DisplayObjectType(virtual_object->type);
+			MapObject_UpdateDisplayObject(virtual_object->type, object_display);
 
 		}
 		else

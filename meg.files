@@ -756,3 +756,5 @@ src/data/data_types.h
 src/data/data_types.c
 src/distribution/distro_windows.h
 include/miniz.c
+src/widgets/map_info.h
+src/widgets/map_info.c

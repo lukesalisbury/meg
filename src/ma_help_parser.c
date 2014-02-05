@@ -16,6 +16,7 @@ Permission is granted to anyone to use this software for any purpose, including 
 #include <string.h>
 #include <gtk/gtk.h>
 #include <glib.h>
+#include "gtk_compat.h"
 
 typedef enum {
 	TEXT_NONE = 0,

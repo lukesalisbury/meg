@@ -1,5 +1,5 @@
 /****************************
-Copyright © 2007-2013 Luke Salisbury
+Copyright © 2014 Luke Salisbury
 This software is provided 'as-is', without any express or implied warranty. In no event will the authors be held liable for any damages arising from the use of this software.
 
 Permission is granted to anyone to use this software for any purpose, including commercial applications, and to alter it and redistribute it freely, subject to the following restrictions:
@@ -9,12 +9,38 @@ Permission is granted to anyone to use this software for any purpose, including 
 3. This notice may not be removed or altered from any source distribution.
 ****************************/
 
+
+#ifndef MAP_INFO_H
+#define MAP_INFO_H
+
+typedef struct _MapInfo MapInfo;
+
 #include <gtk/gtk.h>
-#include "meg_setting.h"
-#include "alchera_functions.h"
-#include "ma_loader.h"
-#include "widgets/widget_map.h"
-#include "ma_dialog.h"
-#include "ma_events.h"
+#include <gdk/gdk.h>
+#include "gtk_compat.h"
+#include "display_object.h"
 
 
+typedef struct _MapInfo{
+	DisplayObject * selected;
+	GList * display_list;
+	GHashTable * settings;
+	gchar * name;
+
+	guint visible;
+	guint id_counter;
+	guint width, height;
+	GdkRGBA colour;
+
+	guint8 parse_mode;
+	guint8 file_type;
+
+	gpointer data;
+	gboolean (*free) ( gpointer data );
+
+} MapInfo;
+
+
+void MapInfo_Destroy( MapInfo * data );
+
+#endif // MAP_INFO_H

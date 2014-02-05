@@ -73,9 +73,9 @@ gboolean Meg_MapObject_PushAnimation( DisplayObject * object )
 	}
 	else
 	{
-		object->timeout = FALSE;
+		object->animation_timeout = FALSE;
 	}
-	return object->timeout;
+	return object->animation_timeout;
 }
 
 
@@ -167,7 +167,7 @@ void Meg_MapObject_Flip( GtkToggleAction * action, AlcheraMap * map )
 	}
 
 	if ( obj )
-		gtk_toggle_action_set_active( action, obj->flip );
+		gtk_toggle_action_set_active( action, obj->is_flipped );
 
 }
 

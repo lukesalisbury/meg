@@ -25,7 +25,7 @@ typedef struct
 	gdouble x, y, w, h;
 } UndoMapObject;
 
-extern GdkPixbuf * alchera_map_cursor;
+GdkPixbuf * alchera_map_cursor = NULL;
 extern GKeyFile * meg_pref_storage;
 
 gchar * display_object_type_names[] = { "None", "Deleted", "Image", "Animation", "Rectangle", "Circle", "Line", "Text", "Polygon", "Other", "Other", "Other", NULL };
@@ -33,9 +33,9 @@ const GtkTargetEntry alchera_map_drop_target = { "text/plain", GTK_TARGET_SAME_A
 
 GtkWidget * Object_GetSettingMenu( MapInfo * map_info, guint id );
 
-
 G_DEFINE_TYPE( AlcheraMap, gtk_alchera_map, GTK_TYPE_DRAWING_AREA );
 
+/*  Helper Functions */
 
 /********************************
 * gtk_alchera_pointer_rect_collided
@@ -53,67 +53,6 @@ gboolean gtk_alchera_pointer_rect_collided( gdouble ox, gdouble oy, gdouble w, g
 	if ( y > (oy + h) )
 		return 0;
 	return 1;
-}
-
-
-/********************************
-* Alchera_DisplayObject_OpenAdvance
-* Event:
-* Result:
-*/
-void Alchera_DisplayObject_OpenAdvance( GtkAction * action, AlcheraMap * map )
-{
-	DisplayObject * obj = gtk_alchera_map_get_selected( map );
-	GtkWindow * window = GTK_WINDOW( gtk_widget_get_toplevel( GTK_WIDGET(map) ) );
-
-	if ( Alchera_DisplayObject_Advance( gtk_alchera_map_get_info( map ), obj, window ) )
-	{
-		gtk_alchera_map_refresh( map );
-	}
-}
-
-/********************************
-* gtk_alchera_map_toplevel_window
-*/
-GtkWindow * gtk_alchera_map_toplevel_window( GtkWidget * widget )
-{
-	return GTK_WINDOW( gtk_widget_get_toplevel( widget ));
-}
-
-/********************************
-* gtk_alchera_map_clear_selection_region
-*/
-void gtk_alchera_map_clear_selection_region( GtkWidget * widget, AlcheraMap * map )
-{
-	map->selection_region.mode = MAP_NONE;
-	map->selection_region.id = 0;
-	map->selection_region.offset_x = 0;
-	map->selection_region.offset_y = 0;
-#if GTK_MAJOR_VERSION == 2
-	gdk_pointer_ungrab( map->grab_time );
-#else
-	gdk_device_ungrab( gtk_get_current_event_device(), map->grab_time );
-#endif
-	gdk_window_set_cursor( gtk_widget_get_window(widget), NULL );
-	gtk_grab_remove(widget);
-}
-
-/********************************
-* gtk_alchera_map_status_text
-*/
-void gtk_alchera_map_status_text(GtkStatusbar * wid, const gchar * format, ...)
-{
-	if ( wid )
-	{
-		gchar * log = g_new0(gchar, 255);
-		va_list argptr;
-		va_start( argptr, format );
-		g_vsnprintf(log, 255, format, argptr);
-		gtk_statusbar_pop( wid, 1 );
-		gtk_statusbar_push( wid, 1, log );
-		va_end( argptr );
-		g_free(log);
-	}
 }
 
 /********************************
@@ -155,11 +94,11 @@ gboolean gtk_alchera_object_collided( AlcheraMap * map, DisplayObject * a, gdoub
 	return 1;
 }
 
-
 /********************************
-* helper for next function
+* gtk_alchera_object_each
+*
 */
-void Alchera_Map_ObjectListForeach(DisplayObject * object, GtkListStore *store)
+void gtk_alchera_object_each( DisplayObject * object, GtkListStore * store )
 {
 	GtkTreeIter iter;
 
@@ -171,13 +110,54 @@ void Alchera_Map_ObjectListForeach(DisplayObject * object, GtkListStore *store)
 			3, object->y,
 			4, object->layer,
 			-1);
-
-
-	g_print("%s resizable: %d ", display_object_type_names[object->type], object->resizable );
 }
 
 /********************************
-* helper for next function
+* gtk_alchera_map_toplevel_window
+*/
+GtkWindow * gtk_alchera_map_toplevel_window( GtkWidget * widget )
+{
+	return GTK_WINDOW( gtk_widget_get_toplevel( widget ));
+}
+
+/********************************
+* gtk_alchera_map_clear_selection_region
+*/
+void gtk_alchera_map_clear_selection_region( GtkWidget * widget, AlcheraMap * map )
+{
+	map->selection_region.mode = MAP_NONE;
+	map->selection_region.id = 0;
+	map->selection_region.offset_x = 0;
+	map->selection_region.offset_y = 0;
+#if GTK_MAJOR_VERSION == 2
+	gdk_pointer_ungrab( map->grab_time );
+#else
+	gdk_device_ungrab( gtk_get_current_event_device(), map->grab_time );
+#endif
+	gdk_window_set_cursor( gtk_widget_get_window(widget), NULL );
+	gtk_grab_remove(widget);
+}
+
+/********************************
+* gtk_alchera_map_status_text
+*/
+void gtk_alchera_map_status_text( GtkStatusbar * wid, const gchar * format, ... )
+{
+	if ( wid )
+	{
+		gchar * log = g_new0(gchar, 255);
+		va_list argptr;
+		va_start( argptr, format );
+		g_vsnprintf(log, 255, format, argptr);
+		gtk_statusbar_pop( wid, 1 );
+		gtk_statusbar_push( wid, 1, log );
+		va_end( argptr );
+		g_free(log);
+	}
+}
+
+/********************************
+* gtk_alchera_map_selection_timeout
 */
 gboolean gtk_alchera_map_selection_timeout( GtkWidget * widget )
 {
@@ -199,20 +179,18 @@ gboolean gtk_alchera_map_selection_timeout( GtkWidget * widget )
 		#else
 		gdk_cursor_unref(cursor);
 		#endif
-
-		gtk_alchera_map_status_text( map->status_widget, "Resize Object by holding Shift and the arrow keys");
 	}
-	else
+	else if ( !map->selected )
 	{
 		map->selection_region.active = FALSE;
 		map->selection_region.id = 0;
-		gtk_alchera_map_status_text( map->status_widget, "");
+		gtk_alchera_map_status_text( map->status_widget, "..............");
 	}
 	return FALSE;
 }
 
 /********************************
-* helper for next function
+* gtk_alchera_map_select_background_colour
 */
 void gtk_alchera_map_select_background_colour( AlcheraMap * wid, GdkRGBA colour )
 {
@@ -223,7 +201,7 @@ void gtk_alchera_map_select_background_colour( AlcheraMap * wid, GdkRGBA colour 
 }
 
 /********************************
-* helper for next function
+* helper for gtk_alchera_map_draw_gridlines function
 */
 void gtk_alchera_map_draw_gridlines( AlcheraMap * map, cairo_t * cr  )
 {
@@ -257,11 +235,10 @@ void gtk_alchera_map_draw_gridlines( AlcheraMap * map, cairo_t * cr  )
  *
  *
  */
-void gtk_alchera_map_split_selected_point(GtkMenuItem * menuitem, gpointer user_data)
+void gtk_alchera_map_split_selected_point( GtkMenuItem * menuitem, gpointer user_data)
 {
 	g_return_if_fail(user_data != NULL);
 	g_return_if_fail(GTK_IS_ALCHERA_MAP(user_data));
-
 
 	AlcheraMap * map = GTK_ALCHERA_MAP(user_data);
 
@@ -314,7 +291,7 @@ void gtk_alchera_map_split_selected_point(GtkMenuItem * menuitem, gpointer user_
 
 	if ( prev_point )
 	{
-		new_prev_point = g_new0(DisplayObject, 1);
+		new_prev_point = Alchera_DisplayObject_New( NULL, NULL );
 		new_prev_point->type = DT_POINT;
 		new_prev_point->layer = 43;
 		new_prev_point->w = new_next_point->h = 16;
@@ -343,7 +320,7 @@ void gtk_alchera_map_split_selected_point(GtkMenuItem * menuitem, gpointer user_
  * Remove Select point in a polygon
  *
  */
-void gtk_alchera_map_remove_selected_point(GtkMenuItem * menuitem, gpointer user_data)
+void gtk_alchera_map_remove_selected_point( GtkMenuItem * menuitem, gpointer user_data)
 {
 	g_return_if_fail(user_data != NULL);
 	g_return_if_fail(GTK_IS_ALCHERA_MAP(user_data));
@@ -362,13 +339,12 @@ void gtk_alchera_map_remove_selected_point(GtkMenuItem * menuitem, gpointer user
 	gtk_widget_queue_draw( GTK_WIDGET(map) );
 }
 
-
 /******************************************
  * gtk_alchera_map_remove_selected_path
  * Remove Select point in a path
  *
  */
-void gtk_alchera_map_remove_selected_path(GtkMenuItem * menuitem, gpointer user_data)
+void gtk_alchera_map_remove_selected_path( GtkMenuItem * menuitem, gpointer user_data)
 {
 	g_return_if_fail(user_data != NULL);
 	g_return_if_fail(GTK_IS_ALCHERA_MAP(user_data));
@@ -381,19 +357,21 @@ void gtk_alchera_map_remove_selected_path(GtkMenuItem * menuitem, gpointer user_
 	DisplayObject * first = (DisplayObject *)g_slist_nth_data(map->parent->path, 0);
 
 	if ( first != map->selected )
+	{
 		map->parent->path = g_slist_remove( map->parent->path, map->selected );
+	}
 
 	map->selected = first;
+
 	gtk_widget_queue_draw( GTK_WIDGET(map) );
 }
-
 
 /******************************************
  * gtk_alchera_map_add_path_point
  *
  *
  */
-void gtk_alchera_map_add_path_point(GtkMenuItem * menuitem, gpointer user_data)
+void gtk_alchera_map_add_path_point( GtkMenuItem * menuitem, gpointer user_data)
 {
 	g_return_if_fail(user_data != NULL);
 	g_return_if_fail(GTK_IS_ALCHERA_MAP(user_data));
@@ -404,18 +382,16 @@ void gtk_alchera_map_add_path_point(GtkMenuItem * menuitem, gpointer user_data)
 	g_return_if_fail(map->parent->path != NULL);
 
 	map->selection_region.mode = MAP_ADDPOINT;
-	gtk_alchera_map_status_text( map->status_widget, "Click on the map to add a new path point.");
+
+	gtk_alchera_map_status_text( map->status_widget, "Click add a new path point. Right click or Escape to cancel");
 }
-
-
-
 
 /******************************************
  * gtk_alchera_map_cancel_edit_path
  *
  *
  */
-void gtk_alchera_map_cancel_edit_path(GtkMenuItem * menuitem, gpointer user_data)
+void gtk_alchera_map_cancel_edit_path( GtkMenuItem * menuitem, gpointer user_data)
 {
 	g_return_if_fail(user_data != NULL);
 	g_return_if_fail(GTK_IS_ALCHERA_MAP(user_data));
@@ -423,6 +399,8 @@ void gtk_alchera_map_cancel_edit_path(GtkMenuItem * menuitem, gpointer user_data
 	AlcheraMap * map = GTK_ALCHERA_MAP(user_data);
 
 	map->selection_region.mode = MAP_NONE;
+	map->map_mode = WIDGETMAP_NORMAL;
+
 	map->selected = map->parent = NULL;
 	gtk_widget_queue_draw(GTK_WIDGET(map));
 
@@ -433,7 +411,6 @@ void gtk_alchera_map_cancel_edit_path(GtkMenuItem * menuitem, gpointer user_data
 * Event:
 * Result:
 */
-
 void gtk_alchera_map_object_rotate( GtkAction * action, AlcheraMap * map )
 {
 	g_return_if_fail(map != NULL);
@@ -458,7 +435,6 @@ void gtk_alchera_map_object_rotate( GtkAction * action, AlcheraMap * map )
 * Event:
 * Result:
 */
-
 void gtk_alchera_map_object_flip( GtkToggleAction * action, AlcheraMap * map )
 {
 	g_return_if_fail(map != NULL);
@@ -468,14 +444,11 @@ void gtk_alchera_map_object_flip( GtkToggleAction * action, AlcheraMap * map )
 
 	if ( obj )
 	{
-		obj->flip = !obj->flip;
+		obj->is_flipped = !obj->is_flipped;
 		gtk_alchera_map_refresh( map );
 	}
 
-
-
 }
-
 
 /******************************************
  * gtk_alchera_map_object_submenu
@@ -599,10 +572,7 @@ GtkWidget * gtk_alchera_map_object_submenu( AlcheraMap * map, DisplayObject * se
 
 	return widget;
 
-
 }
-
-
 
 /******************************************
  * gtk_alchera_map_edit_path
@@ -634,6 +604,11 @@ void gtk_alchera_map_edit_path( AlcheraMap * map )
  */
 void gtk_alchera_map_select_object( GtkWidget * widget, AlcheraMap * map, GdkEventButton *event, DisplayObject * object, DisplayObject * parent_object )
 {
+	if ( !object )
+	{
+		gtk_alchera_map_status_text( map->status_widget, "Click to select an Object.");
+	}
+
 	map->selected = object;
 	map->parent = parent_object;
 	map->object_held = event->time;
@@ -657,7 +632,6 @@ void gtk_alchera_map_select_object( GtkWidget * widget, AlcheraMap * map, GdkEve
 	map->selection_region.h = map->selected->h;
 	map->selection_region.id = g_timeout_add(250, (GSourceFunc)gtk_alchera_map_selection_timeout, (gpointer)widget);
 
-	gtk_alchera_map_status_text( map->status_widget, "Object Selected %d", map->map_mode);
 
 	object->active = TRUE;
 	parent_object->active = TRUE;
@@ -727,7 +701,7 @@ static gboolean gtk_alchera_map_draw( GtkWidget * widget, cairo_t * cr  )
 				{
 					Alchera_DisplayObject_DrawForeach( obj, cr );
 				}
-				Alchera_Map_ObjectListForeach( obj, map->objects_list );
+				gtk_alchera_object_each( obj, map->objects_list );
 				list = g_list_next(list);
 			}
 		}
@@ -838,7 +812,8 @@ static gboolean gtk_alchera_map_draw( GtkWidget * widget, cairo_t * cr  )
 #if GTK_MAJOR_VERSION == 2
 static gboolean gtk_alchera_map_expose( GtkWidget *widget, GdkEventExpose *event )
 {
-	cairo_t *cr;
+	cairo_t * cr;
+	gboolean result = FALSE;
 
 	g_return_val_if_fail(event != NULL, FALSE);
 	g_return_val_if_fail(GTK_IS_ALCHERA_MAP(widget), FALSE);
@@ -848,14 +823,13 @@ static gboolean gtk_alchera_map_expose( GtkWidget *widget, GdkEventExpose *event
 	if ( !cr )
 		return FALSE;
 
-	gboolean result = gtk_alchera_map_draw( widget, cr );
+	result = gtk_alchera_map_draw( widget, cr );
 	cairo_destroy( cr );
 	return result;
 }
 #endif
 
-
-
+/* Movement Event */
 /**********************************
 * Event: Mouse Moved
 *
@@ -867,7 +841,6 @@ static gboolean gtk_alchera_map_motion_notify( GtkWidget *widget, GdkEventMotion
 
 	gdouble event_x = map->mouse[0] = event->x / map->scale;
 	gdouble event_y = map->mouse[1] = event->y / map->scale;
-
 
 	if ( map->selection_region.mode == MAP_NEWOBJECT ) /* new object click & drag */
 	{
@@ -940,8 +913,10 @@ static gboolean gtk_alchera_map_motion_notify( GtkWidget *widget, GdkEventMotion
 	}
 	else if ( map->selection_region.mode == MAP_PLACEOBJECT )
 	{
-		if ( map->selection_region.ident ) {
-			gtk_alchera_map_status_text( map->status_widget, "Click to start placing Map Object at x:%f y:%f ", (gint)event->x, (gint)event->y);
+		if ( map->selection_region.ident )
+		{
+			gtk_alchera_map_status_text( map->status_widget, "Click to start placing Map Object at x:%0.f y:%0.f ", event_x, event_y);
+
 			map->selection_region.x = event_x;
 			map->selection_region.y = event_y;
 			if ( map->align )
@@ -955,212 +930,82 @@ static gboolean gtk_alchera_map_motion_notify( GtkWidget *widget, GdkEventMotion
 		else
 			map->selection_region.mode = MAP_NONE;
 	}
-	else
-	{
 
-	}
 
 	return continue_motion;
 }
 
+/* Input Event */
+gboolean gtk_alchera_map_grab( GtkWidget *widget, GdkEventButton *event )
+{
 
+	gtk_widget_grab_focus( widget );
+
+	return TRUE;
+}
+
+static void gtk_alchera_map_button_press_placeobject( AlcheraMap * map, GtkWidget * widget, GdkEventButton * event, gdouble event_x, gdouble event_y )
+{
+	if ( event->button == GDK_BUTTON_PRIMARY )
+	{
+		map->selection_region.x = event_x;
+		map->selection_region.y = event_y;
+
+		if ( map->align )
+		{
+			map->selection_region.x =(gdouble)(((gint)map->selection_region.x / map->grid_value) * map->grid_value);
+			map->selection_region.y =(gdouble)(((gint)map->selection_region.y / map->grid_value) * map->grid_value);
+		}
+
+		map->selection_region.mode = MAP_NEWOBJECT;
+		map->selection_region.active = TRUE;
+	}
+
+}
 
 /**********************************
+* gtk_alchera_map_button_press
 * Event: Mouse Button Released
 *
 */
-static gboolean gtk_alchera_map_button_release( GtkWidget *widget, GdkEventButton *event )
+static gboolean gtk_alchera_map_button_press( GtkWidget *widget, GdkEventButton *event )
 {
 	AlcheraMap * map = GTK_ALCHERA_MAP(widget);
-	gtk_widget_grab_focus( widget );
+
 
 	gdouble event_x = event->x / map->scale;
 	gdouble event_y = event->y / map->scale;
 
-
 	if ( map->selection_region.mode == MAP_PLACEOBJECT ) /* Start Drag */
 	{
-		if ( event->button == GDK_BUTTON_PRIMARY && event->type == GDK_BUTTON_PRESS )
-		{
-			map->selection_region.x = event_x;
-			map->selection_region.y = event_y;
-
-			if ( map->align )
-			{
-				map->selection_region.x =(gdouble)(((gint)map->selection_region.x / map->grid_value) * map->grid_value);
-				map->selection_region.y =(gdouble)(((gint)map->selection_region.y / map->grid_value) * map->grid_value);
-			}
-
-			map->selection_region.mode = MAP_NEWOBJECT;
-			map->selection_region.active = TRUE;
-		}
+		gtk_alchera_map_button_press_placeobject( map, widget, event, event_x, event_y );
 	}
 	else if ( map->selection_region.mode == MAP_NEWOBJECT ) /* End Drag */
 	{
-		if ( event->button == GDK_BUTTON_PRIMARY && event->type == GDK_BUTTON_RELEASE )
-		{
-			map->selection_region.active = FALSE;
-			if ( map->selection_region.ident )
-			{
-				map->selection_region.w = event_x;
-				map->selection_region.h = event_y;
-				map->selection_region.w -= map->selection_region.x;
-				map->selection_region.h -= map->selection_region.y;
 
-				if (map->selection_region.w < map->selection_region.sw)
-					map->selection_region.w = map->selection_region.sw;
-				else
-					map->selection_region.w = (gdouble)((gint)(map->selection_region.w / map->selection_region.sw)) * map->selection_region.sw;
-				if (map->selection_region.h < map->selection_region.sh)
-					map->selection_region.h = map->selection_region.sh;
-				else
-					map->selection_region.h = (gdouble)((gint)(map->selection_region.h / map->selection_region.sh)) * map->selection_region.sh;
-
-				/* Add New Object */
-				DisplayObject * obj = Alchera_DisplayObject_Add( map->info, map->selection_region.ident, map->selection_region.x, map->selection_region.y, map->selection_region.w, map->selection_region.h, gtk_alchera_map_get_layer(map) );
-				if ( obj )
-				{
-					map->info->display_list = g_list_insert_sorted_with_data( map->info->display_list, (gpointer)obj, (GCompareDataFunc)Alchera_DisplayObject_Order, NULL);
-
-					/* Remove Active Flag from prevuios selected object */
-					if ( map->selected )
-					{
-						map->selected->active = FALSE;
-						map->map_mode = WIDGETMAP_NORMAL;
-					}
-
-					map->selected = obj;
-				}
-
-				/* If Shift is pressed, continue adding objects */
-				if ( event->state & GDK_SHIFT_MASK )
-				{
-					map->selection_region.mode = MAP_PLACEOBJECT;
-				}
-				else
-				{
-					if ( map->selection_region.ident )
-					{
-						g_free(map->selection_region.ident);
-						map->selection_region.ident = NULL;
-					}
-					gtk_alchera_map_clear_selection_region( widget, map );
-				}
-			}
-			else
-			{
-				gtk_alchera_map_clear_selection_region( widget, map );
-			}
-		}
 	}
 	else if ( map->selection_region.mode == MAP_MOVINGOBJECT )
 	{
-		if ( event->button == GDK_BUTTON_PRIMARY && event->type == GDK_BUTTON_RELEASE )
-		{
-			gtk_alchera_map_undo_push( map, map->selected );
-			gtk_widget_queue_draw_area(widget, (gint)map->selected->x-8,  (gint)map->selected->y - 8,  (gint)map->selected->w + 8,  (gint)map->selected->h+ 8);
 
-			if ( map->selected->type == DT_POINT )
-			{
-				map->selected->x = (map->selection_region.x) - map->parent->x;
-				map->selected->y = (map->selection_region.y) - map->parent->y;
-			}
-			else
-			{
-				map->selected->x = (map->selection_region.x);
-				map->selected->y = (map->selection_region.y);
-			}
-
-			if ( map->selected->path )
-			{
-				/* If path exist, change the first position of it */
-				DisplayObject * objn = g_slist_nth_data( map->selected->path, 0);
-				if (objn)
-				{
-					objn->x = map->selected->x;
-					objn->y = map->selected->y;
-				}
-			}
-			gtk_widget_queue_draw_area(widget, (gint)map->selected->x-8,  (gint)map->selected->y - 8,  (gint)map->selected->w + 8,  (gint)map->selected->h+ 8);
-
-			map->selection_region.active = FALSE;
-			map->selection_region.mode = MAP_NONE;
-			map->selection_region.id = 0;
-			map->selection_region.offset_x = 0;
-			map->selection_region.offset_y = 0;
-
-#if GTK_MAJOR_VERSION == 2
-			gdk_pointer_ungrab( map->grab_time );
-#else
-			gdk_device_ungrab( gtk_get_current_event_device(), map->grab_time );
-#endif
-
-			gdk_window_set_cursor( gtk_widget_get_window(widget), NULL );
-			gtk_grab_remove(widget);
-		}
 	}
 	else if ( map->selection_region.mode == MAP_RESIZEOBJECT )
 	{
-		if ( event->button == GDK_BUTTON_PRIMARY && event->type == GDK_BUTTON_RELEASE )
-		{
-			if ( map->selected->resizable )
-			{
-				gtk_alchera_map_undo_push( map, map->selected );
 
-				map->selected->w = map->selection_region.w;
-				map->selected->h = map->selection_region.h;
-
-				Alchera_DisplayObject_RefreshBorder(map->selected);
-
-				gtk_widget_queue_draw_area(widget, (gint)map->selected->x-8,  (gint)map->selected->y - 8,  (gint)map->selected->w + 8,  (gint)map->selected->h + 8);
-
-				map->selection_region.active = FALSE;
-				map->selection_region.mode = MAP_NONE;
-				map->selection_region.id = 0;
-				map->selection_region.offset_x = 0;
-				map->selection_region.offset_y = 0;
-#if GTK_MAJOR_VERSION == 2
-				gdk_pointer_ungrab( map->grab_time );
-#else
-				gdk_device_ungrab( gtk_get_current_event_device(), map->grab_time );
-#endif
-				gdk_window_set_cursor( gtk_widget_get_window(widget), NULL );
-				gtk_grab_remove(widget);
-			}
-		}
 	}
 	else if ( map->selection_region.mode == MAP_ADDPOINT ) /* Add point */
 	{
-		if ( event->button == GDK_BUTTON_PRIMARY && event->type == GDK_BUTTON_RELEASE )
-		{
-			DisplayObject * objn = g_new0(DisplayObject, 1);
-			map->parent->path = g_slist_append( map->parent->path, objn );
-			objn->x = event_x;
-			objn->y = event_y;
-			objn->w = objn->h = 16;
-			objn->type = DT_PATHITEM;
-			objn->layer = 255;
-
-			map->selection_region.mode = MAP_NONE;
-
-			map->selection_region.active = FALSE;
-
-			map->selected = (DisplayObject *)g_slist_nth_data(map->parent->path, 0);
-
-			gtk_widget_queue_draw(widget);
-		}
 
 	}
 	else /* Select */
 	{
-		if (event->button == GDK_BUTTON_SECONDARY && event->type == GDK_BUTTON_PRESS ) // Right Click
+		if ( event->button == GDK_BUTTON_SECONDARY ) // Right Click
 		{
 			GtkWidget * menu_widget = gtk_alchera_map_object_submenu( map, map->selected );
 			gtk_menu_popup( GTK_MENU(menu_widget), NULL, NULL, NULL, NULL, event->button, event->time);
 		}
 		else if ( event->button == GDK_BUTTON_PRIMARY )
 		{
-			if ( !map->object_held && event->type == GDK_BUTTON_PRESS )
+			if ( !map->object_held )
 			{
 				/* Check for Collisions */
 				if ( map->map_mode == WIDGETMAP_NORMAL ) /* Normal Mode */
@@ -1195,7 +1040,6 @@ static gboolean gtk_alchera_map_button_release( GtkWidget *widget, GdkEventButto
 
 						gtk_widget_queue_draw_area(widget, (gint)map->selected->x-8,  (gint)map->selected->y - 8,  (gint)map->selected->w + 8,  (gint)map->selected->h+ 8);
 
-
 						/* reset selection */
 						map->selected = NULL;
 						map->info->selected = NULL;
@@ -1222,6 +1066,8 @@ static gboolean gtk_alchera_map_button_release( GtkWidget *widget, GdkEventButto
 								list_scan = g_list_previous(list_scan);
 							}
 						}
+						if ( !map->selected )
+							gtk_alchera_map_status_text( map->status_widget, "Click to select an object.");
 					}
 				}
 				else if ( map->map_mode == WIDGETMAP_POINTS )
@@ -1249,11 +1095,15 @@ static gboolean gtk_alchera_map_button_release( GtkWidget *widget, GdkEventButto
 							}
 						}
 					}
+					if ( !map->selected )
+						gtk_alchera_map_status_text( map->status_widget, "Click to select an polygon point.");
+
 				}
 				else if ( map->map_mode == WIDGETMAP_PATH )
 				{
 					if ( map->selected )
 						map->selected->active = FALSE;
+
 					map->selected = NULL;
 					if ( map->parent && map->parent->path )
 					{
@@ -1277,6 +1127,9 @@ static gboolean gtk_alchera_map_button_release( GtkWidget *widget, GdkEventButto
 							}
 						}
 					}
+
+					if ( !map->selected )
+						gtk_alchera_map_status_text( map->status_widget, "Click to select an path point.");
 				}
 
 				/* If nothing is selected, reset the mode back to normal */
@@ -1296,19 +1149,233 @@ static gboolean gtk_alchera_map_button_release( GtkWidget *widget, GdkEventButto
 		}
 		return TRUE;
 	}
+
 	gtk_widget_queue_draw( widget );
 	return FALSE;
 }
 
-static gboolean gtk_alchera_map_button_press( GtkWidget * widget, GdkEventKey *event )
+static void gtk_alchera_map_button_release_newobject( AlcheraMap * map, GtkWidget * widget, GdkEventButton * event, gdouble event_x, gdouble event_y )
+{
+	if ( event->button == GDK_BUTTON_PRIMARY )
+	{
+		map->selection_region.active = FALSE;
+		if ( map->selection_region.ident )
+		{
+			map->selection_region.w = event_x;
+			map->selection_region.h = event_y;
+			map->selection_region.w -= map->selection_region.x;
+			map->selection_region.h -= map->selection_region.y;
+
+			if (map->selection_region.w < map->selection_region.sw)
+				map->selection_region.w = map->selection_region.sw;
+			else
+				map->selection_region.w = (gdouble)((gint)(map->selection_region.w / map->selection_region.sw)) * map->selection_region.sw;
+			if (map->selection_region.h < map->selection_region.sh)
+				map->selection_region.h = map->selection_region.sh;
+			else
+				map->selection_region.h = (gdouble)((gint)(map->selection_region.h / map->selection_region.sh)) * map->selection_region.sh;
+
+			/* Add New Object */
+			DisplayObject * obj = Alchera_DisplayObject_Add( map->info, map->selection_region.ident, map->selection_region.x, map->selection_region.y, map->selection_region.w, map->selection_region.h, gtk_alchera_map_get_layer(map) );
+			if ( obj )
+			{
+				map->info->display_list = g_list_insert_sorted_with_data( map->info->display_list, (gpointer)obj, (GCompareDataFunc)Alchera_DisplayObject_Order, NULL);
+
+				/* Remove Active Flag from prevuios selected object */
+				if ( map->selected )
+				{
+					map->selected->active = FALSE;
+					map->map_mode = WIDGETMAP_NORMAL;
+				}
+
+				map->selected = obj;
+			}
+
+			/* If Shift is pressed, continue adding objects */
+			if ( event->state & GDK_SHIFT_MASK )
+			{
+				map->selection_region.mode = MAP_PLACEOBJECT;
+			}
+			else
+			{
+				if ( map->selection_region.ident )
+				{
+					g_free(map->selection_region.ident);
+					map->selection_region.ident = NULL;
+				}
+				gtk_alchera_map_clear_selection_region( widget, map );
+			}
+		}
+		else
+		{
+			gtk_alchera_map_clear_selection_region( widget, map );
+		}
+	}
+}
+
+static void gtk_alchera_map_button_release_movingobject( AlcheraMap * map, GtkWidget * widget, GdkEventButton * event, gdouble event_x, gdouble event_y )
+{
+	if ( event->button == GDK_BUTTON_PRIMARY )
+	{
+		gtk_alchera_map_undo_push( map, map->selected );
+		gtk_widget_queue_draw_area(widget, (gint)map->selected->x-8,  (gint)map->selected->y - 8,  (gint)map->selected->w + 8,  (gint)map->selected->h+ 8);
+
+		if ( map->selected->type == DT_POINT )
+		{
+			map->selected->x = (map->selection_region.x) - map->parent->x;
+			map->selected->y = (map->selection_region.y) - map->parent->y;
+		}
+		else
+		{
+			map->selected->x = (map->selection_region.x);
+			map->selected->y = (map->selection_region.y);
+		}
+
+		if ( map->selected->path )
+		{
+			/* If path exist, change the first position of it */
+			DisplayObject * objn = g_slist_nth_data( map->selected->path, 0);
+			if (objn)
+			{
+				objn->x = map->selected->x;
+				objn->y = map->selected->y;
+			}
+		}
+		gtk_widget_queue_draw_area(widget, (gint)map->selected->x-8,  (gint)map->selected->y - 8,  (gint)map->selected->w + 8,  (gint)map->selected->h+ 8);
+
+		map->selection_region.active = FALSE;
+
+		gtk_alchera_map_clear_selection_region( widget, map );
+
+	}
+}
+
+static void gtk_alchera_map_button_release_resizeobject( AlcheraMap * map, GtkWidget * widget, GdkEventButton * event, gdouble event_x, gdouble event_y )
+{
+	if ( event->button == GDK_BUTTON_PRIMARY )
+	{
+		if ( map->selected->resizable )
+		{
+			gtk_alchera_map_undo_push( map, map->selected );
+
+			map->selected->w = map->selection_region.w;
+			map->selected->h = map->selection_region.h;
+
+			Alchera_DisplayObject_RefreshBorder(map->selected);
+
+			map->selection_region.active = FALSE;
+
+			gtk_alchera_map_clear_selection_region( widget, map );
+
+			gtk_widget_queue_draw_area(widget, (gint)map->selected->x-8,  (gint)map->selected->y - 8,  (gint)map->selected->w + 8,  (gint)map->selected->h + 8);
+		}
+	}
+}
+
+static void gtk_alchera_map_button_release_addpoint( AlcheraMap * map, GtkWidget * widget, GdkEventButton * event, gdouble event_x, gdouble event_y )
+{
+	if ( event->button == GDK_BUTTON_PRIMARY )
+	{
+		DisplayObject * objn = g_new0(DisplayObject, 1);
+		map->parent->path = g_slist_append( map->parent->path, objn );
+		objn->x = event_x;
+		objn->y = event_y;
+		objn->w = objn->h = 16;
+		objn->type = DT_PATHITEM;
+		objn->layer = 255;
+
+		map->selection_region.mode = MAP_ADDPOINT;
+		map->selection_region.active = FALSE;
+		map->selected = (DisplayObject *)g_slist_nth_data(map->parent->path, 0);
+
+		gtk_widget_queue_draw(widget);
+	}
+
+	if ( event->button == GDK_BUTTON_SECONDARY )
+	{
+		map->selection_region.mode = MAP_NONE;
+
+		gtk_alchera_map_status_text( map->status_widget, "Select path point to move.");
+	}
+}
+
+/**********************************
+* gtk_alchera_map_button_release
+* Event: Mouse Button Released
+*
+*/
+static gboolean gtk_alchera_map_button_release( GtkWidget *widget, GdkEventButton *event )
+{
+	AlcheraMap * map = GTK_ALCHERA_MAP(widget);
+	gtk_widget_grab_focus( widget );
+
+	gdouble event_x = event->x / map->scale;
+	gdouble event_y = event->y / map->scale;
+
+
+	if ( map->selection_region.mode == MAP_PLACEOBJECT ) /* Start Drag */
+	{
+	}
+	else if ( map->selection_region.mode == MAP_NEWOBJECT ) /* End Drag */
+	{
+		gtk_alchera_map_button_release_newobject( map,  widget, event, event_x, event_y );
+	}
+	else if ( map->selection_region.mode == MAP_MOVINGOBJECT )
+	{
+		gtk_alchera_map_button_release_movingobject( map,  widget, event, event_x, event_y );
+	}
+	else if ( map->selection_region.mode == MAP_RESIZEOBJECT )
+	{
+		gtk_alchera_map_button_release_resizeobject( map,  widget, event, event_x, event_y );
+	}
+	else if ( map->selection_region.mode == MAP_ADDPOINT ) /* Add point */
+	{
+		gtk_alchera_map_button_release_addpoint( map,  widget, event, event_x, event_y );
+	}
+	else /* Select */
+	{
+		if ( event->button == GDK_BUTTON_PRIMARY )
+		{
+			if ( !map->object_held && event->type == GDK_BUTTON_PRESS )
+			{
+
+			}
+			else
+			{
+				map->object_held = 0;
+			}
+		}
+
+		return TRUE;
+	}
+	gtk_widget_queue_draw( widget );
+	return FALSE;
+}
+
+/**********************************
+* gtk_alchera_map_button_press
+* Event: Mouse Button press
+*
+*/
+static gboolean gtk_alchera_map_key_release( GtkWidget * widget, GdkEventKey *event )
 {
 	AlcheraMap * map = GTK_ALCHERA_MAP(widget);
 
 	if ( event->keyval == GDK_KEY_Escape )
 	{
+		if ( map->selection_region.mode == MAP_ADDPOINT )
+		{
+			map->map_mode = WIDGETMAP_POINTS;
+		}
+		else
+		{
+			map->map_mode = WIDGETMAP_NORMAL;
+		}
+
+
 		/*
 		if ( gdk_pointer_is_grabbed () )
-		{*/
+		{
 #if GTK_MAJOR_VERSION == 2
 			gdk_pointer_ungrab( map->grab_time );
 #else
@@ -1316,7 +1383,8 @@ static gboolean gtk_alchera_map_button_press( GtkWidget * widget, GdkEventKey *e
 #endif
 			gdk_window_set_cursor( gtk_widget_get_window(widget), NULL );
 			gtk_grab_remove(widget);
-		/*}*/
+		}
+		*/
 		map->selection_region.mode = MAP_NONE;
 		map->selection_region.active = FALSE;
 		gtk_widget_queue_draw( widget );
@@ -1343,11 +1411,11 @@ static gboolean gtk_alchera_map_button_press( GtkWidget * widget, GdkEventKey *e
 			map->selected->h -= height;
 			if (map->selected->h <= height)
 			{
-				map->selected->tile = FALSE;
+				map->selected->tiled_image = FALSE;
 				map->selected->h = height;
 			}
 			else
-				map->selected->tile = TRUE;
+				map->selected->tiled_image = TRUE;
 		}
 		else
 			map->selected->y -= Alchera_DisplayObject_StandardMovement(event->state, map->align );
@@ -1361,11 +1429,11 @@ static gboolean gtk_alchera_map_button_press( GtkWidget * widget, GdkEventKey *e
 			map->selected->h += height;
 			if (map->selected->h <= height)
 			{
-				map->selected->tile = FALSE;
+				map->selected->tiled_image = FALSE;
 				map->selected->h = height;
 			}
 			else
-				map->selected->tile = TRUE;
+				map->selected->tiled_image = TRUE;
 		}
 		else
 			map->selected->y += Alchera_DisplayObject_StandardMovement(event->state, map->align );
@@ -1379,11 +1447,11 @@ static gboolean gtk_alchera_map_button_press( GtkWidget * widget, GdkEventKey *e
 			map->selected->w -= width;
 			if (map->selected->w <= width)
 			{
-				map->selected->tile = FALSE;
+				map->selected->tiled_image = FALSE;
 				map->selected->w = width;
 			}
 			else
-				map->selected->tile = TRUE;
+				map->selected->tiled_image = TRUE;
 		}
 		else
 			map->selected->x -= Alchera_DisplayObject_StandardMovement(event->state, map->align );
@@ -1397,11 +1465,11 @@ static gboolean gtk_alchera_map_button_press( GtkWidget * widget, GdkEventKey *e
 			map->selected->w += width;
 			if (map->selected->w <= width)
 			{
-				map->selected->tile = FALSE;
+				map->selected->tiled_image = FALSE;
 				map->selected->w = width;
 			}
 			else
-				map->selected->tile = TRUE;
+				map->selected->tiled_image = TRUE;
 		}
 		else
 			map->selected->x += Alchera_DisplayObject_StandardMovement(event->state, map->align );
@@ -1414,59 +1482,24 @@ static gboolean gtk_alchera_map_button_press( GtkWidget * widget, GdkEventKey *e
 	{
 		gtk_alchera_map_undo( map );
 	}
+
 	gtk_widget_queue_draw( widget );
 	return TRUE;
 }
 
-
-#if GTK_MAJOR_VERSION > 2
-void gtk_alchera_map_destroy( GtkWidget * object )
+static gboolean gtk_alchera_map_key_press( GtkWidget * widget, GdkEventKey *event )
 {
-	AlcheraMap * wid;
+	AlcheraMap * map = GTK_ALCHERA_MAP(widget);
 
-	g_return_if_fail(object != NULL);
-	g_return_if_fail(GTK_IS_ALCHERA_MAP(object));
+	return !!( map->selected );
 
-	wid = GTK_ALCHERA_MAP(object);
-
-	if ( wid->info )
-	{
-		if ( wid->info->display_list )
-			g_list_free( wid->info->display_list );
-		g_free( wid->info->name );
-		wid->info = NULL;
-	}
-	if ( wid->menu_widget )
-	{
-		gtk_widget_destroy(wid->menu_widget);
-	}
 }
-#else
-void gtk_alchera_map_destroy( GtkObject * object )
+
+/* Drag and Drop Event */
+void gtk_alchera_map_drop_received( GtkWidget * widget, GdkDragContext *context, gint x, gint y, GtkSelectionData *data, guint type, guint time )
 {
-	AlcheraMap * wid;
-
-	g_return_if_fail(object != NULL);
-	g_return_if_fail(GTK_IS_ALCHERA_MAP(object));
-
-	wid = GTK_ALCHERA_MAP(object);
-
-	if ( wid->info )
-	{
-		if ( wid->info->display_list )
-			g_list_free( wid->info->display_list );
-		g_free( wid->info->name );
-		wid->info = NULL;
-	}
-	if ( wid->menu_widget )
-	{
-		gtk_widget_destroy(wid->menu_widget);
-	}
-}
-#endif
-
-void gtk_alchera_map_drop_received( GtkWidget *widget, GdkDragContext *context, gint x, gint y, GtkSelectionData *data, guint type, guint time )
-{
+	g_return_if_fail(widget != NULL);
+	g_return_if_fail(GTK_IS_ALCHERA_MAP(widget));
 
 	AlcheraMap * map = GTK_ALCHERA_MAP(widget);
 
@@ -1491,12 +1524,7 @@ void gtk_alchera_map_drop_received( GtkWidget *widget, GdkDragContext *context, 
 			map->selection_region.ident = NULL;
 		}
 		gtk_alchera_map_clear_selection_region( widget, map );
-
-
 	}
-
-
-
 
 	gtk_drag_finish(context, TRUE, FALSE, time);
 }
@@ -1520,68 +1548,6 @@ gboolean gtk_alchera_map_drag_drop( GtkWidget *widget, GdkDragContext *context, 
 gboolean gtk_alchera_map_drag_failed (GtkWidget *widget, GdkDragContext *context, GtkDragResult result)
 {
 	return TRUE;
-}
-
-/* Widget Creation */
-static void gtk_alchera_map_class_init( AlcheraMapClass * klass )
-{
-	GtkWidgetClass * widget_class = GTK_WIDGET_CLASS(klass);
-
-	/* GtkWidget signals */
-	widget_class->button_press_event = gtk_alchera_map_button_release;
-	widget_class->button_release_event = gtk_alchera_map_button_release;
-	/*widget_class->key_press_event = gtk_alchera_map_button_press;*/
-	widget_class->key_release_event = gtk_alchera_map_button_press;
-	/*widget_class->grab_broken_event = gtk_alchera_map_grab_break;*/
-
-	widget_class->motion_notify_event = gtk_alchera_map_motion_notify;
-
-	#if GTK_MAJOR_VERSION == 2
-	GtkObjectClass * object_class = GTK_OBJECT_CLASS(klass);
-	widget_class->expose_event = gtk_alchera_map_expose;
-	object_class->destroy = gtk_alchera_map_destroy;
-	#else
-	widget_class->draw = gtk_alchera_map_draw;
-	widget_class->destroy = gtk_alchera_map_destroy;
-	#endif
-
-	widget_class->drag_data_received = gtk_alchera_map_drop_received;
-	widget_class->drag_drop = gtk_alchera_map_drag_drop;
-
-}
-
-static void gtk_alchera_map_init( AlcheraMap * wid )
-{
-	memset( &wid->selection_region, 0, sizeof(MapSelection) );
-	#if GTK_MINOR_VERSION > 17 || GTK_MAJOR_VERSION > 2
-	gtk_widget_set_can_focus( GTK_WIDGET(wid), TRUE );
-	#else
-	GTK_WIDGET_SET_FLAGS( GTK_WIDGET(wid), GTK_CAN_FOCUS );
-	#endif
-
-
-	gtk_widget_add_events( GTK_WIDGET(wid), (GDK_BUTTON_PRESS_MASK | GDK_BUTTON_RELEASE_MASK | GDK_POINTER_MOTION_MASK | GDK_KEY_PRESS_MASK ) );
-	wid->grid_value = g_key_file_get_integer( meg_pref_storage, "numeric", "gridvalue", NULL );
-
-
-	gtk_drag_dest_set( GTK_WIDGET(wid), GTK_DEST_DEFAULT_ALL, &alchera_map_drop_target,1, GDK_ACTION_COPY );
-
-}
-
-GtkWidget * gtk_alchera_map_new( MapInfo * data )
-{
-	g_return_val_if_fail(data != NULL, NULL);
-
-	AlcheraMap * wid = g_object_new( gtk_alchera_map_get_type(), NULL );
-	wid->info = data;
-	wid->scale = 1.0;
-	wid->visible = 0xFFFFFFFF;
-	wid->align = FALSE;
-	wid->undo = NULL;
-	wid->path = NULL;
-	wid->status_widget = NULL;
-
-	return GTK_WIDGET(wid);
 }
 
 
@@ -1705,7 +1671,6 @@ void gtk_alchera_map_set_align( AlcheraMap * wid, gboolean able )
 
 }
 
-
 /********************************
 * gtk_alchera_map_refresh
 *
@@ -1718,14 +1683,11 @@ void gtk_alchera_map_refresh( AlcheraMap * wid )
 
 	GtkWidget * widget  = GTK_WIDGET(wid);
 
-
 	wid->info->display_list = g_list_sort_with_data(wid->info->display_list, (GCompareDataFunc)Alchera_DisplayObject_Order, NULL);
 	wid->scale_width = ((gdouble)wid->info->width * wid->scale);
 	wid->scale_height = ((gdouble)wid->info->height * wid->scale);
 
-
 	gtk_widget_set_size_request( widget, (gint)wid->scale_width, (gint)wid->scale_height);
-
 
 	#if GTK_MAJOR_VERSION > 2
 	if ( gtk_widget_is_drawable( widget ) )
@@ -1744,8 +1706,6 @@ void gtk_alchera_map_refresh( AlcheraMap * wid )
 		gdk_region_destroy( region );
 	}
 	#endif
-
-
 }
 
 /********************************
@@ -1842,7 +1802,10 @@ MapInfo * gtk_alchera_map_get_info( AlcheraMap * wid )
 
 /********************************
 * gtk_alchera_map_set_new_object
-*
+* Create a new obkect to be added to map via drop or click
+-
+-
+
 */
 gboolean gtk_alchera_map_set_new_object( AlcheraMap * wid, gchar * ident, gint width, gint height, GdkPixbuf * object )
 {
@@ -1905,7 +1868,7 @@ gboolean gtk_alchera_map_set_new_object( AlcheraMap * wid, gchar * ident, gint w
 }
 
 /********************************
-* gtk_alchera_map_set_new_object
+* gtk_alchera_map_get_menu_widget
 *
 */
 GtkWidget * gtk_alchera_map_get_menu_widget( AlcheraMap * wid )
@@ -1919,3 +1882,131 @@ GtkWidget * gtk_alchera_map_get_menu_widget( AlcheraMap * wid )
 
 }
 
+
+/********************************
+* gtk_alchera_map_destroy
+*
+*/
+#if GTK_MAJOR_VERSION > 2
+void gtk_alchera_map_destroy( GtkWidget * object )
+{
+	AlcheraMap * wid;
+
+	g_return_if_fail(object != NULL);
+	g_return_if_fail(GTK_IS_ALCHERA_MAP(object));
+
+	wid = GTK_ALCHERA_MAP(object);
+
+	if ( wid->info )
+	{
+		if ( wid->info->display_list )
+			g_list_free( wid->info->display_list );
+		g_free( wid->info->name );
+		wid->info = NULL;
+	}
+	if ( wid->menu_widget )
+	{
+		gtk_widget_destroy(wid->menu_widget);
+	}
+}
+#else
+void gtk_alchera_map_destroy( GtkObject * object )
+{
+	AlcheraMap * wid;
+
+	g_return_if_fail(object != NULL);
+	g_return_if_fail(GTK_IS_ALCHERA_MAP(object));
+
+	wid = GTK_ALCHERA_MAP(object);
+
+	if ( wid->info )
+	{
+		if ( wid->info->display_list )
+			g_list_free( wid->info->display_list );
+		g_free( wid->info->name );
+		wid->info = NULL;
+	}
+	if ( wid->menu_widget )
+	{
+		gtk_widget_destroy(wid->menu_widget);
+	}
+}
+#endif
+
+
+
+/********************************
+* gtk_alchera_map_init
+*
+*/
+static void gtk_alchera_map_init( AlcheraMap * wid )
+{
+	memset( &wid->selection_region, 0, sizeof(MapSelection) );
+
+	#if GTK_MINOR_VERSION > 17 || GTK_MAJOR_VERSION > 2
+	gtk_widget_set_can_focus( GTK_WIDGET(wid), TRUE );
+	#else
+	GTK_WIDGET_SET_FLAGS( GTK_WIDGET(wid), GTK_CAN_FOCUS );
+	#endif
+
+	gtk_widget_add_events( GTK_WIDGET(wid), (GDK_BUTTON_PRESS_MASK | GDK_BUTTON_RELEASE_MASK | GDK_POINTER_MOTION_MASK | GDK_KEY_PRESS_MASK| GDK_KEY_RELEASE_MASK ) );
+	wid->grid_value = g_key_file_get_integer( meg_pref_storage, "numeric", "gridvalue", NULL );
+
+	gtk_drag_dest_set( GTK_WIDGET(wid), GTK_DEST_DEFAULT_ALL, &alchera_map_drop_target,1, GDK_ACTION_COPY );
+
+
+	/* Create Cursor */
+	if ( alchera_map_cursor == NULL )
+	{
+		alchera_map_cursor = gdk_pixbuf_add_alpha( gdk_pixbuf_new_from_inline( -1, dnd_cursor_copy, FALSE, NULL ), FALSE, 0, 0, 0 );
+	}
+
+}
+
+/********************************
+* gtk_alchera_map_new
+*
+*/
+GtkWidget * gtk_alchera_map_new( MapInfo * data )
+{
+	g_return_val_if_fail(data != NULL, NULL);
+
+	AlcheraMap * wid = g_object_new( gtk_alchera_map_get_type(), NULL );
+	wid->info = data;
+	wid->scale = 1.0;
+	wid->visible = 0xFFFFFFFF;
+	wid->align = FALSE;
+	wid->undo = NULL;
+	wid->path = NULL;
+	wid->status_widget = NULL;
+
+	return GTK_WIDGET(wid);
+}
+
+/* Widget Creation */
+static void gtk_alchera_map_class_init( AlcheraMapClass * klass )
+{
+	GtkWidgetClass * widget_class = GTK_WIDGET_CLASS(klass);
+
+	/* GtkWidget signals */
+	widget_class->button_press_event = gtk_alchera_map_button_press;
+	widget_class->button_release_event = gtk_alchera_map_button_release;
+	widget_class->key_release_event = gtk_alchera_map_key_release;
+	widget_class->key_press_event = gtk_alchera_map_key_press;
+	/*widget_class->grab_broken_event = gtk_alchera_map_grab_break;*/
+
+	widget_class->motion_notify_event = gtk_alchera_map_motion_notify;
+
+	#if GTK_MAJOR_VERSION == 2
+	GtkObjectClass * object_class = GTK_OBJECT_CLASS(klass);
+	widget_class->expose_event = gtk_alchera_map_expose;
+	object_class->destroy = gtk_alchera_map_destroy;
+	#else
+	widget_class->draw = gtk_alchera_map_draw;
+	widget_class->destroy = gtk_alchera_map_destroy;
+	#endif
+
+	widget_class->drag_data_received = gtk_alchera_map_drop_received;
+	widget_class->drag_drop = gtk_alchera_map_drag_drop;
+
+}

@@ -74,7 +74,7 @@ struct _AlcheraMap {
 	GtkWidget * menu_widget;
 
 };
-//typedef struct _AlcheraMap AlcheraMap;
+
 
 struct _AlcheraMapClass {
 	GtkDrawingAreaClass parent_class;

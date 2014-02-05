@@ -268,6 +268,20 @@ Hold Shift to place object multiple times
       </object>
     </child>
   </object>
+  <object class="GtkListStore" id="store_current_objects">
+    <columns>
+      <!-- column-name guint1 -->
+      <column type="guint"/>
+      <!-- column-name gchararray1 -->
+      <column type="gchararray"/>
+      <!-- column-name gdouble1 -->
+      <column type="gdouble"/>
+      <!-- column-name gdouble2 -->
+      <column type="gdouble"/>
+      <!-- column-name guint2 -->
+      <column type="guint"/>
+    </columns>
+  </object>
   <object class="GtkListStore" id="store_groups">
     <columns>
       <!-- column-name gchararray1 -->
@@ -317,20 +331,6 @@ Hold Shift to place object multiple times
       <column type="gint"/>
       <!-- column-name gint2 -->
       <column type="gint"/>
-    </columns>
-  </object>
-  <object class="GtkListStore" id="store_current_objects">
-    <columns>
-      <!-- column-name guint1 -->
-      <column type="guint"/>
-      <!-- column-name gchararray1 -->
-      <column type="gchararray"/>
-      <!-- column-name gdouble1 -->
-      <column type="gdouble"/>
-      <!-- column-name gdouble2 -->
-      <column type="gdouble"/>
-      <!-- column-name guint2 -->
-      <column type="guint"/>
     </columns>
   </object>
   <object class="GtkListStore" id="wrap_store">
@@ -872,6 +872,12 @@ Hold Shift to place object multiple times
                 <child>
                   <placeholder/>
                 </child>
+                <child>
+                  <placeholder/>
+                </child>
+                <child>
+                  <placeholder/>
+                </child>
               </object>
               <packing>
                 <property name="expand">False</property>
@@ -1045,7 +1051,7 @@ Hold Shift to place object multiple times
                             <child>
                               <object class="GtkCellRendererText" id="cellrenderertext5"/>
                               <attributes>
-                                <attribute name="text">1</attribute>
+                                <attribute name="text">0</attribute>
                               </attributes>
                             </child>
                           </object>
@@ -1056,7 +1062,7 @@ Hold Shift to place object multiple times
                             <child>
                               <object class="GtkCellRendererText" id="cellrenderertext4"/>
                               <attributes>
-                                <attribute name="text">0</attribute>
+                                <attribute name="text">1</attribute>
                               </attributes>
                             </child>
                           </object>
@@ -1331,6 +1337,15 @@ Hold Shift to place object multiple times
                             <property name="visible">True</property>
                             <property name="can_focus">False</property>
                             <property name="n_columns">3</property>
+                            <child>
+                              <placeholder/>
+                            </child>
+                            <child>
+                              <placeholder/>
+                            </child>
+                            <child>
+                              <placeholder/>
+                            </child>
                             <child>
                               <placeholder/>
                             </child>

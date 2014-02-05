@@ -454,7 +454,7 @@ gboolean Meg_Dialog_Export()
 			{
 				folders = g_slist_prepend(folders, "scripts");
 				folders = g_slist_prepend(folders, "scripts/routines");
-				folders = g_slist_prepend(folders, "scripts/routines/map_features");
+				folders = g_slist_prepend(folders, "scripts/map/routines");
 				folders = g_slist_prepend(folders, "c/scripts");
 			}
 			if ( inc_soundfx ) { folders = g_slist_prepend(folders, "soundfx"); }

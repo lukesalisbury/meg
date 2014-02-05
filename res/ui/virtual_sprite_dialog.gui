@@ -2,16 +2,10 @@
 <interface>
   <requires lib="gtk+" version="2.20"/>
   <!-- interface-naming-policy toplevel-contextual -->
-  <object class="GtkListStore" id="store_groups">
-    <columns>
-      <!-- column-name gchararray1 -->
-      <column type="gchararray"/>
-    </columns>
-    <data>
-      <row>
-        <col id="0" translatable="yes">No Map Loaded</col>
-      </row>
-    </data>
+  <object class="GtkImage" id="image_prev1">
+    <property name="visible">True</property>
+    <property name="can_focus">False</property>
+    <property name="stock">gtk-media-previous</property>
   </object>
   <object class="GtkImage" id="image_next1">
     <property name="visible">True</property>
@@ -23,33 +17,10 @@
     <property name="can_focus">False</property>
     <property name="stock">gtk-media-next</property>
   </object>
-  <object class="GtkImage" id="image_prev1">
-    <property name="visible">True</property>
-    <property name="can_focus">False</property>
-    <property name="stock">gtk-media-previous</property>
-  </object>
   <object class="GtkImage" id="image_prev2">
     <property name="visible">True</property>
     <property name="can_focus">False</property>
     <property name="stock">gtk-media-previous</property>
-  </object>
-  <object class="GtkListStore" id="store_objects">
-    <columns>
-      <!-- column-name icon -->
-      <column type="GdkPixbuf"/>
-      <!-- column-name gchararray1 -->
-      <column type="gchararray"/>
-      <!-- column-name gchararray2 -->
-      <column type="gchararray"/>
-      <!-- column-name gboolean1 -->
-      <column type="gboolean"/>
-      <!-- column-name guchar1 -->
-      <column type="guchar"/>
-      <!-- column-name gint1 -->
-      <column type="gint"/>
-      <!-- column-name gint2 -->
-      <column type="gint"/>
-    </columns>
   </object>
   <object class="GtkListStore" id="store_current_objects">
     <columns>
@@ -73,6 +44,35 @@
         <col id="4">0</col>
       </row>
     </data>
+  </object>
+  <object class="GtkListStore" id="store_groups">
+    <columns>
+      <!-- column-name gchararray1 -->
+      <column type="gchararray"/>
+    </columns>
+    <data>
+      <row>
+        <col id="0" translatable="yes">No Map Loaded</col>
+      </row>
+    </data>
+  </object>
+  <object class="GtkListStore" id="store_objects">
+    <columns>
+      <!-- column-name icon -->
+      <column type="GdkPixbuf"/>
+      <!-- column-name gchararray1 -->
+      <column type="gchararray"/>
+      <!-- column-name gchararray2 -->
+      <column type="gchararray"/>
+      <!-- column-name gboolean1 -->
+      <column type="gboolean"/>
+      <!-- column-name guchar1 -->
+      <column type="guchar"/>
+      <!-- column-name gint1 -->
+      <column type="gint"/>
+      <!-- column-name gint2 -->
+      <column type="gint"/>
+    </columns>
   </object>
   <object class="GtkListStore" id="store_sprites">
     <columns>
@@ -146,7 +146,6 @@
             <child>
               <object class="GtkButton" id="button_save">
                 <property name="label">gtk-save</property>
-                <property name="use_action_appearance">False</property>
                 <property name="visible">True</property>
                 <property name="can_focus">True</property>
                 <property name="receives_default">True</property>
@@ -161,7 +160,6 @@
             <child>
               <object class="GtkButton" id="button_close">
                 <property name="label">gtk-close</property>
-                <property name="use_action_appearance">False</property>
                 <property name="visible">True</property>
                 <property name="can_focus">True</property>
                 <property name="receives_default">True</property>
@@ -225,71 +223,78 @@
             <property name="visible">True</property>
             <property name="can_focus">False</property>
             <child>
-              <object class="GtkTreeView" id="treeview_objects">
-                <property name="height_request">200</property>
+              <object class="GtkScrolledWindow" id="scrolledwindow2">
                 <property name="visible">True</property>
                 <property name="can_focus">True</property>
-                <property name="model">store_current_objects</property>
-                <property name="headers_clickable">False</property>
-                <property name="search_column">0</property>
+                <property name="hscrollbar_policy">automatic</property>
+                <property name="vscrollbar_policy">automatic</property>
                 <child>
-                  <object class="GtkTreeViewColumn" id="treeviewcolumn2">
-                    <property name="title">ID</property>
+                  <object class="GtkTreeView" id="treeview_objects">
+                    <property name="visible">True</property>
+                    <property name="can_focus">True</property>
+                    <property name="model">store_current_objects</property>
+                    <property name="headers_clickable">False</property>
+                    <property name="search_column">0</property>
                     <child>
-                      <object class="GtkCellRendererText" id="cellrenderertext5"/>
-                      <attributes>
-                        <attribute name="text">1</attribute>
-                      </attributes>
+                      <object class="GtkTreeViewColumn" id="treeviewcolumn2">
+                        <property name="title">ID</property>
+                        <child>
+                          <object class="GtkCellRendererText" id="cellrenderertext5"/>
+                          <attributes>
+                            <attribute name="text">0</attribute>
+                          </attributes>
+                        </child>
+                      </object>
                     </child>
-                  </object>
-                </child>
-                <child>
-                  <object class="GtkTreeViewColumn" id="treeviewcolumn1">
-                    <property name="title">Type</property>
                     <child>
-                      <object class="GtkCellRendererText" id="cellrenderertext4"/>
-                      <attributes>
-                        <attribute name="text">0</attribute>
-                      </attributes>
+                      <object class="GtkTreeViewColumn" id="treeviewcolumn1">
+                        <property name="title">Type</property>
+                        <child>
+                          <object class="GtkCellRendererText" id="cellrenderertext4"/>
+                          <attributes>
+                            <attribute name="text">1</attribute>
+                          </attributes>
+                        </child>
+                      </object>
                     </child>
-                  </object>
-                </child>
-                <child>
-                  <object class="GtkTreeViewColumn" id="treeviewcolumn3">
-                    <property name="title">X</property>
                     <child>
-                      <object class="GtkCellRendererText" id="cellrenderertext6"/>
-                      <attributes>
-                        <attribute name="text">2</attribute>
-                      </attributes>
+                      <object class="GtkTreeViewColumn" id="treeviewcolumn3">
+                        <property name="title">X</property>
+                        <child>
+                          <object class="GtkCellRendererText" id="cellrenderertext6"/>
+                          <attributes>
+                            <attribute name="text">2</attribute>
+                          </attributes>
+                        </child>
+                      </object>
                     </child>
-                  </object>
-                </child>
-                <child>
-                  <object class="GtkTreeViewColumn" id="treeviewcolumn4">
-                    <property name="title">Y</property>
                     <child>
-                      <object class="GtkCellRendererText" id="cellrenderertext7"/>
-                      <attributes>
-                        <attribute name="text">3</attribute>
-                      </attributes>
+                      <object class="GtkTreeViewColumn" id="treeviewcolumn4">
+                        <property name="title">Y</property>
+                        <child>
+                          <object class="GtkCellRendererText" id="cellrenderertext7"/>
+                          <attributes>
+                            <attribute name="text">3</attribute>
+                          </attributes>
+                        </child>
+                      </object>
                     </child>
-                  </object>
-                </child>
-                <child>
-                  <object class="GtkTreeViewColumn" id="treeviewcolumn5">
-                    <property name="title">Z</property>
                     <child>
-                      <object class="GtkCellRendererText" id="cellrenderertext8"/>
-                      <attributes>
-                        <attribute name="text">4</attribute>
-                      </attributes>
+                      <object class="GtkTreeViewColumn" id="treeviewcolumn5">
+                        <property name="title">Z</property>
+                        <child>
+                          <object class="GtkCellRendererText" id="cellrenderertext8"/>
+                          <attributes>
+                            <attribute name="text">4</attribute>
+                          </attributes>
+                        </child>
+                      </object>
                     </child>
                   </object>
                 </child>
               </object>
               <packing>
-                <property name="expand">False</property>
+                <property name="expand">True</property>
                 <property name="fill">True</property>
                 <property name="position">0</property>
               </packing>
@@ -326,7 +331,6 @@
                     <property name="can_focus">False</property>
                     <child>
                       <object class="GtkButton" id="button_prevgroup">
-                        <property name="use_action_appearance">False</property>
                         <property name="visible">True</property>
                         <property name="can_focus">True</property>
                         <property name="receives_default">True</property>
@@ -359,7 +363,6 @@
                     </child>
                     <child>
                       <object class="GtkButton" id="button_nextgroup">
-                        <property name="use_action_appearance">False</property>
                         <property name="visible">True</property>
                         <property name="can_focus">True</property>
                         <property name="receives_default">True</property>

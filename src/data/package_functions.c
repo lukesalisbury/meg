@@ -592,7 +592,7 @@ void Package_Import(const gchar * file, GtkWidget * progress_widget, GtkTreeMode
 	package->iter = iter;
 	package->filename = g_strdup(file);
 
-	if ( g_thread_create( (GThreadFunc)Package_ImportThread, (gpointer)package, FALSE, NULL ) )
+	if ( g_thread_try_new( "package", (GThreadFunc)Package_ImportThread, (gpointer)package, NULL ) )
 	{
 		g_timeout_add( 20, (GSourceFunc)Package_ImportWatch, (gpointer)package );
 	}

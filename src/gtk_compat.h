@@ -22,10 +22,8 @@ typedef struct {
   gdouble alpha;
 } GdkRGBA;
 
-
 void gdk_cairo_set_source_rgba( cairo_t * cr, const GdkRGBA * rgba );
 GdkPixbuf * gdk_pixbuf_get_from_surface( cairo_surface_t *surface, gint src_x, gint src_y,  gint width, gint height);
-
 GtkWidget * gtk_box_new( GtkOrientation orientation, gint spacing );
 
 #endif
@@ -35,7 +33,6 @@ GThread * g_thread_try_new( const gchar *name, GThreadFunc func, gpointer data, 
 #endif
 
 #if !GLIB_CHECK_VERSION(2,28,0)
-
 void g_slist_free_full( GSList * list, GDestroyNotify free_func);
 void g_list_free_full( GList * list, GDestroyNotify free_func);
 #endif

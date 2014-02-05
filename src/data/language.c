@@ -126,7 +126,6 @@ gboolean AL_Language_Add( gchar * file )
 		Meg_Error_Print( __func__, __LINE__, "UI creation error '%s'.", error->message );
 		return FALSE;
 	}
-	//gtk_builder_connect_signals( ui, NULL );
 
 	dialog = GET_WIDGET( ui, "mokoi_language_add" );
 	entry = GET_WIDGET( ui, "entry1" );

@@ -220,7 +220,7 @@ SheetObject * MapObject_UpdateSprite( DisplayObject * object )
 			object->type = DT_IMAGE;
 			object->tw = SPRITE_DATA(sprite)->animation->w;
 			object->th = SPRITE_DATA(sprite)->animation->h;
-			object->timeout = TRUE;
+			object->animation_timeout = TRUE;
 
 		}
 		else if ( SPRITE_DATA(sprite)->image )

@@ -19,7 +19,7 @@ void Meg_MapEdit_OpenFilename( gchar * file );
 
 void Alchera_Map_AnimationIdle(DisplayObject* object, cairo_t *cr);
 void Alchera_Map_DisplayObjectAdvance(GtkTreeView * tree_view, GtkTreePath *path, GtkTreeViewColumn *column, gpointer user_data);
-void Alchera_Map_ObjectListForeach(DisplayObject * object, GtkListStore *store);
+
 
 MapInfo * Meg_MapEdit_GetMapInfo( GtkWidget * widget );
 void Meg_MapEdit_RefreshSettings( GtkWidget * map_widget );

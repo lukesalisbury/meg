@@ -25,6 +25,10 @@ Permission is granted to anyone to use this software for any purpose, including 
 	#include <gtksourceview/gtksourcestyleschememanager.h>
 	#include <gtksourceview/gtksourcecompletion.h>
 	#include <gtksourceview/gtksourcecompletionprovider.h>
+
+	#if GTK_CHECK_VERSION(3,0,0)
+		#include <gtksourceview/gtksource.h>
+	#endif
 #endif
 
 #if GTK_MAJOR_VERSION == 2

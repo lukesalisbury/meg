@@ -51,7 +51,7 @@ OBJ += $(OBJDIR)/ma_web.o $(OBJDIR)/main.o $(OBJDIR)/ma_audio.o $(OBJDIR)/ma_ent
 OBJ += $(OBJDIR)/ma_question.o $(OBJDIR)/ma_question_functions.o $(OBJDIR)/ma_map_settings.o
 OBJ += $(OBJDIR)/ma_map_settings_events.o $(OBJDIR)/ma_section.o $(OBJDIR)/ma_section_events.o $(OBJDIR)/ma_types.o
 
-OBJ += $(OBJDIR)/widgets/widget_map.o $(OBJDIR)/widgets/display_object.o
+OBJ += $(OBJDIR)/widgets/widget_map.o $(OBJDIR)/widgets/map_info.o $(OBJDIR)/widgets/display_object.o
 
 OBJ += $(OBJDIR)/data/updates_handler.o $(OBJDIR)/data/text_editor.o $(OBJDIR)/data/sprite_sheets.o $(OBJDIR)/data/sprite_grouping.o
 OBJ += $(OBJDIR)/data/sprite_dialog.o $(OBJDIR)/data/sprite_collision.o $(OBJDIR)/data/sheets.o $(OBJDIR)/data/settings.o

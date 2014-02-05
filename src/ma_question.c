@@ -15,7 +15,7 @@ Permission is granted to anyone to use this software for any purpose, including 
 /* Required Headers */
 #include "ma_question.h"
 
-#ifdef USE_SOUP
+#if defined(USE_SOUP) && defined(Q2A_URL)
 #include <libsoup/soup.h>
 #include <libsoup/soup-method.h>
 #endif
@@ -47,7 +47,7 @@ const gchar * mokoiUI_Questions = GUIQUESTION_PAGE
 */
 void MegWidget_Questions_Create()
 {
-	#ifdef USE_SOUP
+	#if defined(USE_SOUP) && defined(Q2A_URL)
 	GtkWidget * widget;
 
 	/* UI */
@@ -58,11 +58,10 @@ void MegWidget_Questions_Create()
 	mokoi_questions_text = GET_WIDGET( ui, "questions_text_answers" );
 
 	/* Signals */
-	//SET_OBJECT_SIGNAL( ui, "button1", "clicked", G_CALLBACK(Meg_Questions_Get), NULL );
+	//SET_OBJECT_SIGNAL( ui, "button1", "clicked", G_CALLBACK(Meg_Questions_Search), NULL );
 	SET_OBJECT_SIGNAL( ui, "questions_widget", "delete-event", G_CALLBACK(MegWidget_Questions_Destroy), NULL );
 	SET_OBJECT_SIGNAL( ui, "questions_widget", "realize", G_CALLBACK(MegWidget_Questions_Refresh), NULL );
 	SET_OBJECT_SIGNAL( ui, "questions_main_treeview", "row-activated", G_CALLBACK(Meg_Questions_DisplayItem), NULL );
-
 
 	help_parser_apply_tags( gtk_text_view_get_buffer( GTK_TEXT_VIEW(mokoi_questions_text) ) );
 
@@ -86,7 +85,7 @@ gboolean MegWidget_Questions_Destroy(GtkWidget * widget, GdkEvent * event, gpoin
 */
 void MegWidget_Questions_Refresh(GtkWidget * widget, gpointer user_data)
 {
-	#ifdef USE_SOUP
+	#if defined(USE_SOUP) && defined(Q2A_URL)
 	Meg_Questions_GetAll();
 	#endif
 }

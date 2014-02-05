@@ -13,8 +13,10 @@ Permission is granted to anyone to use this software for any purpose, including 
 #include "global.h"
 #include "ma_web.h"
 
+#include "ma_question.h"
+
 /* Required Headers */
-#ifdef USE_SOUP
+#if defined(USE_SOUP) && defined(Q2A_URL)
 #include <libsoup/soup.h>
 #include <libsoup/soup-method.h>
 #endif
@@ -38,7 +40,7 @@ extern GtkWidget * mokoi_questions_text;
 
 
 /* Functions */
-#ifdef USE_SOUP
+#if defined(USE_SOUP) && defined(Q2A_URL)
 void Meg_Questions_AppendAnswerText( GHashTable * table, GtkTextBuffer * buffer )
 {
 	gchar * title = NULL;
@@ -98,7 +100,6 @@ void Meg_Questions_Append( GHashTable * table )
 }
 
 
-
 /********************************
 * Meg_Questions_GetAll
 *
@@ -109,9 +110,13 @@ void Meg_Questions_GetAll()
 	SoupMessage * msg;
 	SoupSession * session = NULL;
 
+	GtkTreeModel * model = gtk_tree_view_get_model( GTK_TREE_VIEW(mokoi_questions_treeview) );
+	gtk_list_store_clear( GTK_LIST_STORE(model) );
+
+
 	session = soup_session_sync_new();
 
-	msg = soup_xmlrpc_request_new( "http://openzelda.net/qa/xml-rpc", "q2a.listQuestion", G_TYPE_STRING, "test", G_TYPE_STRING, "test", G_TYPE_STRING, "sort", G_TYPE_STRING, "asc", NULL );
+	msg = soup_xmlrpc_request_new( Q2A_URL, "q2a.listQuestion", G_TYPE_STRING, "test", G_TYPE_STRING, "test", G_TYPE_STRING, "sort", G_TYPE_STRING, "asc", NULL );
 	status = soup_session_send_message( session, msg );
 	//g_print("Status: %d\nText: %s\n", status, msg->response_body->data );
 
@@ -136,15 +141,14 @@ void Meg_Questions_GetAll()
 
 
 	}
+	else
+	{
+		Meg_Log_Print( LOG_WARNING, "Meg_Questions_Get - HTML Status: %d", status );
+	}
+
 	g_hash_table_destroy (hash);
 }
 
-
-void Meg_Questions_Get_Download( gpointer data)
-{
-
-
-}
 
 /********************************
 * Meg_Questions_Get
@@ -162,7 +166,7 @@ void Meg_Questions_Get( gint ident )
 
 	//$args ($username, $password, $data['postid', 'action', 'action_id', 'action_data'])
 
-	msg = soup_xmlrpc_request_new( "http://openzelda.net/qa/xml-rpc", "q2a.getQuestion", G_TYPE_STRING, "postid", G_TYPE_INT, ident, NULL );
+	msg = soup_xmlrpc_request_new( Q2A_URL, "q2a.getQuestion", G_TYPE_STRING, "postid", G_TYPE_INT, ident, NULL );
 	status = soup_session_send_message( session, msg );
 	//g_print("Status: %d\nText: %s\n", status, msg->response_body->data );
 
@@ -196,6 +200,10 @@ void Meg_Questions_Get( gint ident )
 
 
 
+	}
+	else
+	{
+		Meg_Log_Print( LOG_WARNING, "Meg_Questions_Get - HTML Status: %d", status );
 	}
 	//g_hash_table_foreach (hash, print_struct_field, NULL);
 	g_hash_table_destroy (hash);

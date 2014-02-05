@@ -67,7 +67,7 @@ MapInfo * VirtualSprite_LoadXML( gchar * id )
 				case 'r':
 				case 'p':
 				case 'c':
-					object->type = MapObject_Internal2DisplayObjectType(MAP_OBJECT_DATA(object)->type);
+					//object->type = MapObject_Internal2DisplayObjectType(MAP_OBJECT_DATA(object)->type);
 					break;
 				default:
 
@@ -196,7 +196,7 @@ gboolean VirtualSprite_SaveXML( MapInfo * map_info )
 			{
 				g_string_append_printf( map_string, "\t<object value=\"%s\" type=\"%s\">\n", object->name, MapObject_TypeName(object->type) );
 			}
-			g_string_append_printf( map_string, "\t\t<position x=\"%d\" y=\"%d\" w=\"%d\" h=\"%d\" z=\"%d\" l=\"%d\" r=\"%d\" f=\"%d\"/>\n", x, y, w, h, z, l, display_object->rotate*90, display_object->flip);
+			g_string_append_printf( map_string, "\t\t<position x=\"%d\" y=\"%d\" w=\"%d\" h=\"%d\" z=\"%d\" l=\"%d\" r=\"%d\" f=\"%d\"/>\n", x, y, w, h, z, l, display_object->rotate*90, display_object->is_flipped);
 
 			if ( display_object->type == DT_POLYGON )
 			{
@@ -246,6 +246,7 @@ MapInfo * VirtualSprite_GetInfo( gchar * id )
 		map_info->height = 64;
 		map_info->file_type = 1;
 		map_info->data = g_new0(MapData, 1);
+		map_info->colour.alpha = map_info->colour.blue = map_info->colour.green = map_info->colour.red = 255;
 	}
 	else
 	{

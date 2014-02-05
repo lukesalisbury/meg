@@ -12,10 +12,12 @@ Permission is granted to anyone to use this software for any purpose, including 
 #ifndef _DISPLAY_OBJECT_H_
 #define _DISPLAY_OBJECT_H_
 
+typedef struct _DisplayObject DisplayObject;
+
 #include <gtk/gtk.h>
 #include <gdk/gdk.h>
 #include "gtk_compat.h"
-
+#include "map_info.h"
 
 typedef enum {
 	DT_NONE,
@@ -42,12 +44,15 @@ typedef struct {
 	cairo_extend_t mode;
 } DisplayObjectBorder;
 
-typedef struct {
+
+typedef struct _DisplayObject {
 
 	DisplayObjectTypes type;
 	gdouble x, y, w, h;
 	guint tw, th, layer, id, rotate;
-	gboolean active, timeout, tile, resizable, rotation, flip, supports_path;
+	gboolean active, animation_timeout, tiled_image, resizable, rotatable, is_flipped, supports_path;
+
+
 	GdkRGBA colour;
 
 	GSList * path;
@@ -65,24 +70,7 @@ typedef struct {
 
 } DisplayObject;
 
-typedef struct {
-	DisplayObject * selected;
-	GList * display_list;
-	GHashTable * settings;
-	gchar * name;
 
-	guint visible;
-	guint id_counter;
-	guint width, height;
-	GdkRGBA colour;
-
-	guint8 parse_mode;
-	guint8 file_type;
-
-	gpointer data;
-	gboolean (*free) ( gpointer data );
-
-} MapInfo;
 
 
 DisplayObject * Alchera_DisplayObject_New( gpointer data, gboolean (*free)(gpointer) );

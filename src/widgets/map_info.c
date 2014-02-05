@@ -1,5 +1,5 @@
 /****************************
-Copyright © 2007-2013 Luke Salisbury
+Copyright © 2014 Luke Salisbury
 This software is provided 'as-is', without any express or implied warranty. In no event will the authors be held liable for any damages arising from the use of this software.
 
 Permission is granted to anyone to use this software for any purpose, including commercial applications, and to alter it and redistribute it freely, subject to the following restrictions:
@@ -9,12 +9,35 @@ Permission is granted to anyone to use this software for any purpose, including 
 3. This notice may not be removed or altered from any source distribution.
 ****************************/
 
-#include <gtk/gtk.h>
-#include "meg_setting.h"
-#include "alchera_functions.h"
-#include "ma_loader.h"
-#include "widgets/widget_map.h"
-#include "ma_dialog.h"
-#include "ma_events.h"
+#include "map_info.h"
 
 
+/********************************
+* MapInfo_Destroy
+*
+*/
+void MapInfo_Destroy( MapInfo * data )
+{
+	if ( data )
+	{
+		if ( data->settings )
+		{
+			g_hash_table_destroy( data->settings );
+		}
+
+		GList * scan = g_list_first( data->display_list );
+		while ( scan )
+		{
+			DisplayObject * object = (DisplayObject *)scan->data;
+			if ( object->free )
+			{
+				object->free(object->data);
+			}
+			scan = g_list_next( scan );
+		}
+		g_list_free( data->display_list );
+
+		g_free( data->name );
+
+	}
+}

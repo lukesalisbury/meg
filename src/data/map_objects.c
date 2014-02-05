@@ -69,7 +69,7 @@ GList * AL_Object_List( MapInfo * map_info )
 			case 'r':
 			case 'p':
 			case 'c':
-				object->type = MapObject_Internal2DisplayObjectType(MAP_OBJECT_DATA(object)->type);
+				//object->type = MapObject_Internal2DisplayObjectType(MAP_OBJECT_DATA(object)->type);
 				break;
 			default:
 				break;

@@ -73,8 +73,8 @@ GtkWidget * Meg_MapSection_Open( gchar * file )
 	gtk_widget_set_size_request( display_overview, width, height );
 	//gtk_widget_get_preferred_size
 
-	GtkRequisition requisition;
-	gtk_widget_size_request(display_overview,&requisition);/* FIX: GTK3 */
+	//GtkRequisition requisition;
+	//gtk_widget_size_request(display_overview,&requisition);/* FIX: GTK3 */
 
 	/* Signals */
 #if GTK_MAJOR_VERSION == 2
