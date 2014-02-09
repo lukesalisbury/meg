@@ -13,8 +13,8 @@ Permission is granted to anyone to use this software for any purpose, including 
 #include "loader_global.h"
 #include "entity_functions.h"
 #include "section_functions.h"
-#include "runtime_parser.h"
-#include "runtime_options.h"
+#include "entity_options_parser.h"
+#include "entity_options.h"
 #include "object_advance.h"
 #include "loader_functions.h"
 
@@ -132,6 +132,7 @@ GtkWidget * ObjectAdvance_EntityWidget_New( DisplayObject * object )
 	g_object_set_data( G_OBJECT(entity_widget), "mokoi-check-global", check_global);
 
 	/* Set Default Value */
+	EntityOption_SetDefaultValues( object );
 	gtk_toggle_button_set_active( GTK_TOGGLE_BUTTON(check_global), object_data->entity_global );
 
 	/*  Object ID */
@@ -152,24 +153,15 @@ GtkWidget * ObjectAdvance_EntityWidget_New( DisplayObject * object )
 	Meg_ComboFile_Scan( combo_file, "/scripts/", ".sq", FALSE, 0 );
 
 	/* Options Treeview settings */
-	if ( entity_file )
-	{
-		gchar * option_path = g_strdup_printf("/scripts/%s.options", entity_file );
-		GHashTable * default_settings = RuntimeParser_Load( option_path );
-		g_hash_table_foreach( default_settings, (GHFunc)RuntimeSetting_Append, (gpointer)object_data->settings );
-		g_hash_table_remove_all( default_settings );
-		g_free(option_path);
-	}
-
 	if ( g_hash_table_size(object_data->settings) )
 	{
 		g_object_set_data( G_OBJECT(runtime_box), "table-y", GUINT_TO_POINTER(0) );
-		g_hash_table_foreach( object_data->settings, (GHFunc)RuntimeSetting_CreateWidget, runtime_box );
-		g_hash_table_foreach( object_data->settings, (GHFunc)RuntimeSetting_AttachWidget, runtime_box );
+		g_hash_table_foreach( object_data->settings, (GHFunc)EntityOption_CreateWidget, runtime_box );
+		g_hash_table_foreach( object_data->settings, (GHFunc)EntityOption_AttachWidget, runtime_box );
 	}
 
 	g_object_set_data( G_OBJECT(runtime_box), "runtime-hashtable", object_data->settings);
-	g_signal_connect(add_button, "clicked", (GCallback)RuntimeSetting_AddOption, runtime_box);
+	g_signal_connect(add_button, "clicked", (GCallback)EntityOption_AddOption, runtime_box);
 
 	g_free(entity_file);
 
@@ -233,7 +225,7 @@ void ObjectAdvance_EntityWidget_Save( GtkWidget * parent, DisplayObject * object
 		{
 			REPLACE_STRING( object_data->entity_file, g_strdup(file[0]) );
 			REPLACE_STRING( object_data->entity_language, g_strdup(file[1]) );
-			RuntimeSetting_SetDefaultValues( object );
+			EntityOption_SetDefaultValues( object );
 		}
 		g_strfreev( file );
 
@@ -250,7 +242,7 @@ void ObjectAdvance_EntityWidget_Save( GtkWidget * parent, DisplayObject * object
 	g_free(entity);
 
 
-	g_hash_table_foreach( object_data->settings, (GHFunc)RuntimeSetting_SaveWidget_Foreach, NULL );
+	g_hash_table_foreach( object_data->settings, (GHFunc)EntityOption_SaveWidget_Foreach, NULL );
 }
 
 
@@ -388,10 +380,7 @@ gboolean ObjectAdvance_Sprite( DisplayObject * object, GtkWindow * window )
 	/* Set Default Value */
 	Meg_Misc_SetLabel_Print( label, "<b>Edit Sprite</b>\n%s (%d)", object_data->name, object->id );
 
-	gtk_spin_button_set_range( spin_x, -200.0, (gdouble)map_width );
 	gtk_spin_button_set_value( spin_x, object->x );
-
-	gtk_spin_button_set_range( spin_y, -200.0, (gdouble)map_height);
 	gtk_spin_button_set_value( spin_y, object->y );
 
 	gtk_spin_button_set_range( spin_z, 0.0, 6.0 );
@@ -584,7 +573,7 @@ gboolean ObjectAdvance_Text( DisplayObject * object, GtkWindow * window )
 	}
 
 
-	string_number_value = RuntimeSetting_GetValue( object_data->settings, "number" );
+	string_number_value = EntityOption_GetValue( object_data->settings, "number" );
 	strings_total = (gdouble)( Language_Size() ) - 1.0;
 
 
@@ -641,7 +630,7 @@ gboolean ObjectAdvance_Text( DisplayObject * object, GtkWindow * window )
 			ObjectAdvance_EntityWidget_Save( widget_entity, object );
 
 			g_object_set_data_full( G_OBJECT(edit_text), "old-string", (gchar*)object->data, NULL );
-			RuntimeSetting_UpdateValue( object_data->settings, "number", str_value, NULL );
+			EntityOption_UpdateValue( object_data->settings, "number", str_value, NULL );
 
 			if ( str_value != -1 )
 			{
@@ -678,7 +667,7 @@ gboolean ObjectAdvance_Text( DisplayObject * object, GtkWindow * window )
 }
 
 /********************************
-* ObjectAdvance_Sprite
+* ObjectAdvance_File
 *
 */
 gboolean ObjectAdvance_File( DisplayObject * obj, GtkWindow * window )

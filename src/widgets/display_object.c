@@ -384,6 +384,7 @@ void Alchera_DisplayObject_DrawPixbuf(DisplayObject * object, cairo_t *cr)
 		cairo_translate( cr, -object->x, -object->y );
 	}
 
+	//cairo_set_operator( cr, CAIRO_OPERATOR_OVER );
 	gdk_cairo_set_source_pixbuf( cr, object->image, object->x, object->y );
 	pattern = cairo_get_source( cr );
 	cairo_pattern_set_extend( pattern, CAIRO_EXTEND_REPEAT);

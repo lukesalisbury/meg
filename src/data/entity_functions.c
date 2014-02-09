@@ -17,7 +17,7 @@ Permission is granted to anyone to use this software for any purpose, including 
 #include "entity_functions.h"
 #include "game_compiler.h"
 #include "logger_functions.h"
-#include "runtime_parser.h"
+#include "entity_options_parser.h"
 
 #include <glib.h>
 #include <glib/gstdio.h>
@@ -57,9 +57,11 @@ const gchar * mokoiUI_EntityAdd = GUIENTITY_ADD
 */
 gboolean Entity_New( gchar * filename, gchar * script )
 {
+	/*
 	gchar * runtime_file = g_strconcat( filename, ".options", NULL );
 	Meg_file_set_contents( runtime_file, "<entity/>", -1, NULL );
 	g_free( runtime_file );
+	*/
 
 	return Meg_file_set_contents( filename, script, -1, NULL);
 }
@@ -159,15 +161,22 @@ gboolean Entity_Remove( gchar * filename )
 *
 @ filename:
 */
-gboolean Entity_Properties( gchar * filename )
+gboolean Entity_Properties( const gchar * file_path )
 {
-	gchar * runtime_file = g_strconcat( filename, ".options", NULL );
+	gboolean successful;
+	gchar * file_name = NULL;
+	gchar * entity_name = NULL;
 
-	RuntimeEditor_Open( filename );
+	file_name = g_path_get_basename( file_path );
+	entity_name = STRIP_FILE_EXTENSION( file_name, 4 );
 
-	g_free( runtime_file );
+	successful = RuntimeEditor_Open( entity_name );
 
-	return TRUE;
+
+	g_free( file_name );
+	g_free( entity_name );
+
+	return successful;
 }
 
 

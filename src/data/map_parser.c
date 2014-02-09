@@ -12,8 +12,8 @@ Permission is granted to anyone to use this software for any purpose, including 
 /* Standard Headers */
 #include "loader_global.h"
 #include "entity_functions.h"
-#include "runtime_parser.h"
-#include "runtime_options.h"
+#include "entity_options_parser.h"
+#include "entity_options.h"
 #include "maps.h"
 #include "loader_functions.h"
 
@@ -162,9 +162,9 @@ void map_parse_handler_start_settings( GMarkupParseContext *context, const gchar
 		if ( key && value )
 		{
 			if ( g_ascii_strcasecmp( value, "(null)" ) )
-				g_hash_table_insert( map_info->settings, (gpointer)key, RuntimeSetting_New(value, type) );
+				g_hash_table_insert( map_info->settings, (gpointer)key, EntityOption_New(value, type) );
 			else
-				g_hash_table_insert( map_info->settings, (gpointer)key, RuntimeSetting_New("", type) );
+				g_hash_table_insert( map_info->settings, (gpointer)key, EntityOption_New("", type) );
 		}
 
 	}
@@ -330,7 +330,7 @@ void map_parse_handler_start_object_element( GMarkupParseContext *context, const
 				}
 				else
 				{
-					RuntimeSetting_InsertNew( MAP_OBJECT_DATA(object_display)->settings, key, (g_ascii_strcasecmp( value, "(null)" ) ? "" : value), type );
+					EntityOption_InsertNew( MAP_OBJECT_DATA(object_display)->settings, key, (g_ascii_strcasecmp( value, "(null)" ) ? "" : value), type );
 				}
 			}
 		}
@@ -401,7 +401,7 @@ void map_parse_handler_start_root_element( GMarkupParseContext *context, const g
 				else if ( g_ascii_strcasecmp(*attribute_names, "id") == 0 )
 					object_data->object_name = g_strdup(*attribute_values);
 				else if ( g_ascii_strcasecmp(*attribute_names, "parent") == 0 || g_ascii_strcasecmp(*attribute_names, "global") == 0 )
-					RuntimeSetting_InsertNew( object_data->settings, *attribute_names, *attribute_values, "hidden" );
+					EntityOption_InsertNew( object_data->settings, *attribute_names, *attribute_values, "hidden" );
 			}
 
 			object_display = Alchera_DisplayObject_New(object_data, &MapObjectData_FreePointer);

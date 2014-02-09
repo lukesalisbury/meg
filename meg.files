@@ -68,7 +68,7 @@ src/physfs/archivers/dir.c
 src/data/sheets_functions.h
 src/data/setting_functions.h
 src/data/section_functions.h
-src/data/runtime_parser.h
+src/data/entity_options_parser.h
 src/data/resources_functions.h
 src/data/object_advance.h
 src/data/mokoi_package.h
@@ -98,7 +98,7 @@ src/data/settings.c
 src/data/setting_functions.c
 src/data/sections.c
 src/data/section_functions.c
-src/data/runtime_parser.c
+src/data/entity_options_parser.c
 src/data/resources_functions.c
 src/data/project.c
 src/data/plugin_info.c
@@ -135,7 +135,7 @@ src/data/animation_dialog.c
 res/ui/world_add.gui
 res/ui/sheet_page.gui
 res/ui/setting_dialog.gui
-res/ui/runtime_option_editor.gui
+res/ui/entity_option_editor.gui
 res/ui/project_settings.gui
 res/ui/project_publish.gui
 res/ui/project_new.gui
@@ -416,7 +416,7 @@ src/data/sheets_functions.h
 src/data/setting_functions.h
 src/data/section_functions.h
 src/data/runtime_parser.h
-src/data/runtime_options.h
+src/data/entity_options.h
 src/data/resources_functions.h
 src/data/progress_dialog.h
 src/data/package_dialog.h
@@ -451,7 +451,7 @@ src/data/setting_functions.c
 src/data/sections.c
 src/data/section_functions.c
 src/data/runtime_parser.c
-src/data/runtime_options.c
+src/data/entity_options.c
 src/data/resources_functions.c
 src/data/project.c
 src/data/progress_dialog.c

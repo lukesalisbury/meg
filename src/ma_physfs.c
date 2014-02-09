@@ -55,7 +55,6 @@ void PHYSFS_rename(  const gchar * original_path, const gchar * new_path )
 }
 
 
-
 /********************************
 * PHYSFS_buildLocalFilename
 *

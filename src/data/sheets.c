@@ -259,6 +259,7 @@ void AL_Sprite_Add( Spritesheet * spritesheet, GdkRectangle * sprite_rect )
 		return;
 	}
 
+
 	dialog = GET_WIDGET( ui, "mokoi_sheet_addchild");
 	text_name = GET_WIDGET( ui, "text_name");
 	image_preview = GET_WIDGET( ui, "image_preview");

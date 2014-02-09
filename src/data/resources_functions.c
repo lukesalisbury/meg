@@ -14,8 +14,8 @@ Permission is granted to anyone to use this software for any purpose, including 
 #include "resources_functions.h"
 #include "entity_functions.h"
 #include "animation_functions.h"
-#include "runtime_parser.h"
-#include "runtime_options.h"
+#include "entity_options_parser.h"
+#include "entity_options.h"
 
 /* Global Variables */
 extern GError * mokoiError;
@@ -376,7 +376,7 @@ DisplayObject * MapObject_New( gchar * name, gdouble area_width, gdouble area_he
 
 	if ( object_data->type == 't' )
 	{
-		RuntimeSetting_InsertNew( object_data->settings, "number", "-1", "hidden" );
+		EntityOption_InsertNew( object_data->settings, "number", "-1", "hidden" );
 	}
 	else if ( object_data->type == 's' )
 	{
@@ -385,8 +385,6 @@ DisplayObject * MapObject_New( gchar * name, gdouble area_width, gdouble area_he
 		/* Set Default Runtime options */
 		if ( sprite && SPRITE_DATA(sprite)->entity )
 		{
-			RuntimeSetting_SetDefaultValues( object );
-
 			gchar ** file = g_strsplit( SPRITE_DATA(sprite)->entity, ".", 2);
 			if ( g_strv_length(file) == 2 )
 			{
@@ -394,6 +392,8 @@ DisplayObject * MapObject_New( gchar * name, gdouble area_width, gdouble area_he
 				REPLACE_STRING( object_data->entity_language, g_strdup(file[1]) );
 			}
 			g_strfreev( file );
+
+			EntityOption_SetDefaultValues( object );
 		}
 
 	}

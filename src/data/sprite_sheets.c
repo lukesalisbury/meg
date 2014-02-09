@@ -18,13 +18,12 @@ Permission is granted to anyone to use this software for any purpose, including 
 #include "resources_functions.h"
 #include "entity_functions.h"
 #include "animation_functions.h"
-#include "runtime_parser.h"
+#include "entity_options_parser.h"
 #include "virtual_sprite.h"
 
 /* Global Functions */
 
 gboolean SpriteCollision_Load( SheetObject * sprite, gchar * file );
-void Sheet_RemoveSprite( Spritesheet * sheet, SheetObject * sprite );
 
 /* Local Functions */
 void sheet_xml_end_element(GMarkupParseContext *context, const gchar*element_name, gpointer user_data, GError **error);
@@ -245,7 +244,7 @@ void Sheet_SaveEachCollision( SheetObject * sprite, GString * content )
 */
 gboolean Sheet_SaveFile( Spritesheet * sheet )
 {
-	if ( sheet == NULL || sheet->data == NULL )
+	if ( sheet == NULL )
 		return FALSE;
 
 	GString * content = g_string_new("");
@@ -362,4 +361,22 @@ gboolean Sheet_Unload( )
 	g_slist_free_full( mokoiSpritesheets, SpritesheetList_DestroyNotify );
 	mokoiSpritesheets = NULL;
 	return TRUE;
+}
+
+/********************************
+* Sheet_RemoveSprite
+*
+@
+@
+*/
+void Sheet_RemoveSprite( Spritesheet * sheet, SheetObject * sprite )
+{
+	if ( SPRITE_DATA(sprite)->image )
+	{
+		g_object_unref( SPRITE_DATA(sprite)->image );
+		SPRITE_DATA(sprite)->image = NULL;
+	}
+
+	sheet->children = g_slist_remove( sheet->children, sprite );
+	Sheet_SaveFile( sheet );
 }

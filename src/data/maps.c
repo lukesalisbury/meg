@@ -16,8 +16,8 @@ Permission is granted to anyone to use this software for any purpose, including 
 #include "maps.h"
 #include "entity_functions.h"
 #include "entity_editor.h"
-#include "runtime_parser.h"
-#include "runtime_options.h"
+#include "entity_options_parser.h"
+#include "entity_options.h"
 #include "object_advance.h"
 #include "loader_functions.h"
 
@@ -215,8 +215,8 @@ gboolean AL_Map_ContructRuntimeWidget( MapInfo * map_info, GtkWidget * box_runti
 	if ( g_hash_table_size(map_info->settings) )
 	{
 		g_object_set_data( G_OBJECT(box_runtime), "table-y", GUINT_TO_POINTER(0) );
-		g_hash_table_foreach( map_info->settings, (GHFunc)RuntimeSetting_CreateWidgetWithSignal, box_runtime );
-		g_hash_table_foreach( map_info->settings, (GHFunc)RuntimeSetting_AttachWidget, box_runtime );
+		g_hash_table_foreach( map_info->settings, (GHFunc)EntityOption_CreateWidgetWithSignal, box_runtime );
+		g_hash_table_foreach( map_info->settings, (GHFunc)EntityOption_AttachWidget, box_runtime );
 	}
 	g_object_set_data( G_OBJECT(box_runtime), "runtime-hashtable", map_info->settings );
 	return TRUE;
@@ -275,26 +275,26 @@ gboolean AL_Map_Options( MapInfo * map_info, GtkWindow * window )
 	/* Set Default Values */
 	Meg_Misc_SetLabel( label, "Map Options", g_path_get_basename(map_info->name), '\n' );
 
-	gtk_toggle_button_set_active( GTK_TOGGLE_BUTTON(check_centerview), RuntimeSetting_BooleanCheck( map_info->settings, "centerview" ) );
-	gtk_toggle_button_set_active( GTK_TOGGLE_BUTTON(check_independent), RuntimeSetting_BooleanCheck( map_info->settings, "independent" )  );
+	gtk_toggle_button_set_active( GTK_TOGGLE_BUTTON(check_centerview), EntityOption_BooleanCheck( map_info->settings, "centerview" ) );
+	gtk_toggle_button_set_active( GTK_TOGGLE_BUTTON(check_independent), EntityOption_BooleanCheck( map_info->settings, "independent" )  );
 
 	gtk_spin_button_set_value( GTK_SPIN_BUTTON(spin_w), (gdouble)MAP_DATA(map_info)->position.width * map_size_width );
 	gtk_spin_button_set_value( GTK_SPIN_BUTTON(spin_h), (gdouble)MAP_DATA(map_info)->position.height * map_size_height );
 
-	gtk_combo_box_set_active( GTK_COMBO_BOX(combo_wrapmode), RuntimeSetting_GetValue( map_info->settings, "wrap" ) );
+	gtk_combo_box_set_active( GTK_COMBO_BOX(combo_wrapmode), EntityOption_GetValue( map_info->settings, "wrap" ) );
 
 	Meg_ColorButton_SetColor( GTK_COLOR_BUTTON(button_colour), &map_info->colour );
 
 	/* Signal */
-	g_signal_connect( button_addoption, "clicked", (GCallback)RuntimeSetting_AddOption, box_runtime );
+	g_signal_connect( button_addoption, "clicked", (GCallback)EntityOption_AddOption, box_runtime );
 
 
 	/* Options Treeview settings */
 	if ( g_hash_table_size(map_info->settings) )
 	{
 		g_object_set_data( G_OBJECT(box_runtime), "table-y", GUINT_TO_POINTER(0) );
-		g_hash_table_foreach( map_info->settings, (GHFunc)RuntimeSetting_CreateWidget, box_runtime );
-		g_hash_table_foreach( map_info->settings, (GHFunc)RuntimeSetting_AttachWidget, box_runtime );
+		g_hash_table_foreach( map_info->settings, (GHFunc)EntityOption_CreateWidget, box_runtime );
+		g_hash_table_foreach( map_info->settings, (GHFunc)EntityOption_AttachWidget, box_runtime );
 	}
 	g_object_set_data( G_OBJECT(box_runtime), "runtime-hashtable", map_info->settings );
 
@@ -321,14 +321,14 @@ gboolean AL_Map_Options( MapInfo * map_info, GtkWindow * window )
 		MAP_DATA(map_info)->position.width = gtk_spin_button_get_value_as_int( GTK_SPIN_BUTTON(spin_w) ) / AL_Setting_GetNumber("map.width");
 		MAP_DATA(map_info)->position.height = gtk_spin_button_get_value_as_int( GTK_SPIN_BUTTON(spin_h) ) / AL_Setting_GetNumber("map.height");
 
-		g_hash_table_foreach( map_info->settings, (GHFunc)RuntimeSetting_SaveWidget_Foreach, NULL );
+		g_hash_table_foreach( map_info->settings, (GHFunc)EntityOption_SaveWidget_Foreach, NULL );
 		g_hash_table_foreach( graphic_sheets, (GHFunc)Map_ReplacableSheets_Update_ForEach, MAP_DATA(map_info) );
 
-		RuntimeSetting_UpdateValue( map_info->settings, "wrap", gtk_combo_box_get_active( GTK_COMBO_BOX(combo_wrapmode) ), NULL );
-		RuntimeSetting_UpdateValue( map_info->settings, "wrap", gtk_combo_box_get_active( GTK_COMBO_BOX(combo_wrapmode) ), NULL );
+		EntityOption_UpdateValue( map_info->settings, "wrap", gtk_combo_box_get_active( GTK_COMBO_BOX(combo_wrapmode) ), NULL );
+		EntityOption_UpdateValue( map_info->settings, "wrap", gtk_combo_box_get_active( GTK_COMBO_BOX(combo_wrapmode) ), NULL );
 
-		RuntimeSetting_UpdateBoolean( map_info->settings, "centerview", gtk_toggle_button_get_active( GTK_TOGGLE_BUTTON(check_centerview) ), NULL );
-		RuntimeSetting_UpdateBoolean( map_info->settings, "independent", gtk_toggle_button_get_active( GTK_TOGGLE_BUTTON(check_independent) ), NULL );
+		EntityOption_UpdateBoolean( map_info->settings, "centerview", gtk_toggle_button_get_active( GTK_TOGGLE_BUTTON(check_centerview) ), NULL );
+		EntityOption_UpdateBoolean( map_info->settings, "independent", gtk_toggle_button_get_active( GTK_TOGGLE_BUTTON(check_independent) ), NULL );
 
 		Meg_ColorButton_GetColor( GTK_COLOR_BUTTON(button_colour), &map_info->colour );
 

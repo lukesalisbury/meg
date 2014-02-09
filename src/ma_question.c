@@ -15,16 +15,7 @@ Permission is granted to anyone to use this software for any purpose, including 
 /* Required Headers */
 #include "ma_question.h"
 
-#if defined(USE_SOUP) && defined(Q2A_URL)
-#include <libsoup/soup.h>
-#include <libsoup/soup-method.h>
-#endif
-
-
-
 /* External Functions */
-gboolean MegWidget_Questions_Destroy(GtkWidget * widget, GdkEvent * event, gpointer user_data );
-void MegWidget_Questions_Refresh(GtkWidget * widget, gpointer user_data);
 void help_parser_apply_tags( GtkTextBuffer * buffer );
 
 /* Local Type */
@@ -40,6 +31,7 @@ GtkWidget * mokoi_questions_text = NULL;
 #include "ui/question_page.gui.h"
 const gchar * mokoiUI_Questions = GUIQUESTION_PAGE
 
+#if defined(USE_SOUP)
 
 /********************************
 * MegWidget_Questions_Create
@@ -47,7 +39,7 @@ const gchar * mokoiUI_Questions = GUIQUESTION_PAGE
 */
 void MegWidget_Questions_Create()
 {
-	#if defined(USE_SOUP) && defined(Q2A_URL)
+
 	GtkWidget * widget;
 
 	/* UI */
@@ -66,17 +58,8 @@ void MegWidget_Questions_Create()
 	help_parser_apply_tags( gtk_text_view_get_buffer( GTK_TEXT_VIEW(mokoi_questions_text) ) );
 
 	Meg_Main_AddSection( widget, "Question", PAGE_ICON_QUESTION );
-	#endif
-}
 
-/********************************
-* MegWidget_Questions_Destroy
-*
-*/
-gboolean MegWidget_Questions_Destroy(GtkWidget * widget, GdkEvent * event, gpointer user_data )
-{
 
-	return TRUE;
 }
 
 /********************************
@@ -85,10 +68,30 @@ gboolean MegWidget_Questions_Destroy(GtkWidget * widget, GdkEvent * event, gpoin
 */
 void MegWidget_Questions_Refresh(GtkWidget * widget, gpointer user_data)
 {
-	#if defined(USE_SOUP) && defined(Q2A_URL)
+
 	Meg_Questions_GetAll();
-	#endif
+
 }
+#else
+void MegWidget_Questions_Create()
+{
+}
+
+void MegWidget_Questions_Refresh(GtkWidget * widget, gpointer user_data)
+{
+}
+#endif
+
+/********************************
+* MegWidget_Questions_Destroy
+*
+*/
+gboolean MegWidget_Questions_Destroy(GtkWidget * widget, GdkEvent * event, gpointer user_data )
+{
+	return TRUE;
+}
+
+
 
 /********************************
 * MegWidget_Questions_Init

@@ -76,6 +76,8 @@
 	#define MANUAL_URL "http://mokoi.info/docs/"
 #endif
 
+#define Q2A_URL "http://openzelda.net/qa/xml-rpc"
+
 
 #define PAGE_ICON_LANGUAGE "preferences-desktop-locale"
 #define PAGE_ICON_PLAY "media-playback-start"

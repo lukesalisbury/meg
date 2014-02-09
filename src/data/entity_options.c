@@ -13,8 +13,8 @@ Permission is granted to anyone to use this software for any purpose, including 
 #include "loader_global.h"
 #include "entity_functions.h"
 #include "section_functions.h"
-#include "runtime_parser.h"
-#include "runtime_options.h"
+#include "entity_options_parser.h"
+#include "entity_options.h"
 
 /* Global Variables */
 extern gchar * mokoiBasePath;
@@ -23,77 +23,91 @@ extern GError * mokoiError;
 
 /* UI */
 
+
+/* Functions */
+
+
+EntityOptionStruct * EntityOption_Lookup( GHashTable * hash_table, const gchar * key)
+{
+	return (EntityOptionStruct*)g_hash_table_lookup(hash_table, key);
+
+}
+
 /********************************
-* RuntimeSetting_Type
+* EntityOption_Type
 *
 */
-guint RuntimeSetting_Type( const gchar * type )
+guint EntityOption_Type( const gchar * type )
 {
 	if (type == NULL)
 	{
-		return RUNTIMEOPTION_NONE;
+		return ENTITYOPTION_NONE;
 	}
 	else if ( !g_ascii_strcasecmp(type, "boolean") )
 	{
-		return RUNTIMEOPTION_BOOLEAN;
+		return ENTITYOPTION_BOOLEAN;
 	}
 	else if ( !g_ascii_strcasecmp(type, "music") )
 	{
-		return RUNTIMEOPTION_MUSIC;
+		return ENTITYOPTION_MUSIC;
 	}
 	else if ( !g_ascii_strcasecmp(type, "soundfx") )
 	{
-		return RUNTIMEOPTION_SOUNDFX;
+		return ENTITYOPTION_SOUNDFX;
 	}
 	else if ( !g_ascii_strcasecmp(type, "hidden") )
 	{
-		return RUNTIMEOPTION_HIDDEN;
+		return ENTITYOPTION_HIDDEN;
 	}
 	else if ( g_str_has_prefix(type, "entity") )
 	{
-		return RUNTIMEOPTION_ENTITY;
+		return ENTITYOPTION_ENTITY;
 	}
 	else if ( !g_ascii_strcasecmp(type, "section") )
 	{
-		return RUNTIMEOPTION_SECTION;
+		return ENTITYOPTION_SECTION;
+	}
+	else if ( !g_ascii_strcasecmp(type, "sectionmap") )
+	{
+		return ENTITYOPTION_SECTIONMAP;
 	}
 	else if ( !g_ascii_strcasecmp(type, "map") )
 	{
-		return RUNTIMEOPTION_MAP;
+		return ENTITYOPTION_MAP;
 	}
 	else if ( !g_ascii_strcasecmp(type, "mapentity") )
 	{
-		return RUNTIMEOPTION_MAPENTITY;
+		return ENTITYOPTION_MAPENTITY;
 	}
 	return 0;
 }
 
 
 /********************************
-* RuntimeSetting_New
+* EntityOption_New
 *
 */
-RuntimeSettingsStruct * RuntimeSetting_New( const gchar * value, const gchar * type )
+EntityOptionStruct * EntityOption_New( const gchar * value, const gchar * type )
 {
-	RuntimeSettingsStruct * option = g_new0(RuntimeSettingsStruct, 1);
+	EntityOptionStruct * option = g_new0(EntityOptionStruct, 1);
 
 	option->value = g_strdup(value);
 	option->type = g_strdup(type);
 	option->removable = FALSE;
 	option->deleted = FALSE;
 	option->widget = NULL;
-	option->internal_type = RuntimeSetting_Type(type);
+	option->internal_type = EntityOption_Type(type);
 
 	return option;
 }
 
 /********************************
-* RuntimeSettings_FreePointer
+* EntityOption_FreePointer
 *
 */
-void RuntimeSettings_FreePointer( gpointer data )
+void EntityOption_FreePointer( gpointer data )
 {
-	RuntimeSettingsStruct * option = (RuntimeSettingsStruct *)data;
+	EntityOptionStruct * option = (EntityOptionStruct *)data;
 	CLEAR_STRING(option->value)
 	CLEAR_STRING(option->type)
 
@@ -105,15 +119,15 @@ void RuntimeSettings_FreePointer( gpointer data )
 
 
 /********************************
-* RuntimeSetting_Copy
+* EntityOption_Copy
 *
 */
-RuntimeSettingsStruct * RuntimeSetting_Copy( RuntimeSettingsStruct * value )
+EntityOptionStruct * EntityOption_Copy( EntityOptionStruct * value )
 {
 	if ( value == NULL )
 		return NULL;
 
-	RuntimeSettingsStruct * option = g_new0(RuntimeSettingsStruct, 1);
+	EntityOptionStruct * option = g_new0(EntityOptionStruct, 1);
 
 	if ( value->value != NULL )
 		option->value = g_strdup(value->value);
@@ -127,19 +141,19 @@ RuntimeSettingsStruct * RuntimeSetting_Copy( RuntimeSettingsStruct * value )
 
 	option->removable = FALSE;
 	option->deleted = FALSE;
-	option->internal_type = RuntimeSetting_Type(option->type);
+	option->internal_type = EntityOption_Type(option->type);
 	option->widget = NULL;
 	return option;
 }
 
 
 /********************************
-* RuntimeSetting_InsertNew
+* EntityOption_InsertNew
 *
 */
-void RuntimeSetting_InsertNew( GHashTable * settings_table, const gchar * key, const gchar * value, const gchar * type )
+void EntityOption_InsertNew( GHashTable * settings_table, const gchar * key, const gchar * value, const gchar * type )
 {
-	RuntimeSettingsStruct * option = RuntimeSetting_New( value, type );
+	EntityOptionStruct * option = EntityOption_New( value, type );
 
 	if ( !g_ascii_strcasecmp( key, "id" ) || !g_ascii_strcasecmp(key, "global") || !g_ascii_strcasecmp( key, "entity" ) )
 	{
@@ -150,16 +164,16 @@ void RuntimeSetting_InsertNew( GHashTable * settings_table, const gchar * key, c
 }
 
 /********************************
-* RuntimeSetting_Update
+* EntityOption_Update
 *
 */
-void RuntimeSetting_Update( GHashTable * settings_table, const gchar * key, const gchar * value, const gchar * type  )
+void EntityOption_Update( GHashTable * settings_table, const gchar * key, const gchar * value, const gchar * type  )
 {
-	RuntimeSettingsStruct * option = (RuntimeSettingsStruct*)g_hash_table_lookup(settings_table, key);
+	EntityOptionStruct * option = EntityOption_Lookup(settings_table, key);
 
 	if ( option == NULL )
 	{
-		RuntimeSetting_InsertNew( settings_table, key, value, type );
+		EntityOption_InsertNew( settings_table, key, value, type );
 	}
 	else
 	{
@@ -173,16 +187,16 @@ void RuntimeSetting_Update( GHashTable * settings_table, const gchar * key, cons
 }
 
 /********************************
-* RuntimeSetting_UpdateBoolean
+* EntityOption_UpdateBoolean
 *
 */
-void RuntimeSetting_UpdateBoolean( GHashTable * settings_table, const gchar * key, const gboolean value, const gchar * type )
+void EntityOption_UpdateBoolean( GHashTable * settings_table, const gchar * key, const gboolean value, const gchar * type )
 {
-	RuntimeSettingsStruct * option = (RuntimeSettingsStruct*)g_hash_table_lookup(settings_table, key);
+	EntityOptionStruct * option = EntityOption_Lookup(settings_table, key);
 
 	if ( option == NULL )
 	{
-		RuntimeSetting_InsertNew( settings_table, key, (value ? "true" : "false"), type );
+		EntityOption_InsertNew( settings_table, key, (value ? "true" : "false"), type );
 	}
 	else
 	{
@@ -195,18 +209,18 @@ void RuntimeSetting_UpdateBoolean( GHashTable * settings_table, const gchar * ke
 	}
 }
 /********************************
-* RuntimeSetting_UpdateValue
+* EntityOption_UpdateValue
 *
 */
-void RuntimeSetting_UpdateValue( GHashTable * settings_table,const gchar * key, const gint value, const gchar * type )
+void EntityOption_UpdateValue( GHashTable * settings_table,const gchar * key, const gint value, const gchar * type )
 {
-	RuntimeSettingsStruct * option = (RuntimeSettingsStruct*)g_hash_table_lookup(settings_table, key);
+	EntityOptionStruct * option = EntityOption_Lookup(settings_table, key);
 
 	gchar * text = g_strdup_printf("%d", value);
 
 	if ( option == NULL )
 	{
-		RuntimeSetting_InsertNew( settings_table, key, text, type );
+		EntityOption_InsertNew( settings_table, key, text, type );
 	}
 	else
 	{
@@ -222,13 +236,13 @@ void RuntimeSetting_UpdateValue( GHashTable * settings_table,const gchar * key, 
 }
 
 /********************************
-* RuntimeSetting_GetValue
+* EntityOption_GetValue
 *
 */
-gint RuntimeSetting_GetValue( GHashTable * settings_table, gchar * key )
+gint EntityOption_GetValue( GHashTable * settings_table, gchar * key )
 {
 	gint value = 0;
-	RuntimeSettingsStruct * option = (RuntimeSettingsStruct*)g_hash_table_lookup(settings_table, key);
+	EntityOptionStruct * option = EntityOption_Lookup(settings_table, key);
 
 	if ( option != NULL && option->value != NULL )
 	{
@@ -238,10 +252,10 @@ gint RuntimeSetting_GetValue( GHashTable * settings_table, gchar * key )
 }
 
 /********************************
-* RuntimeSetting_Delete
+* EntityOption_Delete
 *
 */
-void RuntimeSetting_Delete( RuntimeSettingsStruct * data )
+void EntityOption_Delete( EntityOptionStruct * data )
 {
 	if ( data == NULL )
 		return;
@@ -255,29 +269,29 @@ void RuntimeSetting_Delete( RuntimeSettingsStruct * data )
 * RuntimeParser_Append
 *
 */
-void RuntimeSetting_Append( const gchar * key, RuntimeSettingsStruct * value, GHashTable * table )
+void EntityOption_Append( const gchar * key, EntityOptionStruct * value, GHashTable * table )
 {
-	RuntimeSettingsStruct * setting = (RuntimeSettingsStruct *)g_hash_table_lookup( table, key );
+	EntityOptionStruct * setting = (EntityOptionStruct *)g_hash_table_lookup( table, key );
 	if ( setting == NULL )
 	{
-		g_hash_table_insert( table, g_strdup(key), RuntimeSetting_Copy(value) );
+		g_hash_table_insert( table, g_strdup(key), EntityOption_Copy(value) );
 	}
 	else
 	{
 		setting->type = g_strdup(value->type);
-		setting->internal_type = RuntimeSetting_Type(value->type);
+		setting->internal_type = EntityOption_Type(value->type);
 	}
 }
 
 
 
 /********************************
-* RuntimeSetting_SectionChanged
+* EntityOption_SectionChanged
 *
 @
 @
 */
-void RuntimeSetting_SectionChanged( GtkComboBox * widget, GtkWidget * list )
+void EntityOption_SectionChanged( GtkComboBox * widget, GtkWidget * list )
 {
 	MokoiSectionFile * section = NULL;
 	GtkTreeModel * model = NULL;
@@ -307,12 +321,12 @@ void RuntimeSetting_SectionChanged( GtkComboBox * widget, GtkWidget * list )
 }
 
 /********************************
-* RuntimeSetting_MapChanged
+* EntityOption_MapChanged
 *
 @
 @
 */
-void RuntimeSetting_MapChanged( GtkComboBox * widget, GtkWidget * list )
+void EntityOption_MapChanged( GtkComboBox * widget, GtkWidget * list )
 {
 	GtkTreeModel * model = NULL;
 	GtkWidget * map_widget = (GtkWidget *)g_object_get_data( G_OBJECT(list), "options-mapentities-widget" );
@@ -362,14 +376,14 @@ void RuntimeSetting_MapChanged( GtkComboBox * widget, GtkWidget * list )
 }
 
 /********************************
-* RuntimeSetting_BooleanCheck
+* EntityOption_BooleanCheck
 *
 @
 @
 */
-gboolean RuntimeSetting_BooleanCheck( GHashTable * settings_table, gchar * value )
+gboolean EntityOption_BooleanCheck( GHashTable * settings_table, gchar * value )
 {
-	RuntimeSettingsStruct * hash_value = (RuntimeSettingsStruct*)g_hash_table_lookup(settings_table, value);
+	EntityOptionStruct * hash_value = EntityOption_Lookup(settings_table, value);
 	if ( hash_value )
 	{
 		if ( hash_value->value )
@@ -384,12 +398,12 @@ gboolean RuntimeSetting_BooleanCheck( GHashTable * settings_table, gchar * value
 }
 
 /********************************
-* RuntimeSetting_AddOption
+* EntityOption_AddOption
 *
 @
 @
 */
-void RuntimeSetting_AddOption( GtkButton * button, GtkWidget * table )
+void EntityOption_AddOption( GtkButton * button, GtkWidget * table )
 {
 	GtkWidget * dialog, * label;
 
@@ -408,11 +422,11 @@ void RuntimeSetting_AddOption( GtkButton * button, GtkWidget * table )
 
 		GHashTable * settings = g_object_get_data( G_OBJECT(table), "runtime-hashtable" );
 
-		RuntimeSettingsStruct * option = RuntimeSetting_New("", "");
+		EntityOptionStruct * option = EntityOption_New("", "");
 
 		g_hash_table_insert( settings, g_strdup(title), option );
-		RuntimeSetting_CreateWidget( (gchar*)title, option, table );
-		RuntimeSetting_AttachWidget( (gchar*)title, option, table );
+		EntityOption_CreateWidget( (gchar*)title, option, table );
+		EntityOption_AttachWidget( (gchar*)title, option, table );
 
 		gtk_widget_show_all( table );
 	}
@@ -422,9 +436,9 @@ void RuntimeSetting_AddOption( GtkButton * button, GtkWidget * table )
 }
 
 
-void RuntimeSetting_EditPopup(GtkMenuItem *menuitem, gpointer user_data )
+void EntityOption_EditPopup(GtkMenuItem *menuitem, gpointer user_data )
 {
-	RuntimeSettingsStruct * option = (RuntimeSettingsStruct*)user_data;
+	EntityOptionStruct * option = (EntityOptionStruct*)user_data;
 	GtkWidget *dialog, * table, *content_area;
 
 	/* Create the widgets */
@@ -443,13 +457,13 @@ void RuntimeSetting_EditPopup(GtkMenuItem *menuitem, gpointer user_data )
 	gtk_container_add( GTK_CONTAINER(content_area), table );
 
 
-	RuntimeSetting_CreateWidget( menu_text, option, table );
-	RuntimeSetting_AttachWidget( menu_text, option, table );
+	EntityOption_CreateWidget( menu_text, option, table );
+	EntityOption_AttachWidget( menu_text, option, table );
 
 	gtk_widget_show_all( table );
 	if ( gtk_dialog_run( GTK_DIALOG(dialog) ) == GTK_RESPONSE_ACCEPT )
 	{
-		RuntimeSetting_SaveWidget_Foreach( NULL, option, NULL );
+		EntityOption_SaveWidget_Foreach( NULL, option, NULL );
 	}
 
 	gtk_widget_destroy( dialog );
@@ -458,76 +472,76 @@ void RuntimeSetting_EditPopup(GtkMenuItem *menuitem, gpointer user_data )
 
 
 /********************************
-* RuntimeSetting_MenuItem
+* EntityOption_MenuItem
 * Event:
 */
-void RuntimeSetting_MenuItem( const gchar * name, RuntimeSettingsStruct * option, GtkWidget * list )
+void EntityOption_MenuItem( const gchar * name, EntityOptionStruct * option, GtkWidget * list )
 {
 	g_return_if_fail( option );
 
 	GtkWidget * item = gtk_menu_item_new_with_label( name );
 
 	gtk_menu_shell_append( GTK_MENU_SHELL(list), GTK_WIDGET(item) );
-	g_signal_connect( G_OBJECT(item), "activate", G_CALLBACK(RuntimeSetting_EditPopup), option );
+	g_signal_connect( G_OBJECT(item), "activate", G_CALLBACK(EntityOption_EditPopup), option );
 }
 
 /********************************
-* RuntimeSetting_Changed_Combo
+* EntityOption_Changed_Combo
 * Event:
 */
-void RuntimeSetting_Changed_Combo( GtkComboBox * widget, gpointer data )
+void EntityOption_Changed_Combo( GtkComboBox * widget, gpointer data )
 {
 	g_return_if_fail( data );
 
-	RuntimeSettingsStruct * option = (RuntimeSettingsStruct *)data;
+	EntityOptionStruct * option = (EntityOptionStruct *)data;
 
-	RuntimeSetting_SaveWidget_Foreach( NULL, option, NULL );
+	EntityOption_SaveWidget_Foreach( NULL, option, NULL );
 }
 
 /********************************
-* RuntimeSetting_Changed_Toggle
+* EntityOption_Changed_Toggle
 * Event:
 */
-void RuntimeSetting_Changed_Toggle( GtkToggleButton * widget, gpointer data )
+void EntityOption_Changed_Toggle( GtkToggleButton * widget, gpointer data )
 {
 	g_return_if_fail( data );
 
-	RuntimeSettingsStruct * option = (RuntimeSettingsStruct *)data;
+	EntityOptionStruct * option = (EntityOptionStruct *)data;
 
-	RuntimeSetting_SaveWidget_Foreach( NULL, option, NULL );
+	EntityOption_SaveWidget_Foreach( NULL, option, NULL );
 }
 
 /********************************
-* RuntimeSetting_Changed_Entry
+* EntityOption_Changed_Entry
 * Event:
 */
-void RuntimeSetting_Changed_Entry( GtkEntry * widget, gpointer data )
+void EntityOption_Changed_Entry( GtkEntry * widget, gpointer data )
 {
 	g_return_if_fail( data );
 
-	RuntimeSettingsStruct * option = (RuntimeSettingsStruct *)data;
+	EntityOptionStruct * option = (EntityOptionStruct *)data;
 
-	RuntimeSetting_SaveWidget_Foreach( NULL, option, NULL );
+	EntityOption_SaveWidget_Foreach( NULL, option, NULL );
 
 }
 
 /********************************
-* RuntimeSetting_CreateWidget
+* EntityOption_CreateWidget
 * Event:
 */
-void RuntimeSetting_CreateWidget( const gchar * name, RuntimeSettingsStruct * option, GtkWidget * list )
+void EntityOption_CreateWidget( const gchar * name, EntityOptionStruct * option, GtkWidget * list )
 {
 	g_return_if_fail( option );
 
 	GtkWidget * value_widget;
 	switch ( option->internal_type )
 	{
-		case RUNTIMEOPTION_BOOLEAN:
+		case ENTITYOPTION_BOOLEAN:
 			value_widget = option->widget = gtk_check_button_new_with_label("Enable");
 			if ( option->value )
 				gtk_toggle_button_set_active( GTK_TOGGLE_BUTTON(value_widget), (!g_ascii_strcasecmp(option->value, "true") ? 1 : 0) );
 			break;
-		case RUNTIMEOPTION_MUSIC:
+		case ENTITYOPTION_MUSIC:
 			value_widget = option->widget = gtk_combo_box_new( );
 			Meg_ComboText_Setup( value_widget, FALSE );
 			if ( option->value )
@@ -537,7 +551,7 @@ void RuntimeSetting_CreateWidget( const gchar * name, RuntimeSettingsStruct * op
 			}
 			Meg_ComboFile_Scan( value_widget, "music", NULL, TRUE, 0 );
 			break;
-		case RUNTIMEOPTION_SOUNDFX:
+		case ENTITYOPTION_SOUNDFX:
 			value_widget = option->widget = gtk_combo_box_new( );
 			Meg_ComboText_Setup( value_widget, FALSE );
 			if ( option->value )
@@ -547,7 +561,7 @@ void RuntimeSetting_CreateWidget( const gchar * name, RuntimeSettingsStruct * op
 			}
 			Meg_ComboFile_Scan( value_widget, "soundfx", NULL, TRUE, 0 );
 			break;
-		case RUNTIMEOPTION_ENTITY:
+		case ENTITYOPTION_ENTITY:
 			value_widget = option->widget = gtk_combo_box_new( );
 			Meg_ComboText_Setup( value_widget, FALSE );
 			if ( option->value )
@@ -564,10 +578,10 @@ void RuntimeSetting_CreateWidget( const gchar * name, RuntimeSettingsStruct * op
 			}
 			Meg_ComboFile_Scan( value_widget, "scripts", prefix, TRUE, 0 );
 			break;
-		case RUNTIMEOPTION_HIDDEN:
+		case ENTITYOPTION_HIDDEN:
 			return;
 			break;
-		case RUNTIMEOPTION_SECTION:
+		case ENTITYOPTION_SECTION:
 			value_widget = option->widget = gtk_combo_box_new( );
 			Meg_ComboText_Setup( value_widget, FALSE );
 			if ( option->value )
@@ -578,7 +592,7 @@ void RuntimeSetting_CreateWidget( const gchar * name, RuntimeSettingsStruct * op
 			Meg_ComboFile_Scan( value_widget, "sections", ".txt", TRUE, 0 );
 			g_object_set_data( G_OBJECT(list), "option-section-widget", value_widget );
 			break;
-		case RUNTIMEOPTION_MAP:
+		case ENTITYOPTION_SECTIONMAP:
 			value_widget = option->widget = gtk_combo_box_new( );
 			Meg_ComboText_Setup( value_widget, FALSE );
 			if ( option->value )
@@ -587,10 +601,22 @@ void RuntimeSetting_CreateWidget( const gchar * name, RuntimeSettingsStruct * op
 				gtk_combo_box_set_active( GTK_COMBO_BOX(value_widget), 0);
 			}
 
+			g_object_set_data( G_OBJECT(list), "option-child-widget", value_widget );
+
+			break;
+		case ENTITYOPTION_MAP:
+			value_widget = option->widget = gtk_combo_box_new( );
+			Meg_ComboText_Setup( value_widget, FALSE );
+			if ( option->value )
+			{
+				Meg_ComboText_AppendText( GTK_COMBO_BOX(value_widget), option->value );
+				gtk_combo_box_set_active( GTK_COMBO_BOX(value_widget), 0);
+			}
+			Meg_ComboFile_Scan( value_widget, "map", ".xml", TRUE, 0 );
 			g_object_set_data( G_OBJECT(list), "option-map-widget", value_widget );
 
 			break;
-		case RUNTIMEOPTION_MAPENTITY:
+		case ENTITYOPTION_MAPENTITY:
 			value_widget = option->widget = gtk_combo_box_new( );
 			Meg_ComboText_Setup( value_widget, FALSE );
 			if ( option->value )
@@ -609,20 +635,20 @@ void RuntimeSetting_CreateWidget( const gchar * name, RuntimeSettingsStruct * op
 	}
 }
 
-void RuntimeSetting_CreateWidgetWithSignal( const gchar * name, RuntimeSettingsStruct * option, GtkWidget * list )
+void EntityOption_CreateWidgetWithSignal( const gchar * name, EntityOptionStruct * option, GtkWidget * list )
 {
 	g_return_if_fail( option );
 
 	GtkWidget * value_widget;
 	switch ( option->internal_type )
 	{
-		case RUNTIMEOPTION_BOOLEAN:
+		case ENTITYOPTION_BOOLEAN:
 			value_widget = option->widget = gtk_check_button_new_with_label("Enable");
 			if ( option->value )
 				gtk_toggle_button_set_active( GTK_TOGGLE_BUTTON(value_widget), (!g_ascii_strcasecmp(option->value, "true") ? 1 : 0) );
-			g_signal_connect( G_OBJECT(value_widget), "toggled", G_CALLBACK(RuntimeSetting_Changed_Toggle), option );
+			g_signal_connect( G_OBJECT(value_widget), "toggled", G_CALLBACK(EntityOption_Changed_Toggle), option );
 			break;
-		case RUNTIMEOPTION_MUSIC:
+		case ENTITYOPTION_MUSIC:
 			value_widget = option->widget = gtk_combo_box_new( );
 			Meg_ComboText_Setup( value_widget, FALSE );
 			if ( option->value )
@@ -631,9 +657,9 @@ void RuntimeSetting_CreateWidgetWithSignal( const gchar * name, RuntimeSettingsS
 				gtk_combo_box_set_active( GTK_COMBO_BOX(value_widget),0);
 			}
 			Meg_ComboFile_Scan( value_widget, "music", NULL, TRUE, 0 );
-			g_signal_connect( G_OBJECT(value_widget), "changed", G_CALLBACK(RuntimeSetting_Changed_Combo), option );
+			g_signal_connect( G_OBJECT(value_widget), "changed", G_CALLBACK(EntityOption_Changed_Combo), option );
 			break;
-		case RUNTIMEOPTION_SOUNDFX:
+		case ENTITYOPTION_SOUNDFX:
 			value_widget = option->widget = gtk_combo_box_new( );
 			Meg_ComboText_Setup( value_widget, FALSE );
 			if ( option->value )
@@ -642,9 +668,9 @@ void RuntimeSetting_CreateWidgetWithSignal( const gchar * name, RuntimeSettingsS
 				gtk_combo_box_set_active( GTK_COMBO_BOX(value_widget),0);
 			}
 			Meg_ComboFile_Scan( value_widget, "soundfx", NULL, TRUE, 0 );
-			g_signal_connect( G_OBJECT(value_widget), "changed", G_CALLBACK(RuntimeSetting_Changed_Combo), option );
+			g_signal_connect( G_OBJECT(value_widget), "changed", G_CALLBACK(EntityOption_Changed_Combo), option );
 			break;
-		case RUNTIMEOPTION_ENTITY:
+		case ENTITYOPTION_ENTITY:
 			value_widget = option->widget = gtk_combo_box_new( );
 			Meg_ComboText_Setup( value_widget, FALSE );
 			if ( option->value )
@@ -660,12 +686,12 @@ void RuntimeSetting_CreateWidgetWithSignal( const gchar * name, RuntimeSettingsS
 					prefix++;
 			}
 			Meg_ComboFile_Scan( value_widget, "scripts", prefix, TRUE, 0 );
-			g_signal_connect( G_OBJECT(value_widget), "changed", G_CALLBACK(RuntimeSetting_Changed_Combo), option );
+			g_signal_connect( G_OBJECT(value_widget), "changed", G_CALLBACK(EntityOption_Changed_Combo), option );
 			break;
-		case RUNTIMEOPTION_HIDDEN:
+		case ENTITYOPTION_HIDDEN:
 			return;
 			break;
-		case RUNTIMEOPTION_SECTION:
+		case ENTITYOPTION_SECTION:
 			value_widget = option->widget = gtk_combo_box_new( );
 			Meg_ComboText_Setup( value_widget, FALSE );
 			if ( option->value )
@@ -675,9 +701,10 @@ void RuntimeSetting_CreateWidgetWithSignal( const gchar * name, RuntimeSettingsS
 			}
 			Meg_ComboFile_Scan( value_widget, "sections", ".txt", TRUE, 0 );
 			g_object_set_data( G_OBJECT(list), "option-section-widget", value_widget );
-			g_signal_connect( G_OBJECT(value_widget), "changed", G_CALLBACK(RuntimeSetting_Changed_Combo), option );
+			g_signal_connect( G_OBJECT(value_widget), "changed", G_CALLBACK(EntityOption_Changed_Combo), option );
 			break;
-		case RUNTIMEOPTION_MAP:
+
+		case ENTITYOPTION_SECTIONMAP:
 			value_widget = option->widget = gtk_combo_box_new( );
 			Meg_ComboText_Setup( value_widget, FALSE );
 			if ( option->value )
@@ -686,11 +713,11 @@ void RuntimeSetting_CreateWidgetWithSignal( const gchar * name, RuntimeSettingsS
 				gtk_combo_box_set_active( GTK_COMBO_BOX(value_widget), 0);
 			}
 
-			g_object_set_data( G_OBJECT(list), "option-map-widget", value_widget );
-			g_signal_connect( G_OBJECT(value_widget), "changed", G_CALLBACK(RuntimeSetting_Changed_Combo), option );
+			g_object_set_data( G_OBJECT(list), "option-child-widget", value_widget );
+			g_signal_connect( G_OBJECT(value_widget), "changed", G_CALLBACK(EntityOption_Changed_Combo), option );
 
 			break;
-		case RUNTIMEOPTION_MAPENTITY:
+		case ENTITYOPTION_MAPENTITY:
 			value_widget = option->widget = gtk_combo_box_new( );
 			Meg_ComboText_Setup( value_widget, FALSE );
 			if ( option->value )
@@ -700,26 +727,26 @@ void RuntimeSetting_CreateWidgetWithSignal( const gchar * name, RuntimeSettingsS
 			}
 
 			g_object_set_data( G_OBJECT(list), "option-mapentities-widget", value_widget );
-			g_signal_connect( G_OBJECT(value_widget), "changed", G_CALLBACK(RuntimeSetting_Changed_Combo), option );
+			g_signal_connect( G_OBJECT(value_widget), "changed", G_CALLBACK(EntityOption_Changed_Combo), option );
 			break;
 		default:
 			value_widget = option->widget = gtk_entry_new();
 			if ( option->value )
 				gtk_entry_set_text( GTK_ENTRY(value_widget), option->value );
-			g_signal_connect( G_OBJECT(value_widget), "activate", G_CALLBACK(RuntimeSetting_Changed_Entry), option );
+			g_signal_connect( G_OBJECT(value_widget), "activate", G_CALLBACK(EntityOption_Changed_Entry), option );
 			break;
 	}
 }
 
 
 /********************************
-* RuntimeSetting_AttachWidget
+* EntityOption_AttachWidget
 *
 *@ name:
 *@ option:
 *@ list
 */
-void RuntimeSetting_AttachWidget( const gchar * name, RuntimeSettingsStruct * option, GtkWidget * list )
+void EntityOption_AttachWidget( const gchar * name, EntityOptionStruct * option, GtkWidget * list )
 {
 	g_return_if_fail( option );
 
@@ -728,18 +755,18 @@ void RuntimeSetting_AttachWidget( const gchar * name, RuntimeSettingsStruct * op
 
 	switch ( option->internal_type )
 	{
-		case RUNTIMEOPTION_HIDDEN:
+		case ENTITYOPTION_HIDDEN:
 			return;
 			break;
-		case RUNTIMEOPTION_SECTION: // section widget
+		case ENTITYOPTION_SECTION: // section widget
 			label = gtk_label_new( name );
-			g_signal_connect( G_OBJECT(option->widget), "changed", G_CALLBACK(RuntimeSetting_SectionChanged), (gpointer) list );
+			g_signal_connect( G_OBJECT(option->widget), "changed", G_CALLBACK(EntityOption_SectionChanged), (gpointer) list );
 			break;
-		case RUNTIMEOPTION_MAP: // map
+		case ENTITYOPTION_SECTIONMAP: // section map
 			label = gtk_label_new( name );
-			g_signal_connect( G_OBJECT(option->widget), "changed", G_CALLBACK(RuntimeSetting_MapChanged), (gpointer) list );
+			g_signal_connect( G_OBJECT(option->widget), "changed", G_CALLBACK(EntityOption_MapChanged), (gpointer) list );
 			break;
-		case RUNTIMEOPTION_MAPENTITY: // map's entities
+		case ENTITYOPTION_MAPENTITY: // map's entities
 			label = gtk_label_new( name );
 			break;
 		default:
@@ -769,13 +796,13 @@ void RuntimeSetting_AttachWidget( const gchar * name, RuntimeSettingsStruct * op
 }
 
 /********************************
-* RuntimeSetting_Save_Foreach
+* EntityOption_Save_Foreach
 *
 @ name:
 @ option:
 @ data:
 */
-void RuntimeSetting_SaveWidget_Foreach( const gchar * name, RuntimeSettingsStruct * option, gpointer data )
+void EntityOption_SaveWidget_Foreach( const gchar * name, EntityOptionStruct * option, gpointer data )
 {
 	g_return_if_fail( option );
 	g_return_if_fail( option->widget );
@@ -799,12 +826,12 @@ void RuntimeSetting_SaveWidget_Foreach( const gchar * name, RuntimeSettingsStruc
 	}
 	else if ( !g_ascii_strcasecmp( G_OBJECT_TYPE_NAME(option->widget), "GtkComboBox" ) || !g_ascii_strcasecmp( G_OBJECT_TYPE_NAME(option->widget), "GtkComboBoxEntry" ) )
 	{
-
-		if  ( option->internal_type == RUNTIMEOPTION_SECTION )
+		if  ( option->internal_type == ENTITYOPTION_SECTION )
 		{
 			gchar * text = Meg_ComboText_GetText( GTK_COMBO_BOX(option->widget) );
 
-			option->value = g_strndup(text, g_utf8_strlen(text, -1) - 4 ); // Strip .txt
+			option->value = STRIP_FILE_EXTENSION(text, 4); // Strip .txt
+
 			g_free(text);
 		}
 		else
@@ -815,22 +842,34 @@ void RuntimeSetting_SaveWidget_Foreach( const gchar * name, RuntimeSettingsStruc
 }
 
 /********************************
-* RuntimeSetting_SetDefaultValue
+* EntityOption_SetDefaultValue
 *
 @ name:
 @ option:
 @ data:
 */
-void RuntimeSetting_SetDefaultValues( DisplayObject *object )
+void EntityOption_SetDefaultValues( DisplayObject * object )
 {
 	/* Set Default Runtime option */
 	if ( MAP_OBJECT_DATA(object)->entity_file && MAP_OBJECT_DATA(object)->entity_language )
 	{
-		gchar * option_path = g_strdup_printf("/scripts/%s.%s.option", MAP_OBJECT_DATA(object)->entity_file, MAP_OBJECT_DATA(object)->entity_language );
+		gchar * option_path = g_strdup_printf("/scripts/%s.options", MAP_OBJECT_DATA(object)->entity_file );
 
 		GHashTable * default_settings = RuntimeParser_Load( option_path );
-		g_hash_table_foreach( default_settings, (GHFunc)RuntimeSetting_Append, (gpointer)MAP_OBJECT_DATA(object)->settings );
+		g_hash_table_foreach( default_settings, (GHFunc)EntityOption_Append, (gpointer)MAP_OBJECT_DATA(object)->settings );
 		g_hash_table_remove_all( default_settings );
+
+		/* Check For Entity Global Flag */
+		EntityOptionStruct * hash_value = EntityOption_Lookup( MAP_OBJECT_DATA(object)->settings, "force-global");
+		if ( hash_value )
+		{
+			if ( hash_value->value )
+			{
+				MAP_OBJECT_DATA(object)->entity_global = !g_ascii_strcasecmp( hash_value->value, "true" );
+			}
+		}
+
+
 		g_free(option_path);
 
 

@@ -29,3 +29,5 @@ Permission is granted to anyone to use this software for any purpose, including 
 	gboolean Sheet_ParseTextFormat( gchar * filename );
 
 #endif
+
+

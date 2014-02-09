@@ -15,11 +15,11 @@ Permission is granted to anyone to use this software for any purpose, including 
 
 #include "ma_question.h"
 
+#if defined(USE_SOUP)
+
 /* Required Headers */
-#if defined(USE_SOUP) && defined(Q2A_URL)
-#include <libsoup/soup.h>
-#include <libsoup/soup-method.h>
-#endif
+
+
 
 /* External Functions */
 
@@ -40,7 +40,6 @@ extern GtkWidget * mokoi_questions_text;
 
 
 /* Functions */
-#if defined(USE_SOUP) && defined(Q2A_URL)
 void Meg_Questions_AppendAnswerText( GHashTable * table, GtkTextBuffer * buffer )
 {
 	gchar * title = NULL;
@@ -118,8 +117,6 @@ void Meg_Questions_GetAll()
 
 	msg = soup_xmlrpc_request_new( Q2A_URL, "q2a.listQuestion", G_TYPE_STRING, "test", G_TYPE_STRING, "test", G_TYPE_STRING, "sort", G_TYPE_STRING, "asc", NULL );
 	status = soup_session_send_message( session, msg );
-	//g_print("Status: %d\nText: %s\n", status, msg->response_body->data );
-
 
 	GError *error = NULL;
 	GHashTable *hash;
@@ -168,7 +165,6 @@ void Meg_Questions_Get( gint ident )
 
 	msg = soup_xmlrpc_request_new( Q2A_URL, "q2a.getQuestion", G_TYPE_STRING, "postid", G_TYPE_INT, ident, NULL );
 	status = soup_session_send_message( session, msg );
-	//g_print("Status: %d\nText: %s\n", status, msg->response_body->data );
 
 	gtk_text_buffer_set_text( buffer, "", -1);
 
@@ -231,6 +227,8 @@ void Meg_Questions_DisplayItem( GtkTreeView * tree_view, GtkTreeViewColumn *colu
 		}
 	}
 }
+
+
 #endif
 
 

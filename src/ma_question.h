@@ -13,14 +13,21 @@ Permission is granted to anyone to use this software for any purpose, including 
 #define MA_QUESTION
 
 
-#define Q2A_URL "http://openzelda.net/qa/xml-rpc"
 
-	#if defined(USE_SOUP) && defined(Q2A_URL)
-	void Meg_Questions_Get( gint ident );
-	void Meg_Questions_GetAll();
 
-	void Meg_Questions_DisplayItem( GtkTreeView * tree_view, GtkTreeViewColumn *column, GtkTreePath *path, gpointer data );
+	#if defined(USE_SOUP)
+
+		#include <libsoup/soup.h>
+		#include <libsoup/soup-method.h>
+
+		void Meg_Questions_Get( gint ident );
+		void Meg_Questions_GetAll();
+
+		void Meg_Questions_DisplayItem( GtkTreeView * tree_view, GtkTreeViewColumn *column, GtkTreePath *path, gpointer data );
 	#endif
+
+	gboolean MegWidget_Questions_Destroy(GtkWidget * widget, GdkEvent * event, gpointer user_data );
+	void MegWidget_Questions_Refresh(GtkWidget * widget, gpointer user_data);
 
 #endif
 

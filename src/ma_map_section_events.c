@@ -106,7 +106,7 @@ gboolean Meg_MapSection_LayoutDraw( GtkWidget * overview, cairo_t * cr, GtkWidge
 	#if GTK_MAJOR_VERSION == 2
 	GtkAllocation wigdet_al;
 	gtk_widget_get_allocation(overview, &wigdet_al);
-	AL_MapSection_Redraw( section_id, cr, wigdet_al.width, wigdet_al.width );
+	AL_MapSection_Redraw( section_id, cr, wigdet_al.width, wigdet_al.height );
 	#else
 	AL_MapSection_Redraw( section_id, cr, gtk_widget_get_allocated_width(overview), gtk_widget_get_allocated_height(overview) );
 	#endif

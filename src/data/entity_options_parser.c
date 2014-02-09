@@ -13,8 +13,8 @@ Permission is granted to anyone to use this software for any purpose, including 
 #include "loader_global.h"
 #include "managed_entity.h"
 #include "entity_functions.h"
-#include "runtime_parser.h"
-#include "runtime_options.h"
+#include "entity_options_parser.h"
+#include "entity_options.h"
 
 /* Required Headers */
 #include <glib/gstdio.h>
@@ -34,9 +34,8 @@ void RuntimeParser_StartHandler( GMarkupParseContext *context, const gchar *elem
 
 static GMarkupParser mokoiRuntimeParser = {RuntimeParser_StartHandler, NULL, NULL, NULL, NULL};
 
-#include "ui/runtime_option_editor.gui.h"
-const gchar * mokoiUI_RuntimeSettings = GUIRUNTIME_OPTION_EDITOR
-
+#include "ui/entity_option_editor.gui.h"
+const gchar * mokoiUI_EntityOption = GUIENTITY_OPTION_EDITOR
 
 
 /********************************
@@ -48,7 +47,7 @@ void RuntimeParser_StartHandler( GMarkupParseContext *context, const gchar *elem
 	if ( !g_ascii_strcasecmp(element_name, "option") )
 	{
 		gchar * name = NULL;
-		RuntimeSettingsStruct * options = RuntimeSetting_New( NULL, NULL );
+		EntityOptionStruct * options = EntityOption_New( NULL, NULL );
 
 		for (; *attribute_names && *attribute_values; attribute_names++, attribute_values++)
 		{
@@ -63,7 +62,7 @@ void RuntimeParser_StartHandler( GMarkupParseContext *context, const gchar *elem
 		}
 		if ( name )
 		{
-			options->internal_type = RuntimeSetting_Type(options->type);
+			options->internal_type = EntityOption_Type(options->type);
 			g_hash_table_insert(( GHashTable *)data, name, options);
 		}
 	}
@@ -74,7 +73,7 @@ void RuntimeParser_StartHandler( GMarkupParseContext *context, const gchar *elem
 * RuntimeParser_SaveString
 *
 */
-void RuntimeParser_SaveString(gchar * key, RuntimeSettingsStruct * option, GString * file_content )
+void RuntimeParser_SaveString(gchar * key, EntityOptionStruct * option, GString * file_content )
 {
 	if ( option )
 	{
@@ -90,22 +89,35 @@ void RuntimeParser_SaveString(gchar * key, RuntimeSettingsStruct * option, GStri
 */
 gboolean RuntimeParser_Save(gchar * entity_name, GHashTable * options)
 {
-	gchar * file = g_strconcat( entity_name, ".options", NULL );
-	GString * file_content = g_string_new("<entity>\n");
-	g_hash_table_foreach( options, (GHFunc)RuntimeParser_SaveString, (gpointer)file_content );
-	g_string_append( file_content, "</entity>");
+	gboolean successful = FALSE;
+	gchar * file_name = g_strconcat( entity_name, ".options", NULL );
+	GString * file_content = g_string_new("");
 
-	Meg_file_set_contents(file, file_content->str, -1, &mokoiError);
-	if ( mokoiError )
+	if ( g_hash_table_size(options) )
 	{
-		Meg_Error_Print( __func__, __LINE__, "Managed Entity could not be saved. Reason: %s", mokoiError->message );
-		g_clear_error( &mokoiError );
-		return FALSE;
-	}
-	g_free(file);
-	g_string_free(file_content, FALSE);
+		g_string_append( file_content, "<entity>\n");
+		g_hash_table_foreach( options, (GHFunc)RuntimeParser_SaveString, (gpointer)file_content );
+		g_string_append( file_content, "</entity>");
 
-	return TRUE;
+		successful = Meg_file_set_contents( file_name, file_content->str, -1, &mokoiError);
+		if ( mokoiError )
+		{
+			Meg_Error_Print( __func__, __LINE__, "Entity options could not be saved. Reason: %s", mokoiError->message );
+			g_clear_error( &mokoiError );
+		}
+	}
+	else
+	{
+		if ( Meg_file_test( file_name, G_FILE_TEST_IS_REGULAR ) )
+		{
+			PHYSFS_delete( file_name );
+		}
+	}
+
+	g_free( file_name );
+	g_string_free( file_content, FALSE );
+
+	return successful;
 }
 
 
@@ -118,7 +130,7 @@ GHashTable * RuntimeParser_Load(gchar * file)
 	GError * error  = NULL;
 	gchar * file_content = NULL;
 	GMarkupParseContext * ctx = NULL;
-	GHashTable * table = g_hash_table_new_full( g_str_hash, g_str_equal, (GDestroyNotify)g_free, (GDestroyNotify)RuntimeSetting_Delete );
+	GHashTable * table = g_hash_table_new_full( g_str_hash, g_str_equal, (GDestroyNotify)g_free, (GDestroyNotify)EntityOption_Delete );
 
 	if ( Meg_file_get_contents( file, &file_content, NULL, NULL ) )
 	{
@@ -165,7 +177,7 @@ void RuntimeEditor_Menu_Add( GtkWidget * menuitem, GtkWidget *treeview )
 		GtkTreeModel * model = gtk_tree_view_get_model( GTK_TREE_VIEW(treeview) );
 		GHashTable * settings = g_object_get_data( G_OBJECT(model), "runtime-hashtable" );
 
-		g_hash_table_insert( settings, g_strdup(title), RuntimeSetting_New("", "") );
+		g_hash_table_insert( settings, g_strdup(title), EntityOption_New("", "") );
 		gtk_list_store_append( GTK_LIST_STORE(model), &iter );
 		gtk_list_store_set( GTK_LIST_STORE(model), &iter, 0, g_strdup(title), 1, "", 2, "", -1 );
 
@@ -229,7 +241,7 @@ void RuntimeEditor_EditStoreType( GtkCellRendererText * cellrenderertext, gchar 
 
 	if ( key )
 	{
-		RuntimeSettingsStruct * option = (RuntimeSettingsStruct*)g_hash_table_lookup(settings, key);
+		EntityOptionStruct * option = EntityOption_Lookup(settings, key);
 		if ( option )
 		{
 			REPLACE_STRING( option->type, g_strdup(new_text) )
@@ -254,7 +266,7 @@ void RuntimeEditor_EditStoreValue( GtkCellRendererText * cellrenderertext, gchar
 	GHashTable * settings = g_object_get_data( G_OBJECT(model), "runtime-hashtable" );
 	if ( key )
 	{
-		RuntimeSetting_Update( settings, key, new_text, NULL );
+		EntityOption_Update( settings, key, new_text, NULL );
 		gtk_list_store_set( GTK_LIST_STORE(model), &iter, 1, g_strdup(new_text), -1 );
 	}
 
@@ -263,7 +275,7 @@ void RuntimeEditor_EditStoreValue( GtkCellRendererText * cellrenderertext, gchar
 * RuntimeParser_CreateStore
 *
 */
-void RuntimeEditor_CreateStore( gchar * key, RuntimeSettingsStruct * value, GtkListStore * liststore )
+void RuntimeEditor_CreateStore( gchar * key, EntityOptionStruct * value, GtkListStore * liststore )
 {
 	GtkTreeIter iter;
 	gtk_list_store_append( liststore, &iter );
@@ -296,19 +308,20 @@ gboolean RuntimeEditor_Open( gchar * entity_name )
 	GtkListStore * store_items = NULL;
 
 	/* Get Options File */
-	gchar * runtime_file_path = g_strconcat(entity_name, ".options", NULL);
-	options = RuntimeParser_Load( runtime_file_path );
+	gchar * option_path = g_strdup_printf("/scripts/%s.options", entity_name );
+
+	options = RuntimeParser_Load( option_path );
 	if ( !options )
 	{
 		Meg_Error_Print( __func__, __LINE__, "RuntimeParser_Edit");
 		return FALSE;
 	}
-	g_free(runtime_file_path);
+	g_free(option_path);
+
 
 	/* UI */
-	GtkBuilder * ui = Meg_Builder_Create( mokoiUI_RuntimeSettings, __func__, __LINE__ );
+	GtkBuilder * ui = Meg_Builder_Create( mokoiUI_EntityOption, __func__, __LINE__ );
 	g_return_val_if_fail( ui, FALSE );
-
 
 	/* widget */
 	dialog = GET_WIDGET( ui, "dialog" );
@@ -319,7 +332,6 @@ gboolean RuntimeEditor_Open( gchar * entity_name )
 	/* Settings */
 	g_object_set_data( G_OBJECT(store_items), "runtime-hashtable", options);
 
-
 	/* Events */
 	g_signal_connect( tree_items, "realize", G_CALLBACK(RuntimeEditor_Refresh), options );
 	g_signal_connect( tree_items, "popup-menu", G_CALLBACK(RuntimeEditor_Menu_Button), options );
@@ -329,7 +341,7 @@ gboolean RuntimeEditor_Open( gchar * entity_name )
 	SET_OBJECT_SIGNAL( ui, "cell_type", "edited", G_CALLBACK(RuntimeEditor_EditStoreType), tree_items );
 
 	/* Label */
-	Meg_Misc_SetLabel(label, "Runtime Settings", entity_name, '\n' );
+	Meg_Misc_SetLabel(label, "Entity Options", entity_name, '\n' );
 
 	gtk_widget_show_all( gtk_dialog_get_content_area( GTK_DIALOG(dialog) ) );
 	gtk_window_set_transient_for( GTK_WINDOW(dialog), Meg_Main_GetWindow() );

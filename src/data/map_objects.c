@@ -22,7 +22,7 @@ Permission is granted to anyone to use this software for any purpose, including 
 
 /* External Functions */
 DisplayObjectTypes MapObject_Internal2DisplayObjectType( char internal_type );
-void RuntimeSetting_MenuItem( gchar * name, RuntimeSettingsStruct * options, GtkWidget * list );
+void EntityOption_MenuItem( gchar * name, EntityOptionStruct * options, GtkWidget * list );
 
 /* Local Type */
 typedef enum {
@@ -251,7 +251,7 @@ GtkWidget * Object_GetSettingMenu( MapInfo * map_info, guint id )
 			gtk_menu_shell_append( GTK_MENU_SHELL(menu_widget), sep );
 			gtk_widget_show(sep);
 
-			g_hash_table_foreach( MAP_OBJECT_DATA(object)->settings, (GHFunc)RuntimeSetting_MenuItem, menu_widget );
+			g_hash_table_foreach( MAP_OBJECT_DATA(object)->settings, (GHFunc)EntityOption_MenuItem, menu_widget );
 
 
 		}

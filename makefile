@@ -55,7 +55,7 @@ OBJ += $(OBJDIR)/widgets/widget_map.o $(OBJDIR)/widgets/map_info.o $(OBJDIR)/wid
 
 OBJ += $(OBJDIR)/data/updates_handler.o $(OBJDIR)/data/text_editor.o $(OBJDIR)/data/sprite_sheets.o $(OBJDIR)/data/sprite_grouping.o
 OBJ += $(OBJDIR)/data/sprite_dialog.o $(OBJDIR)/data/sprite_collision.o $(OBJDIR)/data/sheets.o $(OBJDIR)/data/settings.o
-OBJ += $(OBJDIR)/data/setting_functions.o $(OBJDIR)/data/sections.o $(OBJDIR)/data/section_functions.o $(OBJDIR)/data/runtime_parser.o
+OBJ += $(OBJDIR)/data/setting_functions.o $(OBJDIR)/data/sections.o $(OBJDIR)/data/section_functions.o $(OBJDIR)/data/entity_options_parser.o
 OBJ += $(OBJDIR)/data/resources_functions.o $(OBJDIR)/data/project.o $(OBJDIR)/data/plugin_info.o $(OBJDIR)/data/path_functions.o
 OBJ += $(OBJDIR)/data/patch_functions.o $(OBJDIR)/data/package_functions.o $(OBJDIR)/data/object_advance.o
 OBJ += $(OBJDIR)/data/maps.o $(OBJDIR)/data/map_parser.o $(OBJDIR)/data/map_functions.o $(OBJDIR)/data/managed_entity.o
@@ -65,7 +65,7 @@ OBJ += $(OBJDIR)/data/entity_parser.o $(OBJDIR)/data/entity_list_menu.o $(OBJDIR
 OBJ += $(OBJDIR)/data/map_objects.o $(OBJDIR)/data/compression_functions.o $(OBJDIR)/data/mokoi_package.o $(OBJDIR)/data/virtual_sprite.o
 OBJ += $(OBJDIR)/data/sheets_parser.o $(OBJDIR)/data/entity_compile.o $(OBJDIR)/data/audio_playback.o $(OBJDIR)/data/audio_functions.o
 OBJ += $(OBJDIR)/data/audio_chooser.o $(OBJDIR)/data/animation_dialog.o $(OBJDIR)/data/animation_events.o $(OBJDIR)/data/animation_functions.o
-OBJ += $(OBJDIR)/data/progress_dialog.o $(OBJDIR)/data/runtime_options.o $(OBJDIR)/data/export_functions.o $(OBJDIR)/data/stored_file_info.o
+OBJ += $(OBJDIR)/data/progress_dialog.o $(OBJDIR)/data/entity_options.o $(OBJDIR)/data/export_functions.o $(OBJDIR)/data/stored_file_info.o
 
 OBJ += $(OBJDIR)/data/data_types.o $(OBJDIR)/data/virtual_sprite_dialog.o
 

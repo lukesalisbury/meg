@@ -16,7 +16,7 @@ Permission is granted to anyone to use this software for any purpose, including 
 #include "ma_map.h"
 #include "ma_map_edit.h"
 #include "ma_map_settings.h"
-#include "data/runtime_options.h"
+#include "data/entity_options.h"
 #include "data/entity_editor.h"
 
 /* GtkWidget */

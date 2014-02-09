@@ -14,8 +14,8 @@ Permission is granted to anyone to use this software for any purpose, including 
 
 /* Required Headers */
 #include "setting_functions.h"
-#include "runtime_parser.h"
-#include "runtime_options.h"
+#include "entity_options_parser.h"
+#include "entity_options.h"
 #include "loader_functions.h"
 
 /* Global Functions  */
@@ -135,7 +135,7 @@ gboolean Map_Open( gchar * file, MapInfo * map_info )
 	gchar * runtime_file, * thumbnail_file, * content;
 
 	/* Inital Map Settings */
-	runtime_file = g_strdup_printf( "/scripts/maps/%s.%s.options", file, "mps" );
+	runtime_file = g_strdup_printf( "/scripts/maps/%s.options", file );
 	thumbnail_file = g_strdup_printf( "/maps/thumbs/%s.png", file );
 
 	map_info->name = g_strdup( file );
@@ -221,7 +221,7 @@ gboolean Map_Copy( gchar * file, gchar * content )
 @ value:
 @ content:
 */
-void Map_Setting_Foreach( gchar* key, RuntimeSettingsStruct * value, GString * content )
+void Map_Setting_Foreach( gchar* key, EntityOptionStruct * value, GString * content )
 {
 	if ( value )
 	{
@@ -525,7 +525,7 @@ void Map_GetOptions( MapInfo * map_info )
 {
 	/* Load Default Settings */
 	GHashTable * default_settings = RuntimeParser_Load( "/map.options" );
-	g_hash_table_foreach( default_settings, (GHFunc)RuntimeSetting_Append, (gpointer)map_info->settings );
+	g_hash_table_foreach( default_settings, (GHFunc)EntityOption_Append, (gpointer)map_info->settings );
 	g_hash_table_remove_all( default_settings );
 }
 

@@ -12,6 +12,8 @@ Permission is granted to anyone to use this software for any purpose, including 
 /* Standard Headers */
 #include "loader_global.h"
 
+#include "sheets_functions.h"
+
 /* External Functions */
 gboolean Sheet_SaveFile( Spritesheet * sheet );
 gboolean SpriteCollision_Read( SheetObject * sprite, GtkListStore * list );
@@ -39,8 +41,141 @@ extern GdkRectangle Mokoi_SpriteCollision;
 
 /* UI */
 #include "ui/sprite_advance.gui.h"
-const gchar * mokoiUI_SpriteAdvance = GUISPRITE_ADVANCE
+const gchar * mokoiUI_SpriteAdvance = GUISPRITE_ADVANCE;
 
+
+/********************************
+* SpriteCollision_Draw
+*
+*/
+
+gboolean Sprite_DialogPreview_Draw( GtkWidget * widget, cairo_t * cr, gpointer data )
+{
+	gint sheet_width, sheet_height;
+	gdouble width = 5, height = 5, x = 0, y = 0;
+
+	GtkSpinButton  * spin_x, * spin_y, * spin_w, * spin_h;
+	Spritesheet * sheet = NULL;
+
+	gdouble sprite_center_x = 5, sprite_center_y = 5;
+	gint widget_center_x, widget_center_y;
+
+
+
+	sheet = g_object_get_data( G_OBJECT(widget), "sheet" );
+
+	spin_x = g_object_get_data( G_OBJECT(widget), "spin_x" );
+	spin_y = g_object_get_data( G_OBJECT(widget), "spin_y" );
+	spin_w = g_object_get_data( G_OBJECT(widget), "spin_w" );
+	spin_h = g_object_get_data( G_OBJECT(widget), "spin_h" );
+
+	gtk_widget_set_size_request( widget, gtk_spin_button_get_value_as_int( spin_w )*4, gtk_spin_button_get_value_as_int( spin_h )*4 );
+
+	x = gtk_spin_button_get_value( spin_x );
+	y = gtk_spin_button_get_value( spin_y );
+	width = gtk_spin_button_get_value( spin_w );
+	height = gtk_spin_button_get_value( spin_h );
+
+
+	#if GTK_MAJOR_VERSION == 2
+	GtkAllocation wigdet_al;
+	gtk_widget_get_allocation( widget, &wigdet_al);
+	widget_center_x = wigdet_al.width / 2;
+	widget_center_y = wigdet_al.height / 2;
+	#else
+	widget_center_x = gtk_widget_get_allocated_width( widget ) / 2;
+	widget_center_y = gtk_widget_get_allocated_height( widget ) / 2;
+	#endif
+
+
+	sprite_center_x = widget_center_x - (x + (width/2));
+	sprite_center_y = widget_center_y - (y + (height/2));
+
+	cairo_translate( cr, sprite_center_x, sprite_center_y );
+	cairo_save( cr );
+
+
+
+	if ( sheet->image )
+	{
+
+		sheet_width = gdk_pixbuf_get_width( sheet->image );
+		sheet_height = gdk_pixbuf_get_height( sheet->image );
+
+		//
+		cairo_save( cr );
+		cairo_rectangle( cr, 0, 0, sheet_width, sheet_height );
+		gdk_cairo_set_source_pixbuf( cr, sheet->image, 0, 0 );
+		cairo_fill( cr );
+		cairo_restore( cr );
+
+		cairo_save( cr );
+		cairo_set_operator( cr, CAIRO_OPERATOR_OVER );
+		cairo_rectangle( cr, 0, 0, sheet_width, sheet_height );
+		cairo_set_source_rgba( cr, 0, 0.0, 0.0, 0.5);
+		cairo_fill( cr );
+		cairo_restore( cr );
+
+		cairo_save( cr );
+		cairo_rectangle( cr, x, y, width, height);
+		cairo_set_source_rgba( cr, 1.0, 1.0, 1.0, 1.0 );
+		cairo_fill(cr);
+		cairo_restore( cr );
+
+		cairo_save( cr );
+		cairo_rectangle( cr, x, y, width, height);
+		cairo_clip(cr);
+		gdk_cairo_set_source_pixbuf( cr, sheet->image, 0, 0 );
+		cairo_paint(cr);
+		cairo_restore( cr );
+
+		cairo_save( cr );
+		cairo_rectangle( cr, x - 1.0, y - 1.0, width + 2.0, height + 2.0 );
+		cairo_set_source_rgba( cr, .2, .6, 1, 0 );
+		cairo_fill_preserve( cr );
+		cairo_set_source_rgba( cr, .2, .6, 1, 1.0 );
+		cairo_set_line_width( cr , 0.5);
+		cairo_stroke( cr );
+		cairo_restore( cr );
+
+	}
+
+	cairo_restore( cr );
+	return TRUE;
+
+
+}
+
+/********************************
+* Sprite_DialogPreview_Expose
+*
+*/
+gboolean Sprite_DialogPreview_Expose(  GtkWidget * widget, GdkEventExpose * event, gpointer data )
+{
+	cairo_t * cr;
+
+	cr = gdk_cairo_create( gtk_widget_get_window(widget) );
+
+	if ( !cr )
+	{
+		Meg_Main_PrintStatus("gdk_cairo_create failed ");
+		return FALSE;
+	}
+
+
+	return Sprite_DialogPreview_Draw( widget, cr, data );
+
+}
+
+/********************************
+* Sprite_DialogPreview_SpinChange
+*
+*/
+void Sprite_DialogPreview_SpinChange( GtkSpinButton *spinbutton, GtkWidget * area )
+{
+	gtk_widget_queue_draw( area );
+
+}
 
 /********************************
 * Sprite_AdvanceDialog
@@ -48,8 +183,8 @@ const gchar * mokoiUI_SpriteAdvance = GUISPRITE_ADVANCE
 */
 gboolean Sprite_AdvanceDialog( Spritesheet * sheet, SheetObject * sprite )
 {
-	GtkWidget * dialog, * entry_name, * spin_mask, * file_mask, * file_entity, *area_collision , *combo_collision, * image_preview, * check_visible, * button_entitysettings;
-	GtkWidget * image_group, * area_grouptopleft, * area_grouptop, * area_grouptopright, * area_groupright, * area_groupbottomright, * area_groupbottom, * area_groupbottomleft, * area_groupleft;
+	GtkWidget * dialog, * entry_name, * spin_mask, * file_mask, * file_entity, * area_collision , *combo_collision, * image_preview, * check_visible, * button_entitysettings;
+	GtkWidget * image_group, * area_preview;
 	GtkSpinButton  * spin_x, * spin_y, * spin_w, * spin_h;
 	GtkListStore * store_collision;
 
@@ -69,7 +204,8 @@ gboolean Sprite_AdvanceDialog( Spritesheet * sheet, SheetObject * sprite )
 	spin_h = GET_SPIN_WIDGET( ui, "spin_h");
 	spin_mask = GET_WIDGET( ui, "spin_mask");
 	file_mask = GET_WIDGET( ui, "combo_maskfile");
-	image_preview = GET_WIDGET( ui, "image_preview");
+	area_preview = GET_WIDGET( ui, "area_preview");
+
 
 	/* Collision Tab */
 	area_collision = GET_WIDGET( ui, "area_collision");
@@ -87,16 +223,7 @@ gboolean Sprite_AdvanceDialog( Spritesheet * sheet, SheetObject * sprite )
 
 	/* Grouping Tab */
 	image_group = GET_WIDGET( ui, "image_group");
-/*
-	area_grouptopleft = SpriteGrouping_GetWidget(  ui, "area_grouptopleft", sheet, sprite, 0 );
-	area_grouptop = SpriteGrouping_GetWidget(  ui, "area_grouptop", sheet, sprite, 1 );
-	area_grouptopright = SpriteGrouping_GetWidget(  ui, "area_grouptopright", sheet, sprite, 2 );
-	area_groupright = SpriteGrouping_GetWidget(  ui, "area_groupright", sheet, sprite, 3 );
-	area_groupbottomright = SpriteGrouping_GetWidget(  ui, "area_groupbottomright", sheet, sprite, 4 );
-	area_groupbottom = SpriteGrouping_GetWidget(  ui, "area_groupbottom", sheet, sprite, 5 );
-	area_groupbottomleft = SpriteGrouping_GetWidget(  ui, "area_groupbottomleft", sheet, sprite, 6 );
-	area_groupleft = SpriteGrouping_GetWidget(  ui, "area_groupleft", sheet, sprite, 7 );
-*/
+
 	SpriteGrouping_GetWidget(  ui, "area_grouptopleft", sheet, sprite, 0 );
 	SpriteGrouping_GetWidget(  ui, "area_grouptop", sheet, sprite, 1 );
 	SpriteGrouping_GetWidget(  ui, "area_grouptopright", sheet, sprite, 2 );
@@ -116,15 +243,30 @@ gboolean Sprite_AdvanceDialog( Spritesheet * sheet, SheetObject * sprite )
 	g_signal_connect( button_entitysettings, "button-press-event", G_CALLBACK(EntityCombo_Properties_Open), file_entity );
 #if GTK_MAJOR_VERSION == 2
 	g_signal_connect( area_collision, "expose-event", G_CALLBACK(SpriteCollision_Expose), combo_collision );
+	g_signal_connect( area_preview, "expose-event", G_CALLBACK(Sprite_DialogPreview_Expose), NULL );
 #else
 	g_signal_connect( area_collision, "draw", G_CALLBACK(SpriteCollision_Draw), combo_collision );
+	g_signal_connect( area_preview, "draw", G_CALLBACK(Sprite_DialogPreview_Draw), NULL );
 #endif
+
+	g_signal_connect( spin_x, "value-changed", G_CALLBACK(Sprite_DialogPreview_SpinChange), area_preview );
+	g_signal_connect( spin_y, "value-changed", G_CALLBACK(Sprite_DialogPreview_SpinChange), area_preview );
+	g_signal_connect( spin_w, "value-changed", G_CALLBACK(Sprite_DialogPreview_SpinChange), area_preview );
+	g_signal_connect( spin_h, "value-changed", G_CALLBACK(Sprite_DialogPreview_SpinChange), area_preview );
+
+	g_object_set_data(G_OBJECT(area_preview), "sheet", sheet );
+	g_object_set_data(G_OBJECT(area_preview), "sprite", sprite );
+	g_object_set_data(G_OBJECT(area_preview), "spin_x", spin_x );
+	g_object_set_data(G_OBJECT(area_preview), "spin_y", spin_y );
+	g_object_set_data(G_OBJECT(area_preview), "spin_w", spin_w );
+	g_object_set_data(G_OBJECT(area_preview), "spin_h", spin_h );
 
 	/* Set Default Values */
 	gtk_entry_set_text( GTK_ENTRY(entry_name), sprite->display_name );
 
 	Meg_ComboFile_Scan( file_mask, "masks",  ".pgm", TRUE, 0 );
 	Meg_ComboFile_Scan( file_entity, "scripts",  ".mps", TRUE, 0 );
+	gtk_widget_set_size_request( area_preview, sprite->position.width * 4, sprite->position.height * 4 );
 
 
 	if ( SPRITE_DATA(sprite)->mask.name != NULL )
@@ -143,7 +285,6 @@ gboolean Sprite_AdvanceDialog( Spritesheet * sheet, SheetObject * sprite )
 
 	if ( SPRITE_DATA(sprite)->image )
 	{
-		gtk_image_set_from_pixbuf( GTK_IMAGE(image_preview), SPRITE_DATA(sprite)->image );
 		gtk_image_set_from_pixbuf( GTK_IMAGE(image_group), SPRITE_DATA(sprite)->image );
 	}
 
@@ -155,11 +296,14 @@ gboolean Sprite_AdvanceDialog( Spritesheet * sheet, SheetObject * sprite )
 	gtk_spin_button_set_value( spin_h, (gdouble) sprite->position.height );
 
 
+
+
 	/* Run Dialog */
 	gtk_widget_show_all( gtk_dialog_get_content_area( GTK_DIALOG(dialog) ) );
 	gtk_window_set_transient_for( GTK_WINDOW(dialog), Meg_Main_GetWindow() );
 
-	if ( gtk_dialog_run( GTK_DIALOG (dialog) ) == GTK_RESPONSE_APPLY )
+	gint result = gtk_dialog_run( GTK_DIALOG (dialog) );
+	if ( result == GTK_RESPONSE_APPLY ) // -10
 	{
 		const gchar * sprite_name;
 		gchar * mask_filename, * entity_filename;
@@ -190,7 +334,7 @@ gboolean Sprite_AdvanceDialog( Spritesheet * sheet, SheetObject * sprite )
 			sprite->visible = gtk_toggle_button_get_active( GTK_TOGGLE_BUTTON(check_visible) );
 
 
-			sprite->position.x = gtk_spin_button_get_value_as_int( spin_y );
+			sprite->position.x = gtk_spin_button_get_value_as_int( spin_x );
 			sprite->position.y = gtk_spin_button_get_value_as_int( spin_y );
 			sprite->position.width = gtk_spin_button_get_value_as_int( spin_w );
 			sprite->position.height = gtk_spin_button_get_value_as_int( spin_h );
@@ -228,6 +372,23 @@ gboolean Sprite_AdvanceDialog( Spritesheet * sheet, SheetObject * sprite )
 
 		}
 	}
+	else if ( result == 1 ) // Delete
+	{
+		GtkWidget * delete_dialog = gtk_message_dialog_new(GTK_WINDOW(dialog),
+			GTK_DIALOG_MODAL,
+			GTK_MESSAGE_QUESTION,
+			GTK_BUTTONS_YES_NO,
+			"Are you sure you want to delete this sprite?"
+		);
+		gint result = gtk_dialog_run( GTK_DIALOG(delete_dialog) );
+
+		if ( result == GTK_RESPONSE_YES )
+		{
+			Sheet_RemoveSprite( sheet, sprite );
+		}
+		gtk_widget_destroy( delete_dialog );
+	}
+
 	g_object_set_data(G_OBJECT(area_collision), "sprite", NULL );
 
 

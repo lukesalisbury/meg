@@ -17,7 +17,7 @@ void Entity_Save( gchar * name, GtkTextBuffer * buffer );
 gboolean Entity_New( gchar * filename, gchar * script );
 gboolean Entity_Add();
 gboolean Entity_Remove( gchar * filename );
-gboolean Entity_Properties( gchar * filename );
+gboolean Entity_Properties(const gchar *filename );
 
 void Entity_NewDialog(GtkButton * button , GtkTreeView * tree);
 void EntityList_UpdateMain();
