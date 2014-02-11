@@ -220,3 +220,7 @@ pip-log.txt
 .mr.developer.cfg
 *.res
 meg.patch
+*.exe
+share/mokoigaming-1.0/binaries/windows-exe.gz
+share/mokoigaming-1.0/binaries/windows-dll.zip
+objects/meg.res

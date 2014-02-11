@@ -100,6 +100,20 @@ void Meg_ColorButton_GetColor( GtkColorButton * button, GdkRGBA * rgbacolour )
 
 }
 
+/********************************
+* Meg_ComboFile_New
+* Design to replace gtk_combo_box_new_text
+*
+*/
+GtkWidget * Meg_ComboFile_New( gchar * path, gboolean force_model )
+{
+	GtkWidget * combo_box = gtk_combo_box_new();
+
+	Meg_ComboText_Setup( combo_box, force_model );
+	Meg_ComboFile_Scan( combo_box, path, NULL, FALSE, 0 );
+
+	return combo_box;
+}
 
 /********************************
 * Meg_ComboText_Setup
@@ -112,6 +126,8 @@ void Meg_ComboFile_Setup( GtkWidget * combo_box, gchar * path, gboolean force_mo
 	Meg_ComboFile_Scan( combo_box, path, NULL, FALSE, 0 );
 
 }
+
+
 
 /********************************
 * Meg_ComboText_Setup
@@ -132,6 +148,20 @@ void Meg_ComboText_Setup( GtkWidget * combo_box, gboolean force_model )
 	cell = gtk_cell_renderer_text_new();
 	gtk_cell_layout_pack_start( GTK_CELL_LAYOUT(combo_box), cell, TRUE );
 	gtk_cell_layout_set_attributes( GTK_CELL_LAYOUT (combo_box), cell, "text", 0, NULL );
+}
+
+/********************************
+* Meg_ComboFile_New
+* Design to replace gtk_combo_box_new_text
+*
+*/
+GtkWidget * Meg_ComboText_New(gboolean force_model )
+{
+	GtkWidget * combo_box = gtk_combo_box_new();
+
+	Meg_ComboText_Setup( combo_box, force_model );
+
+	return combo_box;
 }
 
 /********************************

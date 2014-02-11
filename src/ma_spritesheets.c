@@ -221,9 +221,6 @@ void MegWidget_Spritesheet_RefreshSpriteList( )
 */
 void MegWidget_Spritesheet_SetFile( Spritesheet * spritesheet )
 {
-
-
-
 	g_object_set_data( G_OBJECT(meg_sheet_maindisplay), "sheet-data", spritesheet );
 	if ( spritesheet )
 	{
@@ -232,8 +229,10 @@ void MegWidget_Spritesheet_SetFile( Spritesheet * spritesheet )
 
 		if ( spritesheet->image_loaded )
 		{
-            /* Next line give warning about %ld, but it the only one that seem to work correctly */
-			gchar * markup = g_markup_printf_escaped( "%s %"G_GINT64_FORMAT" bytes", "File Size:", spritesheet->file_size );
+
+			//Appears to be a glib bug
+			//gchar * markup = g_markup_printf_escaped("%s %" G_GINT64_FORMAT " bytes", "File Size:", spritesheet->file_size );
+			gchar * markup = g_strdup_printf("%s %" G_GINT64_FORMAT " bytes", "File Size:", spritesheet->file_size );
             gtk_label_set_markup( GTK_LABEL(meg_sheet_label_filesize), markup );
             g_free( markup );
 

@@ -347,7 +347,7 @@ gboolean ObjectAdvance_Sprite( DisplayObject * object, GtkWindow * window )
 	g_return_val_if_fail( object, FALSE );
 
 	MapObjectData * object_data = MAP_OBJECT_DATA(object);
-	gint map_width = 320, map_height = 240;
+	//gint map_width = 320, map_height = 240;
 	gint result = 0;
 
 	/* UI */
@@ -371,11 +371,13 @@ gboolean ObjectAdvance_Sprite( DisplayObject * object, GtkWindow * window )
 	entity_parent = GET_WIDGET( ui, "notebook1" );
 
 	/* Get Map Dimension */
+	/*
 	if ( object_data->parent )
 	{
 		map_width = object_data->parent->width;
 		map_height = object_data->parent->height;
 	}
+	*/
 
 	/* Set Default Value */
 	Meg_Misc_SetLabel_Print( label, "<b>Edit Sprite</b>\n%s (%d)", object_data->name, object->id );

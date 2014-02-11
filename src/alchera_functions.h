@@ -70,6 +70,7 @@
 	GAsyncQueue * Meg_Web_RetrieveTextQueue(GtkWidget *parent, const gchar * url, gchar * user, gchar * pass, gint (*return_text)( gchar *, gpointer ) , gpointer data);
 
 	/* */
+	GtkWidget * Meg_ComboText_New( gboolean force_model );
 	void Meg_ComboText_Setup(GtkWidget * combo_box , gboolean force_model);
 	gchar * Meg_ComboText_GetText( GtkComboBox * widget );
 	void Meg_ComboText_AppendText( GtkComboBox * widget, const gchar * text );

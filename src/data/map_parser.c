@@ -66,15 +66,19 @@ void MapObject_UpdateDisplayObject( char internal_type, DisplayObject * object )
 			object->type = DT_TEXT;
 			object->w = 64;
 			object->h = 8;
-			object->tw = 64;
-			object->th = 8;
+			object->tw = 0;
+			object->th = 0;
 			object->resizable = FALSE;
 			break;
 		case 'l':
 			object->type = DT_LINE;
+			object->tw = 1;
+			object->th = 1;
 			break;
 		case 'r':
 			object->type = DT_RECTANGLE;
+			object->tw = 1;
+			object->th = 1;
 			break;
 		case 'p':
 			object->type = DT_POLYGON;
@@ -82,6 +86,8 @@ void MapObject_UpdateDisplayObject( char internal_type, DisplayObject * object )
 			break;
 		case 'c':
 			object->type = DT_CIRCLE;
+			object->tw = 1;
+			object->th = 1;
 			break;
 		default:
 			break;

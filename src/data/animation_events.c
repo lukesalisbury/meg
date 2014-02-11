@@ -22,7 +22,6 @@ Permission is granted to anyone to use this software for any purpose, including 
 
 
 /* Global Variables */
-extern GSList * mokoiSpritesheets;
 
 /* Local Variables */
 
@@ -36,10 +35,14 @@ extern GSList * mokoiSpritesheets;
 */
 void Animation_ChangePosition( GtkCellRendererSpin *renderer, gchar * path, gchar * new_text, GtkListStore * store )
 {
+	gint column_number, column_value;
 	GtkTreeIter iter;
+
 	gtk_tree_model_get_iter_from_string( GTK_TREE_MODEL(store), &iter, path );
-	gint column_number = GPOINTER_TO_UINT(g_object_get_data(G_OBJECT(renderer), "my_column_num"));
-	gint column_value = g_ascii_strtoll(new_text, NULL, 10);
+
+	column_number = GPOINTER_TO_UINT(g_object_get_data(G_OBJECT(renderer), "my_column_num"));
+	column_value = g_ascii_strtoll(new_text, NULL, 10);
+
 	gtk_list_store_set( store, &iter, column_number, column_value, -1 );
 }
 
@@ -138,9 +141,11 @@ gboolean Animation_Preview_Draw(GtkWidget * widget, cairo_t * cr, AnimationPrevi
 
 	anim_frame = (AnimationPreviewFrame *)g_object_get_data( G_OBJECT(widget), "AnimationFrame" );
 
-	center_x = (dim.width / 2);
-	center_y = (dim.height / 2);
+	center_x = (dim.width / 4);
+	center_y = (dim.height / 4);
 
+
+	cairo_scale( cr, 2.0, 2.0 );
 
 	cairo_save( cr );
 	cairo_set_line_width( cr, 1 );
@@ -202,11 +207,14 @@ gboolean Animation_Preview_Update(GtkWidget * widget, GdkEventExpose *event, Ani
 void Animation_AddPreview( GtkComboBox * combo, GtkWidget * image )
 {
 	GdkPixbuf * sprite_image = NULL;
+	Spritesheet * sheet = NULL;
 	gchar * sprite_text = NULL;
-	gchar * sheet_text = NULL;
-	sheet_text = (gchar *)g_object_get_data( G_OBJECT(combo), "mokoisheet" );
+
+	sheet = (Spritesheet *)g_object_get_data( G_OBJECT(combo), "spritesheet" );
+
 	sprite_text = Meg_ComboText_GetText( combo );
-	sprite_image = Sprite_GetPixbuf( sprite_text, sheet_text );
+	sprite_image = Sprite_GetPixbuf( sprite_text, sheet->file );
+
 	gtk_image_set_from_pixbuf( GTK_IMAGE(image), sprite_image );
 
 }
@@ -217,23 +225,36 @@ void Animation_AddPreview( GtkComboBox * combo, GtkWidget * image )
 */
 void Animation_AddSelected( GtkMenuItem * menuitem, GtkWidget * widget )
 {
-	GtkTreeIter iter;
-	GtkListStore * store = GTK_LIST_STORE(gtk_tree_view_get_model( GTK_TREE_VIEW(widget) ));
-	GtkWidget * dialog = gtk_dialog_new_with_buttons( "Select sprite", NULL, GTK_DIALOG_MODAL | GTK_DIALOG_DESTROY_WITH_PARENT, GTK_STOCK_OK, GTK_RESPONSE_ACCEPT, NULL);
-	GtkWidget * combo = gtk_combo_box_new();
-
-	GtkWidget * sprite = gtk_image_new();
-
-	Meg_ComboText_Setup( combo, FALSE );
-
-	g_signal_connect( G_OBJECT(combo), "changed", G_CALLBACK(Animation_AddPreview), (gpointer) sprite );
-
-	g_object_set_data( G_OBJECT(combo), "mokoisheet", g_object_get_data( G_OBJECT(widget), "mokoisheet" ) );
-
-
+	gchar * sheet_name = NULL;
 	GSList * scan = NULL;
-	Spritesheet * sheet = Sheet_Get( (gchar *)g_object_get_data( G_OBJECT(widget), "mokoisheet" ) , FALSE );
+	GtkTreeIter iter;
+	GtkListStore * store = NULL;
+	GtkWidget * dialog = NULL, * combo, * sprite;
+	Spritesheet * sheet = NULL;
 
+
+
+	store = GTK_LIST_STORE( gtk_tree_view_get_model( GTK_TREE_VIEW(widget) ));
+	sheet = (Spritesheet *)g_object_get_data( G_OBJECT(widget), "spritesheet" );
+
+
+
+	dialog = gtk_dialog_new_with_buttons( "Select sprite", Meg_Main_GetWindow(widget), \
+													  GTK_DIALOG_MODAL | GTK_DIALOG_DESTROY_WITH_PARENT, \
+													  GTK_STOCK_OK, GTK_RESPONSE_ACCEPT, \
+													  GTK_STOCK_CANCEL, GTK_RESPONSE_REJECT, \
+													  NULL);
+	combo = Meg_ComboText_New( FALSE );
+	sprite = gtk_image_new();
+
+	gtk_container_add( GTK_CONTAINER(gtk_dialog_get_content_area( GTK_DIALOG(dialog) )), sprite );
+	gtk_container_add( GTK_CONTAINER(gtk_dialog_get_content_area( GTK_DIALOG(dialog) )), combo );
+
+	/* Signal and Settings */
+	g_signal_connect( G_OBJECT(combo), "changed", G_CALLBACK(Animation_AddPreview), (gpointer) sprite );
+	g_object_set_data( G_OBJECT(combo), "spritesheet", sheet );
+
+	/* Sheet Child to combo box */
 	if ( sheet )
 	{
 		scan = sheet->children;
@@ -244,20 +265,22 @@ void Animation_AddSelected( GtkMenuItem * menuitem, GtkWidget * widget )
 			scan = g_slist_next( scan );
 		}
 	}
-	gtk_container_add( GTK_CONTAINER(gtk_dialog_get_content_area( GTK_DIALOG(dialog) )), sprite );
-	gtk_container_add( GTK_CONTAINER(gtk_dialog_get_content_area( GTK_DIALOG(dialog) )), combo );
 
 	gtk_widget_show_all( gtk_dialog_get_content_area( GTK_DIALOG(dialog) ) );
+
 	if ( GTK_RESPONSE_ACCEPT == gtk_dialog_run( GTK_DIALOG(dialog) ) )
 	{
 		gchar * text = Meg_ComboText_GetText( GTK_COMBO_BOX(combo) );
 		if ( text )
 		{
+			/* inset new sprite to parent list store */
 			gtk_list_store_append( store, &iter );
-			gtk_list_store_set( store, &iter, 0, g_strdup(text), -1 );
+			gtk_list_store_set( store, &iter, 0, g_strdup(text), 4, 1000, -1 );
 			g_free( text );
 		}
 	}
+
+
 	gtk_widget_destroy( dialog );
 }
 
@@ -285,8 +308,8 @@ gboolean Animation_PopupMenu( GtkWidget * widget, GtkListStore * store )
 	GtkWidget * menu, * item1, * item2;
 
 	menu = gtk_menu_new();
-	item1 = gtk_menu_item_new_with_label( "Add" );
-	item2 = gtk_menu_item_new_with_label( "Remove" );
+	item1 = gtk_menu_item_new_with_label( "Add New Frame" );
+	item2 = gtk_menu_item_new_with_label( "Remove Selected Frame" );
 	gtk_menu_shell_append( GTK_MENU_SHELL(menu), item1 );
 	gtk_menu_shell_append( GTK_MENU_SHELL(menu), item2 );
 
