@@ -21,7 +21,7 @@ Permission is granted to anyone to use this software for any purpose, including 
 		#include <libsoup/soup-method.h>
 
 		void Meg_Questions_Get( gint ident );
-		void Meg_Questions_GetAll();
+		void Meg_Questions_GetAll( GtkListStore * store );
 
 		void Meg_Questions_DisplayItem( GtkTreeView * tree_view, GtkTreeViewColumn *column, GtkTreePath *path, gpointer data );
 	#endif

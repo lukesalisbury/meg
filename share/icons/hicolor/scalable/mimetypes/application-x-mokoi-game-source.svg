@@ -1,123 +1,23 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<!-- Created with Inkscape (http://www.inkscape.org/) -->
 <svg
    xmlns:dc="http://purl.org/dc/elements/1.1/"
    xmlns:cc="http://web.resource.org/cc/"
    xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
    xmlns:svg="http://www.w3.org/2000/svg"
    xmlns="http://www.w3.org/2000/svg"
-   xmlns:xlink="http://www.w3.org/1999/xlink"
    xmlns:sodipodi="http://sodipodi.sourceforge.net/DTD/sodipodi-0.dtd"
    xmlns:inkscape="http://www.inkscape.org/namespaces/inkscape"
-   width="48"
-   height="48"
-   id="svg4193"
+   width="64"
+   height="64"
+   id="mokoi_logo"
    sodipodi:version="0.32"
    inkscape:version="0.45.1"
-   version="1.0"
-   sodipodi:docbase="C:\Documents and Settings\luke\Desktop\Desktop Folder"
-   sodipodi:docname="mokoi.svg"
-   inkscape:output_extension="org.inkscape.output.svg.inkscape">
-  <defs
-     id="defs4195">
-    <linearGradient
-       id="linearGradient3139">
-      <stop
-         style="stop-color:#000000;stop-opacity:1;"
-         offset="0"
-         id="stop3141" />
-      <stop
-         style="stop-color:#494947;stop-opacity:1;"
-         offset="1"
-         id="stop3143" />
-    </linearGradient>
-    <radialGradient
-       inkscape:collect="always"
-       xlink:href="#linearGradient3139"
-       id="radialGradient3145"
-       cx="25"
-       cy="23"
-       fx="25"
-       fy="23"
-       r="20.087999"
-       gradientUnits="userSpaceOnUse"
-       spreadMethod="reflect"
-       gradientTransform="matrix(0.7457927,0,0,0.7621743,6.3551838,5.4699923)" />
-    <linearGradient
-       inkscape:collect="always"
-       xlink:href="#linearGradient3139"
-       id="linearGradient6072"
-       x1="8.4057083"
-       y1="23.157021"
-       x2="11.744954"
-       y2="23.157019"
-       gradientUnits="userSpaceOnUse"
-       gradientTransform="translate(0,-9.657692e-2)" />
-    <linearGradient
-       inkscape:collect="always"
-       xlink:href="#linearGradient3139"
-       id="linearGradient8020"
-       gradientUnits="userSpaceOnUse"
-       gradientTransform="translate(0,-9.657692e-2)"
-       x1="8.4057083"
-       y1="23.157021"
-       x2="11.744954"
-       y2="23.157019" />
-    <linearGradient
-       inkscape:collect="always"
-       xlink:href="#linearGradient3139"
-       id="linearGradient8028"
-       gradientUnits="userSpaceOnUse"
-       gradientTransform="translate(0,-9.657692e-2)"
-       x1="8.4057083"
-       y1="23.157021"
-       x2="11.744954"
-       y2="23.157019" />
-    <linearGradient
-       inkscape:collect="always"
-       xlink:href="#linearGradient3139"
-       id="linearGradient8036"
-       gradientUnits="userSpaceOnUse"
-       gradientTransform="translate(0,-9.657692e-2)"
-       x1="8.4057083"
-       y1="23.157021"
-       x2="11.744954"
-       y2="23.157019" />
-    <linearGradient
-       inkscape:collect="always"
-       xlink:href="#linearGradient3139"
-       id="linearGradient8044"
-       gradientUnits="userSpaceOnUse"
-       gradientTransform="translate(0,-9.657692e-2)"
-       x1="8.4057083"
-       y1="23.157021"
-       x2="11.744954"
-       y2="23.157019" />
-  </defs>
-  <sodipodi:namedview
-     id="base"
-     pagecolor="#ffffff"
-     bordercolor="#666666"
-     borderopacity="1.0"
-     gridtolerance="10000"
-     guidetolerance="10"
-     objecttolerance="10"
-     inkscape:pageopacity="0.0"
-     inkscape:pageshadow="2"
-     inkscape:zoom="10.833333"
-     inkscape:cx="23.999999"
-     inkscape:cy="20.64629"
-     inkscape:document-units="px"
-     inkscape:current-layer="layer1"
-     width="48px"
-     height="48px"
-     showgrid="false"
-     inkscape:window-width="1024"
-     inkscape:window-height="721"
-     inkscape:window-x="0"
-     inkscape:window-y="20" />
+   sodipodi:docname="logo.svg"
+   inkscape:output_extension="org.inkscape.output.svg.inkscape"
+   sodipodi:docbase="F:\web\localhost\mokoi\images"
+   version="1.0">
   <metadata
-     id="metadata4198">
+     id="metadata13">
     <rdf:RDF>
       <cc:Work
          rdf:about="">
@@ -127,92 +27,64 @@
       </cc:Work>
     </rdf:RDF>
   </metadata>
+  <defs
+     id="defs11" />
+  <sodipodi:namedview
+     inkscape:window-height="1028"
+     inkscape:window-width="1920"
+     inkscape:pageshadow="2"
+     inkscape:pageopacity="0.0"
+     guidetolerance="10.0"
+     gridtolerance="10.0"
+     objecttolerance="10.0"
+     borderopacity="1.0"
+     bordercolor="#666666"
+     pagecolor="#ffffff"
+     id="base"
+     width="64px"
+     height="64px"
+     inkscape:zoom="4.7125"
+     inkscape:cx="40"
+     inkscape:cy="40"
+     inkscape:window-x="1015"
+     inkscape:window-y="-9"
+     inkscape:current-layer="mokoi_logo" />
   <g
-     inkscape:label="Layer 1"
-     inkscape:groupmode="layer"
-     id="layer1">
+     id="g3"
+     transform="scale(0.8,0.8)">
     <path
-       style="fill:url(#radialGradient3145);fill-rule:evenodd;stroke:#000000;stroke-width:1.296;stroke-linecap:round;stroke-linejoin:round;stroke-opacity:1;stroke-miterlimit:4;stroke-dasharray:none;fill-opacity:1.0"
-       d="M 5.56,16.52 C 5.56,29.48 5.56,29.48 5.56,29.48 L 18.52,29.48 L 18.52,42.44 L 31.48,42.44 L 31.48,29.48 L 44.44,29.48 L 44.44,16.52 L 31.48,16.52 L 31.48,3.56 L 18.52,3.56 L 18.52,16.52 L 5.56,16.52 z "
-       id="path4207"
-       inkscape:export-filename="C:\Documents and Settings\luke\Desktop\Desktop Folder\mokoi_32.png"
-       inkscape:export-xdpi="71.684586"
-       inkscape:export-ydpi="71.684586" />
+       d="M 40,1 L 31,25 L 40,17.864865 L 49,25 L 40,1 z "
+       data-fill="#d2d2d2"
+       data-hover="#FF0000"
+       style="fill:#d2d2d2;fill-opacity:1;fill-rule:evenodd;stroke:#000000;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+       id="up_arrow" />
     <path
-       id="path4209"
-       d="M 6.7455607,17.765449 C 6.9000838,28.29199 6.8228223,28.369252 6.8228223,28.369252 L 19.642273,28.291991 L 19.642273,41.213643 L 30.298401,41.213643 L 30.22114,28.29199 L 43.195116,28.369252 L 43.195116,17.688187 L 30.298401,17.688187 L 30.298401,4.8437974 L 19.719535,4.7665359 L 19.642273,17.765449 L 6.7455607,17.765449 z "
-       style="fill:none;fill-rule:evenodd;stroke:#808080;stroke-width:1.13829279px;stroke-linecap:round;stroke-linejoin:round;stroke-opacity:0.92156863"
-       sodipodi:nodetypes="ccccccccccccc"
-       inkscape:export-filename="C:\Documents and Settings\luke\Desktop\Desktop Folder\mokoi_32.png"
-       inkscape:export-xdpi="71.684586"
-       inkscape:export-ydpi="71.684586" />
-    <g
-       id="g8016"
-       transform="matrix(1.7481807,0,0,1.3245124,-6.2997447,-7.529553)"
-       inkscape:export-filename="C:\Documents and Settings\luke\Desktop\Desktop Folder\mokoi_32.png"
-       inkscape:export-xdpi="71.684586"
-       inkscape:export-ydpi="71.684586">
-      <path
-         sodipodi:nodetypes="cccc"
-         id="path4116"
-         d="M 11.494954,20.665125 C 8.8139335,22.81404 8.6557083,22.911759 8.6557083,22.911759 L 11.450829,25.45576 L 11.494954,20.665125 z "
-         style="opacity:0.45555558;fill:url(#linearGradient8020);fill-opacity:1;fill-rule:nonzero;stroke:#000000;stroke-width:0.5;stroke-linecap:butt;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1" />
-      <path
-         sodipodi:nodetypes="cccc"
-         id="path7043"
-         d="M 11.162914,21.510061 C 9.289133,22.914898 9.234132,22.940217 9.234132,22.940217 L 11.132939,24.559672 L 11.162914,21.510061 z "
-         style="opacity:0.45555558;fill:none;fill-opacity:1;fill-rule:nonzero;stroke:#5e6159;stroke-width:0.32880282;stroke-linecap:butt;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1" />
-    </g>
-    <g
-       id="g8022"
-       transform="matrix(0,1.8032097,1.2736158,0,-4.6314052,-8.4144274)"
-       inkscape:export-filename="C:\Documents and Settings\luke\Desktop\Desktop Folder\mokoi_32.png"
-       inkscape:export-xdpi="71.684586"
-       inkscape:export-ydpi="71.684586">
-      <path
-         sodipodi:nodetypes="cccc"
-         id="path8024"
-         d="M 11.494954,20.665125 C 8.8139335,22.81404 8.6557083,22.911759 8.6557083,22.911759 L 11.450829,25.45576 L 11.494954,20.665125 z "
-         style="opacity:0.45555558;fill:url(#linearGradient8028);fill-opacity:1;fill-rule:nonzero;stroke:#000000;stroke-width:0.5;stroke-linecap:butt;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1" />
-      <path
-         sodipodi:nodetypes="cccc"
-         id="path8026"
-         d="M 11.162914,21.510061 C 9.289133,22.914898 9.234132,22.940217 9.234132,22.940217 L 11.132939,24.559672 L 11.162914,21.510061 z "
-         style="opacity:0.45555558;fill:none;fill-opacity:1;fill-rule:nonzero;stroke:#5e6159;stroke-width:0.32880282;stroke-linecap:butt;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1" />
-    </g>
-    <g
-       id="g8030"
-       transform="matrix(-2.0043613,0,0,-1.341299,57.422665,53.790855)"
-       inkscape:export-filename="C:\Documents and Settings\luke\Desktop\Desktop Folder\mokoi_32.png"
-       inkscape:export-xdpi="71.684586"
-       inkscape:export-ydpi="71.684586">
-      <path
-         sodipodi:nodetypes="cccc"
-         id="path8032"
-         d="M 11.494954,20.665125 C 8.8139335,22.81404 8.6557083,22.911759 8.6557083,22.911759 L 11.450829,25.45576 L 11.494954,20.665125 z "
-         style="opacity:0.45555558;fill:url(#linearGradient8036);fill-opacity:1;fill-rule:nonzero;stroke:#000000;stroke-width:0.5;stroke-linecap:butt;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1" />
-      <path
-         sodipodi:nodetypes="cccc"
-         id="path8034"
-         d="M 11.162914,21.510061 C 9.289133,22.914898 9.234132,22.940217 9.234132,22.940217 L 11.132939,24.559672 L 11.162914,21.510061 z "
-         style="opacity:0.45555558;fill:none;fill-opacity:1;fill-rule:nonzero;stroke:#5e6159;stroke-width:0.32880282;stroke-linecap:butt;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1" />
-    </g>
-    <g
-       id="g8038"
-       transform="matrix(0,-1.9757693,1.3915724,0,-7.1659056,55.733362)"
-       inkscape:export-xdpi="71.684586"
-       inkscape:export-ydpi="71.684586"
-       inkscape:export-filename="C:\Documents and Settings\luke\Desktop\Desktop Folder\mokoi_32.png">
-      <path
-         sodipodi:nodetypes="cccc"
-         id="path8040"
-         d="M 11.494954,20.665125 C 8.8139335,22.81404 8.6557083,22.911759 8.6557083,22.911759 L 11.450829,25.45576 L 11.494954,20.665125 z "
-         style="opacity:0.45555558;fill:url(#linearGradient8044);fill-opacity:1;fill-rule:nonzero;stroke:#000000;stroke-width:0.5;stroke-linecap:butt;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1" />
-      <path
-         sodipodi:nodetypes="cccc"
-         id="path8042"
-         d="M 11.162914,21.510061 C 9.289133,22.914898 9.234132,22.940217 9.234132,22.940217 L 11.132939,24.559672 L 11.162914,21.510061 z "
-         style="opacity:0.45555558;fill:none;fill-opacity:1;fill-rule:nonzero;stroke:#5e6159;stroke-width:0.32880282;stroke-linecap:butt;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1" />
-    </g>
+       d="M 79,40 L 55,31 L 62.135132,40 L 55,49 L 79,40 z "
+       data-fill="#9d9d9d"
+       data-hover="#00FF00"
+       style="fill:#9d9d9d;fill-opacity:1;fill-rule:evenodd;stroke:#000000;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+       id="right_arrow" />
+    <path
+       d="M 40,79 L 31,55 L 40,62.135134 L 49,55 L 40,79 z "
+       data-fill="#696969"
+       data-hover="#0000FF"
+       style="fill:#696969;fill-opacity:1;fill-rule:evenodd;stroke:#000000;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+       id="down_arrow" />
+    <path
+       d="M 1,40 L 25,31 L 17.864864,40 L 25,49 L 1,40 z "
+       data-fill="#414141"
+       data-hover="#ffff00"
+       style="fill:#414141;fill-opacity:1;fill-rule:evenodd;stroke:#000000;stroke-width:2;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-opacity:1"
+       id="left_arrow" />
+    <rect
+       width="19.581432"
+       height="19.581429"
+       rx="0"
+       ry="0"
+       x="46.208862"
+       y="-10.221174"
+       transform="matrix(0.7071068,0.7071068,-0.7071068,0.7071068,0,0)"
+       style="fill:#5f5f5f;fill-opacity:1;fill-rule:evenodd;stroke:#000000;stroke-width:2.30767632;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:4;stroke-dasharray:none;stroke-dashoffset:0;stroke-opacity:1"
+       id="center_point" />
   </g>
 </svg>

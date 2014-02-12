@@ -449,7 +449,7 @@ void EntityOption_EditPopup(GtkMenuItem *menuitem, gpointer user_data )
 										  GTK_RESPONSE_ACCEPT,
 										  NULL);
 	content_area = gtk_dialog_get_content_area( GTK_DIALOG(dialog) );
-	table = gtk_table_new(1,3,FALSE); /* GTK3 FIXES */
+	table = gtk_table_new(1,3,FALSE); /* FIX: GTK3 */
 
 	const gchar * menu_text = gtk_menu_item_get_label(menuitem);
 

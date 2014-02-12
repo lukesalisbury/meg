@@ -365,9 +365,12 @@ gboolean Meg_Spritesheet_ViewMouse(GtkWidget *widget, GdkEventButton *event, gpo
 			}
 			else if ( event->type == GDK_2BUTTON_PRESS )
 			{
-				AL_Sprite_Advance( spritesheet, spritesheet->selected->display_name );
-				MegWidget_Spritesheet_SetFile(spritesheet);
-				sheetDragRect.x = sheetDragRect.y = -1;
+				if ( spritesheet->selected )
+				{
+					AL_Sprite_Advance( spritesheet, spritesheet->selected->display_name );
+					MegWidget_Spritesheet_SetFile(spritesheet);
+					sheetDragRect.x = sheetDragRect.y = -1;
+				}
 			}
 		}
 		else
@@ -616,7 +619,7 @@ void Meg_Spritesheet_SheetEdit( GtkButton * widget, GtkWidget * combo )
 	gchar * parent_text = Meg_ComboText_GetText( GTK_COMBO_BOX(combo) );
 	if ( parent_text )
 	{
-		gchar * file = AL_ResourcePath(parent_text);
+		gchar * file = AL_ResourcePath(parent_text, "sprites");
 		Meg_RunProgram( "IMAGE_EDITOR", file );
 		g_free( file );
 	}

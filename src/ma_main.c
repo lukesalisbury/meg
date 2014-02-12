@@ -317,9 +317,11 @@ GtkWidget * Meg_Main_AddSection( GtkWidget * section_widget, gchar * section_tit
 	if ( section_icon )
 	{
 		//icon_widget = gtk_image_new_from_stock(section_icon, GTK_ICON_SIZE_LARGE_TOOLBAR);
-		icon_widget = gtk_image_new_from_icon_name(section_icon, GTK_ICON_SIZE_LARGE_TOOLBAR);
+		icon_widget = gtk_image_new_from_icon_name( section_icon, GTK_ICON_SIZE_LARGE_TOOLBAR  );
+
+		g_print("[ %s %p %d ]", section_icon, icon_widget, gtk_icon_theme_has_icon( gtk_icon_theme_get_default(), PAGE_ICON_SCRIPTS) );
 	}
-	toolbutton = gtk_tool_button_new(icon_widget, section_title);
+	toolbutton = gtk_tool_button_new( icon_widget, section_title);
 
 	g_signal_connect(toolbutton, "clicked", G_CALLBACK (Meg_Main_ToolbarClicked), section_widget);
 

@@ -76,8 +76,6 @@
 	#define MANUAL_URL "http://mokoi.info/docs/"
 #endif
 
-#define Q2A_URL "http://openzelda.net/qa/xml-rpc"
-
 
 #define PAGE_ICON_LANGUAGE "preferences-desktop-locale"
 #define PAGE_ICON_PLAY "media-playback-start"
@@ -88,7 +86,8 @@
 #define PAGE_ICON_MAP "image-loading"
 #define PAGE_ICON_PROJECT "preferences-system"
 #define PAGE_ICON_QUESTION "system-search"
-#define PAGE_ICON_SECTION "image-loading"
-#define PAGE_ICON_SPRITE "edit-cut"
+
+#define PAGE_ICON_SECTION "meg-section"
+#define PAGE_ICON_SPRITE "meg-spritesheet"
 
 

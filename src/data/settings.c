@@ -132,15 +132,17 @@ void  AL_Setting_Widget( GtkBuilder * ui )
 
 	obj = gtk_builder_get_object( ui, "image_icon" ); /* GtkButton */
 	preview_widget = gtk_builder_get_object( ui, "image_icon_preview" );
-	g_signal_connect( obj, "clicked", G_CALLBACK(Setting_Event_SetImage), AL_ResourcePath( "__icon.png" ) );
+	g_signal_connect( obj, "clicked", G_CALLBACK(Setting_Event_SetImage), NULL );
 	g_object_set_data( obj, "preview_widget", preview_widget);
+	g_object_set_data( obj, "image_path", g_strdup("/resources/icon32.png") );
 
 	g_hash_table_replace(mokoiSettingsTable, "image.icon", obj );
 
 	obj = gtk_builder_get_object( ui, "image_banner" ); /* GtkButton */
 	preview_widget = gtk_builder_get_object( ui, "image_banner_preview" );
-	g_signal_connect( obj, "clicked", G_CALLBACK(Setting_Event_SetImage), AL_ResourcePath( "__banner.png" ) );
+	g_signal_connect( obj, "clicked", G_CALLBACK(Setting_Event_SetImage), NULL );
 	g_object_set_data( obj, "preview_widget", preview_widget);
+	g_object_set_data( obj, "image_path", g_strdup("/resources/loading.png") );
 
 	g_hash_table_replace(mokoiSettingsTable, "image.banner", obj );
 

@@ -109,7 +109,38 @@ void Meg_Preference_Load( )
 	g_free(config_directory);
 }
 
+void Meg_Icon_Update()
+{
+	gchar * global_icons = NULL;
+	gchar * local_icons = NULL;
 
+	global_icons = Meg_Directory_ProgramShare("icons");
+	local_icons = Meg_Directory_Share("icons");
+
+	gtk_icon_theme_append_search_path( gtk_icon_theme_get_default(), global_icons );
+	gtk_icon_theme_append_search_path( gtk_icon_theme_get_default(), local_icons );
+
+/*
+	gchar ** path;
+	gint n_elements;
+	gint lc = 0;
+
+	gtk_icon_theme_get_search_path( gtk_icon_theme_get_default(), &path, &n_elements);
+
+	if ( g_strv_length(path) )
+	{
+		while(path[lc] != NULL)
+		{
+			g_print( "%s\n", path[lc] );
+			lc++;
+		}
+	}
+
+	g_strfreev(path);
+*/
+	g_free(global_icons);
+	g_free(local_icons);
+}
 
 /********************
 * main
@@ -145,9 +176,9 @@ gint main (gint argc, char *argv[])
 	gtk_settings_set_long_property( settings, "gtk-button-images", TRUE, "main" );
 	gtk_settings_set_long_property( settings, "gtk-menu-images", TRUE, "main" );
 
-	gtk_icon_theme_append_search_path( gtk_icon_theme_get_default(), Meg_Directory_ProgramShare("icons") );
-
 	Meg_Preference_Load();
+
+	Meg_Icon_Update();
 
 	checkDirectoryValues();
 
@@ -215,7 +246,10 @@ gint main (gint argc, char *argv[])
 
 	gtk_main();
 
-	PHYSFS_deinit();
+	if ( PHYSFS_isInit() )
+	{
+		PHYSFS_deinit();
+	}
 
 	return 0;
 }

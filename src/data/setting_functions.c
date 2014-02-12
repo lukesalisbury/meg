@@ -75,23 +75,33 @@ void Setting_Event_CustomDisplay( GtkToggleButton * button, GtkWidget * widget )
 @ button:
 @ table:
 */
-void Setting_Event_SetImage( GtkButton* button, gchar * type )
+void Setting_Event_SetImage( GtkButton* button, gpointer data )
 {
+	GtkWidget * preview = NULL;
+	gchar * image_path = NULL, * image_full_path = NULL;
 	GtkFileFilter * filter = gtk_file_filter_new();
-	GtkWidget * dialog = gtk_file_chooser_dialog_new( "Select new image", NULL, GTK_FILE_CHOOSER_ACTION_OPEN, GTK_STOCK_CANCEL, GTK_RESPONSE_CANCEL, GTK_STOCK_OPEN, GTK_RESPONSE_ACCEPT, NULL );
+	GtkWidget * dialog = gtk_file_chooser_dialog_new( "Select new image", NULL, GTK_FILE_CHOOSER_ACTION_OPEN, \
+													  GTK_STOCK_CANCEL, GTK_RESPONSE_CANCEL, \
+													  GTK_STOCK_OPEN, GTK_RESPONSE_ACCEPT, NULL );
 
-	gtk_file_filter_add_pattern( filter, "*.png");
-	gtk_file_chooser_add_filter( GTK_FILE_CHOOSER(dialog), filter);
+	preview = g_object_get_data( G_OBJECT(button), "preview_widget" );
+	image_path = g_object_get_data( G_OBJECT(button), "image_path" );
+	image_full_path = g_build_filename( AL_ProjectPath(), image_path, NULL );
+
+
+	gtk_file_filter_add_pattern( filter, "*.png" );
+	gtk_file_chooser_add_filter( GTK_FILE_CHOOSER(dialog), filter );
 
 	if ( gtk_dialog_run( GTK_DIALOG(dialog)) == GTK_RESPONSE_ACCEPT )
 	{
 		gchar * filename = gtk_file_chooser_get_filename( GTK_FILE_CHOOSER(dialog) );
-		Meg_FileCopy(filename, type);
+		Meg_FileCopy(filename, image_full_path);
 		g_free( filename );
-		if ( g_file_test( type, (G_FILE_TEST_EXISTS | G_FILE_TEST_IS_REGULAR) ) )
+
+		if ( g_file_test( image_full_path, (G_FILE_TEST_EXISTS | G_FILE_TEST_IS_REGULAR) ) )
 		{
 			gtk_button_set_label( button, "Change");
-			gtk_image_set_from_file( GTK_IMAGE(g_object_get_data(G_OBJECT(button), "preview_widget")), type  );
+			gtk_image_set_from_file( GTK_IMAGE(preview), image_full_path  );
 		}
 		else
 		{
@@ -99,6 +109,8 @@ void Setting_Event_SetImage( GtkButton* button, gchar * type )
 		}
 	}
 	gtk_widget_destroy( dialog );
+
+	g_free(image_full_path);
 }
 
 /********************************
@@ -264,9 +276,10 @@ void Setting_WidgetWrite(gchar * name, GObject * wid )
 		gchar * path = NULL;
 		GObject * preview_widget = NULL;
 		preview_widget = g_object_get_data( wid, "preview_widget" );
-		if ( !g_ascii_strcasecmp("image.icon", name) )
+		path = g_object_get_data( wid, "image_path" );
+
+		if ( preview_widget && path )
 		{
-			path = AL_ResourcePath( "__icon.png" );
 			if ( g_file_test( path, (G_FILE_TEST_EXISTS | G_FILE_TEST_IS_REGULAR) ) )
 			{
 				gtk_button_set_label( GTK_BUTTON(wid), "Change");
@@ -277,20 +290,6 @@ void Setting_WidgetWrite(gchar * name, GObject * wid )
 				gtk_button_set_label( GTK_BUTTON(wid), "Set");
 			}
 		}
-		else if ( !g_ascii_strcasecmp("image.banner", name) )
-		{
-			path = AL_ResourcePath( "__banner.png" );
-			if ( g_file_test( path, (G_FILE_TEST_EXISTS | G_FILE_TEST_IS_REGULAR) ) )
-			{
-				gtk_button_set_label( GTK_BUTTON(wid), "Change");
-				gtk_image_set_from_file( GTK_IMAGE(preview_widget), path  );
-			}
-			else
-			{
-				gtk_button_set_label( GTK_BUTTON(wid), "Set");
-			}
-		}
-		g_free(path);
 	}
 	else if ( !g_ascii_strcasecmp( G_OBJECT_TYPE_NAME(wid), "GtkSpinButton" ) )
 	{

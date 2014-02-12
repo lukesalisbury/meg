@@ -246,7 +246,7 @@ void AL_Sprite_Add( Spritesheet * spritesheet, GdkRectangle * sprite_rect )
 		return;
 	}
 
-	GtkWidget * dialog, * text_name, * image_preview, * file_mask, * file_entity, * check_anim, * radio_align;
+	GtkWidget * dialog, * text_name, * file_mask, * file_entity, * radio_align;
 	GtkSpinButton * spin_mask, * spin_x, * spin_y, * spin_w, * spin_h, * spin_frames;
 
 	/* UI */
@@ -262,7 +262,7 @@ void AL_Sprite_Add( Spritesheet * spritesheet, GdkRectangle * sprite_rect )
 
 	dialog = GET_WIDGET( ui, "mokoi_sheet_addchild");
 	text_name = GET_WIDGET( ui, "text_name");
-	image_preview = GET_WIDGET( ui, "image_preview");
+
 	spin_x = GET_SPIN_WIDGET( ui, "spin_x");
 	spin_y = GET_SPIN_WIDGET( ui, "spin_y");
 	spin_w = GET_SPIN_WIDGET( ui, "spin_w");
@@ -272,7 +272,6 @@ void AL_Sprite_Add( Spritesheet * spritesheet, GdkRectangle * sprite_rect )
 
 	file_mask = GET_WIDGET( ui, "file_mask");
 	file_entity = GET_WIDGET( ui, "file_entity");
-	check_anim = GET_WIDGET( ui, "check_anim");
 
 	radio_align = GET_WIDGET( ui, "radio_align");
 

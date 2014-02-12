@@ -19,7 +19,7 @@ Permission is granted to anyone to use this software for any purpose, including 
 	void Setting_Package( GtkComboBox * combo, gchar * prefix );
 
 	void Setting_Event_ButtonSave(GtkButton* button, GHashTable * table );
-	void Setting_Event_SetImage(GtkButton* button, gchar * type );
+	void Setting_Event_SetImage(GtkButton* button, gpointer data );
 	void Setting_Dialog_CustomController(GtkButton* button, GHashTable * table );
 
 	void Setting_SaveForeach(gpointer key, gpointer value, gpointer user_data);

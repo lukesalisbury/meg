@@ -189,13 +189,12 @@ gchar * MegProject_Title()
 *
 *
 */
-gchar * AL_ResourcePath( gchar * file)
+gchar * AL_ResourcePath( gchar * file, gchar * directory )
 {
 	/* TODO: Check if file is in a package */
-	if ( g_str_has_suffix(file, ".png") )
-		return g_build_filename( mokoiBasePath, "sprites", file, NULL);
-	else
-		return g_strdup(mokoiBasePath);
+	gchar * p = g_build_filename( AL_ProjectPath( ), directory, file, NULL);
+
+	return p;
 }
 
 

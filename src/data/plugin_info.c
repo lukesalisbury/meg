@@ -71,6 +71,7 @@ gchar * mokoiGameDirectories[] = {
 	"collisions",
 	"preload",
 	"paths",
+	"resources",
 	NULL
 };
 

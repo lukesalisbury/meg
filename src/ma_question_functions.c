@@ -15,7 +15,7 @@ Permission is granted to anyone to use this software for any purpose, including 
 
 #include "ma_question.h"
 
-#if defined(USE_SOUP)
+#if defined(USE_SOUP) && defined(Q2A_URL)
 
 /* Required Headers */
 
@@ -78,12 +78,9 @@ void Meg_Questions_AppendQuestionText( GHashTable * table, GtkTextBuffer * buffe
 
 }
 
-void Meg_Questions_Append( GHashTable * table )
+void Meg_Questions_Append( GtkListStore * store, GHashTable * table )
 {
-	GtkTreeModel * model = gtk_tree_view_get_model( GTK_TREE_VIEW(mokoi_questions_treeview) );
 	GtkTreeIter iter;
-
-
 	gchar * title = NULL;
 	gchar * ident_string;
 	gint ident = 0;
@@ -93,8 +90,8 @@ void Meg_Questions_Append( GHashTable * table )
 
 	ident = (gint)g_ascii_strtoll(ident_string, NULL, 10);
 
-	gtk_list_store_append( GTK_LIST_STORE(model), &iter );
-	gtk_list_store_set( GTK_LIST_STORE(model), &iter, 0, g_strdup(title), 1, ident, -1 );
+	gtk_list_store_append( store, &iter );
+	gtk_list_store_set( store, &iter, 0, g_strdup(title), 1, ident, -1 );
 
 }
 
@@ -103,15 +100,13 @@ void Meg_Questions_Append( GHashTable * table )
 * Meg_Questions_GetAll
 *
 */
-void Meg_Questions_GetAll()
+void Meg_Questions_GetAll( GtkListStore * store )
 {
 	guint status;
 	SoupMessage * msg;
 	SoupSession * session = NULL;
 
-	GtkTreeModel * model = gtk_tree_view_get_model( GTK_TREE_VIEW(mokoi_questions_treeview) );
-	gtk_list_store_clear( GTK_LIST_STORE(model) );
-
+	gtk_list_store_clear( store );
 
 	session = soup_session_sync_new();
 
@@ -125,13 +120,13 @@ void Meg_Questions_GetAll()
 		GHashTable *data_hash = NULL;
 		GValueArray * array = NULL;
 
-		soup_value_hash_lookup( hash, "data", G_TYPE_VALUE_ARRAY, &array);
+		soup_value_hash_lookup( hash, "data", G_TYPE_VALUE_ARRAY, &array); /* FIX: GTK3 */
 		if ( array )
 		{
 			int i;
 			for (i = 0; i < array->n_values; i++) {
 				soup_value_array_get_nth(array, i, G_TYPE_HASH_TABLE, &data_hash);
-				Meg_Questions_Append( data_hash );
+				Meg_Questions_Append( store, data_hash );
 			}
 		}
 		g_hash_table_destroy(data_hash);
@@ -143,7 +138,7 @@ void Meg_Questions_GetAll()
 		Meg_Log_Print( LOG_WARNING, "Meg_Questions_Get - HTML Status: %d", status );
 	}
 
-	g_hash_table_destroy (hash);
+	g_hash_table_destroy(hash);
 }
 
 
@@ -182,8 +177,7 @@ void Meg_Questions_Get( gint ident )
 
 		g_hash_table_destroy(data_hash);
 
-
-		soup_value_hash_lookup( hash, "data2", G_TYPE_VALUE_ARRAY, &array);
+		soup_value_hash_lookup( hash, "data2", G_TYPE_VALUE_ARRAY, &array); /* FIX: GTK3 */
 		if ( array )
 		{
 			int i;

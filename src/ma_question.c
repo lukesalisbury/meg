@@ -31,7 +31,7 @@ GtkWidget * mokoi_questions_text = NULL;
 #include "ui/question_page.gui.h"
 const gchar * mokoiUI_Questions = GUIQUESTION_PAGE
 
-#if defined(USE_SOUP)
+#if defined(USE_SOUP) && defined(Q2A_URL)
 
 /********************************
 * MegWidget_Questions_Create
@@ -41,6 +41,7 @@ void MegWidget_Questions_Create()
 {
 
 	GtkWidget * widget;
+	GtkListStore * store_questions;
 
 	/* UI */
 	GtkBuilder * ui = Meg_Builder_Create( mokoiUI_Questions, __func__, __LINE__ );
@@ -48,11 +49,12 @@ void MegWidget_Questions_Create()
 	widget = GET_WIDGET( ui, "questions_widget" );
 	mokoi_questions_treeview = GET_WIDGET( ui, "questions_main_treeview" );
 	mokoi_questions_text = GET_WIDGET( ui, "questions_text_answers" );
+	store_questions = GET_LISTSTORE( ui, "store_questions" );
 
 	/* Signals */
 	//SET_OBJECT_SIGNAL( ui, "button1", "clicked", G_CALLBACK(Meg_Questions_Search), NULL );
 	SET_OBJECT_SIGNAL( ui, "questions_widget", "delete-event", G_CALLBACK(MegWidget_Questions_Destroy), NULL );
-	SET_OBJECT_SIGNAL( ui, "questions_widget", "realize", G_CALLBACK(MegWidget_Questions_Refresh), NULL );
+	SET_OBJECT_SIGNAL( ui, "questions_widget", "realize", G_CALLBACK(MegWidget_Questions_Refresh), store_questions );
 	SET_OBJECT_SIGNAL( ui, "questions_main_treeview", "row-activated", G_CALLBACK(Meg_Questions_DisplayItem), NULL );
 
 	help_parser_apply_tags( gtk_text_view_get_buffer( GTK_TEXT_VIEW(mokoi_questions_text) ) );
@@ -68,9 +70,10 @@ void MegWidget_Questions_Create()
 */
 void MegWidget_Questions_Refresh(GtkWidget * widget, gpointer user_data)
 {
-
-	Meg_Questions_GetAll();
-
+	if ( user_data )
+	{
+		Meg_Questions_GetAll( GTK_LIST_STORE(user_data) );
+	}
 }
 #else
 void MegWidget_Questions_Create()

@@ -426,7 +426,7 @@ void MapChooser_UpdatePreview( GtkComboBox * combo, GtkWidget * widget )
 	GdkPixbuf * image = NULL, * scaled = NULL;
 
 	gchar * name = Meg_ComboText_GetText( combo );
-	gchar * src = g_strdup_printf( "/maps/%s.png",  name );
+	gchar * src = g_strdup_printf( "/maps/thumbs/%s.png",  name );
 
 	image = Megdk_pixbuf_new_from_file( src, NULL );
 
@@ -586,7 +586,6 @@ void Map_ReplacableSheets_Widget_ForEach( gchar * key, GtkWidget * text_sheet, G
 
 	gtk_entry_set_text( GTK_ENTRY(text_sheet), key );
 	g_object_set_data( G_OBJECT(text_sheet), "key_name", key );
-
 
 	gtk_table_attach( GTK_TABLE(list), label_key, 0,1, yvalue, yvalue+1, GTK_FILL|GTK_EXPAND, 0, 2, 2); /* FIX: GTK3 */
 	gtk_table_attach( GTK_TABLE(list), text_sheet, 1,2, yvalue, yvalue+1, GTK_FILL|GTK_EXPAND, 0, 2, 2);/* FIX: GTK3 */

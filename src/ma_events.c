@@ -198,8 +198,6 @@ gboolean Meg_Event_CloseProgram( void )
 {
 	GtkWidget * dialog, * label;
 	GtkWindow * parent = Meg_Main_GetWindow();
-	if ( !parent )
-		parent = GTK_WINDOW(alchera_init_window);
 
 	dialog = gtk_dialog_new_with_buttons( "Exit?", parent, GTK_DIALOG_MODAL | GTK_DIALOG_DESTROY_WITH_PARENT, GTK_STOCK_OK, GTK_RESPONSE_ACCEPT, GTK_STOCK_CANCEL, GTK_RESPONSE_REJECT, NULL);
 	label = gtk_label_new( "Are you sure you wish to exit?" );
@@ -209,6 +207,7 @@ gboolean Meg_Event_CloseProgram( void )
 
 	if ( gtk_dialog_run( GTK_DIALOG(dialog) ) == GTK_RESPONSE_ACCEPT )
 	{
+		Meg_Event_CloseProject();
 		gtk_widget_destroy( dialog );
 		gtk_main_quit();
 		return FALSE;
