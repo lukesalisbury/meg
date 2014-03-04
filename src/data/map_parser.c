@@ -315,7 +315,7 @@ void map_parse_handler_start_object_element( GMarkupParseContext *context, const
 			{
 				if ( !g_ascii_strcasecmp( key, "id" ) )
 				{
-					if ( value[0] != '*')
+					if ( value[0] == '*')
 						MAP_OBJECT_DATA(object_display)->object_name = "";
 					else
 						MAP_OBJECT_DATA(object_display)->object_name = g_strdup(value);
@@ -336,7 +336,7 @@ void map_parse_handler_start_object_element( GMarkupParseContext *context, const
 				}
 				else
 				{
-					EntityOption_InsertNew( MAP_OBJECT_DATA(object_display)->settings, key, (g_ascii_strcasecmp( value, "(null)" ) ? "" : value), type );
+					EntityOption_InsertNew( MAP_OBJECT_DATA(object_display)->settings, key, (g_ascii_strcasecmp( value, "(null)" ) == 0 ? "" : value), type );
 				}
 			}
 		}
