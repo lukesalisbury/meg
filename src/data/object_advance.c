@@ -575,7 +575,7 @@ gboolean ObjectAdvance_Text( DisplayObject * object, GtkWindow * window )
 	}
 
 
-	string_number_value = EntityOption_GetValue( object_data->settings, "number" );
+	string_number_value = EntityOption_GetValue( object_data->settings, "text-string" );
 	strings_total = (gdouble)( Language_Size() ) - 1.0;
 
 
@@ -632,7 +632,7 @@ gboolean ObjectAdvance_Text( DisplayObject * object, GtkWindow * window )
 			ObjectAdvance_EntityWidget_Save( widget_entity, object );
 
 			g_object_set_data_full( G_OBJECT(edit_text), "old-string", (gchar*)object->data, NULL );
-			EntityOption_UpdateValue( object_data->settings, "number", str_value, NULL );
+			EntityOption_UpdateValue( object_data->settings, "text-string", str_value, NULL );
 
 			if ( str_value != -1 )
 			{

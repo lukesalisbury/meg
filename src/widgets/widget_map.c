@@ -1504,8 +1504,11 @@ void gtk_alchera_map_drop_received( GtkWidget * widget, GdkDragContext *context,
 	AlcheraMap * map = GTK_ALCHERA_MAP(widget);
 
 	gchar * ident = (gchar *)gtk_selection_data_get_text(data);
+	gdouble event_x = x / map->scale;
+	gdouble event_y = y / map->scale;
 
-	DisplayObject * obj = Alchera_DisplayObject_Add( map->info, ident, x, y, -1.0, -1.0, gtk_alchera_map_get_layer(map) );
+
+	DisplayObject * obj = Alchera_DisplayObject_Add( map->info, ident, event_x, event_y, -1.0, -1.0, gtk_alchera_map_get_layer(map) );
 	if ( obj )
 	{
 		map->info->display_list = g_list_insert_sorted_with_data( map->info->display_list, (gpointer)obj, (GCompareDataFunc)Alchera_DisplayObject_Order, NULL);

@@ -168,7 +168,10 @@ G_MODULE_EXPORT gboolean AL_Object_Remove( MapInfo * map_info, gint id )
 	{
 		DisplayObject * object = (DisplayObject *)object_item->data;
 		if ( object->free )
+		{
 			object->free(object->data);
+			object->data = NULL;
+		}
 		object->type = DT_DELETE;
 		return TRUE;
 	}
@@ -235,27 +238,30 @@ GtkWidget * Object_GetSettingMenu( MapInfo * map_info, guint id )
 
 	if ( object_item != NULL )
     {
+
 		DisplayObject * object = (DisplayObject*)object_item->data;
 
-		menu_widget = gtk_menu_new();
+		if ( object->type > DT_DELETE )
+		{
+			menu_widget = gtk_menu_new();
 
-		/* Add Advance */
-		GtkWidget * sub_menu_advance = gtk_menu_item_new_with_label( "Advance" );
-		g_signal_connect( G_OBJECT(sub_menu_advance), "activate", G_CALLBACK(AL_Object_OpenAdvance), map_info );
-		gtk_menu_shell_append( GTK_MENU_SHELL(menu_widget), sub_menu_advance );
-		gtk_widget_show(sub_menu_advance);
+			/* Add Advance */
+			GtkWidget * sub_menu_advance = gtk_menu_item_new_with_label( "Advance" );
+			g_signal_connect( G_OBJECT(sub_menu_advance), "activate", G_CALLBACK(AL_Object_OpenAdvance), map_info );
+			gtk_menu_shell_append( GTK_MENU_SHELL(menu_widget), sub_menu_advance );
+			gtk_widget_show(sub_menu_advance);
 
-		if ( g_hash_table_size( MAP_OBJECT_DATA(object)->settings) )
-        {
-			GtkWidget * sep = gtk_separator_menu_item_new();
-			gtk_menu_shell_append( GTK_MENU_SHELL(menu_widget), sep );
-			gtk_widget_show(sep);
+			if ( g_hash_table_size( MAP_OBJECT_DATA(object)->settings) )
+			{
+				GtkWidget * sep = gtk_separator_menu_item_new();
+				gtk_menu_shell_append( GTK_MENU_SHELL(menu_widget), sep );
+				gtk_widget_show(sep);
 
-			g_hash_table_foreach( MAP_OBJECT_DATA(object)->settings, (GHFunc)EntityOption_MenuItem, menu_widget );
+				g_hash_table_foreach( MAP_OBJECT_DATA(object)->settings, (GHFunc)EntityOption_MenuItem, menu_widget );
 
 
+			}
 		}
-
 
 
     }
@@ -275,20 +281,24 @@ G_MODULE_EXPORT gboolean AL_Object_Advance( MapInfo * map_info, gint id, GtkWind
 
 	if ( object_item != NULL )
 	{
+
 		DisplayObject * object = (DisplayObject*)object_item->data;
 
-		if ( MAP_OBJECT_DATA(object)->type == 's'  )
-			result = ObjectAdvance_Sprite( object, window );
-		else if ( MAP_OBJECT_DATA(object)->type == 't' )
-			result = ObjectAdvance_Text( object, window );
-		else if ( MAP_OBJECT_DATA(object)->type == 'r' || MAP_OBJECT_DATA(object)->type == 'c' || MAP_OBJECT_DATA(object)->type == 'p' )
-			result = ObjectAdvance_Shape( object, window );
-		else if ( MAP_OBJECT_DATA(object)->type == 'l' )
-			result = ObjectAdvance_Line( object, window );
-		else if ( MAP_OBJECT_DATA(object)->type == 'M' || MAP_OBJECT_DATA(object)->type == 'p' )
-			result = ObjectAdvance_File( object, window );
-		else
-			Meg_Error_Print( __func__, __LINE__, "No Options for that object type. (%c)", MAP_OBJECT_DATA(object)->type);
+		if ( object->type > DT_DELETE )
+		{
+			if ( MAP_OBJECT_DATA(object)->type == 's'  )
+				result = ObjectAdvance_Sprite( object, window );
+			else if ( MAP_OBJECT_DATA(object)->type == 't' )
+				result = ObjectAdvance_Text( object, window );
+			else if ( MAP_OBJECT_DATA(object)->type == 'r' || MAP_OBJECT_DATA(object)->type == 'c' || MAP_OBJECT_DATA(object)->type == 'p' )
+				result = ObjectAdvance_Shape( object, window );
+			else if ( MAP_OBJECT_DATA(object)->type == 'l' )
+				result = ObjectAdvance_Line( object, window );
+			else if ( MAP_OBJECT_DATA(object)->type == 'M' || MAP_OBJECT_DATA(object)->type == 'p' )
+				result = ObjectAdvance_File( object, window );
+			else
+				Meg_Error_Print( __func__, __LINE__, "No Options for that object type. (%c)", MAP_OBJECT_DATA(object)->type);
+		}
 	}
 	else
 	{

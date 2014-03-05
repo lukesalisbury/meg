@@ -376,7 +376,7 @@ DisplayObject * MapObject_New( gchar * name, gdouble area_width, gdouble area_he
 
 	if ( object_data->type == 't' )
 	{
-		EntityOption_InsertNew( object_data->settings, "number", "-1", "hidden" );
+		EntityOption_InsertNew( object_data->settings, "text-string", "-1", "hidden" );
 	}
 	else if ( object_data->type == 's' )
 	{

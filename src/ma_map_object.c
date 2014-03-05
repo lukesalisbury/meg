@@ -405,6 +405,7 @@ void Meg_MapObject_EditPathCall( GtkMenuItem * action, AlcheraMap * map )
 				GTK_BUTTONS_YES_NO,
 				"Do wish to add a path to this object?"
 			);
+
 			gint result = gtk_dialog_run( GTK_DIALOG(delete_dialog) );
 			switch (result)
 			{

@@ -249,6 +249,10 @@ void Map_Setting_Foreach( gchar* key, EntityOptionStruct * value, GString * cont
 			}
 			g_strfreev( file );
 		}
+		else if ( !g_ascii_strcasecmp( (gchar*)key, "text-string" ) )
+		{
+			g_string_append_printf( content, "\t<setting key=\"%s\" value=\"%s\" />\n", (gchar*)key, value->value ? value_str : "-1" );
+		}
 		else
 		{
 			if ( value->type )
