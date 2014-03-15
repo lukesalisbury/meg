@@ -415,7 +415,6 @@ gboolean Map_Save( MapInfo * map_info )
 		g_free( list_file );
 	}
 
-	EntityOptionParser_Save( map_data->entity_filename, map_info->settings ); // Save Map Entity option file.
 	return TRUE;
 }
 

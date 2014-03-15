@@ -117,8 +117,8 @@ void Meg_Icon_Update()
 	global_icons = Meg_Directory_ProgramShare("icons");
 	local_icons = Meg_Directory_Share("icons");
 
-	gtk_icon_theme_append_search_path( gtk_icon_theme_get_default(), global_icons );
 	gtk_icon_theme_append_search_path( gtk_icon_theme_get_default(), local_icons );
+	gtk_icon_theme_append_search_path( gtk_icon_theme_get_default(), global_icons );
 
 
 	gchar ** path;

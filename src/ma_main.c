@@ -319,7 +319,7 @@ GtkWidget * Meg_Main_AddSection( GtkWidget * section_widget, gchar * section_tit
 		//icon_widget = gtk_image_new_from_stock(section_icon, GTK_ICON_SIZE_LARGE_TOOLBAR);
 		icon_widget = gtk_image_new_from_icon_name( section_icon, GTK_ICON_SIZE_LARGE_TOOLBAR  );
 
-		g_print("[ %d ]",  gtk_icon_theme_has_icon( gtk_icon_theme_get_default(), section_icon) );
+		g_print("[ %s %d ] ", section_icon, gtk_icon_theme_has_icon( gtk_icon_theme_get_default(), section_icon) );
 	}
 	toolbutton = gtk_tool_button_new( icon_widget, section_title);
 

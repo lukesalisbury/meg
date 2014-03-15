@@ -201,8 +201,8 @@ gboolean AL_Map_Save( MapInfo * map_info, GtkWindow * window )
 }
 
 /********************************
-* AL_Map_Options
-* Display Map Options
+* AL_Map_ContructRuntimeWidget
+*
 */
 gboolean AL_Map_ContructRuntimeWidget( MapInfo * map_info, GtkWidget * box_runtime )
 {
