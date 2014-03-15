@@ -77,17 +77,18 @@
 #endif
 
 
-#define PAGE_ICON_LANGUAGE "preferences-desktop-locale"
-#define PAGE_ICON_PLAY "media-playback-start"
-#define PAGE_ICON_LOG "text-x-generic"
-#define PAGE_ICON_AUDIO "audio-volume-medium"
-#define PAGE_ICON_SCRIPTS "text-x-script"
-#define PAGE_ICON_HELP "help-browser"
-#define PAGE_ICON_MAP "image-loading"
-#define PAGE_ICON_PROJECT "preferences-system"
-#define PAGE_ICON_QUESTION "system-search"
+#define PAGE_ICON_LANGUAGE "meg-language"
+#define PAGE_ICON_PLAY "meg-play"
+
+#define PAGE_ICON_AUDIO "meg-audio"
+
+#define PAGE_ICON_MAP "meg-map"
+#define PAGE_ICON_PROJECT "meg-project"
+#define PAGE_ICON_QUESTION "meg-question"
 
 #define PAGE_ICON_SECTION "meg-section"
 #define PAGE_ICON_SPRITE "meg-spritesheet"
+#define PAGE_ICON_LOG "text-x-generic"
 
-
+#define PAGE_ICON_SCRIPTS "text-x-script"
+#define PAGE_ICON_HELP "help-browser"

@@ -50,6 +50,32 @@ static GMarkupParser map_parser_xml = { map_parse_handler_start, map_parse_handl
 static GMarkupParser map_dimension_parser = { map_dimension_parse_start, NULL, NULL, NULL, NULL};
 
 
+/********************************
+* MapObject_SetDefaultSettingOptions
+*
+*/
+void MapObject_SetDefaultSettingOptions( MapObjectData * object_data )
+{
+	switch ( object_data->type )
+	{
+		case 's':
+			break;
+		case 't':
+			EntityOption_InsertNew( object_data->settings, "text-string", "-1", "hidden" );
+			break;
+		case 'l':
+			break;
+		case 'r':
+			break;
+		case 'p':
+			break;
+		case 'c':
+			break;
+		default:
+			break;
+	}
+}
+
 
 /********************************
 * MapObject_UpdateDisplayObject
@@ -336,7 +362,7 @@ void map_parse_handler_start_object_element( GMarkupParseContext *context, const
 				}
 				else
 				{
-					EntityOption_InsertNew( MAP_OBJECT_DATA(object_display)->settings, key, (g_ascii_strcasecmp( value, "(null)" ) == 0 ? "" : value), type );
+					EntityOption_Update( MAP_OBJECT_DATA(object_display)->settings, key, (g_ascii_strcasecmp( value, "(null)" ) == 0 ? "" : value), type );
 				}
 			}
 		}
@@ -413,6 +439,7 @@ void map_parse_handler_start_root_element( GMarkupParseContext *context, const g
 			object_display = Alchera_DisplayObject_New(object_data, &MapObjectData_FreePointer);
 
 			MapObject_UpdateDisplayObject(object_data->type, object_display);
+			MapObject_SetDefaultSettingOptions( object_data );
 
 			if ( object_data->type == 't' )
 			{

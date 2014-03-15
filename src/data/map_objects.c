@@ -235,15 +235,18 @@ GtkWidget * Object_GetSettingMenu( MapInfo * map_info, guint id )
 {
 	GtkWidget * menu_widget = NULL;
 	GList * object_item = g_list_nth(map_info->display_list, id);
+	DisplayObject * object = NULL;
+	MapObjectData * map_object = NULL;
 
 	if ( object_item != NULL )
     {
 
-		DisplayObject * object = (DisplayObject*)object_item->data;
+		object = (DisplayObject*)object_item->data;
 
 		if ( object->type > DT_DELETE )
 		{
 			menu_widget = gtk_menu_new();
+			map_object = MAP_OBJECT_DATA(object);
 
 			/* Add Advance */
 			GtkWidget * sub_menu_advance = gtk_menu_item_new_with_label( "Advance" );
@@ -251,13 +254,13 @@ GtkWidget * Object_GetSettingMenu( MapInfo * map_info, guint id )
 			gtk_menu_shell_append( GTK_MENU_SHELL(menu_widget), sub_menu_advance );
 			gtk_widget_show(sub_menu_advance);
 
-			if ( g_hash_table_size( MAP_OBJECT_DATA(object)->settings) )
+			if ( g_hash_table_size( map_object->settings) )
 			{
 				GtkWidget * sep = gtk_separator_menu_item_new();
 				gtk_menu_shell_append( GTK_MENU_SHELL(menu_widget), sep );
 				gtk_widget_show(sep);
 
-				g_hash_table_foreach( MAP_OBJECT_DATA(object)->settings, (GHFunc)EntityOption_MenuItem, menu_widget );
+				g_hash_table_foreach( map_object->settings, (GHFunc)EntityOption_MenuItem, menu_widget );
 
 
 			}

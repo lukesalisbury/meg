@@ -24,6 +24,8 @@ Permission is granted to anyone to use this software for any purpose, including 
 #define	ENTITYOPTION_SECTIONMAP 7
 #define	ENTITYOPTION_MAP 8
 #define	ENTITYOPTION_MAPENTITY 9
+#define	ENTITYOPTION_NUMBER 10
+
 
 EntityOptionStruct * EntityOption_Lookup( GHashTable * hash_table, const gchar * key);
 guint EntityOption_Type( const gchar *type );

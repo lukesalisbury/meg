@@ -27,22 +27,22 @@ extern GList * mokoiEntityStateList;
 /* Global Function */
 
 /* Local Functions */
-void RuntimeParser_StartHandler( GMarkupParseContext *context, const gchar *element_name, const gchar **attribute_names, const gchar **attribute_values,  gpointer data, GError **error);
+void EntityOptionParser_StartHandler( GMarkupParseContext *context, const gchar *element_name, const gchar **attribute_names, const gchar **attribute_values,  gpointer data, GError **error);
 
 
 /* Local Variables */
 
-static GMarkupParser mokoiRuntimeParser = {RuntimeParser_StartHandler, NULL, NULL, NULL, NULL};
+static GMarkupParser mokoiRuntimeParser = {EntityOptionParser_StartHandler, NULL, NULL, NULL, NULL};
 
 #include "ui/entity_option_editor.gui.h"
 const gchar * mokoiUI_EntityOption = GUIENTITY_OPTION_EDITOR
 
 
 /********************************
-* RuntimeParser_StartHandler
+* EntityOptionParser_StartHandler
 * Part of the XML parser
 */
-void RuntimeParser_StartHandler( GMarkupParseContext *context, const gchar *element_name, const gchar **attribute_names, const gchar **attribute_values, gpointer data, GError **error)
+void EntityOptionParser_StartHandler( GMarkupParseContext *context, const gchar *element_name, const gchar **attribute_names, const gchar **attribute_values, gpointer data, GError **error)
 {
 	if ( !g_ascii_strcasecmp(element_name, "option") )
 	{
@@ -70,10 +70,10 @@ void RuntimeParser_StartHandler( GMarkupParseContext *context, const gchar *elem
 
 
 /********************************
-* RuntimeParser_SaveString
+* EntityOptionParser_SaveString
 *
 */
-void RuntimeParser_SaveString(gchar * key, EntityOptionStruct * option, GString * file_content )
+void EntityOptionParser_SaveString(gchar * key, EntityOptionStruct * option, GString * file_content )
 {
 	if ( option )
 	{
@@ -84,22 +84,21 @@ void RuntimeParser_SaveString(gchar * key, EntityOptionStruct * option, GString 
 
 
 /********************************
-* RuntimeParser_Save
+* EntityOptionParser_Save
 *
 */
-gboolean RuntimeParser_Save(gchar * entity_name, GHashTable * options)
+gboolean EntityOptionParser_Save(gchar * entity_option_file, GHashTable * options)
 {
 	gboolean successful = FALSE;
-	gchar * file_name = g_strconcat( entity_name, ".options", NULL );
 	GString * file_content = g_string_new("");
 
 	if ( g_hash_table_size(options) )
 	{
 		g_string_append( file_content, "<entity>\n");
-		g_hash_table_foreach( options, (GHFunc)RuntimeParser_SaveString, (gpointer)file_content );
+		g_hash_table_foreach( options, (GHFunc)EntityOptionParser_SaveString, (gpointer)file_content );
 		g_string_append( file_content, "</entity>");
 
-		successful = Meg_file_set_contents( file_name, file_content->str, -1, &mokoiError);
+		successful = Meg_file_set_contents( entity_option_file, file_content->str, -1, &mokoiError);
 		if ( mokoiError )
 		{
 			Meg_Error_Print( __func__, __LINE__, "Entity options could not be saved. Reason: %s", mokoiError->message );
@@ -108,13 +107,12 @@ gboolean RuntimeParser_Save(gchar * entity_name, GHashTable * options)
 	}
 	else
 	{
-		if ( Meg_file_test( file_name, G_FILE_TEST_IS_REGULAR ) )
+		if ( Meg_file_test( entity_option_file, G_FILE_TEST_IS_REGULAR ) )
 		{
-			PHYSFS_delete( file_name );
+			PHYSFS_delete( entity_option_file );
 		}
 	}
 
-	g_free( file_name );
 	g_string_free( file_content, FALSE );
 
 	return successful;
@@ -122,10 +120,10 @@ gboolean RuntimeParser_Save(gchar * entity_name, GHashTable * options)
 
 
 /********************************
-* RuntimeParser_Load
+* EntityOptionParser_Load
 *
 */
-GHashTable * RuntimeParser_Load(gchar * file)
+GHashTable * EntityOptionParser_Load(gchar * file)
 {
 	GError * error  = NULL;
 	gchar * file_content = NULL;
@@ -151,10 +149,10 @@ GHashTable * RuntimeParser_Load(gchar * file)
 }
 
 /********************************
-* RuntimeEditor_Menu_Add
+* EntityOptionEditor_Menu_Add
 * Event:
 */
-void RuntimeEditor_Menu_Add( GtkWidget * menuitem, GtkWidget *treeview )
+void EntityOptionEditor_Menu_Add( GtkWidget * menuitem, GtkWidget *treeview )
 {
 	GtkWidget * dialog, * label;
 
@@ -177,7 +175,9 @@ void RuntimeEditor_Menu_Add( GtkWidget * menuitem, GtkWidget *treeview )
 		GtkTreeModel * model = gtk_tree_view_get_model( GTK_TREE_VIEW(treeview) );
 		GHashTable * settings = g_object_get_data( G_OBJECT(model), "runtime-hashtable" );
 
-		g_hash_table_insert( settings, g_strdup(title), EntityOption_New("", "") );
+		EntityOption_InsertNew( settings, title, "", NULL );
+
+
 		gtk_list_store_append( GTK_LIST_STORE(model), &iter );
 		gtk_list_store_set( GTK_LIST_STORE(model), &iter, 0, g_strdup(title), 1, "", 2, "", -1 );
 
@@ -186,15 +186,15 @@ void RuntimeEditor_Menu_Add( GtkWidget * menuitem, GtkWidget *treeview )
 }
 
 /********************************
-* RuntimeEditor_Menu_Display
+* EntityOptionEditor_Menu_Display
 * Event:
 */
-void RuntimeEditor_Menu_Display( GtkWidget *treeview, GdkEventButton *event, GHashTable * settings )
+void EntityOptionEditor_Menu_Display( GtkWidget *treeview, GdkEventButton *event, GHashTable * settings )
 {
 	GtkWidget * menu, * menuitem;
 	menu = gtk_menu_new();
 	menuitem = gtk_image_menu_item_new_from_stock(GTK_STOCK_ADD, NULL);
-	g_signal_connect(menuitem, "activate", (GCallback) RuntimeEditor_Menu_Add, treeview);
+	g_signal_connect(menuitem, "activate", (GCallback) EntityOptionEditor_Menu_Add, treeview);
 	gtk_menu_shell_append(GTK_MENU_SHELL(menu), menuitem);
 	gtk_widget_show_all(menu);
 
@@ -202,34 +202,34 @@ void RuntimeEditor_Menu_Display( GtkWidget *treeview, GdkEventButton *event, GHa
 }
 
 /********************************
-* RuntimeEditor_Menu_RightClick
+* EntityOptionEditor_Menu_RightClick
 * Event:
 */
-gboolean RuntimeEditor_Menu_RightClick( GtkWidget *treeview, GdkEventButton *event, GHashTable * settings )
+gboolean EntityOptionEditor_Menu_RightClick( GtkWidget *treeview, GdkEventButton *event, GHashTable * settings )
 {
 	if ( event->type == GDK_BUTTON_PRESS && event->button == 3 )
 	{
-		RuntimeEditor_Menu_Display( treeview, event, settings );
+		EntityOptionEditor_Menu_Display( treeview, event, settings );
 		return TRUE;
 	}
 	return FALSE;
 }
 
 /********************************
-* RuntimeEditor_Menu_Button
+* EntityOptionEditor_Menu_Button
 * Event:
 */
-gboolean RuntimeEditor_Menu_Button( GtkWidget *treeview, GHashTable * settings )
+gboolean EntityOptionEditor_Menu_Button( GtkWidget *treeview, GHashTable * settings )
 {
-	RuntimeEditor_Menu_Display( treeview, NULL, settings );
+	EntityOptionEditor_Menu_Display( treeview, NULL, settings );
 	return TRUE;
 }
 
 /********************************
-* RuntimeEditor_EditStoreType
+* EntityOptionEditor_EditStoreType
 * Event:
 */
-void RuntimeEditor_EditStoreType( GtkCellRendererText * cellrenderertext, gchar * path_string, gchar * new_text, GtkTreeView * treeview  )
+void EntityOptionEditor_EditStoreType( GtkCellRendererText * cellrenderertext, gchar * path_string, gchar * new_text, GtkTreeView * treeview  )
 {
 	gchar * key = NULL;
 	GtkTreeIter iter;
@@ -252,10 +252,10 @@ void RuntimeEditor_EditStoreType( GtkCellRendererText * cellrenderertext, gchar 
 }
 
 /********************************
-* RuntimeEditor_EditStoreValue
+* EntityOptionEditor_EditStoreValue
 * Event:
 */
-void RuntimeEditor_EditStoreValue( GtkCellRendererText * cellrenderertext, gchar * path_string, gchar * new_text, GtkTreeView * treeview  )
+void EntityOptionEditor_EditStoreValue( GtkCellRendererText * cellrenderertext, gchar * path_string, gchar * new_text, GtkTreeView * treeview  )
 {
 	gchar * key = NULL;
 	GtkTreeIter iter;
@@ -271,11 +271,12 @@ void RuntimeEditor_EditStoreValue( GtkCellRendererText * cellrenderertext, gchar
 	}
 
 }
+
 /********************************
-* RuntimeParser_CreateStore
+* EntityOptionEditor_CreateStore
 *
 */
-void RuntimeEditor_CreateStore( gchar * key, EntityOptionStruct * value, GtkListStore * liststore )
+void EntityOptionEditor_CreateStore( gchar * key, EntityOptionStruct * value, GtkListStore * liststore )
 {
 	GtkTreeIter iter;
 	gtk_list_store_append( liststore, &iter );
@@ -283,41 +284,39 @@ void RuntimeEditor_CreateStore( gchar * key, EntityOptionStruct * value, GtkList
 }
 
 /********************************
-* RuntimeEditor_Refresh
+* EntityOptionEditor_Refresh
 * Event:
 */
-void RuntimeEditor_Refresh( GtkWidget *treeview, GHashTable * settings )
+void EntityOptionEditor_Refresh( GtkWidget *treeview, GHashTable * settings )
 {
 	GtkTreeModel * model = gtk_tree_view_get_model( GTK_TREE_VIEW(treeview) );
 	gtk_list_store_clear( GTK_LIST_STORE(model) );
-	g_hash_table_foreach(settings, (GHFunc)RuntimeEditor_CreateStore, GTK_LIST_STORE(model) );
+	g_hash_table_foreach(settings, (GHFunc)EntityOptionEditor_CreateStore, GTK_LIST_STORE(model) );
 	return ;
 }
 
-
-
 /********************************
-* RuntimeEditor_Open
+* EntityOptionEditor_Open
 *
 */
-gboolean RuntimeEditor_Open( gchar * entity_name )
+gboolean EntityOptionEditor_Open( gchar * entity_name )
 {
 	gint response = 0;
 	GtkWidget * dialog, * label, * tree_items;
 	GHashTable * options;
 	GtkListStore * store_items = NULL;
+	gchar * option_path = NULL;
 
 	/* Get Options File */
-	gchar * option_path = g_strdup_printf("/scripts/%s.options", entity_name );
+	option_path = g_strdup_printf("/scripts/%s.options", entity_name );
 
-	options = RuntimeParser_Load( option_path );
+	options = EntityOptionParser_Load( option_path );
 	if ( !options )
 	{
-		Meg_Error_Print( __func__, __LINE__, "RuntimeParser_Edit");
+		Meg_Error_Print( __func__, __LINE__, "EntityOptionParser_Edit");
+		g_free(option_path);
 		return FALSE;
 	}
-	g_free(option_path);
-
 
 	/* UI */
 	GtkBuilder * ui = Meg_Builder_Create( mokoiUI_EntityOption, __func__, __LINE__ );
@@ -333,15 +332,15 @@ gboolean RuntimeEditor_Open( gchar * entity_name )
 	g_object_set_data( G_OBJECT(store_items), "runtime-hashtable", options);
 
 	/* Events */
-	g_signal_connect( tree_items, "realize", G_CALLBACK(RuntimeEditor_Refresh), options );
-	g_signal_connect( tree_items, "popup-menu", G_CALLBACK(RuntimeEditor_Menu_Button), options );
-	g_signal_connect( tree_items, "button-press-event", G_CALLBACK(RuntimeEditor_Menu_RightClick), options );
+	g_signal_connect( tree_items, "realize", G_CALLBACK(EntityOptionEditor_Refresh), options );
+	g_signal_connect( tree_items, "popup-menu", G_CALLBACK(EntityOptionEditor_Menu_Button), options );
+	g_signal_connect( tree_items, "button-press-event", G_CALLBACK(EntityOptionEditor_Menu_RightClick), options );
 
-	SET_OBJECT_SIGNAL( ui, "cell_value", "edited", G_CALLBACK(RuntimeEditor_EditStoreValue), tree_items );
-	SET_OBJECT_SIGNAL( ui, "cell_type", "edited", G_CALLBACK(RuntimeEditor_EditStoreType), tree_items );
+	SET_OBJECT_SIGNAL( ui, "cell_value", "edited", G_CALLBACK(EntityOptionEditor_EditStoreValue), tree_items );
+	SET_OBJECT_SIGNAL( ui, "cell_type", "edited", G_CALLBACK(EntityOptionEditor_EditStoreType), tree_items );
 
 	/* Label */
-	Meg_Misc_SetLabel(label, "Entity Options", entity_name, '\n' );
+	Meg_Misc_SetLabel(label, entity_name, "Options", ' ' );
 
 	gtk_widget_show_all( gtk_dialog_get_content_area( GTK_DIALOG(dialog) ) );
 	gtk_window_set_transient_for( GTK_WINDOW(dialog), Meg_Main_GetWindow() );
@@ -350,16 +349,14 @@ gboolean RuntimeEditor_Open( gchar * entity_name )
 	response = gtk_dialog_run( GTK_DIALOG(dialog) );
 	if ( response == GTK_RESPONSE_APPLY )
 	{
-		RuntimeParser_Save(entity_name, options);
+		EntityOptionParser_Save(option_path, options);
 	}
 	gtk_widget_destroy( dialog);
 
+
+	g_free(option_path);
+
 	return (response == GTK_RESPONSE_ACCEPT ? TRUE : FALSE);
 }
-
-
-
-
-
 
 

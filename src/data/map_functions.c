@@ -139,7 +139,7 @@ gboolean Map_Open( gchar * file, MapInfo * map_info )
 	thumbnail_file = g_strdup_printf( "/maps/thumbs/%s.png", file );
 
 	map_info->name = g_strdup( file );
-	map_info->settings = RuntimeParser_Load( runtime_file );
+	map_info->settings = EntityOptionParser_Load( runtime_file );
 
 	map_info->data = g_new0(MapData, 1);
 	MAP_DATA(map_info)->position = (GdkRectangle){0,0,1,1};
@@ -378,7 +378,7 @@ gboolean Map_Save( MapInfo * map_info )
 	g_string_append_printf( map_xml, "\t<dimensions width=\"%d\" height=\"%d\" />\n",  map_data->position.width, map_data->position.height);
 	g_string_append_printf( map_xml, "\t<color red=\"%d\" blue=\"%d\" green=\"%d\" mode=\"0\" />\n", map_data->colour8.red, map_data->colour8.blue, map_data->colour8.green);
 
-	g_hash_table_foreach(map_info->settings, (GHFunc)RuntimeParser_SaveString, (gpointer)map_xml);
+	g_hash_table_foreach(map_info->settings, (GHFunc)EntityOptionParser_SaveString, (gpointer)map_xml);
 
 	g_string_append_printf( map_xml, "</settings>\n");
 
@@ -415,7 +415,7 @@ gboolean Map_Save( MapInfo * map_info )
 		g_free( list_file );
 	}
 
-	RuntimeParser_Save( map_data->entity_filename, map_info->settings ); // Save Map Entity option file.
+	EntityOptionParser_Save( map_data->entity_filename, map_info->settings ); // Save Map Entity option file.
 	return TRUE;
 }
 
@@ -528,7 +528,7 @@ gboolean Map_SetStartingPoint( )
 void Map_GetOptions( MapInfo * map_info )
 {
 	/* Load Default Settings */
-	GHashTable * default_settings = RuntimeParser_Load( "/map.options" );
+	GHashTable * default_settings = EntityOptionParser_Load( "/map.options" );
 	g_hash_table_foreach( default_settings, (GHFunc)EntityOption_Append, (gpointer)map_info->settings );
 	g_hash_table_remove_all( default_settings );
 }

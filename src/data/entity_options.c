@@ -79,6 +79,10 @@ guint EntityOption_Type( const gchar * type )
 	{
 		return ENTITYOPTION_MAPENTITY;
 	}
+	else if ( !g_ascii_strcasecmp(type, "number") )
+	{
+		return ENTITYOPTION_NUMBER;
+	}
 	return 0;
 }
 
@@ -266,7 +270,7 @@ void EntityOption_Delete( EntityOptionStruct * data )
 }
 
 /********************************
-* RuntimeParser_Append
+* EntityOptionParser_Append
 *
 */
 void EntityOption_Append( const gchar * key, EntityOptionStruct * value, GHashTable * table )
@@ -435,7 +439,12 @@ void EntityOption_AddOption( GtkButton * button, GtkWidget * table )
 
 }
 
-
+/********************************
+* EntityOption_EditPopup
+* Edit a single option via a popup dialog
+@
+@
+*/
 void EntityOption_EditPopup(GtkMenuItem *menuitem, gpointer user_data )
 {
 	EntityOptionStruct * option = (EntityOptionStruct*)user_data;
@@ -453,14 +462,13 @@ void EntityOption_EditPopup(GtkMenuItem *menuitem, gpointer user_data )
 
 	const gchar * menu_text = gtk_menu_item_get_label(menuitem);
 
-
 	gtk_container_add( GTK_CONTAINER(content_area), table );
-
 
 	EntityOption_CreateWidget( menu_text, option, table );
 	EntityOption_AttachWidget( menu_text, option, table );
 
 	gtk_widget_show_all( table );
+
 	if ( gtk_dialog_run( GTK_DIALOG(dialog) ) == GTK_RESPONSE_ACCEPT )
 	{
 		EntityOption_SaveWidget_Foreach( NULL, option, NULL );
@@ -479,10 +487,13 @@ void EntityOption_MenuItem( const gchar * name, EntityOptionStruct * option, Gtk
 {
 	g_return_if_fail( option );
 
-	GtkWidget * item = gtk_menu_item_new_with_label( name );
+	if ( option->internal_type != ENTITYOPTION_HIDDEN )
+	{
+		GtkWidget * item = gtk_menu_item_new_with_label( name );
 
-	gtk_menu_shell_append( GTK_MENU_SHELL(list), GTK_WIDGET(item) );
-	g_signal_connect( G_OBJECT(item), "activate", G_CALLBACK(EntityOption_EditPopup), option );
+		gtk_menu_shell_append( GTK_MENU_SHELL(list), GTK_WIDGET(item) );
+		g_signal_connect( G_OBJECT(item), "activate", G_CALLBACK(EntityOption_EditPopup), option );
+	}
 }
 
 /********************************
@@ -526,6 +537,21 @@ void EntityOption_Changed_Entry( GtkEntry * widget, gpointer data )
 }
 
 /********************************
+* EntityOption_Changed_Spin
+* Event:
+
+*/
+void EntityOption_Changed_Spin( GtkEntry * widget, gpointer data )
+{
+	g_return_if_fail( data );
+
+	EntityOptionStruct * option = (EntityOptionStruct *)data;
+
+	EntityOption_SaveWidget_Foreach( NULL, option, NULL );
+
+}
+
+/********************************
 * EntityOption_CreateWidget
 * Event:
 */
@@ -536,6 +562,19 @@ void EntityOption_CreateWidget( const gchar * name, EntityOptionStruct * option,
 	GtkWidget * value_widget;
 	switch ( option->internal_type )
 	{
+		case ENTITYOPTION_NUMBER:
+			value_widget = option->widget = gtk_spin_button_new_with_range( -32000.0, 32000.0, 1.0 );
+			gtk_spin_button_set_digits( GTK_SPIN_BUTTON(value_widget), 3 );
+			if ( option->value )
+			{
+				gdouble value = g_strtod( option->value, NULL );
+				gtk_spin_button_set_value( GTK_SPIN_BUTTON(value_widget), value );
+			}
+			else
+			{
+				gtk_spin_button_set_value( GTK_SPIN_BUTTON(value_widget), 0.0 );
+			}
+			break;
 		case ENTITYOPTION_BOOLEAN:
 			value_widget = option->widget = gtk_check_button_new_with_label("Enable");
 			if ( option->value )
@@ -640,99 +679,42 @@ void EntityOption_CreateWidgetWithSignal( const gchar * name, EntityOptionStruct
 	g_return_if_fail( option );
 
 	GtkWidget * value_widget;
+
+	EntityOption_CreateWidget( name, option, list );
+
+	value_widget = option->widget;
+
+	g_return_if_fail( value_widget );
+
 	switch ( option->internal_type )
 	{
+		case ENTITYOPTION_NUMBER:
+			g_signal_connect( G_OBJECT(value_widget), "changed", G_CALLBACK(EntityOption_Changed_Spin), option );
+			break;
 		case ENTITYOPTION_BOOLEAN:
-			value_widget = option->widget = gtk_check_button_new_with_label("Enable");
-			if ( option->value )
-				gtk_toggle_button_set_active( GTK_TOGGLE_BUTTON(value_widget), (!g_ascii_strcasecmp(option->value, "true") ? 1 : 0) );
 			g_signal_connect( G_OBJECT(value_widget), "toggled", G_CALLBACK(EntityOption_Changed_Toggle), option );
 			break;
 		case ENTITYOPTION_MUSIC:
-			value_widget = option->widget = gtk_combo_box_new( );
-			Meg_ComboText_Setup( value_widget, FALSE );
-			if ( option->value )
-			{
-				Meg_ComboText_AppendText( GTK_COMBO_BOX(value_widget), option->value );
-				gtk_combo_box_set_active( GTK_COMBO_BOX(value_widget),0);
-			}
-			Meg_ComboFile_Scan( value_widget, "music", NULL, TRUE, 0 );
 			g_signal_connect( G_OBJECT(value_widget), "changed", G_CALLBACK(EntityOption_Changed_Combo), option );
 			break;
 		case ENTITYOPTION_SOUNDFX:
-			value_widget = option->widget = gtk_combo_box_new( );
-			Meg_ComboText_Setup( value_widget, FALSE );
-			if ( option->value )
-			{
-				Meg_ComboText_AppendText( GTK_COMBO_BOX(value_widget), option->value );
-				gtk_combo_box_set_active( GTK_COMBO_BOX(value_widget),0);
-			}
-			Meg_ComboFile_Scan( value_widget, "soundfx", NULL, TRUE, 0 );
 			g_signal_connect( G_OBJECT(value_widget), "changed", G_CALLBACK(EntityOption_Changed_Combo), option );
 			break;
 		case ENTITYOPTION_ENTITY:
-			value_widget = option->widget = gtk_combo_box_new( );
-			Meg_ComboText_Setup( value_widget, FALSE );
-			if ( option->value )
-			{
-				Meg_ComboText_AppendText( GTK_COMBO_BOX(value_widget), option->value );
-				gtk_combo_box_set_active( GTK_COMBO_BOX(value_widget), 0);
-			}
-			gchar * prefix = NULL;
-			if ( option->type )
-			{
-				prefix = g_strrstr( option->type, "|");
-				if ( prefix )
-					prefix++;
-			}
-			Meg_ComboFile_Scan( value_widget, "scripts", prefix, TRUE, 0 );
 			g_signal_connect( G_OBJECT(value_widget), "changed", G_CALLBACK(EntityOption_Changed_Combo), option );
 			break;
 		case ENTITYOPTION_HIDDEN:
-			return;
 			break;
 		case ENTITYOPTION_SECTION:
-			value_widget = option->widget = gtk_combo_box_new( );
-			Meg_ComboText_Setup( value_widget, FALSE );
-			if ( option->value )
-			{
-				Meg_ComboText_AppendText( GTK_COMBO_BOX(value_widget), g_strdup_printf("%s.txt",option->value) );
-				gtk_combo_box_set_active( GTK_COMBO_BOX(value_widget), 0);
-			}
-			Meg_ComboFile_Scan( value_widget, "sections", ".txt", TRUE, 0 );
-			g_object_set_data( G_OBJECT(list), "option-section-widget", value_widget );
 			g_signal_connect( G_OBJECT(value_widget), "changed", G_CALLBACK(EntityOption_Changed_Combo), option );
 			break;
-
 		case ENTITYOPTION_SECTIONMAP:
-			value_widget = option->widget = gtk_combo_box_new( );
-			Meg_ComboText_Setup( value_widget, FALSE );
-			if ( option->value )
-			{
-				Meg_ComboText_AppendText( GTK_COMBO_BOX(value_widget), option->value );
-				gtk_combo_box_set_active( GTK_COMBO_BOX(value_widget), 0);
-			}
-
-			g_object_set_data( G_OBJECT(list), "option-child-widget", value_widget );
 			g_signal_connect( G_OBJECT(value_widget), "changed", G_CALLBACK(EntityOption_Changed_Combo), option );
-
 			break;
 		case ENTITYOPTION_MAPENTITY:
-			value_widget = option->widget = gtk_combo_box_new( );
-			Meg_ComboText_Setup( value_widget, FALSE );
-			if ( option->value )
-			{
-				Meg_ComboText_AppendText( GTK_COMBO_BOX(value_widget), option->value );
-				gtk_combo_box_set_active( GTK_COMBO_BOX(value_widget), 0);
-			}
-
-			g_object_set_data( G_OBJECT(list), "option-mapentities-widget", value_widget );
 			g_signal_connect( G_OBJECT(value_widget), "changed", G_CALLBACK(EntityOption_Changed_Combo), option );
 			break;
 		default:
-			value_widget = option->widget = gtk_entry_new();
-			if ( option->value )
-				gtk_entry_set_text( GTK_ENTRY(value_widget), option->value );
 			g_signal_connect( G_OBJECT(value_widget), "activate", G_CALLBACK(EntityOption_Changed_Entry), option );
 			break;
 	}
@@ -814,7 +796,10 @@ void EntityOption_SaveWidget_Foreach( const gchar * name, EntityOptionStruct * o
 	}
 	else if ( !g_ascii_strcasecmp( G_OBJECT_TYPE_NAME(option->widget), "GtkSpinButton" ) )
 	{
-		/* gtk_spin_button_get_value_as_int(GTK_SPIN_BUTTON(option->widget)) */
+
+		gint value = gtk_spin_button_get_value_as_int(GTK_SPIN_BUTTON(option->widget) );
+		option->value = g_strdup_printf("%d", value);
+
 	}
 	else if ( !g_ascii_strcasecmp( G_OBJECT_TYPE_NAME(option->widget), "GtkToggleButton" ) || !g_ascii_strcasecmp( G_OBJECT_TYPE_NAME(option->widget), "GtkCheckButton" ) )
 	{
@@ -855,7 +840,7 @@ void EntityOption_SetDefaultValues( DisplayObject * object )
 	{
 		gchar * option_path = g_strdup_printf("/scripts/%s.options", MAP_OBJECT_DATA(object)->entity_file );
 
-		GHashTable * default_settings = RuntimeParser_Load( option_path );
+		GHashTable * default_settings = EntityOptionParser_Load( option_path );
 		g_hash_table_foreach( default_settings, (GHFunc)EntityOption_Append, (gpointer)MAP_OBJECT_DATA(object)->settings );
 		g_hash_table_remove_all( default_settings );
 

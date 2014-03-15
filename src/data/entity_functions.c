@@ -28,7 +28,7 @@ Permission is granted to anyone to use this software for any purpose, including 
 /* Local Type */
 
 /* External Functions */
-gboolean RuntimeEditor_Open( gchar * entity_name );
+gboolean EntityOptionEditor_Open( gchar * entity_name );
 gboolean ManagedEntity_New(gchar * filename, gchar * image_text);
 
 time_t physfs_file_get_date( gchar * file );
@@ -170,7 +170,7 @@ gboolean Entity_Properties( const gchar * file_path )
 	file_name = g_path_get_basename( file_path );
 	entity_name = STRIP_FILE_EXTENSION( file_name, 4 );
 
-	successful = RuntimeEditor_Open( entity_name );
+	successful = EntityOptionEditor_Open( entity_name );
 
 
 	g_free( file_name );

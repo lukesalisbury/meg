@@ -120,7 +120,7 @@ void Meg_Icon_Update()
 	gtk_icon_theme_append_search_path( gtk_icon_theme_get_default(), global_icons );
 	gtk_icon_theme_append_search_path( gtk_icon_theme_get_default(), local_icons );
 
-/*
+
 	gchar ** path;
 	gint n_elements;
 	gint lc = 0;
@@ -131,13 +131,13 @@ void Meg_Icon_Update()
 	{
 		while(path[lc] != NULL)
 		{
-			g_print( "%s\n", path[lc] );
+			g_print( "gtk_icon_theme_search_path: %s\n", path[lc] );
 			lc++;
 		}
 	}
 
 	g_strfreev(path);
-*/
+
 	g_free(global_icons);
 	g_free(local_icons);
 }
