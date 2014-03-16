@@ -13,10 +13,9 @@
     <property name="short_label" translatable="yes">Move Up</property>
     <property name="stock_id">Up</property>
   </object>
-  <object class="GtkAction" id="action_map_advance">
-    <property name="label" translatable="yes">Map Advance Setting</property>
-    <property name="short_label" translatable="yes">Advance</property>
-    <property name="tooltip" translatable="yes">Change Graphics, Add Extra settings</property>
+  <object class="GtkAction" id="action_map_graphics">
+    <property name="label" translatable="yes">Switch Map Graphics</property>
+    <property name="short_label" translatable="yes">Switch Graphics</property>
   </object>
   <object class="GtkAction" id="action_map_openscript">
     <property name="label" translatable="yes">Edit Map Script</property>
@@ -878,6 +877,12 @@ Hold Shift to place object multiple times
                 <child>
                   <placeholder/>
                 </child>
+                <child>
+                  <placeholder/>
+                </child>
+                <child>
+                  <placeholder/>
+                </child>
               </object>
               <packing>
                 <property name="expand">False</property>
@@ -1311,9 +1316,9 @@ Hold Shift to place object multiple times
                       </packing>
                     </child>
                     <child>
-                      <object class="GtkButton" id="button-editscript1">
+                      <object class="GtkButton" id="button-switchgraphics">
                         <property name="label" translatable="yes">Advance</property>
-                        <property name="related_action">action_map_advance</property>
+                        <property name="related_action">action_map_graphics</property>
                         <property name="visible">True</property>
                         <property name="can_focus">True</property>
                         <property name="receives_default">True</property>
@@ -1337,6 +1342,15 @@ Hold Shift to place object multiple times
                             <property name="visible">True</property>
                             <property name="can_focus">False</property>
                             <property name="n_columns">3</property>
+                            <child>
+                              <placeholder/>
+                            </child>
+                            <child>
+                              <placeholder/>
+                            </child>
+                            <child>
+                              <placeholder/>
+                            </child>
                             <child>
                               <placeholder/>
                             </child>

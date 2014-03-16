@@ -195,20 +195,6 @@ void Meg_MapEdit_ButtonSave( GtkButton *widget, GtkWidget * map_widget )
 * Event:
 * Result:
 */
-void Meg_MapEdit_ButtonOptions( GtkButton * widget, GtkWidget * map_widget )
-{
-	AlcheraMap * map = GTK_ALCHERA_MAP(map_widget);
-	if ( AL_Map_Options( map->info, Meg_Misc_ParentWindow( map_widget ) ) )
-	{
-		Meg_MapSettings_Refresh( map_widget );
-		gtk_alchera_map_refresh( map );
-	}
-}
-
-/********************************
-* Event:
-* Result:
-*/
 void Meg_MapEdit_ButtonZoomOut( GtkButton *widget, GtkWidget * map_widget )
 {
 	gtk_alchera_map_change_scale( GTK_ALCHERA_MAP(map_widget), -0.3 );
@@ -319,32 +305,6 @@ void Meg_MapEdit_Undo( GtkAction * action, AlcheraMap * map )
 		gtk_alchera_map_refresh( map );
 	}
 }
-
-
-
-
-
-/********************************
-* Event: Double clicking on Icon
-* Result: To bring up New Object Placing
-
-G_MODULE_EXPORT gboolean Meg_MapEdit_ObjectSelectedKey( GtkWidget * layout, GdkEventKey * event, GtkIconView * icon_view )
-{
-	if ( event->keyval == 0xff0d )
-	{
-		GList * items = gtk_icon_view_get_selected_items(icon_view);
-
-		if (items && items->data != NULL)
-		{
-			GtkTreePath * path = (GtkTreePath*)items->data;
-			gtk_icon_view_item_activated(icon_view, path);
-		}
-		g_list_foreach(items, (GFunc)gtk_tree_path_free, NULL);
-		g_list_free(items);
-	}
-	return FALSE;
-}
-*/
 
 
 /********************************

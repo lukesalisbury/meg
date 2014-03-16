@@ -29,7 +29,6 @@ extern GtkWidget * mapNotebook;
 /* Global Variables */
 
 /* External Functions */
-gboolean AL_Map_ContructRuntimeWidget( MapInfo * map_info, GtkWidget * box_runtime );
 
 /* UI */
 #include "ui/map_edit.gui.h"
@@ -246,7 +245,7 @@ GtkWidget * Meg_MapEdit_Open( gchar * file )
 	SET_OBJECT_SIGNAL( ui, "action_object_height_decrease" , "activate", G_CALLBACK(Meg_MapObject_HeightDecrease), widget_map );
 	SET_OBJECT_SIGNAL( ui, "action_object_height_increase" , "activate", G_CALLBACK(Meg_MapObject_HeightIncrease), widget_map );
 
-	SET_OBJECT_SIGNAL( ui, "action_map_advance" , "activate", G_CALLBACK(Meg_MapEdit_ButtonOptions), widget_map );
+	SET_OBJECT_SIGNAL( ui, "action_map_graphics" , "activate", G_CALLBACK(Meg_MapSettings_GraphicSwitch), widget_map );
 	SET_OBJECT_SIGNAL( ui, "action_map_openscript" , "activate", G_CALLBACK(Meg_MapSettings_OpenEntity), widget_map );
 
 	SET_OBJECT_SIGNAL( ui, "action_map_undo" , "activate", G_CALLBACK(Meg_MapEdit_Undo), widget_map );

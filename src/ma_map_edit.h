@@ -33,8 +33,6 @@ void Meg_MapEdit_ListMenu( GtkTreeView * treeview, gpointer user_data );
 void Meg_MapEdit_OpenFilename( gchar * file );
 
 
-
-
 void Meg_MapEdit_Undo( GtkAction * action, AlcheraMap * map );
 void Meg_MapEdit_GroupChanged( GtkComboBox * widget, GtkWidget * iconview );
 void Meg_MapEdit_LayerChanged( GtkComboBox * layers, GtkWidget * layout );

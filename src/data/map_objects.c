@@ -199,7 +199,7 @@ G_MODULE_EXPORT gboolean AL_Object_Update( MapInfo * map_info, gint id, gdouble 
 void AL_Object_OpenAdvance( GtkWidget * widget, MapInfo * map_info )
 {
 
-	GtkWindow * window = Meg_Misc_ParentWindow(widget);
+	GtkWindow * window = Meg_Main_GetWindow();
 	DisplayObject * object = map_info->selected;
 
 	if ( object != NULL )

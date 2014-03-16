@@ -25,7 +25,7 @@ Permission is granted to anyone to use this software for any purpose, including 
 /* Global Variables */
 
 /* External Functions */
-gboolean AL_Map_ContructRuntimeWidget( MapInfo * map_info, GtkWidget * box_runtime );
+gboolean AL_MapOptions_ConstructWidget( MapInfo * map_info, GtkWidget * box_runtime );
 
 /* UI */
 
@@ -77,7 +77,7 @@ void Meg_MapSettings_Create( GtkWidget * map_widget, MapEditAdvanceWidget * sett
 
 	Meg_MapSettings_Colour_Get( GTK_COLOR_BUTTON(settings_widgets->button_colour), map_widget );
 
-	AL_Map_ContructRuntimeWidget( gtk_alchera_map_get_info( GTK_ALCHERA_MAP(map_widget) ), settings_widgets->box_runtime );
+	AL_MapOptions_ConstructWidget( gtk_alchera_map_get_info( GTK_ALCHERA_MAP(map_widget) ), settings_widgets->box_runtime );
 
 	g_object_set_data( G_OBJECT(map_widget), "setting-widget", settings_widgets );
 
@@ -87,6 +87,7 @@ void Meg_MapSettings_Create( GtkWidget * map_widget, MapEditAdvanceWidget * sett
 	g_signal_connect( G_OBJECT(settings_widgets->spin_h), "value-changed", G_CALLBACK(Meg_MapSettings_Height_Set), map_widget );
 	g_signal_connect( G_OBJECT(settings_widgets->spin_w), "value-changed", G_CALLBACK(Meg_MapSettings_Width_Set), map_widget );
 	g_signal_connect( G_OBJECT(settings_widgets->button_colour), "color-set", G_CALLBACK(Meg_MapSettings_Colour_Set), map_widget );
+
 
 }
 

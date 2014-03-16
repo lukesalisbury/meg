@@ -547,10 +547,10 @@ GHashTable * Map_GetReplacableSheets( MapInfo * map_info )
 
 	if ( map_info->display_list )
 	{
-		GList * q = map_info->display_list;
-		while ( q )
+		GList * scan = map_info->display_list;
+		while ( scan )
 		{
-			DisplayObject * object = (DisplayObject *)(q->data);
+			DisplayObject * object = (DisplayObject *)(scan->data);
 			if ( MAP_OBJECT_DATA(object)->type == 's' )
 			{
 				if ( g_regex_match(regex, MAP_OBJECT_DATA(object)->name, 0 , NULL) )
@@ -566,7 +566,7 @@ GHashTable * Map_GetReplacableSheets( MapInfo * map_info )
 				}
 			}
 
-			q = g_list_next( q );
+			scan = g_list_next( scan );
 		}
 	}
 
@@ -576,14 +576,13 @@ GHashTable * Map_GetReplacableSheets( MapInfo * map_info )
 }
 
 /********************************
-* Map_GetReplacableSheets
+* Map_ReplacableSheets_Widget_ForEach
 *
 */
 void Map_ReplacableSheets_Widget_ForEach( gchar * key, GtkWidget * text_sheet, GtkWidget * list )
 {
 	guint yvalue = GPOINTER_TO_UINT(g_object_get_data( G_OBJECT(list), "table-y" ));
 	GtkWidget * label_key = NULL;
-
 
 	label_key = gtk_label_new( key );
 
@@ -600,11 +599,13 @@ void Map_ReplacableSheets_Widget_ForEach( gchar * key, GtkWidget * text_sheet, G
 }
 
 /********************************
-* Map_GetReplacableSheets
+* Map_ReplacableSheets_Update_ForEach
 *
 */
 void Map_ReplacableSheets_Update_ForEach( gchar * key, GtkWidget * text_sheet, MapInfo * map_info )
 {
+	DisplayObject * object = NULL;
+	MapObjectData * object_data = NULL;
 	const gchar * value = gtk_entry_get_text( GTK_ENTRY(text_sheet) );
 
 	if ( g_ascii_strcasecmp(key, value) )
@@ -613,22 +614,26 @@ void Map_ReplacableSheets_Update_ForEach( gchar * key, GtkWidget * text_sheet, M
 
 		if ( map_info->display_list )
 		{
-			GList * q = map_info->display_list;
-			while ( q )
+			GList * scan = map_info->display_list;
+			while ( scan )
 			{
-				DisplayObject * object = (DisplayObject *)(q->data);
-				if ( MAP_OBJECT_DATA(object)->type == 's' )
+				object = (DisplayObject *)(scan->data);
+				object_data = MAP_OBJECT_DATA(object);
+				if ( object_data )
 				{
-					if ( g_regex_match_full(regex, MAP_OBJECT_DATA(object)->name, g_utf8_strlen(key,-1), 0, 0, NULL, NULL) )
+					if ( object_data->type == 's' )
 					{
-						gchar * new_name = g_regex_replace_literal( regex, MAP_OBJECT_DATA(object)->name, -1, 0, value, 0, NULL );
-						REPLACE_STRING(MAP_OBJECT_DATA(object)->name, new_name)
+						if ( g_regex_match_full(regex, object_data->name, g_utf8_strlen(key,-1), 0, 0, NULL, NULL) )
+						{
+							gchar * new_name = g_regex_replace_literal( regex, object_data->name, -1, 0, value, 0, NULL );
 
-						MapObject_UpdateSprite( object );
+							REPLACE_STRING( object_data->name, new_name )
+
+							MapObject_UpdateSprite( object );
+						}
 					}
 				}
-
-				q = g_list_next( q );
+				scan = g_list_next( scan );
 			}
 		}
 		g_regex_unref( regex );

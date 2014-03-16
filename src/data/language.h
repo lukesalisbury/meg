@@ -22,6 +22,7 @@ void Language_SaveFile( MokoiLanguage * details, gchar * filename );
 void Language_LoadFile( MokoiLanguage * file, gchar * type, gchar * lang, gboolean is_default );
 void Language_TableList( gpointer key_p, gchar * value, GtkListStore * list );
 
+void Language_Set_String( GHashTable * table, guint id, const gchar * string );
 void Language_Clear( MokoiLanguage  * details );
 void Language_ExportRoutines(  );
 

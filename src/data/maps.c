@@ -36,7 +36,9 @@ gchar * map_script_default = "// To ease development, <map_default> may include 
 
 /* UI */
 #include "ui/map_advance.gui.h"
-const gchar * mokoiUI_MapAdvance = GUIMAP_ADVANCE
+#include "ui/map_graphic_replace.gui.h"
+const gchar * mokoiUI_MapAdvance = GUIMAP_ADVANCE;
+const gchar * mokoiUI_MapGraphicReplace = GUIMAP_GRAPHIC_REPLACE;
 
 /* Events */
 
@@ -85,7 +87,7 @@ gboolean AL_Map_Add( const gchar * name, const gchar * old_path )
 
 	if ( !result )
 	{
-		Meg_Log_Print(LOG_ERROR, "Error creating map: '%s'", (name ? name : old_path) );
+		Meg_Log_Print( LOG_ERROR, "Error creating map: '%s'", (name ? name : old_path) );
 	}
 	else
 	{
@@ -201,10 +203,10 @@ gboolean AL_Map_Save( MapInfo * map_info, GtkWindow * window )
 }
 
 /********************************
-* AL_Map_ContructRuntimeWidget
+* AL_MapOptions_ConstructWidget
 *
 */
-gboolean AL_Map_ContructRuntimeWidget( MapInfo * map_info, GtkWidget * box_runtime )
+gboolean AL_MapOptions_ConstructWidget( MapInfo * map_info, GtkWidget * box_runtime )
 {
 	g_return_val_if_fail( map_info, FALSE );
 	g_return_val_if_fail( map_info->data, FALSE );
@@ -219,7 +221,60 @@ gboolean AL_Map_ContructRuntimeWidget( MapInfo * map_info, GtkWidget * box_runti
 		g_hash_table_foreach( map_info->settings, (GHFunc)EntityOption_AttachWidget, box_runtime );
 	}
 	g_object_set_data( G_OBJECT(box_runtime), "runtime-hashtable", map_info->settings );
+
 	return TRUE;
+}
+
+
+/********************************
+* AL_Map_GraphicsSwitchDialog
+* Display Map Options
+*/
+gboolean AL_Map_GraphicsSwitchDialog( MapInfo * map_info, GtkWindow * window )
+{
+	g_return_val_if_fail( map_info, FALSE );
+	g_return_val_if_fail( map_info->data, FALSE );
+
+	Map_GetOptions( map_info );
+
+	/* UI */
+	GtkBuilder * ui = Meg_Builder_Create(mokoiUI_MapGraphicReplace, __func__, __LINE__);
+	g_return_val_if_fail( ui, FALSE );
+
+	/* Widgets */
+	GtkWidget * dialog, * label, * box_graphics;
+
+	dialog = GET_WIDGET( ui, "dialog");
+	label = GET_WIDGET( ui, "alchera-label");
+
+	/* Graphics Widgets */
+	box_graphics = GET_WIDGET( ui, "box_graphics");
+
+	/* Set Default Values */
+	Meg_Misc_SetLabel( label, "Replace Graphics", map_info->name, ' ' );
+
+	/* Graphic */
+	GHashTable * graphic_sheets = Map_GetReplacableSheets( map_info );
+	if ( g_hash_table_size(graphic_sheets) )
+	{
+		g_object_set_data( G_OBJECT(box_graphics), "table-y", GUINT_TO_POINTER(0) );
+		g_hash_table_foreach( graphic_sheets, (GHFunc)Map_ReplacableSheets_Widget_ForEach, box_graphics );
+	}
+
+	gtk_window_set_modal( GTK_WINDOW(dialog), FALSE );
+	gtk_window_set_transient_for( GTK_WINDOW(dialog), window );
+	gtk_widget_show_all( gtk_dialog_get_content_area( GTK_DIALOG(dialog) ) );
+
+	gint response_id = gtk_dialog_run( GTK_DIALOG(dialog) );
+	if ( response_id == GTK_RESPONSE_APPLY )
+	{
+		g_hash_table_foreach( graphic_sheets, (GHFunc)Map_ReplacableSheets_Update_ForEach, map_info );
+	}
+
+	gtk_widget_destroy( dialog );
+
+	return TRUE;
+
 }
 
 /********************************

@@ -21,9 +21,23 @@ Permission is granted to anyone to use this software for any purpose, including 
 extern gchar * mokoiBasePath;
 extern GError * mokoiError;
 extern MokoiLanguage mokoiDefaultString;
+extern MokoiLanguage mokoiDefaultDialog;
 extern MokoiLanguage mokoiCurrentLanguage;
 
 /* Local Variables */
+
+
+/********************************
+* Language_Set_String
+*
+*
+*/
+void Language_Set_String( GHashTable * table, guint id, const gchar * string )
+{
+	g_hash_table_replace( table, GUINT_TO_POINTER(id), g_strdup(string) );
+
+}
+
 
 
 /********************************
@@ -72,7 +86,7 @@ void Language_Clear( MokoiLanguage  * details )
 *
 *
 */
-void Language_LoadFile(MokoiLanguage * file, gchar  * type, gchar  * lang, gboolean is_default)
+void Language_LoadFile( MokoiLanguage * file, gchar  * type, gchar  * lang, gboolean is_default )
 {
 	gchar * content;
 	gchar ** content_lines;
@@ -105,7 +119,7 @@ void Language_LoadFile(MokoiLanguage * file, gchar  * type, gchar  * lang, gbool
 	{
 		while(content_lines[lc] != NULL)
 		{
-			g_hash_table_insert(file->values, GINT_TO_POINTER(lc), g_strdup(g_strstrip(content_lines[lc])));
+			g_hash_table_insert(file->values, GINT_TO_POINTER(lc), g_strdup( content_lines[lc]) );
 			lc++;
 		}
 	}
@@ -176,7 +190,7 @@ void Language_ExportRoutines( )
 	}
 	g_free(content);
 
-	/* Scans string */
+	/* Scans strings */
 	if ( Meg_file_get_contents("/lang/00.txt", &content, NULL, NULL ) )
 	{
 		lc = 0;
@@ -210,16 +224,36 @@ void Language_ExportRoutines( )
 void Language_SaveFile( MokoiLanguage * details, gchar * filename )
 {
 	GString * content = g_string_new("");
-	guint size = g_hash_table_size( details->values );
+	guint size = 0;
 	guint c;
-	for (c = 0; c < size; c++)
+	gchar * value = NULL;
+
+	if ( g_ascii_strcasecmp(details->type, "lang") == 0 )
 	{
-		gchar * value = g_hash_table_lookup( details->values, GINT_TO_POINTER(c) );
-		g_string_append_printf( content, "%s\n", value);
+		size = g_hash_table_size( mokoiDefaultString.values );
+	}
+	else
+	{
+		size = g_hash_table_size( mokoiDefaultDialog.values );
 	}
 
+	for (c = 0; c < size; c++)
+	{
+		value = g_hash_table_lookup( details->values, GINT_TO_POINTER(c) );
+		if ( !value )
+		{
+			if ( g_ascii_strcasecmp(details->type, "lang") == 0 )
+			{
+				value = g_hash_table_lookup( mokoiDefaultString.values, GINT_TO_POINTER(c) );
+			}
+			else
+			{
+				value = g_hash_table_lookup( mokoiDefaultDialog.values, GINT_TO_POINTER(c) );
+			}
+		}
+		g_string_append_printf( content, "%s\n", value );
+	}
 
-	/* g_hash_table_foreach( details->values, (GHFunc)Language_StringForeachList, content ); */
 
 	g_file_set_contents( filename, g_strstrip(content->str), -1, &mokoiError);
 	if ( mokoiError )

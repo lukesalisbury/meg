@@ -9,14 +9,14 @@ Permission is granted to anyone to use this software for any purpose, including 
 3. This notice may not be removed or altered from any source distribution.
 ****************************/
 
-void Alchera_Language_Realize(GtkWidget * widget, gpointer user_data);
-void Alchera_Language_TypeChanged(GtkComboBox * widget, gpointer user_data);
-void Alchera_Language_Save(GtkToolButton * widget, gpointer user_data);
-void Alchera_Language_StringEdit( GtkCellRendererText *cellrenderertext, gchar *path_string, gchar *new_text );
-void Alchera_Language_AddLanguage( GtkToolButton * widget, gpointer user_data );
-void Alchera_Language_RemoveLanguage(GtkToolButton * widget);
-void Alchera_Language_AddString(GtkToolButton *widget, gpointer user_data);
-void Alchera_Language_RemoveString( GtkToolButton *widget, GtkTreeView *tree );
+void Meg_Language_Realize(GtkWidget * widget, gpointer user_data);
+void Meg_Language_TypeChanged(GtkComboBox * widget, gpointer user_data);
+void Meg_Language_Save(GtkToolButton * widget, gpointer user_data);
+void Meg_Language_StringEdit( GtkCellRendererText *cellrenderertext, gchar *path_string, gchar *new_text );
+void Meg_Language_AddLanguage( GtkToolButton * widget, gpointer user_data );
+void Meg_Language_RemoveLanguage(GtkToolButton * widget);
+void Meg_Language_AddString(GtkToolButton *widget, gpointer user_data);
+void Meg_Language_RemoveString( GtkToolButton *widget, GtkTreeView *tree );
 
 
-void Alchera_Language_EditDialog( GtkTreeView * tree_view, GtkTreePath * path, GtkTreeViewColumn * column, gpointer user_data );
+void Meg_Language_EditDialog( GtkTreeView * tree_view, GtkTreePath * path, GtkTreeViewColumn * column, gpointer user_data );

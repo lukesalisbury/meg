@@ -61,6 +61,8 @@
 	gboolean AL_Map_Save( MapInfo * map_info, GtkWindow * window );
 	gboolean AL_Map_Close( MapInfo * map_info, GtkWindow * window );
 	gboolean AL_Map_Options(MapInfo * map_info, GtkWindow * window );
+	gboolean AL_Map_GraphicsSwitchDialog( MapInfo * map_info, GtkWindow * window );
+
 
 	void AL_Map_Layers( GtkListStore * store );
 

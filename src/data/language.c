@@ -44,14 +44,6 @@ void AL_Language_Load( )
 	Language_LoadFile( &mokoiDefaultDialog, "dialog", "00.txt", TRUE );
 }
 
-/********************************
-* AL_Language_Save
-*
-*/
-void AL_Language_Save( )
-{
-	Language_ExportRoutines( );
-}
 
 /********************************
 * AL_Language_Clear
@@ -72,14 +64,12 @@ void AL_Language_Clear( )
 */
 void AL_Language_Types( GtkListStore * list )
 {
-	if ( mokoiBasePath == NULL)
-		return;
-
-	gtk_list_store_clear( list );
+	g_return_if_fail( mokoiBasePath != NULL );
 
 	GtkTreeIter iter;
-
 	char ** i;
+
+	gtk_list_store_clear( list );
 
 	char ** lang_files = PHYSFS_enumerateFiles("lang");
 	for (i = lang_files; *i != NULL; i++)
@@ -113,19 +103,14 @@ void AL_Language_Types( GtkListStore * list )
 */
 gboolean AL_Language_Add( gchar * file )
 {
-	if ( mokoiBasePath == NULL)
-		return FALSE;
+	g_return_if_fail( mokoiBasePath != NULL );
+
 	GtkWidget * dialog, * entry;
 
 	/* UI */
-	GError * error = NULL;
-	GtkBuilder * ui = gtk_builder_new();
+	GtkBuilder * ui = Meg_Builder_Create( mokoiUI_LanguageAdd, __func__, __LINE__ );
+	g_return_if_fail( ui );
 
-	if ( !gtk_builder_add_from_string( ui, mokoiUI_LanguageAdd, -1, &error ) )
-	{
-		Meg_Error_Print( __func__, __LINE__, "UI creation error '%s'.", error->message );
-		return FALSE;
-	}
 
 	dialog = GET_WIDGET( ui, "mokoi_language_add" );
 	entry = GET_WIDGET( ui, "entry1" );
@@ -214,6 +199,8 @@ void AL_String_List( gchar * file, GtkListStore * list )
 {
 	gchar * lang = g_path_get_basename( file );
 	gchar * type = g_path_get_dirname( file );
+
+
 	gtk_list_store_clear(list);
 
 
@@ -255,17 +242,21 @@ gchar * AL_String_Get( gchar * file, guint id )
 */
 gboolean AL_String_Set( gchar * file, guint id, gchar * string )
 {
-	g_hash_table_replace( mokoiCurrentLanguage.values, GUINT_TO_POINTER(id), g_strdup(string) );
+	g_print( "language_file = %s; id: ", file, id );
 
+	Language_Set_String( mokoiCurrentLanguage.values, id, string );
+
+	/* Check if it's a default File */
 	if ( g_str_has_suffix( mokoiCurrentLanguage.file, "00.txt" ) )
 	{
 		if ( g_ascii_strcasecmp(mokoiCurrentLanguage.type, "lang") == 0 )
 		{
+			Language_Set_String( mokoiDefaultString.values, id, string );
 			g_hash_table_replace( mokoiDefaultString.values, GUINT_TO_POINTER(id), g_strdup(string) );
 		}
 		else
 		{
-			g_hash_table_replace( mokoiDefaultString.values, GUINT_TO_POINTER(id), g_strdup(string) );
+			Language_Set_String( mokoiDefaultDialog.values, id, string );
 		}
 	}
 
@@ -290,8 +281,6 @@ gboolean AL_String_Add( GtkListStore * list )
 		Meg_Error_Print( __func__, __LINE__, "Language file not loaded" );
 		return FALSE;
 	}
-
-
 
 	if ( g_ascii_strcasecmp(mokoiCurrentLanguage.type, "lang") == 0 )
 	{

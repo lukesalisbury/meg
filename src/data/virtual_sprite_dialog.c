@@ -132,7 +132,7 @@ gboolean VirtualSpriteDialog_Display( gchar * id )
 	if ( GTK_IS_ALCHERA_MAP(widget_map) )
 	{
 		gtk_alchera_map_set_support_widget( GTK_ALCHERA_MAP(widget_map), store_current_objects, NULL, NULL );
-		gtk_widget_set_size_request( GTK_WIDGET(editor_viewport), 320, 240 );
+		gtk_widget_set_size_request( GTK_WIDGET(editor_viewport), map_info->width, map_info->height );
 		gtk_alchera_map_set_align( GTK_ALCHERA_MAP(widget_map), TRUE );
 		gtk_widget_show_all( widget_map );
 	}

@@ -285,10 +285,10 @@ gboolean ObjectAdvance_Shape( DisplayObject * object, GtkWindow * window )
 	/* Set Default Value */
 	Meg_Misc_SetLabel_Print( label, "<b>Edit Shape Object</b>\n%s (%d)", object_data->name, object->id );
 
-	gtk_spin_button_set_range( spin_x, -100.0, (gdouble)map_width + 100.0 );
+	//gtk_spin_button_set_range( spin_x, -100.0, (gdouble)map_width + 100.0 );
 	gtk_spin_button_set_value( spin_x, object->x );
 
-	gtk_spin_button_set_range( spin_y, -100.0, (gdouble)map_height + 100.0);
+	//gtk_spin_button_set_range( spin_y, -100.0, (gdouble)map_height + 100.0);
 	gtk_spin_button_set_value( spin_y, object->y );
 
 	gtk_spin_button_set_range( spin_z, 0.0, 6.0 );
@@ -478,10 +478,10 @@ gboolean ObjectAdvance_Line( DisplayObject * object, GtkWindow * window )
 	/* Set Default Value */
 	Meg_Misc_SetLabel_Print( label, "<b>Edit Line</b>\n%s (%d)", object_data->name, object->id );
 
-	gtk_spin_button_set_range( spin_x, -200.0, (gdouble)map_width );
+	//gtk_spin_button_set_range( spin_x, -200.0, (gdouble)map_width );
 	gtk_spin_button_set_value( spin_x, object->x );
 
-	gtk_spin_button_set_range( spin_y, -200.0, (gdouble)map_height);
+	//gtk_spin_button_set_range( spin_y, -200.0, (gdouble)map_height);
 	gtk_spin_button_set_value( spin_y, object->y );
 
 	gtk_spin_button_set_range( spin_z, 0.0, 6.0 );
@@ -585,10 +585,10 @@ gboolean ObjectAdvance_Text( DisplayObject * object, GtkWindow * window )
 
 	Meg_Misc_SetLabel_Print( label, "<b>Edit Text</b>\n%s (%d)", object_data->name, object->id );
 
-	gtk_spin_button_set_range( spin_x, -200.0, (gdouble)map_width );
+	//gtk_spin_button_set_range( spin_x, -200.0, (gdouble)map_width );
 	gtk_spin_button_set_value( spin_x, object->x );
 
-	gtk_spin_button_set_range( spin_y, -200.0, (gdouble)map_height );
+	//gtk_spin_button_set_range( spin_y, -200.0, (gdouble)map_height );
 	gtk_spin_button_set_value( spin_y, object->y );
 
 	gtk_spin_button_set_range( spin_z, 0.0, 6.0 );

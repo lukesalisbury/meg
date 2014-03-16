@@ -26,6 +26,7 @@ void Meg_MapSettings_Refresh( GtkWidget * map_widget );
 void Meg_MapSettings_Create(GtkWidget * map_widget , MapEditAdvanceWidget *settings_widgets);
 
 void Meg_MapSettings_OpenEntity( GtkButton * widget, GtkWidget * map_widget );
+void Meg_MapSettings_GraphicSwitch( GtkButton * widget, GtkWidget * map_widget );
 
 void Meg_MapSettings_Width_Get( GtkSpinButton * spinbutton, GtkWidget * map_widget );
 void Meg_MapSettings_Height_Get( GtkSpinButton * spinbutton, GtkWidget * map_widget );

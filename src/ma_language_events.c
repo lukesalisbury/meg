@@ -14,114 +14,114 @@ Permission is granted to anyone to use this software for any purpose, including 
 #include "ma_language.h"
 
 /* Functions local */
-
-
-void AL_Language_Save( );
+void Language_ExportRoutines( );
 
 /* Global Variables */
-extern GtkWidget * alchera_language_default, * alchera_language_typecombo, * alchera_language_chooser;
+extern GtkWidget * language_type_combo;
 extern GtkListStore * language_string_liststore, * language_type_liststore, * language_lang_liststore;
 extern gchar * language_file;
 
 /* UI */
 #include <ui/language_edit.gui.h>
-const gchar * meg_language_edit_ui = GUILANGUAGE_EDIT
+const gchar * meg_language_edit_ui = GUILANGUAGE_EDIT;
 
 /* Functions */
 
 /********************************
-* Alchera_Language_Realize
+* Meg_Language_Realize
 * Event:
 * Result:
 */
-void Alchera_Language_Realize(GtkWidget * widget, gpointer user_data)
+void Meg_Language_Realize(GtkWidget * widget, gpointer user_data)
 {
 	AL_Language_Types(language_type_liststore);
-	gtk_combo_box_set_active( GTK_COMBO_BOX(alchera_language_typecombo), 0 );
+	gtk_combo_box_set_active( GTK_COMBO_BOX(language_type_combo), 0 );
 }
 
 /********************************
-* Alchera_Language_TypeChanged
+* Meg_Language_TypeChanged
 * Event:
 * Result:
 */
-void Alchera_Language_TypeChanged(GtkComboBox * widget, gpointer user_data)
+void Meg_Language_TypeChanged(GtkComboBox * widget, gpointer user_data)
 {
 	GtkTreeIter iter;
+
 	if ( gtk_combo_box_get_active_iter( widget, &iter ) )
 	{
-		if ( language_file )
-			g_free(language_file);
-		language_file = NULL;
+		CLEAR_STRING( language_file )
+
 		gtk_tree_model_get( GTK_TREE_MODEL(language_type_liststore), &iter, 0, &language_file, -1 );
+
 		AL_String_List( language_file, language_string_liststore );
 	}
 }
 
 /********************************
-* Alchera_Language_SaveTranslation
+* Meg_Language_SaveTranslation
 * Event:
 * Result:
 */
-void Alchera_Language_Save(GtkToolButton * widget, gpointer user_data)
+void Meg_Language_Save(GtkToolButton * widget, gpointer user_data)
 {
-	AL_Language_Save();
+	Language_ExportRoutines( );
 }
 
 /********************************
-* Alchera_Language_EditDialog
+* Meg_Language_EditDialog
 
 * Event:
 * Result:
 */
 
-void Alchera_Language_EditDialog( GtkTreeView * tree_view, GtkTreePath * path, GtkTreeViewColumn * column, gpointer user_data )
+void Meg_Language_EditDialog( GtkTreeView * tree_view, GtkTreePath * path, GtkTreeViewColumn * column, gpointer user_data )
 {
 	GtkTreeIter iter;
-	GtkTreeModel *model;
-	GtkTreeSelection * select = gtk_tree_view_get_selection(tree_view);
+	GtkTreeModel * model;
+	GtkTreeSelection * select;
+
+	GtkBuilder * ui;
+	GtkWidget * dialog, * label_string, * text_string;
+
+	guint id;
+	GtkTextBuffer * buffer = NULL;
+	gchar * orginal_text = NULL, *translated_text = NULL;
+
+	GtkTextIter start, end;
+
+	select = gtk_tree_view_get_selection(tree_view);
 
 	if ( gtk_tree_selection_get_selected(select, &model, &iter) )
 	{
-		GtkWidget * dialog, * label_string, *text_string;
-		GError * error = NULL;
-		GtkBuilder * ui = gtk_builder_new();
-		if ( !gtk_builder_add_from_string( ui, meg_language_edit_ui, -1, &error ) )
-		{
-			Meg_Error_Print( __func__, __LINE__, "UI creation error: %s", error->message );
-			return;
-		}
+		/* UI */
+		ui = Meg_Builder_Create( meg_language_edit_ui, __func__, __LINE__ );
+		g_return_if_fail( ui );
 
-		dialog = GET_WIDGET( ui, "dialog1" );
+		dialog = GET_WIDGET( ui, "dialog" );
 		label_string = GET_WIDGET( ui, "label_string" );
 		text_string = GET_WIDGET( ui, "text_string" );
 
-
-		guint id;
-		GtkTextBuffer * buffer;
-		gchar * orginal_text = NULL, *translated_text = NULL;
-		gtk_tree_model_get(model, &iter, 0, &id, 1, &orginal_text, 2, &translated_text, -1);
+		gtk_tree_model_get( model, &iter, 0, &id, 1, &orginal_text, 2, &translated_text, -1 );
 
 		translated_text = g_strcompress( translated_text );
 
-		buffer = gtk_text_view_get_buffer(GTK_TEXT_VIEW(text_string));
-		gtk_label_set_text( GTK_LABEL(label_string), orginal_text);
-		gtk_text_buffer_set_text(buffer, translated_text, -1);
+		buffer = gtk_text_view_get_buffer( GTK_TEXT_VIEW(text_string) );
+		gtk_label_set_text( GTK_LABEL(label_string), orginal_text );
+		gtk_text_buffer_set_text( buffer, translated_text, -1 );
 
 		if ( gtk_dialog_run( GTK_DIALOG(dialog) ) == 1 )
 		{
-			GtkTextIter start, end;
 			gtk_text_buffer_get_bounds( buffer, &start, &end );
+
 			translated_text = gtk_text_buffer_get_text( buffer, &start, &end, FALSE );
+			translated_text = g_strescape( translated_text, "❶❷❸❹❺❻❼❽❾❿➀➁➂➃➄➅➆➇➈▲△▼▽◀◁▶▷◐◒◑◓" );
 
-			translated_text = g_strescape( translated_text, "❶❷❸❹❺❻❼❽❾❿➀➁➂➃➄➅➆➇➈▲△▼▽◀◁▶▷◐◒◑◓");
+			gtk_list_store_set( GTK_LIST_STORE(model), &iter, 2, translated_text, -1 );
 
-			gtk_list_store_set(GTK_LIST_STORE(model), &iter, 2, translated_text, -1);
-			AL_String_Set(language_file, id, translated_text);
+			AL_String_Set( language_file, id, translated_text );
 		}
 
 		gtk_widget_destroy( dialog );
-
 
 	}
 }
@@ -129,53 +129,56 @@ void Alchera_Language_EditDialog( GtkTreeView * tree_view, GtkTreePath * path, G
 
 
 /********************************
-* Alchera_Language_StringEdit
+* Meg_Language_StringEdit
 * Event:
 * Result:
 */
-void Alchera_Language_StringEdit( GtkCellRendererText *cellrenderertext, gchar *path_string, gchar *new_text )
+void Meg_Language_StringEdit( GtkCellRendererText * cellrenderertext, gchar * path_string, gchar * new_text )
 {
 	GtkTreeIter iter;
 	guint id;
-	gtk_tree_model_get_iter_from_string(GTK_TREE_MODEL(language_string_liststore), &iter, path_string);
-	gtk_tree_model_get(GTK_TREE_MODEL(language_string_liststore), &iter, 0, &id, -1);
-	gtk_list_store_set(language_string_liststore, &iter, 2, new_text, -1);
 
-	g_print("language_file = %s", language_file);
-	AL_String_Set(language_file, id, new_text);
+	gtk_tree_model_get_iter_from_string( GTK_TREE_MODEL(language_string_liststore), &iter, path_string );
+	gtk_tree_model_get( GTK_TREE_MODEL(language_string_liststore), &iter, 0, &id, -1 );
+	gtk_list_store_set( language_string_liststore, &iter, 2, new_text, -1 );
+
+	AL_String_Set( language_file, id, new_text );
 }
 
 /********************************
-* Alchera_Language_AddLanguage
+* Meg_Language_AddLanguage
 * Event:
 * Result:
 */
-void Alchera_Language_AddLanguage( GtkToolButton * widget, gpointer user_data )
+void Meg_Language_AddLanguage( GtkToolButton * widget, gpointer user_data )
 {
 	AL_Language_Add(NULL);
-	gtk_list_store_clear( language_type_liststore );
+
 	AL_Language_Types( language_type_liststore );
-	gtk_combo_box_set_active( GTK_COMBO_BOX(alchera_language_typecombo), 0 );
+
+	gtk_combo_box_set_active( GTK_COMBO_BOX(language_type_combo), 0 );
 
 }
 
 /********************************
-* Alchera_Language_RemoveLanguage
+* Meg_Language_RemoveLanguage
 * Event:
 * Result:
 */
-void Alchera_Language_RemoveLanguage(GtkToolButton * widget)
+void Meg_Language_RemoveLanguage(GtkToolButton * widget)
 {
+	gint result = 0;
+	GtkWidget * delete_dialog;
 
-	GtkWidget * delete_dialog = gtk_message_dialog_new(GTK_WINDOW(Meg_Main_GetWidget()),
-		GTK_DIALOG_MODAL,
-		GTK_MESSAGE_QUESTION,
-		GTK_BUTTONS_YES_NO,
-		"Are you sure you want to delete this '%s'?",
-		language_file
+
+	delete_dialog = gtk_message_dialog_new( Meg_Main_GetWindow(),
+			GTK_DIALOG_MODAL, GTK_MESSAGE_QUESTION, GTK_BUTTONS_YES_NO,
+			"Are you sure you want to delete this '%s'?", language_file
 	);
-	gint result = gtk_dialog_run( GTK_DIALOG(delete_dialog) );
-	gtk_widget_destroy( delete_dialog );
+
+	result = gtk_dialog_run( GTK_DIALOG(delete_dialog) );
+
+
 	if ( result == GTK_RESPONSE_YES )
 	{
 		if ( language_file )
@@ -184,35 +187,37 @@ void Alchera_Language_RemoveLanguage(GtkToolButton * widget)
 			{
 				gtk_list_store_clear(language_type_liststore);
 				AL_Language_Types(language_type_liststore);
-				gtk_combo_box_set_active( GTK_COMBO_BOX(alchera_language_typecombo), 0 );
+				gtk_combo_box_set_active( GTK_COMBO_BOX(language_type_combo), 0 );
 			}
 		}
 	}
+
+	gtk_widget_destroy( delete_dialog );
 }
 
 /********************************
-* Alchera_Language_AddString
+* Meg_Language_AddString
 * Event:
 * Result:
 */
-void Alchera_Language_AddString(GtkToolButton *widget, gpointer user_data)
+void Meg_Language_AddString(GtkToolButton *widget, gpointer user_data)
 {
 	AL_String_Add( language_string_liststore );
 }
 
 /********************************
-* Alchera_Language_RemoveString
+* Meg_Language_RemoveString
 * Event:
 * Result:
 */
-void Alchera_Language_RemoveString( GtkToolButton * widget, GtkTreeView *tree  )
+void Meg_Language_RemoveString( GtkToolButton * widget, GtkTreeView *tree  )
 {
+	guint id;
 	GtkTreeIter iter;
 	GtkTreeModel * model;
 	GtkTreeSelection * selection = gtk_tree_view_get_selection( tree );
 	if ( gtk_tree_selection_get_selected( selection, &model, &iter ) )
 	{
-		guint id;
 		gtk_tree_model_get( GTK_TREE_MODEL(language_string_liststore), &iter, 0, &id, -1);
 		/* AL_String_Remove( id, language_string_liststore ); */
 	}

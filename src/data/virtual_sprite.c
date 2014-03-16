@@ -251,7 +251,7 @@ MapInfo * VirtualSprite_GetInfo( gchar * id )
 	else
 	{
 		map_info = VirtualSprite_LoadXML( id );
-
+		map_info->colour.alpha = map_info->colour.blue = map_info->colour.green = map_info->colour.red = 255;
 	}
 
 	return map_info;

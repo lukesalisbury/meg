@@ -2,17 +2,6 @@
 <interface>
   <requires lib="gtk+" version="2.20"/>
   <!-- interface-naming-policy toplevel-contextual -->
-  <object class="GtkListStore" id="model_type">
-    <columns>
-      <!-- column-name gchararray -->
-      <column type="gchararray"/>
-    </columns>
-    <data>
-      <row>
-        <col id="0">Default</col>
-      </row>
-    </data>
-  </object>
   <object class="GtkListStore" id="store_language_list">
     <columns>
       <!-- column-name id -->
@@ -30,7 +19,18 @@
       </row>
     </data>
   </object>
-  <object class="GtkHBox" id="alchera_language_widget">
+  <object class="GtkListStore" id="store_language_type">
+    <columns>
+      <!-- column-name gchararray -->
+      <column type="gchararray"/>
+    </columns>
+    <data>
+      <row>
+        <col id="0">Default</col>
+      </row>
+    </data>
+  </object>
+  <object class="GtkHBox" id="language_widget">
     <property name="visible">True</property>
     <property name="can_focus">False</property>
     <child>
@@ -79,7 +79,7 @@
       </packing>
     </child>
     <child>
-      <object class="GtkVBox" id="alchera_language_widget2">
+      <object class="GtkVBox" id="alchera_language_widget">
         <property name="visible">True</property>
         <property name="can_focus">False</property>
         <property name="events">GDK_POINTER_MOTION_MASK | GDK_POINTER_MOTION_HINT_MASK | GDK_BUTTON_PRESS_MASK | GDK_BUTTON_RELEASE_MASK</property>
@@ -94,11 +94,11 @@
                 <property name="can_focus">False</property>
                 <property name="events">GDK_POINTER_MOTION_MASK | GDK_POINTER_MOTION_HINT_MASK | GDK_BUTTON_PRESS_MASK | GDK_BUTTON_RELEASE_MASK</property>
                 <child>
-                  <object class="GtkComboBox" id="alchera_language_typecombo">
+                  <object class="GtkComboBox" id="language_type_combo">
                     <property name="visible">True</property>
                     <property name="can_focus">False</property>
                     <property name="events">GDK_POINTER_MOTION_MASK | GDK_POINTER_MOTION_HINT_MASK | GDK_BUTTON_PRESS_MASK | GDK_BUTTON_RELEASE_MASK</property>
-                    <property name="model">model_type</property>
+                    <property name="model">store_language_type</property>
                     <child>
                       <object class="GtkCellRendererText" id="renderer1"/>
                       <attributes>
@@ -189,7 +189,7 @@
             <property name="hscrollbar_policy">automatic</property>
             <property name="vscrollbar_policy">automatic</property>
             <child>
-              <object class="GtkTreeView" id="meg_language_list">
+              <object class="GtkTreeView" id="language_list">
                 <property name="visible">True</property>
                 <property name="can_focus">True</property>
                 <property name="events">GDK_POINTER_MOTION_MASK | GDK_POINTER_MOTION_HINT_MASK | GDK_BUTTON_PRESS_MASK | GDK_BUTTON_RELEASE_MASK</property>
