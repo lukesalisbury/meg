@@ -1,7 +1,7 @@
 BIN = quest_designer$(BINEXT)
 
 ifeq ($(BUILDOS),windows)
-	RES_SOURCE = ($CUSTOMPATH)/openzelda.rc
+	RES_SOURCE = $(CUSTOMPATH)/openzelda.rc
 endif
 
 
@@ -22,6 +22,8 @@ PLATFORM_FLAGS += -DPACKAGE_URL="\"http://openzelda.net/userpackages/\""
 PLATFORM_FLAGS += -DQ2A_URL="\"http://openzelda.net/qa/xml-rpc\""
 
 PLATFORM_FLAGS += -DCUSTOMSETTINGS
+PLATFORM_FLAGS += -I$(CUSTOMPATH)
+
 
 PLATFORM_FLAGS += -DBUG_URL="\"http://openzelda.net/\#!Bugs\""
 PLATFORM_FLAGS += -DFORUM_URL="\"http://openzelda.net/\#!Message\""
