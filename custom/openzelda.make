@@ -1,7 +1,7 @@
 BIN = quest_designer$(BINEXT)
 
 ifeq ($(BUILDOS),windows)
-	RES_SOURCE = custom/openzelda.rc
+	RES_SOURCE = ($CUSTOMPATH)/openzelda.rc
 endif
 
 

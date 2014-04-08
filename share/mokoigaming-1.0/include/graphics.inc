@@ -34,7 +34,8 @@ const _OBJECTFLAG: {
 	FLAG_SPEED = 0,
 	FLAG_ANIMLOOP = 1,
 	FLAG_ANIMREVERSE = 2,
-	FLAG_ANIMRESET = 3
+	FLAG_ANIMRESET = 3,
+	FLAG_HIDDEN = 6
 }
 
 ///Misc Graphic Functions
@@ -295,6 +296,7 @@ native CameraSetScroll(bool:scroll);
 native LayerSetRotation(layer, roll, pitch, yaw);
 native LayerSetOffset(layer, Fixed:x, Fixed:y);
 native LayerColour(layer, colour = 0xFFFFFFFF );
+native LayerSetEffect(layer, effect);
 /***
 <function name="CameraSetScroll">
 	<summary>Enable Smooth scrolling.</summary>
@@ -320,6 +322,20 @@ native LayerColour(layer, colour = 0xFFFFFFFF );
 	<param name="pitch" default="" type="n"></param>
 	<param name="yaw" default="" type="n"></param>
 </function>
+<function name="LayerSetEffect">
+	<summary>Change the Effect of the layer.</summary>
+	<param name="layer" default="" type="n">Layer to change. Default setting give layers 0-6.</param>
+	<param name="effect" default="" type="n"></param>
+	<example>
+
+	main()
+	{
+		LayerSetEffect(1, STYLE_NEGATIVE);
+	}
+	</example>
+</function>
+
+
 <function name="LayerSetOffset">
 	<summary>Change the Offset of the layer.</summary>
 	<param name="layer" default="" type="n">Layer to change. Default setting give layers 0-6.</param>

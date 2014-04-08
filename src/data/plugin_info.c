@@ -26,7 +26,7 @@ Permission is granted to anyone to use this software for any purpose, including 
 #include "package.h"
 
 #ifdef CUSTOMSETTINGS
-#include "../custom/default_banner.h"
+#include "default_banner.h"
 #else
 #include "../res/default_banner.h"
 #endif
@@ -509,7 +509,7 @@ GAsyncQueue * AL_PrecheckFiles()
 					{
 						if ( g_str_has_prefix(latest_url, "http") )
 						{
-							queue = Meg_Web_RetrieveQueue(FORCE_PACKAGE_URL, NULL, NULL, package_location, 0 );
+							queue = Meg_Web_RetrieveQueue(NULL, FORCE_PACKAGE_URL, NULL, NULL, package_location, NULL, NULL );
 						}
 						else
 						{
