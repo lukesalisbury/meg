@@ -7,6 +7,7 @@ MAKE=make
 MKDIR = mkdir -p
 RM = rm -f
 MESSAGE =
+PAWN=4
 
 #OBJDIR = objects
 #BUILDDIR = bin

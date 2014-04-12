@@ -88,6 +88,7 @@ all-before:
 
 include/ui/%.gui.h: res/ui/%.gui
 	@echo Converting GUI $<
+	@-$(MKDIR) include/ui/
 	@$(OBJDIR)/buildheader.exe $< $@ $(BUILDHEADER_GUI_TITLE) $(BUILDHEADER_GUI_DESCRIPT) $(BUILDHEADER_GUI_ICON)
 
 buildheader.exe:
@@ -102,8 +103,8 @@ buildheader: buildheader.exe $(patsubst res/ui/%,include/ui/%.h,$(wildcard res/u
 clean:
 	@echo Clean up Mokoi Editor
 	${RM} $(OBJ) $(BIN) $(OBJDIR)/buildheader.exe $(wildcard include/ui/*.gui.h)
-	@$(MAKE) -C meg_audio clean
-	@$(MAKE) -C meg_pawn clean
+	@$(MAKE) -C meg_audio clean BUILDDIR=$(CURDIR)/$(BUILDDIR)
+	@$(MAKE) -C meg_pawn clean BUILDDIR=$(CURDIR)/$(BUILDDIR)
 
 $(OBJDIR)/%.o : src/%.c
 	@echo Compiling $@ $(MESSAGE)
@@ -123,6 +124,6 @@ install: $(BIN)
 	@echo Installing $< to $(INSTALLDIR)
 	@-$(MKDIR) $(OBJDIR)
 	@cp $(BUILDDIR)/$(BIN) $(INSTALLDIR)/bin/
-	@cp -rv ./share/ $(INSTALLDIR)/share/
-	@$(MAKE) -C meg_audio install
-	@$(MAKE) -C meg_pawn install
+	@cp -r ./share/ $(INSTALLDIR)/
+	@$(MAKE) -C meg_audio install BUILDDIR=$(CURDIR)/$(BUILDDIR)
+	@$(MAKE) -C meg_pawn install BUILDDIR=$(CURDIR)/$(BUILDDIR)

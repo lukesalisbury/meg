@@ -28,31 +28,27 @@ all: all-before $(BIN) $(FINALOUTPUT)
 all-before:
 	@echo --------------------------------
 	@echo Building $(BIN) $(PROGRAM_VERSION)
-	@echo Build Platform: $(BUILDPLATFORM)
-	@echo Target Platform: $(BUILDOS)/$(PLATFORMBITS)
-	@echo Debug Build? $(BUILDDEBUG)
-	@echo Build Flags: $(COMPILER_FLAGS)
-	@echo Build Libs: $(COMPILER_LIBS)
+#	@echo Build Platform: $(BUILDPLATFORM)
+#	@echo Target Platform: $(BUILDOS)/$(PLATFORMBITS)
+#	@echo Debug Build? $(BUILDDEBUG)
+#	@echo Build Flags: $(COMPILER_FLAGS)
+#	@echo Build Libs: $(COMPILER_LIBS)
 
 
 $(BIN): $(OBJ)
 	@echo --------------------------------
-	@echo Building $(BIN) $(MESSAGE)
-	@echo Build Flags: $(COMPILER_FLAGS)
-	@echo Build Libs: $(COMPILER_LIBS)
-	@echo --------------------------------
-	$(CPP) $(OBJ) -o $(BUILDDIR)/$(BIN) $(COMPILER_LIBS)
+	@$(CPP) $(OBJ) -o $(BUILDDIR)/$(BIN) $(COMPILER_LIBS)
 
 install: $(BIN)
 	@echo Installing $< to $(INSTALLDIR)
-	@-mkdir -p $(dir $@)
-	@cp $(BUILDDIR)/$(BIN)  $(INSTALLDIR)
+	@-$(MKDIR) $(dir $@)
+	@cp $(BUILDDIR)/$(BIN)  $(INSTALLDIR)/bin/
 
 clean: 
 	$(RM) $(OBJ) $(BUILDDIR)/$(BIN)
 
 objects/%.o : src/%.cpp
-	@-mkdir -p $(dir $@)
+	@-$(MKDIR) $(dir $@)
 #	@echo Compiling $@ $(MESSAGE)
 	@$(CPP) $(COMPILER_FLAGSPP) -o $@ -c $<
 
