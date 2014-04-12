@@ -22,5 +22,42 @@ COMPILER_FLAGSPP = -Wno-write-strings -fno-access-control -fno-exceptions -fno-r
 
 OBJ = objects/main.o $(PLATFORM_OBJECTS)
 
-include ../build.mk
+all: all-before $(BIN) $(FINALOUTPUT)
+	@echo --------------------------------
+
+all-before:
+	@echo --------------------------------
+	@echo Building $(BIN) $(PROGRAM_VERSION)
+	@echo Build Platform: $(BUILDPLATFORM)
+	@echo Target Platform: $(BUILDOS)/$(PLATFORMBITS)
+	@echo Debug Build? $(BUILDDEBUG)
+	@echo Build Flags: $(COMPILER_FLAGS)
+	@echo Build Libs: $(COMPILER_LIBS)
+
+
+$(BIN): $(OBJ)
+	@echo --------------------------------
+	@echo Building $(BIN) $(MESSAGE)
+	@echo Build Flags: $(COMPILER_FLAGS)
+	@echo Build Libs: $(COMPILER_LIBS)
+	@echo --------------------------------
+	$(CPP) $(OBJ) -o $(BUILDDIR)/$(BIN) $(COMPILER_LIBS)
+
+install: $(BIN)
+	@echo Installing $< to $(INSTALLDIR)
+	@-mkdir -p $(dir $@)
+	@cp $(BUILDDIR)/$(BIN)  $(INSTALLDIR)
+
+clean: 
+	$(RM) $(OBJ) $(BUILDDIR)/$(BIN)
+
+objects/%.o : src/%.cpp
+	@-mkdir -p $(dir $@)
+#	@echo Compiling $@ $(MESSAGE)
+	@$(CPP) $(COMPILER_FLAGSPP) -o $@ -c $<
+
+$(OBJDIR)/%.o : src/%.c
+#	@echo Compiling $@ $(MESSAGE)
+	@-$(MKDIR) $(dir $@)
+	@$(CC) -c $(COMPILER_FLAGS) -o $@ $<
 

@@ -11,7 +11,7 @@ PAWN=4
 
 #OBJDIR = objects
 #BUILDDIR = bin
-#INSTALLDIR = ../MokoiGaming/bin
+INSTALLDIR = /opt/mokoi
 #BUILDOS =
 
 

@@ -25,18 +25,11 @@ ifneq ($(CUSTOMSETTINGS), )
 endif
 
 #Compiler
-COMPILER_LIBS = $(OPTIMIZER) $(DEBUG) -L"lib" $(PLATFORM_LIBS) -lz
-COMPILER_FLAGS = $(OPTIMIZER) $(DEBUG) -I"include" -I"src" -I"src/physfs" $(PLATFORM_FLAGS) -D$(PLATFORM)
+COMPILER_LIBS += $(OPTIMIZER) $(DEBUG) -L"lib" $(PLATFORM_LIBS) -lz
+COMPILER_FLAGS += $(OPTIMIZER) $(DEBUG) -I"include" -I"src" -I"src/physfs" $(PLATFORM_FLAGS) -D$(PLATFORM)
 COMPILER_FLAGS += -DPHYSFS_NO_CDROM_SUPPORT=1 -DPHYSFS_SUPPORTS_MOKOIRESOURCE=1 -DPHYSFS_SUPPORTS_ZIP=1 -DPAWN_VERSION=$(PAWN)
 
-ifeq ($(PLATFORMBITS), 64)
-	COMPILER_FLAGS +=  -m64
-	COMPILER_LIBS +=  -m64
-endif
-ifeq ($(PLATFORMBITS), 32)
-	COMPILER_FLAGS +=  -m32
-	COMPILER_LIBS +=  -m32
-endif
+
 COMPILER_FLAGS += $(CFLAGS)
 COMPILER_LIBS += $(LDFLAGS)
 
@@ -87,11 +80,11 @@ all: all-before buildheader $(BIN) $(FINALOUTPUT)
 all-before:
 	@echo --------------------------------
 	@echo Building Mokoi Editor
-	@echo Build Platform: $(BUILDPLATFORM)
-	@echo Target Platform: $(BUILDOS)/$(PLATFORMBITS)
-	@echo Debug Build? $(BUILDDEBUG)
-	@echo Build Flags? $(COMPILER_FLAGS)
-	@echo --------------------------------
+#	@echo Build Platform: $(BUILDPLATFORM)
+#	@echo Target Platform: $(BUILDOS)/$(PLATFORMBITS)
+#	@echo Debug Build? $(BUILDDEBUG)
+#	@echo Build Flags? $(COMPILER_FLAGS)
+#	@echo --------------------------------
 
 include/ui/%.gui.h: res/ui/%.gui
 	@echo Converting GUI $<
@@ -128,6 +121,8 @@ endif
 
 install: $(BIN)
 	@echo Installing $< to $(INSTALLDIR)
-	@cp $(BUILDDIR)/$(BIN) $(INSTALLDIR)
+	@-$(MKDIR) $(OBJDIR)
+	@cp $(BUILDDIR)/$(BIN) $(INSTALLDIR)/bin/
+	@cp -rv ./share/ $(INSTALLDIR)/share/
 	@$(MAKE) -C meg_audio install
 	@$(MAKE) -C meg_pawn install
