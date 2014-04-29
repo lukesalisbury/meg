@@ -221,6 +221,6 @@ pip-log.txt
 *.res
 meg.patch
 *.exe
-share/mokoigaming-1.0/binaries/windows-exe.gz
-share/mokoigaming-1.0/binaries/windows-dll.zip
+share/mokoigaming-1.0/binaries/*.*
 objects/meg.res
+*.gui.h

@@ -21,6 +21,11 @@ Permission is granted to anyone to use this software for any purpose, including 
 #include "progress_dialog.h"
 #include "maps.h"
 
+#include "miniz.c"
+#include "distribution/distro_android.h"
+#include "distribution/distro_linux64.h"
+#include "distribution/distro_osx.h"
+#include "distribution/distro_raspberrypi.h"
 #include "distribution/distro_windows.h"
 
 void Entity_RebuildDirectory( ProgressDialogWidgets * wids, const gchar * directory  );
@@ -44,7 +49,18 @@ gboolean mokoiCompileError = FALSE;
 const gchar * mokoiUI_CompileCreate = GUICOMPILECREATE_DIALOG;
 
 
-
+typedef enum GameCompiler_Distro
+{
+	DISTRO_NONE,
+	DISTRO_WINDOWS,
+	DISTRO_LINUX64,
+	DISTRO_RASPBERRYPI,
+	DISTRO_OSX,
+	DISTRO_ANDROID,
+	DISTRO_IOS,
+	DISTRO_LINUX32,
+	DISTRO_LINUXARM
+} GameCompiler_Distro;
 
 /********************************
 * GameCompiler_DistroForeach
@@ -63,9 +79,25 @@ gboolean GameCompiler_DistroForeach( GtkTreeModel * model, GtkTreePath * path, G
 	if ( selected )
 	{
 		switch (ident) {
-		case 1:
+		case DISTRO_WINDOWS:
 			Logger_FormattedLog( NULL, LOG_FINE, "Creating Windows binaries.\n");
 			Distro_WindowsCreate( project_title, wids->filename );
+			break;
+		case DISTRO_LINUX64:
+			Logger_FormattedLog( NULL, LOG_FINE, "Creating Linux (x64) binaries.\n");
+			Distro_Linux64Create( project_title, wids->filename );
+			break;
+		case DISTRO_RASPBERRYPI:
+			Logger_FormattedLog( NULL, LOG_FINE, "Creating Raspberry PI binaries.\n");
+			Distro_RaspberryPICreate( project_title, wids->filename );
+			break;
+		case DISTRO_OSX:
+			Logger_FormattedLog( NULL, LOG_FINE, "Creating OS X binaries.\n");
+			Distro_OSXCreate( project_title, wids->filename );
+			break;
+		case DISTRO_ANDROID:
+			Logger_FormattedLog( NULL, LOG_FINE, "Creating Android binaries.\n");
+			Distro_AndroidCreate( project_title, wids->filename );
 			break;
 		default:
 			break;

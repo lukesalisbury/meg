@@ -16,9 +16,33 @@
     <data>
       <row>
         <col id="0">False</col>
-        <col id="1" translatable="yes">Windows</col>
-        <col id="2" translatable="yes">blah blah</col>
+        <col id="1">Windows</col>
+        <col id="2" translatable="yes"></col>
         <col id="3">1</col>
+      </row>
+      <row>
+        <col id="0">False</col>
+        <col id="1">Linux</col>
+        <col id="2" translatable="yes">64bit Version</col>
+        <col id="3">2</col>
+      </row>
+      <row>
+        <col id="0">False</col>
+        <col id="1">Raspberry PI</col>
+        <col id="2" translatable="yes"></col>
+        <col id="3">3</col>
+      </row>
+      <row>
+        <col id="0">False</col>
+        <col id="1">OS X</col>
+        <col id="2" translatable="yes"></col>
+        <col id="3">4</col>
+      </row>
+      <row>
+        <col id="0">False</col>
+        <col id="1">Android</col>
+        <col id="2" translatable="yes">(Unsigned)</col>
+        <col id="3">5</col>
       </row>
     </data>
   </object>

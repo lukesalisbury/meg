@@ -27,9 +27,8 @@ endif
 MINI_PLATFORM_LIBS = -arch i386 $(GTK_LIBS) 
 MINI_PLATFORM_FLAGS = -arch i386 $(GTK_FLAGS)
 
-#FINALOUTPUT = alchera.a
 CC = gcc-4.2
-BIN = $(BUILDDIR)/meg
+BIN = meg
 
 #$(FINALOUTPUT) :
 #	$(CC) -bundle -o $(FINALOUTPUT) $(OBJ)

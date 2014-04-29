@@ -21,7 +21,7 @@ typedef struct _MapInfo MapInfo;
 #include "display_object.h"
 
 
-typedef struct _MapInfo{
+struct _MapInfo {
 	DisplayObject * selected;
 	GList * display_list;
 	GHashTable * settings;
@@ -38,7 +38,7 @@ typedef struct _MapInfo{
 	gpointer data;
 	gboolean (*free) ( gpointer data );
 
-} MapInfo;
+};
 
 
 void MapInfo_Destroy( MapInfo * data );

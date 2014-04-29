@@ -37,7 +37,7 @@ Permission is granted to anyone to use this software for any purpose, including 
 
 
 
-gboolean Distro_WindowsCreate( const gchar * project_title, const gchar * game_path )
+gboolean Distro_RaspberryPICreate( const gchar * project_title, const gchar * game_path )
 {
 	gchar * blank_buffer = g_new(gchar, 512);
 	gchar * game_buffer = NULL;
@@ -46,8 +46,6 @@ gboolean Distro_WindowsCreate( const gchar * project_title, const gchar * game_p
 	gsize binary_buffer_length = 0;
 	gsize bytes_read = 0;
 
-
-
 	gzFile binary_original;
 	FILE * binary_temporary;
 
@@ -55,19 +53,17 @@ gboolean Distro_WindowsCreate( const gchar * project_title, const gchar * game_p
 	gchar * binary_original_path;
 	gchar * binary_temporary_path;
 	gchar * target_name;
-	gchar * zip_original_path;
 	gchar * zip_target_path;
 
 
 	if ( g_file_get_contents( game_path, &game_buffer, &game_buffer_length, NULL ) )
 	{
-		target_name = g_strdup_printf("%s.exe", project_title );
+		target_name = g_strdup_printf("%s", project_title );
 
-		binary_original_path = g_build_filename( shared_directory, "windows-exe.gz", NULL);
+		binary_original_path = g_build_filename( shared_directory, "rasp-binary.gz", NULL);
 		binary_temporary_path = g_build_filename( g_get_tmp_dir(), target_name, NULL);
 
-		zip_original_path = g_build_filename( shared_directory, "windows-dll.zip", NULL);
-		zip_target_path = g_strdup_printf( "%s"G_DIR_SEPARATOR_S"%s-windows.zip", Meg_Directory_Document(), project_title );
+		zip_target_path = g_strdup_printf( "%s"G_DIR_SEPARATOR_S"%s-raspberrypi.zip", Meg_Directory_Document(), project_title );
 
 
 		binary_original = gzopen( binary_original_path, "rb" );
@@ -77,7 +73,6 @@ gboolean Distro_WindowsCreate( const gchar * project_title, const gchar * game_p
 		g_print( "binary_temporary: %p\n", binary_temporary );
 		g_print( "binary_original_path: %s\n", binary_original_path );
 		g_print( "binary_temporary_path: %s\n", binary_temporary_path );
-		g_print( "zip_original_path: %s\n", zip_original_path );
 		g_print( "zip_target_path: %s\n", zip_target_path );
 
 
@@ -100,14 +95,13 @@ gboolean Distro_WindowsCreate( const gchar * project_title, const gchar * game_p
 
 			if ( g_file_get_contents( binary_temporary_path, &binary_buffer, &binary_buffer_length, NULL ) )
 			{
-				Meg_FileCopy( zip_original_path, zip_target_path );
 				mz_zip_add_mem_to_archive_file_in_place( zip_target_path, target_name, binary_buffer, binary_buffer_length, NULL, 0, 0 );
 			}
 			g_free(binary_buffer);
 		}
 		else
 		{
-			g_warning("Distro_WindowsCreate Failed");
+			g_warning("Distro_RaspberryPICreate Failed");
 		}
 
 
@@ -118,7 +112,6 @@ gboolean Distro_WindowsCreate( const gchar * project_title, const gchar * game_p
 
 		g_free(game_buffer);
 
-		g_free(zip_original_path);
 		g_free(zip_target_path);
 
 		g_free(binary_temporary_path);

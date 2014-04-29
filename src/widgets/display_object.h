@@ -45,7 +45,7 @@ typedef struct {
 } DisplayObjectBorder;
 
 
-typedef struct _DisplayObject {
+struct _DisplayObject {
 
 	DisplayObjectTypes type;
 	gdouble x, y, w, h;
@@ -68,7 +68,7 @@ typedef struct _DisplayObject {
 
 	gboolean (*free) ( gpointer data );
 
-} DisplayObject;
+};
 
 
 

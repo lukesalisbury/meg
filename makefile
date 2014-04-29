@@ -29,11 +29,21 @@ COMPILER_LIBS += $(OPTIMIZER) $(DEBUG) -L"lib" $(PLATFORM_LIBS) -lz
 COMPILER_FLAGS += $(OPTIMIZER) $(DEBUG) -I"include" -I"src" -I"src/physfs" $(PLATFORM_FLAGS) -D$(PLATFORM)
 COMPILER_FLAGS += -DPHYSFS_NO_CDROM_SUPPORT=1 -DPHYSFS_SUPPORTS_MOKOIRESOURCE=1 -DPHYSFS_SUPPORTS_ZIP=1 -DPAWN_VERSION=$(PAWN)
 
-
 COMPILER_FLAGS += $(CFLAGS)
 COMPILER_LIBS += $(LDFLAGS)
 
+ifeq ($(PLATFORMBITS), 64)
+	COMPILER_FLAGS += -m64
+	COMPILER_LIBS +=  -m64
+endif
+ifeq ($(PLATFORMBITS), 32)
+	COMPILER_FLAGS +=  -m32
+	COMPILER_LIBS +=  -m32
+endif
 
+
+
+# Objects
 OBJ := $(OBJDIR)/ma_dialog.o $(OBJDIR)/ma_directories.o $(OBJDIR)/ma_editor.o $(OBJDIR)/ma_events.o $(OBJDIR)/ma_help.o
 OBJ += $(OBJDIR)/ma_initwin.o $(OBJDIR)/ma_language.o $(OBJDIR)/ma_language_events.o $(OBJDIR)/ma_loader.o $(OBJDIR)/ma_log.o
 OBJ += $(OBJDIR)/ma_main.o $(OBJDIR)/ma_map.o $(OBJDIR)/ma_map_edit.o $(OBJDIR)/ma_map_events.o $(OBJDIR)/ma_map_section.o
@@ -62,7 +72,7 @@ OBJ += $(OBJDIR)/data/progress_dialog.o $(OBJDIR)/data/entity_options.o $(OBJDIR
 
 OBJ += $(OBJDIR)/data/data_types.o $(OBJDIR)/data/virtual_sprite_dialog.o
 
-OBJ += $(OBJDIR)/distribution/distro_windows.o
+OBJ += $(OBJDIR)/distribution/distro_android.o $(OBJDIR)/distribution/distro_linux64.o $(OBJDIR)/distribution/distro_osx.o $(OBJDIR)/distribution/distro_raspberrypi.o $(OBJDIR)/distribution/distro_windows.o
 
 OBJ += $(OBJDIR)/ma_physfs.o $(OBJDIR)/physfs/physfs.o $(OBJDIR)/physfs/physfs_byteorder.o $(OBJDIR)/physfs/physfs_unicode.o $(OBJDIR)/physfs/archivers/dir.o $(OBJDIR)/physfs/archivers/mokoiresource.o $(OBJDIR)/physfs/archivers/zip.o $(OBJDIR)/physfs/platform/macosx.o $(OBJDIR)/physfs/platform/posix.o $(OBJDIR)/physfs/platform/unix.o $(OBJDIR)/physfs/platform/windows.o
 
