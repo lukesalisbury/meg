@@ -474,15 +474,18 @@ gboolean Sheet_ParseTextFormat( gchar * filename )
 							g_warning("Animation '%s' in old format, skipping", array[0]);
 							continue;
 						}
+
 						/* Create New Sprite */
-						SheetObject * sprite = g_new0( SheetObject, 1 );
+						SpriteData * sprite_data = g_new0(SpriteData, 1);
+						SheetObject * sprite = SheetObject_New( (gpointer)sprite_data, &SpriteData_FreePointer );
+
 						sprite->display_name = g_strdup( array[0] );
 						sprite->parent_sheet = g_path_get_basename(filename);
 						sprite->ident_string = g_strdup_printf( "%s:%s", sprite->parent_sheet, sprite->display_name );
 						sprite->visible = TRUE;
 
-						SPRITE_DATA(sprite)->animation = NULL;
-						SPRITE_DATA(sprite)->image = NULL;
+						sprite_data->animation = NULL;
+						sprite_data->image = NULL;
 						SPRITE_DATA(sprite)->image_loaded = 0;
 
 						SPRITE_DATA(sprite)->flag = strtoul( array[1], NULL, 0 );

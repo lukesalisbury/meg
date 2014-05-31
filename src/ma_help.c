@@ -237,7 +237,6 @@ void Meg_Help_ScanDirectory( GtkTreeStore * store, GtkTreeIter * parent, gchar *
 	GDir * directory = g_dir_open( path, 0, NULL );
 	GSList * file_list = NULL;
 
-
 	if ( directory )
 	{
 		const gchar * file = g_dir_read_name( directory );
@@ -307,6 +306,14 @@ void Meg_Help_ScanDirectory( GtkTreeStore * store, GtkTreeIter * parent, gchar *
 		}
 		g_dir_close( directory );
 	}
+
+	if ( g_slist_length(file_list) == 0 )
+	{
+		file_list = g_slist_append( file_list, "Editor|Editor|Editor.xml" );
+		file_list = g_slist_append( file_list, "ScriptAPI|ScriptAPI|ScriptAPI.xml" );
+		file_list = g_slist_append( file_list, "Tutorials|Tutorials|Tutorials.xml" );
+	}
+
 	g_slist_foreach( file_list, (GFunc)Meg_Help_ScanAddFile, store);
 }
 
