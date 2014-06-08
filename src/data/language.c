@@ -242,7 +242,7 @@ gchar * AL_String_Get( gchar * file, guint id )
 */
 gboolean AL_String_Set( gchar * file, guint id, gchar * string )
 {
-	g_print( "language_file = %s; id: ", file, id );
+	g_print( "language_file = %s; id: %d", file, id );
 
 	Language_Set_String( mokoiCurrentLanguage.values, id, string );
 

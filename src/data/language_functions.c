@@ -35,10 +35,7 @@ extern MokoiLanguage mokoiCurrentLanguage;
 void Language_Set_String( GHashTable * table, guint id, const gchar * string )
 {
 	g_hash_table_replace( table, GUINT_TO_POINTER(id), g_strdup(string) );
-
 }
-
-
 
 /********************************
 * Language_LoadFile

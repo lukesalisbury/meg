@@ -11,6 +11,7 @@
 		<style id="comment"				_name="Comment"					map-to="def:comment"/>
 		<style id="error"				_name="Error"					map-to="def:error"/>
 		<style id="string"				_name="String"					map-to="def:string"/>
+		<style id="unstring"			_name="Unpacked String"			map-to="def:string"/>
 		<style id="preprocessor"		_name="Preprocessor"			map-to="def:preprocessor"/>
 		<style id="common-defines"		_name="Common Defines"			map-to="def:special-constant"/>
 		<style id="included-file"		_name="Included File"			map-to="def:string"/>
@@ -34,6 +35,10 @@
 
 		<context id="pawn">
 			<include>
+				<context id="escaped-character" style-ref="escaped-character">
+					<match>\%{escaped-character}</match>
+				</context>
+
 				<!-- Comments -->
 				<context id="comment" style-ref="comment" end-at-line-end="true">
 					<start>//</start>
@@ -93,9 +98,15 @@
 					<start>L?"</start>
 					<end>"</end>
 					<include>
-						<context id="escaped-character" style-ref="escaped-character">
-							<match>\%{escaped-character}</match>
-						</context>
+						<context ref="escaped-character"/>
+					</include>
+				</context>
+
+				<context id="unstring" style-ref="string" end-at-line-end="true">
+					<start>''</start>
+					<end>''</end>
+					<include>
+						<context ref="escaped-character"/>
 					</include>
 				</context>
 

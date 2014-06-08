@@ -32,6 +32,7 @@
 	<return>True if random_value is updated.</return>
 </function>
 ***/
+
 stock TimerCountdown(&time)
 {
 	time -= GameFrame();
@@ -80,8 +81,6 @@ stock SoundPlayRepeat(&value, file[])
 }
 
 
-
-
 /***
 <function name="SoundPlayOnce">
 	<summary>Play a audio file once.</summary>
@@ -94,7 +93,6 @@ stock SoundPlayRepeat(&value, file[])
 	<param name="file[]" default="" type="a">Audio File.</param>
 </function>
 ***/
-
 
 
 ///Bits Functions

@@ -40,9 +40,10 @@ const _OBJECTFLAG: {
 
 ///Misc Graphic Functions
 native GraphicsType();
-native GraphicsDraw(string[], GraphicTypes:type, x, y, z, w, h, c = WHITE, string_size = sizeof string );
-native SheetReference(sheet[], ref = 1);
-native SheetReplace(olds[], news[]);
+native GraphicsDraw(string{}, GraphicTypes:type, x, y, z, w, h, c = WHITE, string_size = sizeof string );
+native SheetReference(sheet{}, ref = 1);
+native SheetReplace(old_sheet{}, news_sheet{});
+
 /***
 <function name="GraphicsType">
 	<summary>Returns the type of graphic display. Can be used to enable some effects.</summary>
@@ -66,18 +67,19 @@ native SheetReplace(olds[], news[]);
 </function>
 <function name="SheetReplace">
 	<summary>Changing one sheet to another.</summary>
-	<param name="olds[]" default="" type="a"></param>
-	<param name="news[]" default="1" type="n"></param>
+	<param name="old_sheet[]" default="" type="a"></param>
+	<param name="news_sheet[]" default="" type="a"></param>
 </function>
 ***/
 
 ///Animation Functions
-native AnimationGetLength(sheet[], anim[]); /* Returns milliseconds */
-native Fixed:AnimationGetLength2(sheet[], anim[]) = AnimationGetLength;
+native AnimationGetLength(sheet{}, anim{});
+native Fixed:AnimationGetLength2(sheet{}, anim{}) = AnimationGetLength;
 #pragma deprecated Future Feature
-native AnimationCreate(string[], length);
+native AnimationCreate(string{}, length);
 #pragma deprecated Future Feature
-native AnimationAddFrame(string[], sprite[], string_size = sizeof string, sprite_size = sizeof sprite);
+native AnimationAddFrame(string{}, sprite{}, string_size = sizeof string, sprite_size = sizeof sprite);
+
 /***
 <function name="AnimationGetLength">
 	<summary>Returns length of animation in milliseconds.</summary>
@@ -106,7 +108,7 @@ native AnimationAddFrame(string[], sprite[], string_size = sizeof string, sprite
 ***/
 
 ///Text Functions
-native TextSprites(able, sheet[]);
+native TextSprites(able, sheet{});
 /***
 <function name="TextSprites">
 	<summary>Ables the use of Sprites for text instead of the internal bitmap font.</summary>
@@ -117,9 +119,9 @@ native TextSprites(able, sheet[]);
 
 ///Polygon Functions
 #pragma deprecated Future Feature
-native PolygonCreate(string[]);
+native PolygonCreate(string{});
 #pragma deprecated Future Feature
-native PolygonAddPoint(string[], x, y, string_size = sizeof string);
+native PolygonAddPoint(string{}, x, y, string_size = sizeof string);
 /***
 <futurefunction name="PolygonCreate">
 	<summary>Create a polygon.</summary>
@@ -136,14 +138,14 @@ native PolygonAddPoint(string[], x, y, string_size = sizeof string);
 ***/
 
 ///Display Objects Functions
-native object:ObjectCreate(string{}, GraphicTypes:type, x = 0, y = 0, z = 0, w = 0, h = 0, c = 0xFFFFFFFF, pos = POSITION_MAP, string_size = sizeof string);
-native ObjectPosition(object:id, x, y, z, w, h, pos = POSITION_MAP);
-native ObjectEffect(object:id, colour = WHITE, rotate = 0, scale_w = 1000, scale_h = 1000, mirror = 0, _DISPLAYSTYLES:style = STYLE_NORMAL, colour2 = WHITE);
-native ObjectReplace(object:id, string[], GraphicTypes:type);
-native ObjectToggle(object:id, show);
-native ObjectFlag(object:id, key, value);
-native ObjectDelete(object:id);
-native ObjectInfo(object:id, &w, &h);
+native object:ObjectCreate( string{}, GraphicTypes:type, x = 0, y = 0, z = 0, w = 0, h = 0, c = 0xFFFFFFFF, pos = POSITION_MAP, string_size = sizeof string);
+native ObjectPosition( object:id, x, y, z, w, h, pos = POSITION_MAP);
+native ObjectEffect( object:id, colour = WHITE, rotate = 0, scale_w = 1000, scale_h = 1000, mirror = 0, _DISPLAYSTYLES:style = STYLE_NORMAL, colour2 = WHITE);
+native ObjectReplace( object:id, string{}, GraphicTypes:type);
+native ObjectToggle( object:id, show);
+native ObjectFlag( object:id, key, value);
+native ObjectDelete( object:id);
+native ObjectInfo( object:id, &w, &h);
 /***
 <function name="ObjectCreate">
 	<summary> Creates a new Display Objects. 'string' can be a sprite name or some text.</summary>
@@ -161,9 +163,9 @@ native ObjectInfo(object:id, &w, &h);
 	new helded = 0xFF00FFFF; 
 	 
 	new player = 0; 
-	new obj1 = -1; 
-	new obj2 = -1; 
-	new obj3 = -1; 
+	new object:obj1 = OBJECT_NONE; 
+	new object:obj2 = OBJECT_NONE; 
+	new object:obj3 = OBJECT_NONE; 
 	new x = 10, y = 10; 
 
 	public Init(...) 

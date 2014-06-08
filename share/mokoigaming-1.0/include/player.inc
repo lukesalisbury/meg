@@ -59,6 +59,6 @@ native PlayerSetEntity(player, entity);
 
 
 native PlayerUpdateControl(player, controlset);
-native PlayerSetName(player, str[] );
-native PlayerGetName(player, str[], s = sizeof(str));
+native PlayerSetName( player, str{} );
+native PlayerGetName( player, str{}, s = sizeof(str));
 native PlayerSetColour(player, colour);

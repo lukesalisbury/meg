@@ -99,7 +99,7 @@ native Fixed:MapGetOffset(axis);
 	<summary>Save the map</summary>
 </function>
 ***/
-native MapCreate(map{}, create_new = 0, maxlength=sizeof map);
+native MapCreate( map{}, create_new = 0, maxlength = sizeof map );
 native MapChange(mapid, offsetx = -1, offsety = -1);
 native MapValid(mapid);
 native MapID(map{}, maxlength=sizeof map);

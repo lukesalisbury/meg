@@ -208,6 +208,7 @@ native InputButtonSet(input, value, player = 0);
 native InputAxisSet(axis, value, player = 0);
 native InputPointerSet(axis, value, player = 0);
 native InputSetDefault(player);
+
 ///Misc Functions 
 /***
 <function name="MiscGetWidth">
@@ -283,8 +284,8 @@ native DialogPlayAudio(line);
 </function>
 ***/
 native AudioVolume(AudioDevice:device, level = -1);
-native AudioPlaySound(file[], x = -1, y = -1);
-native AudioPlayMusic(file[], loop = 1, fadeLength = 0);
+native AudioPlaySound(file{}, x = -1, y = -1);
+native AudioPlayMusic(file{}, loop = 1, fadeLength = 0);
 
 ///Config Functions
 /***
@@ -304,9 +305,9 @@ native AudioPlayMusic(file[], loop = 1, fadeLength = 0);
 	<param name="value[]" default="" type="a"></param>
 </function>
 ***/
-native ConfigGetString(config[], value[], maxlength=sizeof value);
-native ConfigGetNumber(config[]);
-native ConfigSetString(config[], value[]);
+native ConfigGetString(config{}, value{}, maxlength=sizeof value);
+native ConfigGetNumber(config{});
+native ConfigSetString(config{}, value{});
 
 ///File Listing Functions
 /***

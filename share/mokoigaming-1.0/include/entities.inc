@@ -1,5 +1,5 @@
 #if defined _entities_included
-  #endinput
+	#endinput
 #endif
 #define _entities_included
 
@@ -7,7 +7,6 @@
 
 #include <enums>
 #include <fixed>
-
 
 #define ARG_NUMBER	'n'
 #define ARG_RETURN_NUMBER	'd'
@@ -106,10 +105,10 @@ native EntityGetPosition(&Fixed:x, &Fixed:y, &Fixed:z, id = SELF);
 	<param name="value" default="" type="n">new value.</param>
 </function>
 ***/
-native EntityHash(string{}="", maxlength = sizeof(string));
+native EntityHash(string{});
 native EntityCreate(parententity{}, id_string{}, Fixed:x, Fixed:y, Fixed:z, map_id, args[]='''', {Fixed,_}:...);
 native EntityDelete(id = SELF);
-native EntityGetSetting(key{}, string{}, id = SELF);
+native EntityGetSetting(key{}, string{}, id = SELF, length = sizeof string);
 native EntityGetSettingHash(key{}, id = SELF);
 native EntityGetNumber(key{}, id = SELF );
 native object:EntityGetObject(key{} = "object-id", id = SELF ) = EntityGetNumber;
@@ -120,9 +119,9 @@ native object:EntityGetObject(key{} = "object-id", id = SELF ) = EntityGetNumber
  n - Value, passed by value
  s - String
 */
-native EntityPublicFunction(id, function[], args[]='''', ...);
-native EntityPublicVariable(id, variable[]);
-native EntityPublicVariableSet(id, variable[], value);
+native EntityPublicFunction(id, function{}, args[]='''', ...);
+native EntityPublicVariable(id, variable{});
+native EntityPublicVariableSet(id, variable{}, value);
 
 ///Entity Collision Functions
 /***
@@ -275,7 +274,7 @@ native CollisionGetCurrent(id = SELF, &current, &angle, &dist, &rect, &type );
 
 ***/
 native MapCollisionList();
-native MapCollisionCurrent(objecta[], objectb[], &angle, &dist, &rect, length_a = sizeof objecta, length_b = sizeof objectb);
+native MapCollisionCurrent(objecta, objectb, &angle, &dist, &rect );
 
 ///Entity Management Functions
 /***
@@ -293,9 +292,9 @@ native MapCollisionCurrent(objecta[], objectb[], &angle, &dist, &rect, length_a 
 </function>
 ***/
 native EntitiesList(mapid = 0);
-native EntitiesNext(&id, map_id = 0, string{}="", maxlength = sizeof(string));
+native EntitiesNext(&id, map_id = 0, string{} = "", maxlength = sizeof(string) );
 
 
-#define __MAP_ENTITY__ EntityHash("__map__");
-#define __MAIN_ENTITY__ EntityHash("main");
+#define __MAP_ENTITY__ EntityHash("__map__")
+#define __MAIN_ENTITY__ EntityHash("main")
 

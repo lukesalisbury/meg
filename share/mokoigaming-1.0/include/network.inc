@@ -44,10 +44,10 @@ native EntityNetworkSync(bool:reliable = true);
 	<param name="name[]" default="" type="a"></param>
 </function>
 ***/
-native NetworkConnect(name[], password[], email[]);
+native NetworkConnect(name{}, password{}, email{});
 native NetworkDisconnect();
 native NetworkMessage(reliable, serveronly, message[], length, reallength = sizeof(message));
-native NetworkPlayerName(player, name[], l = sizeof(name) );
+native NetworkPlayerName(player, name{}, l = sizeof(name) );
 
 ///Online Functions
 /***
@@ -75,4 +75,4 @@ native OnlineUpdate();
 native OnlineSubmitScore(data[4]);
 #pragma deprecated Future Feature
 native OnlineSave(data[64]);
-native OnlineData(callback{32} = "ReceivedData", url[128], post{} = "");
+native OnlineData(callback{32} = "ReceivedData", url{128}, post{} = "");
