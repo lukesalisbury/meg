@@ -36,11 +36,9 @@ extern gchar * mokoiGameDirectories[];
 /* Local Variables */
 ProgressDialogWidgets mokoiGameComplier;
 
-
 /* UI */
-
 #include "ui/project_publish.gui.h"
-const gchar * mokoiUI_Publish = GUIPROJECT_PUBLISH
+const gchar * mokoiUI_Publish = GUIPROJECT_PUBLISH;
 
 
 /********************************
@@ -104,7 +102,7 @@ gboolean MegProject_Play()
 	play_environment_settings = g_get_environ();
 	play_environment_settings = g_environ_setenv( play_environment_settings, "SDL_STDIO_REDIRECT", "0", TRUE );
 	#else
-	//Wrong way, but not not much I can do.
+	//Wrong way, but not much I can do.
 	g_setenv( "SDL_STDIO_REDIRECT", "0", TRUE );
 	#endif
 

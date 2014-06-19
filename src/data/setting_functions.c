@@ -330,12 +330,7 @@ void Setting_WidgetWrite(gchar * name, GObject * wid )
 	}
 	else if ( !g_ascii_strcasecmp( G_OBJECT_TYPE_NAME(wid), "GtkLabel" ) )
 	{
-		if ( !g_ascii_strcasecmp("project.id", name) )
-		{
-			gchar * markup = g_markup_printf_escaped( "<b>%X</b>", AL_Setting_GetNumber("project.id") );
-			gtk_label_set_markup( GTK_LABEL(wid), markup );
-			g_free( markup );
-		}
+		gtk_label_set_markup( GTK_LABEL(wid), AL_Setting_GetString(name) );
 	}
 	else
 	{

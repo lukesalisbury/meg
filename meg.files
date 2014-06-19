@@ -776,3 +776,11 @@ src/distribution/distro_raspberrypi.c
 src/distribution/distro_raspberrypi.h
 src/distribution/distro_windows.c
 src/distribution/distro_windows.h
+meg_audio/makefile
+meg_audio/setting.mk
+meg_pawn/makefile
+meg_pawn/setting.mk
+meg_pawn/src/libpawncc.c
+meg_pawn/src/mokoipawnc.c
+meg_pawn/src/test_app.c
+meg_audio/src/main.c

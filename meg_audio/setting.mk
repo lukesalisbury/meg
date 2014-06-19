@@ -10,7 +10,7 @@ MESSAGE =
 
 #OBJDIR = objects
 #BUILDDIR = bin
-INSTALLDIR = /opt/mokoi
+#INSTALLDIR = /opt/mokoi
 #BUILDOS =
 
 

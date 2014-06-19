@@ -107,12 +107,12 @@ gboolean Meg_Loaders_Init( gchar * project_path )
 * Meg_Loaders_CreateNew
 *
 */
-gboolean Meg_Loaders_CreateNew( const gchar * title )
+gboolean Meg_Loaders_CreateNew( const gchar * title, const gchar * author )
 {
 	gboolean loaded = FALSE;
 	gchar * path_string = NULL;
 
-	path_string = AL_CreateProject( title );
+	path_string = AL_CreateProject( title, author );
 	if ( path_string )
 	{
 		Meg_Loaders_Init( path_string );

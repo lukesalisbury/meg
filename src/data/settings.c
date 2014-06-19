@@ -110,8 +110,6 @@ void  AL_Setting_Widget( GtkBuilder * ui )
 	g_hash_table_replace(mokoiSettingsTable, "language.default", gtk_builder_get_object( ui, "w_language_default" ) ); /* GtkComboBox */
 	g_hash_table_replace(mokoiSettingsTable, "language.choose", gtk_builder_get_object( ui, "w_language_choose" ) ); /* GtkCheckButton */
 
-	GObject * obja = gtk_builder_get_object( ui, "w_package_main" );
-
 	g_hash_table_replace(mokoiSettingsTable, "package.main", gtk_builder_get_object( ui, "w_package_main" ) ); /* GtkComboBox */
 
 

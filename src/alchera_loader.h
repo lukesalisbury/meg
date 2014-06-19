@@ -4,7 +4,7 @@
 	#include <gtk/gtk.h>
 
 	/* info + plugin stuff */
-	gchar * AL_CreateProject( const gchar * title  );
+	gchar * AL_CreateProject(const gchar * title, const gchar *author);
 	gchar * AL_LoadProject( const gchar * path );
 	gboolean AL_HasFeature( gint feature );
 	gchar * AL_ProjectPath( );

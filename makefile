@@ -132,7 +132,8 @@ endif
 
 install: $(BIN)
 	@echo Installing $< to $(INSTALLDIR)
-	@-$(MKDIR) $(OBJDIR)
+	@-$(MKDIR) $(INSTALLDIR)
+	@-$(MKDIR) $(INSTALLDIR)/bin/
 	@cp $(BUILDDIR)/$(BIN) $(INSTALLDIR)/bin/
 	@cp -r ./share/ $(INSTALLDIR)/
 	@$(MAKE) -C meg_audio install BUILDDIR=$(CURDIR)/$(BUILDDIR)

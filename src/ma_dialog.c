@@ -83,8 +83,9 @@ gboolean Meg_Dialog_NewProject( )
 {
 	gint response = 0;
 	const gchar * title = NULL;
+	const gchar * author = NULL;
 	gboolean success = FALSE;
-	GtkWidget * dialog, * entry_title;
+	GtkWidget * dialog, * entry_title, * entry_author;
 
 	/* UI */
 	GtkBuilder * ui = Meg_Builder_Create(UIProjectNew, __func__, __LINE__);
@@ -93,9 +94,11 @@ gboolean Meg_Dialog_NewProject( )
 	/* Widget */
 	dialog = GET_WIDGET( ui, "dialog" );
 	entry_title = GET_WIDGET( ui, "entry_title" );
+	entry_author = GET_WIDGET( ui, "entry_author" );
 
 
-	/* Signal */
+	/* */
+	gtk_entry_set_text( GTK_ENTRY(entry_author), g_get_real_name() );
 
 
 	/* Run dialog */
@@ -105,6 +108,7 @@ gboolean Meg_Dialog_NewProject( )
 	{
 		response = gtk_dialog_run( GTK_DIALOG(dialog) );
 		title = gtk_entry_get_text( GTK_ENTRY(entry_title) );
+		author = gtk_entry_get_text( GTK_ENTRY(entry_author) );
 		if ( !response || response == GTK_RESPONSE_DELETE_EVENT || response == GTK_RESPONSE_REJECT )
 			break;
 		if ( g_utf8_strlen(title, -1) )
@@ -117,7 +121,8 @@ gboolean Meg_Dialog_NewProject( )
 
 	if ( response == GTK_RESPONSE_ACCEPT )
 	{
-		if ( Meg_Loaders_CreateNew( title ) )
+
+		if ( Meg_Loaders_CreateNew( title, author ) )
 		{
 			success = TRUE;
 		}

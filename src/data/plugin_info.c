@@ -31,8 +31,6 @@ Permission is granted to anyone to use this software for any purpose, including 
 #include "../res/default_banner.h"
 #endif
 
-
-
 /* External Functions */
 void Patch_CreatePage();
 gboolean Meg_Dialog_Import();
@@ -63,6 +61,7 @@ gchar * mokoiGameDirectories[] = {
 	"masks",
 	"scripts",
 	"scripts/maps",
+	"scripts/maps/routines",
 	"scripts/routines",
 	"sections",
 	"soundfx",
@@ -123,7 +122,7 @@ gchar * mokoiInitalConfig = "[Mokoi]\n" \
 		"project.title=%s\n"\
 		"project.author=%s\n"\
 		"project.creation=%lu\n"\
-		"project.id=%ld\n";
+		"project.id=%s\n";
 
 /* UI */
 
@@ -138,8 +137,6 @@ gchar * AL_ProjectPath( )
 	{
 		return mokoiBasePath;
 	}
-
-	g_print("Project Directory is empty\n");
 	return NULL;
 }
 
@@ -181,7 +178,7 @@ gboolean AL_CreateRequiredFiles( gchar * root_dir )
 	{
 		while ( mokoiGameRequiredFiles[array_count] != NULL)
 		{
-			temp_path = g_build_filename(root_dir, mokoiGameRequiredFiles[array_count++], NULL);
+			temp_path = g_build_filename( root_dir, mokoiGameRequiredFiles[array_count++], NULL );
 			g_file_set_contents( temp_path, mokoiGameRequiredFiles[array_count], -1, &mokoiError );
 			if ( Meg_Error_Check( mokoiError, FALSE, (char*)__func__) )
 			{
@@ -189,10 +186,12 @@ gboolean AL_CreateRequiredFiles( gchar * root_dir )
 			}
 			else
 			{
+				/*
 				if ( g_str_has_suffix(temp_path, ".mps") )
 				{
 					EntityCompiler_FileWithRountines( temp_path, NULL, NULL );
 				}
+				*/
 			}
 			g_free( temp_path );
 			array_count++;
@@ -209,17 +208,19 @@ gboolean AL_CreateRequiredFiles( gchar * root_dir )
 @ base_project: Name of existing base project, or NULL for none;
 * Returns filename or NULL;
 */
-gchar * AL_CreateProject( const gchar * title )
+gchar * AL_CreateProject( const gchar * title, const gchar * author )
 {
 	gchar * path = NULL;
-	gchar * root_dir, * temp_path, * directory_name;
+	gchar * root_dir, * temp_path, * directory_name, * short_author;
+	gchar * project_id;
 	GString * init_config;
 	GTimeVal timestamp;
-	guint array_count = 0;
+
 
 	directory_name = Project_CleanTitle( title ); //Trims Project Title
+	short_author = Project_CleanTitle( author );
 	root_dir = g_build_path( G_DIR_SEPARATOR_S, Meg_Directory_Document(), directory_name, NULL );/* Create Nice name that can be used as the directory */
-
+	project_id = g_strdup_printf( "%s-%s", short_author, directory_name );
 
 	g_get_current_time( &timestamp );
 
@@ -233,7 +234,7 @@ gchar * AL_CreateProject( const gchar * title )
 
 		/* Create Default game.mokoi file */
 		init_config = g_string_new("");
-		g_string_append_printf(init_config, mokoiInitalConfig, directory_name, g_get_real_name(), timestamp.tv_sec, g_random_int() );
+		g_string_append_printf(init_config, mokoiInitalConfig, directory_name, author, timestamp.tv_sec, project_id );
 
 
 		#ifdef FORCE_PACKAGE
@@ -248,7 +249,8 @@ gchar * AL_CreateProject( const gchar * title )
 		g_string_free( init_config, TRUE);
 		g_free( temp_path );
 
-		gchar * banner_path = g_build_filename( root_dir, "sprites", "__banner.png", NULL);
+		/* Create Banner */
+		gchar * banner_path = g_build_filename( root_dir, "resources", "banner.png", NULL);
 		g_file_set_contents( banner_path, (const gchar *) default_banner, (gsize)default_banner_size, NULL );
 		g_free( banner_path );
 
@@ -276,8 +278,8 @@ void printDir(void *data, const char *origdir, const char *fname)
 }
 
 /********************************
-* AL_LoadProject
-* Check is a project is valid, and loadeds i
+* AL_LoadConfig
+*
 @ path: path to project
 */
 GKeyFile * AL_LoadConfig( const gchar * file_path )
@@ -342,7 +344,7 @@ gchar * AL_CopyProject( const gchar * source )
 	gtk_widget_destroy( message );
 
 
-	file_dialog = gtk_file_chooser_dialog_new("Select Folder", Meg_Main_GetWindow(),
+	file_dialog = gtk_file_chooser_dialog_new( "Select Folder", Meg_Main_GetWindow(),
 											  GTK_FILE_CHOOSER_ACTION_SELECT_FOLDER,
 											  GTK_STOCK_CANCEL, GTK_RESPONSE_CANCEL,
 											  GTK_STOCK_OPEN, GTK_RESPONSE_ACCEPT,
@@ -387,7 +389,6 @@ gchar * AL_LoadProject(const gchar *path )
 	{
 		config_file_path = g_strdup( path );
 	}
-
 
 	/* Project is read only, make a copy of the project */
 	if ( g_access(config_file_path, W_OK) )
