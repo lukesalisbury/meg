@@ -89,9 +89,7 @@ void Patch_ScanCurrent( GtkListStore * store, GSList * game_files )
 	GDir * directory;
 	guint array_count = 0;
 
-
 	gtk_list_store_clear( store );
-
 
 	if ( g_strv_length( mokoiPatchDirectories ) )
 	{
@@ -162,7 +160,7 @@ gpointer Patch_CreationThread( ProgressDialogWidgets * info )
 
 	/* Title and ID */
 	guint32 id = 0;
-	id = AL_Setting_GetNumber( "project.id" );
+	id = AL_Setting_GetNumber( "project.internalid" );
 
 	/* Get Selected File */
 	gtk_tree_model_foreach( GTK_TREE_MODEL(info->list), (GtkTreeModelForeachFunc)Patch_AddFile, &file_list );
@@ -177,8 +175,6 @@ gpointer Patch_CreationThread( ProgressDialogWidgets * info )
 	return NULL;
 
 }
-
-
 
 
 /********************************

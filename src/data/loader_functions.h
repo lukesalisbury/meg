@@ -21,6 +21,7 @@ gchar * Project_Directory2( gchar * path,  gchar * path2 );
 gchar * Project_File( gchar * directory, gchar * file );
 void Project_LoadSpritesheet();
 void Project_Save();
+guint32 Project_GenerateInternalID(const gchar * project_id);
 
 /* Misc Functions */
 

@@ -172,7 +172,7 @@ gpointer GameCompiler_Thread( ProgressDialogWidgets *wids )
 
 	/* Title and ID */
 	g_snprintf( (gchar *)name, 255, "%s", MegProject_Title() );
-	id = AL_Setting_GetNumber( "project.id" );
+	id = AL_Setting_GetNumber( "project.internalid" );
 
 	/* Check for Logo */
 	if ( Meg_file_test("/sprites/__icon.png", (G_FILE_TEST_EXISTS | G_FILE_TEST_IS_REGULAR) ) )

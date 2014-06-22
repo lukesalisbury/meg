@@ -140,14 +140,32 @@ void Project_UnloadSpritesheet()
 
 }
 
+/********************************
+* Project_GenerateInternalID
+*
+*/
+guint32 Project_GenerateInternalID(const gchar * project_id)
+{
+	size_t i;
+	guint32 hash = 0;
+	size_t c = g_utf8_strlen(project_id, -1);
 
+	for (i = 0; i < c; i++)
+	{
+		hash += project_id[i];
+		hash += (hash << 10);
+		hash ^= (hash >> 6);
+	}
+	hash += (hash << 3);
+	hash ^= (hash >> 11);
+	hash += (hash << 15);
+	return hash;
+
+}
 
 /*-------------------------------
 	Misc Functions
 -------------------------------*/
-
-
-
 
 
 

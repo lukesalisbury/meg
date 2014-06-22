@@ -31,6 +31,7 @@ GHashTable * mokoiSettingsTable = NULL;
 gchar * mokoiSettingsLocked[] = {
 	"project.title",
 	"project.id",
+	"project.internalid",
 	"project.file",
 	"player.number",
 	"map.width",

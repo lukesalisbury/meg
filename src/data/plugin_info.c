@@ -122,7 +122,8 @@ gchar * mokoiInitalConfig = "[Mokoi]\n" \
 		"project.title=%s\n"\
 		"project.author=%s\n"\
 		"project.creation=%lu\n"\
-		"project.id=%s\n";
+		"project.id=%s\n"\
+		"project.internalid=%d\n";
 
 /* UI */
 
@@ -234,7 +235,7 @@ gchar * AL_CreateProject( const gchar * title, const gchar * author )
 
 		/* Create Default game.mokoi file */
 		init_config = g_string_new("");
-		g_string_append_printf(init_config, mokoiInitalConfig, directory_name, author, timestamp.tv_sec, project_id );
+		g_string_append_printf(init_config, mokoiInitalConfig, directory_name, author, timestamp.tv_sec, project_id, Project_GenerateInternalID(project_id) );
 
 
 		#ifdef FORCE_PACKAGE
