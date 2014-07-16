@@ -1,5 +1,5 @@
 /****************************
-Copyright © 2007-2013 Luke Salisbury
+Copyright © 2007-2014 Luke Salisbury
 This software is provided 'as-is', without any express or implied warranty. In no event will the authors be held liable for any damages arising from the use of this software.
 
 Permission is granted to anyone to use this software for any purpose, including commercial applications, and to alter it and redistribute it freely, subject to the following restrictions:
@@ -36,8 +36,8 @@ gboolean Meg_HelpParser_Load( GtkTextView * textview, gchar * content );
 gboolean Meg_HelpParser_Event( GtkWidget * text_view, GdkEvent * ev );
 
 /* UI */
-#include "ui/help_page.gui.h"
-const gchar * alchera_help_ui = GUIHELP_PAGE
+#include "ui/page_help.gui.h"
+const gchar * alchera_help_ui = GUIPAGE_HELP;
 
 
 /* Functions */
@@ -77,6 +77,40 @@ gchar * Meg_Help_GetFilePath( const gchar * file )
 	return help_file_path;
 }
 
+/**
+ * @brief Meg_Help_GeneratePage
+ * @param function
+ * @return
+ */
+GString * Meg_Help_GeneratePage( EditorDatabaseListing * function )
+{
+	GString * content = g_string_new("");
+
+	g_string_append_printf( content, "<div xmlns=\"http://www.w3.org/1999/xhtml\">" );
+	g_string_append_printf( content, "<h2>%s</h2>", function->name );
+	g_string_append_printf( content, "<p class=\"fundef\">%s%s</p>", function->name, function->arguments_string );
+	g_string_append_printf( content, "<p>%s</p>", function->info );
+
+
+	GList * argument = function->arguments;
+	while ( argument )
+	{
+		EditorDatabaseListing * argument_item = (EditorDatabaseListing *)argument->data;
+
+		gchar * escaped_string = g_markup_printf_escaped("<p><strong>Argument '%s':</strong>%s</p>", argument_item->name, (argument_item->info ? argument_item->info : "") );
+
+		content = g_string_append( content, escaped_string );
+
+		g_free(escaped_string);
+
+		argument = g_list_next( argument );
+	}
+
+	g_string_append_printf( content, "</div>" );
+
+	return content;
+
+}
 
 
 
@@ -86,30 +120,66 @@ gchar * Meg_Help_GetFilePath( const gchar * file )
 */
 void Meg_Help_Load( const gchar * file, GtkWidget * textview )
 {
-	gchar * help_file_path, * content = NULL;
-
-	help_file_path = Meg_Help_GetFilePath( file );
-
-	if ( !g_file_get_contents(help_file_path, &content, NULL, NULL) )
+	if ( g_str_has_prefix(file, "ScriptAPI/") )
 	{
-		/* Meg_Error_Print( __func__, __LINE__, "Can not open help file '%s'", file ); */
+		EditorDatabaseListing * function = NULL;
+		GSList * function_list = AL_Editor_Database( NULL );
+		GSList * item = function_list;
+		while ( item != NULL )
+		{
+			EditorDatabaseListing * search = (EditorDatabaseListing * )item->data;
+			if ( g_str_has_suffix(file, search->name) )
+			{
+				function = search;
+				break;
+			}
+			item = g_slist_next(item);
+		}
+
+		if ( function == NULL )
+		{
+			if ( !Meg_HelpParser_Load( GTK_TEXT_VIEW(textview), "<div>File Not Found</div>" ) )
+			{
+				Meg_Error_Print( (char*)__func__, __LINE__, "Can not parse help file '%s'", file);
+			}
+		}
+		else
+		{
+			GString * string = Meg_Help_GeneratePage( function );
+			if ( !Meg_HelpParser_Load( GTK_TEXT_VIEW(textview), string->str ) )
+			{
+				Meg_Error_Print( (char*)__func__, __LINE__, "Can not parse help file '%s'", string->str);
+			}
+			g_string_free( string, TRUE );
+		}
+
+	}
+	else
+	{
+		gchar * help_file_path, * content = NULL;
+		help_file_path = Meg_Help_GetFilePath( file );
+
+		if ( !g_file_get_contents(help_file_path, &content, NULL, NULL) )
+		{
+			/* Meg_Error_Print( __func__, __LINE__, "Can not open help file '%s'", file ); */
+			if ( content )
+			{
+				g_free(content);
+			}
+			content = g_strdup_printf("<div>Can not open help file '%s'</div>",file);
+		}
+
 		if ( content )
 		{
-			g_free(content);
+			if ( !Meg_HelpParser_Load( GTK_TEXT_VIEW(textview), content ) )
+			{
+				Meg_Error_Print( (char*)__func__, __LINE__, "Can not parse help file '%s'", file);
+			}
 		}
-		content = g_strdup_printf("<div>Can not open help file '%s'</div>",file);
 
+		g_free(content);
+		g_free(help_file_path);
 	}
-
-	if ( content )
-	{
-		if ( !Meg_HelpParser_Load( GTK_TEXT_VIEW(textview), content ) )
-		{
-			Meg_Error_Print(  (char*)__func__, __LINE__, "Can not parse help file '%s'", file);
-		}
-	}
-	g_free(content);
-	g_free(help_file_path);
 }
 /********************************
 *
@@ -159,7 +229,8 @@ gchar * Meg_Help_GetText( gchar * file )
 void Meg_Help_Open( gchar * file )
 {
 	Meg_Help_Load( file, alchera_help_textview );
-	g_signal_emit_by_name( GTK_TOOL_ITEM(alchera_help_toolbutton), "clicked" );
+	//g_signal_emit_by_name( GTK_TOOL_ITEM(alchera_help_toolbutton), "clicked" );
+	gtk_toggle_tool_button_set_active( GTK_TOGGLE_TOOL_BUTTON(alchera_help_toolbutton), TRUE );
 }
 
 /********************************
@@ -198,16 +269,16 @@ gchar *g_strjoinv_count( const gchar *separator, gchar **str_array, guint count 
 	return res;
 }
 
-/********************************
-*
-*
-*/
+/**
+ * @brief Meg_Help_ScanAddFile
+ * @param file
+ * @param store
+ */
 void Meg_Help_ScanAddFile( gchar * file, GtkTreeStore * store )
 {
 	GtkTreeIter iter;
 	GtkTreeIter * parent = NULL;
 	gchar ** info = g_strsplit( file, "|", 3 );
-
 
 	if ( g_strv_length(info) == 3 )
 	{
@@ -223,6 +294,27 @@ void Meg_Help_ScanAddFile( gchar * file, GtkTreeStore * store )
 	g_strfreev(info);
 }
 
+/**
+ * @brief Meg_Help_AddDirectoryList
+ * @param store
+ * @param title
+ * @param folder_file
+ * @param folder_name
+ * @param parent_folder
+ * @return
+ */
+GtkTreeIter * Meg_Help_AddDirectoryList(  GtkTreeStore * store, const gchar * title, const gchar * folder_file, const gchar * folder_name, GtkTreeIter * parent_folder )
+{
+	GtkTreeIter * folder = g_new0(GtkTreeIter, 1);
+
+	gtk_tree_store_append( store, folder, parent_folder );
+	gtk_tree_store_set( store, folder, 0, g_strdup(title), 1, g_strdup(folder_file), 2, "", 3, 1, -1 );
+	g_hash_table_insert( alchera_help_folders_list, g_strdup(folder_file), folder );
+	g_hash_table_insert( alchera_help_folders_list, g_strdup(folder_name), folder );
+
+	return folder;
+}
+
 /********************************
 *
 *
@@ -236,6 +328,7 @@ void Meg_Help_ScanDirectory( GtkTreeStore * store, GtkTreeIter * parent, gchar *
 	gchar * path = g_build_path( G_DIR_SEPARATOR_S, Meg_Directory_Share("help"), "en", dir, NULL );
 	GDir * directory = g_dir_open( path, 0, NULL );
 	GSList * file_list = NULL;
+	GSList * function_list = AL_Editor_Database( NULL );
 
 	if ( directory )
 	{
@@ -276,12 +369,7 @@ void Meg_Help_ScanDirectory( GtkTreeStore * store, GtkTreeIter * parent, gchar *
 
 							if ( !folder )
 							{
-								folder = g_new0(GtkTreeIter, 1);
-
-								gtk_tree_store_append( store, folder, parent_folder );
-								gtk_tree_store_set( store, folder, 0, g_strdup(folders[c]), 1, g_strdup(folder_file), 2, "", 3, 1, -1 );
-								g_hash_table_insert( alchera_help_folders_list, g_strdup(folder_file), folder );
-								g_hash_table_insert( alchera_help_folders_list, g_strdup(folder_name), folder );
+								folder = Meg_Help_AddDirectoryList( store, folders[c], folder_file, folder_name, parent_folder );
 							}
 
 							parent_folder = folder;
@@ -310,10 +398,22 @@ void Meg_Help_ScanDirectory( GtkTreeStore * store, GtkTreeIter * parent, gchar *
 	if ( g_slist_length(file_list) == 0 )
 	{
 		file_list = g_slist_append( file_list, "Editor|Editor|Editor.xml" );
-		file_list = g_slist_append( file_list, "ScriptAPI|ScriptAPI|ScriptAPI.xml" );
 		file_list = g_slist_append( file_list, "Tutorials|Tutorials|Tutorials.xml" );
 	}
 
+	/* Script API Scan */
+	file_list = g_slist_append( file_list, "ScriptAPI|ScriptAPI|ScriptAPI.xml" );
+	Meg_Help_AddDirectoryList( store, "ScriptAPI", "ScriptAPI.xml", "ScriptAPI", NULL );
+
+	GSList * item = function_list;
+	while ( item != NULL )
+	{
+		EditorDatabaseListing * function = (EditorDatabaseListing * )item->data;
+		file_list = g_slist_append( file_list, (gpointer)g_strdup_printf("%s|%s|ScriptAPI/%s", (char*)function->name, "ScriptAPI", (char*)function->name) );
+		item = g_slist_next(item);
+	}
+
+	/* */
 	g_slist_foreach( file_list, (GFunc)Meg_Help_ScanAddFile, store);
 }
 

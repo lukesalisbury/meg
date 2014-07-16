@@ -1,5 +1,5 @@
 /****************************
-Copyright © 2007-2013 Luke Salisbury
+Copyright © 2007-2014 Luke Salisbury
 This software is provided 'as-is', without any express or implied warranty. In no event will the authors be held liable for any damages arising from the use of this software.
 
 Permission is granted to anyone to use this software for any purpose, including commercial applications, and to alter it and redistribute it freely, subject to the following restrictions:
@@ -155,7 +155,7 @@ static void script_auto_complete_provider_populate( GtkSourceCompletionProvider 
 					}
 					else
 						*/
-						if ( g_str_has_prefix( listing->name, word ) )
+					if ( g_str_has_prefix( listing->name, word ) )
 					{
 						proposals = g_list_prepend( proposals, gtk_source_completion_item_new_with_markup(markup2, listing->name, NULL, listing->info ) );
 					}

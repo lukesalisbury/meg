@@ -1,5 +1,5 @@
 /****************************
-Copyright © 2007-2013 Luke Salisbury
+Copyright © 2007-2014 Luke Salisbury
 This software is provided 'as-is', without any express or implied warranty. In no event will the authors be held liable for any damages arising from the use of this software.
 
 Permission is granted to anyone to use this software for any purpose, including commercial applications, and to alter it and redistribute it freely, subject to the following restrictions:
@@ -90,7 +90,8 @@ gboolean Meg_Loaders_Init( gchar * project_path )
 
 		/* Switch to project info widget */
 		default_item = gtk_toolbar_get_nth_item( GTK_TOOLBAR(alchera_main_toolbar), 0 );
-		g_signal_emit_by_name( default_item, "clicked" );
+		gtk_toggle_tool_button_set_active( GTK_TOGGLE_TOOL_BUTTON(default_item), TRUE );
+		//g_signal_emit_by_name( default_item, "clicked" );
 
 		g_free(project_directory);
 

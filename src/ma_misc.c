@@ -1,5 +1,5 @@
 /****************************
-Copyright © 2007-2013 Luke Salisbury
+Copyright © 2007-2014 Luke Salisbury
 This software is provided 'as-is', without any express or implied warranty. In no event will the authors be held liable for any damages arising from the use of this software.
 
 Permission is granted to anyone to use this software for any purpose, including commercial applications, and to alter it and redistribute it freely, subject to the following restrictions:
@@ -17,6 +17,12 @@ Permission is granted to anyone to use this software for any purpose, including 
 
 /* Global Variables */
 extern GKeyFile * meg_pref_storage;
+
+cairo_status_t megBitFontStatus = CAIRO_STATUS_NULL_POINTER;
+cairo_font_face_t * megBitFont = NULL;
+
+
+cairo_status_t meg_bit_font_face_create(cairo_font_face_t **out);
 
 /* UI */
 
@@ -588,5 +594,21 @@ gulong Meg_FileCRC( const gchar * filename )
 
 	return crc;
 }
+/**
+ * @brief Meg_GetBitmapFont
+ * @return
+ */
+cairo_font_face_t * Meg_GetBitmapFont()
+{
+	if ( megBitFontStatus == CAIRO_STATUS_NULL_POINTER )
+	{
+		megBitFontStatus = meg_bit_font_face_create( &megBitFont );
+	}
 
+	if ( megBitFont == NULL )
+	{
+		megBitFont = cairo_toy_font_face_create( "monospace", CAIRO_FONT_SLANT_NORMAL, CAIRO_FONT_WEIGHT_NORMAL );
+	}
 
+	return megBitFont;
+}

@@ -2,35 +2,33 @@
 <interface>
   <requires lib="gtk+" version="2.20"/>
   <!-- interface-naming-policy toplevel-contextual -->
-  <object class="GtkAction" id="actionAddMap">
-    <property name="label" translatable="yes">Add Map</property>
+  <object class="GtkAction" id="actionAddSection">
+    <property name="label" translatable="yes">Add Section</property>
     <property name="short_label" translatable="yes">Add</property>
-    <property name="tooltip" translatable="yes">Create or import new map</property>
+    <property name="tooltip" translatable="yes">Create or import new section</property>
     <property name="stock_id">gtk-add</property>
     <property name="always_show_image">True</property>
   </object>
-  <object class="GtkAction" id="actionRemoveMap">
-    <property name="label" translatable="yes">Remove Map</property>
-    <property name="short_label" translatable="yes">Remove</property>
-    <property name="tooltip" translatable="yes">Remove current selected map</property>
+  <object class="GtkAction" id="actionRemoveSection">
+    <property name="label" translatable="yes">Remove Section</property>
+    <property name="short_label" translatable="yes">remove</property>
+    <property name="tooltip" translatable="yes">Remove the current selected map</property>
     <property name="stock_id">gtk-remove</property>
     <property name="always_show_image">True</property>
   </object>
-  <object class="GtkListStore" id="store_map">
+  <object class="GtkListStore" id="store_section">
     <columns>
-      <!-- column-name Display -->
+      <!-- column-name Section -->
       <column type="gchararray"/>
-      <!-- column-name text -->
+      <!-- column-name gchararray1 -->
       <column type="gchararray"/>
       <!-- column-name GdkPixbuf1 -->
       <column type="GdkPixbuf"/>
-      <!-- column-name windows -->
+      <!-- column-name window -->
       <column type="gpointer"/>
-      <!-- column-name notice -->
-      <column type="gchararray"/>
     </columns>
   </object>
-  <object class="GtkVBox" id="map_widget">
+  <object class="GtkVBox" id="section_widget">
     <property name="can_focus">False</property>
     <child>
       <object class="GtkEventBox" id="alchera-title">
@@ -44,7 +42,6 @@
                 <property name="xpad">2</property>
                 <property name="ypad">2</property>
                 <property name="stock">gtk-zoom-fit</property>
-                <property name="icon-size">1</property>
               </object>
               <packing>
                 <property name="expand">False</property>
@@ -56,7 +53,7 @@
               <object class="GtkLabel" id="alchera-label">
                 <property name="can_focus">False</property>
                 <property name="xalign">0</property>
-                <property name="label" translatable="yes">&lt;b&gt;Map Editor&lt;/b&gt;</property>
+                <property name="label" translatable="yes">&lt;b&gt;World Editor&lt;/b&gt;</property>
                 <property name="use_markup">True</property>
               </object>
               <packing>
@@ -75,37 +72,35 @@
       </packing>
     </child>
     <child>
-      <object class="GtkNotebook" id="map_notebook">
+      <object class="GtkNotebook" id="section_notebook">
         <property name="visible">True</property>
         <property name="can_focus">True</property>
-        <property name="group_id">1</property>
         <child>
           <object class="GtkHBox" id="hbox2">
             <property name="visible">True</property>
             <property name="can_focus">False</property>
             <property name="homogeneous">True</property>
             <child>
-              <object class="GtkVBox" id="vbox3">
+              <object class="GtkVBox" id="vbox2">
                 <property name="visible">True</property>
                 <property name="can_focus">False</property>
                 <child>
-                  <object class="GtkScrolledWindow" id="scrolledwindow2">
+                  <object class="GtkScrolledWindow" id="scrolledwindow1">
                     <property name="visible">True</property>
                     <property name="can_focus">True</property>
                     <property name="hscrollbar_policy">automatic</property>
                     <property name="vscrollbar_policy">automatic</property>
                     <child>
-                      <object class="GtkTreeView" id="treeview_map">
+                      <object class="GtkTreeView" id="treeview_section">
                         <property name="visible">True</property>
                         <property name="can_focus">True</property>
-                        <property name="model">store_map</property>
+                        <property name="model">store_section</property>
                         <property name="headers_clickable">False</property>
-                        <property name="search_column">1</property>
+                        <property name="search_column">0</property>
                         <child>
-                          <object class="GtkTreeViewColumn" id="treeviewcolumn3">
-                            <property name="max_width">64</property>
+                          <object class="GtkTreeViewColumn" id="treeviewcolumn4">
                             <child>
-                              <object class="GtkCellRendererPixbuf" id="cellrendererpixbuf1"/>
+                              <object class="GtkCellRendererPixbuf" id="cellrendererpixbuf2"/>
                               <attributes>
                                 <attribute name="pixbuf">2</attribute>
                               </attributes>
@@ -113,16 +108,16 @@
                           </object>
                         </child>
                         <child>
-                          <object class="GtkTreeViewColumn" id="treeviewcolumn1">
+                          <object class="GtkTreeViewColumn" id="treeviewcolumn2">
                             <property name="title">Files</property>
                             <child>
-                              <object class="GtkCellRendererText" id="cellrenderertext1"/>
+                              <object class="GtkCellRendererText" id="cellrenderertext3"/>
                               <attributes>
                                 <attribute name="text">0</attribute>
                               </attributes>
                             </child>
                             <child>
-                              <object class="GtkCellRendererText" id="cellrenderertext2"/>
+                              <object class="GtkCellRendererText" id="cellrenderertext4"/>
                               <attributes>
                                 <attribute name="markup">1</attribute>
                               </attributes>
@@ -139,13 +134,13 @@
                   </packing>
                 </child>
                 <child>
-                  <object class="GtkHButtonBox" id="hbuttonbox2">
+                  <object class="GtkHButtonBox" id="hbuttonbox1">
                     <property name="visible">True</property>
                     <property name="can_focus">False</property>
                     <property name="layout_style">spread</property>
                     <child>
-                      <object class="GtkButton" id="button_addmap">
-                        <property name="related_action">actionAddMap</property>
+                      <object class="GtkButton" id="button_addsection">
+                        <property name="related_action">actionAddSection</property>
                         <property name="visible">True</property>
                         <property name="can_focus">True</property>
                         <property name="receives_default">True</property>
@@ -158,8 +153,8 @@
                       </packing>
                     </child>
                     <child>
-                      <object class="GtkButton" id="button_removemap">
-                        <property name="related_action">actionRemoveMap</property>
+                      <object class="GtkButton" id="button_removesection">
+                        <property name="related_action">actionRemoveSection</property>
                         <property name="visible">True</property>
                         <property name="can_focus">True</property>
                         <property name="receives_default">True</property>
@@ -187,7 +182,7 @@
               </packing>
             </child>
             <child>
-              <object class="GtkScrolledWindow" id="scrolledwindow1">
+              <object class="GtkScrolledWindow" id="scrolledwindow2">
                 <property name="visible">True</property>
                 <property name="can_focus">True</property>
                 <property name="hscrollbar_policy">automatic</property>
@@ -212,15 +207,12 @@
               </packing>
             </child>
           </object>
-          <packing>
-            <property name="menu_label">Map</property>
-          </packing>
         </child>
         <child type="tab">
-          <object class="GtkLabel" id="label1">
+          <object class="GtkLabel" id="label4">
             <property name="visible">True</property>
             <property name="can_focus">False</property>
-            <property name="label" translatable="yes">&lt;b&gt;Maps&lt;/b&gt;</property>
+            <property name="label" translatable="yes">&lt;b&gt;List&lt;/b&gt;</property>
             <property name="use_markup">True</property>
           </object>
           <packing>

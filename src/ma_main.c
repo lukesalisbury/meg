@@ -1,5 +1,5 @@
 /****************************
-Copyright © 2007-2013 Luke Salisbury
+Copyright © 2007-2014 Luke Salisbury
 This software is provided 'as-is', without any express or implied warranty. In no event will the authors be held liable for any damages arising from the use of this software.
 
 Permission is granted to anyone to use this software for any purpose, including commercial applications, and to alter it and redistribute it freely, subject to the following restrictions:
@@ -38,6 +38,7 @@ extern gchar * project_file_path;
 
 /* Local Variables */
 GtkTextTag * alchera_log_bold, * alchera_log_error, * alchera_log_fine;
+GtkToggleToolButton * main_active_toolbutton = NULL;
 
 const GtkTargetEntry meg_window_drop_targets = { "text/uri-list", GTK_TARGET_OTHER_APP, 1 };
 
@@ -49,29 +50,53 @@ gboolean Meg_Event_Drop( GtkWidget *widget, GdkDragContext *context, gint x, gin
 void Meg_Event_DropReceived( GtkWidget *widget, GdkDragContext *context, gint x, gint y, GtkSelectionData *data, guint ttype, guint time, gpointer user_data );
 gboolean Funclist_Scan( );
 
-/* UI */
 
+/* UI */
 #include "ui/main_window.gui.h"
-const gchar * alchera_main_ui = GUIMAIN_WINDOW
+const gchar * alchera_main_ui = GUIMAIN_WINDOW;
 
 /********************************
-* Meg_Main_ToolbarClicked
+* Meg_Main_ToolbarSetActive
 *
 */
-void Meg_Main_ToolbarClicked(GtkToolButton * toolbutton, gpointer user_data)
+void Meg_Main_ToolbarSetActive( GtkToggleToolButton * current_button )
+{
+	if ( main_active_toolbutton != current_button && main_active_toolbutton != NULL )
+	{
+		gtk_toggle_tool_button_set_active( main_active_toolbutton, FALSE );
+	}
+
+	main_active_toolbutton = current_button;
+}
+
+
+/********************************
+* Meg_Main_ToolbarToggle
+*
+*/
+void Meg_Main_ToolbarToggle( GtkToggleToolButton * toolbutton, gpointer user_data)
 {
 	if ( project_file_path )
 	{
-		GList * child_list = gtk_container_get_children( GTK_CONTAINER(alchera_main_frame) );
-		GtkWidget * child = (GtkWidget *)g_list_nth_data( child_list, 0 );
-		if ( child )
+		if ( gtk_toggle_tool_button_get_active( GTK_TOGGLE_TOOL_BUTTON(toolbutton) ) == TRUE )
 		{
-			gtk_container_remove( GTK_CONTAINER(alchera_main_frame), child );
+			GList * child_list = gtk_container_get_children( GTK_CONTAINER(alchera_main_frame) );
+			GtkWidget * child = (GtkWidget *)g_list_nth_data( child_list, 0 );
+
+			if ( child )
+			{
+				gtk_container_remove( GTK_CONTAINER(alchera_main_frame), child );
+			}
+
+			gtk_container_add( GTK_CONTAINER(alchera_main_frame), GTK_WIDGET(user_data) );
+			gtk_widget_show_all( GTK_WIDGET(user_data));
+
+			Meg_Main_ToolbarSetActive( GTK_TOGGLE_TOOL_BUTTON(toolbutton) );
 		}
-		gtk_container_add( GTK_CONTAINER(alchera_main_frame), GTK_WIDGET(user_data) );
-		gtk_widget_show_all( GTK_WIDGET(user_data));
 	}
+
 }
+
 
 /********************************
 * Meg_Main_GetWindow
@@ -156,6 +181,7 @@ void Meg_Log_Enable()
 	Meg_Log_SetBuffer( gtk_text_view_get_buffer( GTK_TEXT_VIEW(alchera_main_textlog) ) );
 }
 
+
 /********************************
 * Meg_Main_Init
 *
@@ -239,56 +265,22 @@ gboolean Meg_Main_Init()
 	gtk_toolbar_insert(GTK_TOOLBAR(alchera_main_toolbar), button_play, 0);
 
 
-	g_print("%f\n", g_timer_elapsed(yimer, NULL) );
-
-	g_print("----Funclist_Scan: ");
 	Funclist_Scan( );
-	g_print("%f\n", g_timer_elapsed(yimer, NULL) );
-
 
 	/* Tab pages */
 
-	g_print("----Meg_Log_Init: ");
 	Meg_Main_AddSection( GET_WIDGET(ui, "scrolledwindow3"), "Log", PAGE_ICON_LOG );
-	g_print("%f\n", g_timer_elapsed(yimer, NULL) );
-
-	g_print("----MegWidget_Questions_Create: ");
 	MegWidget_Questions_Create();
-	g_print("%f\n", g_timer_elapsed(yimer, NULL) );
-
-
-	g_print("----MegWidget_Help_Create: ");
 	MegWidget_Help_Create();
-	g_print("%f\n", g_timer_elapsed(yimer, NULL) );
-
-	g_print("----MegWidget_EntityList_Create: ");
 	MegWidget_EntityList_Create();
-	g_print("%f\n", g_timer_elapsed(yimer, NULL) );
-
-	g_print("----MegWidget_Audio_Create: ");
 	MegWidget_Audio_Create();
-	g_print("%f\n", g_timer_elapsed(yimer, NULL) );
-
-	g_print("----MegWidget_Section_Create: ");
 	MegWidget_Section_Create();
-	g_print("%f\n", g_timer_elapsed(yimer, NULL) );
-
-
-	g_print("----MegWidget_Map_Create: ");
 	MegWidget_Map_Create();
-	g_print("%f\n", g_timer_elapsed(yimer, NULL) );
-
-	g_print("----MegWidget_Spritesheet_Create: ");
 	MegWidget_Spritesheet_Create();
-	g_print("%f\n", g_timer_elapsed(yimer, NULL) );
-
-	g_print("----MegWidget_Language_Create: ");
 	MegWidget_Language_Create();
-	g_print("%f\n", g_timer_elapsed(yimer, NULL) );
-
-
-	g_print("----MegWidget_Project_Create: ");
 	MegWidget_Project_Create();
+
+
 	g_print("%f\n", g_timer_elapsed(yimer, NULL) );
 
 
@@ -316,12 +308,14 @@ GtkWidget * Meg_Main_AddSection( GtkWidget * section_widget, gchar * section_tit
 
 	if ( section_icon )
 	{
-		//icon_widget = gtk_image_new_from_stock(section_icon, GTK_ICON_SIZE_LARGE_TOOLBAR);
 		icon_widget = gtk_image_new_from_icon_name( section_icon, GTK_ICON_SIZE_LARGE_TOOLBAR  );
 	}
-	toolbutton = gtk_tool_button_new( icon_widget, section_title);
+	toolbutton = gtk_toggle_tool_button_new( );
 
-	g_signal_connect(toolbutton, "clicked", G_CALLBACK (Meg_Main_ToolbarClicked), section_widget);
+	gtk_tool_button_set_icon_widget ( GTK_TOOL_BUTTON(toolbutton), icon_widget );
+	gtk_tool_button_set_label( GTK_TOOL_BUTTON(toolbutton), section_title );
+
+	g_signal_connect(toolbutton, "toggled", G_CALLBACK (Meg_Main_ToolbarToggle), section_widget);
 
 	gtk_toolbar_insert(GTK_TOOLBAR(alchera_main_toolbar), toolbutton, 0);
 	gtk_widget_show_all(alchera_main_toolbar);

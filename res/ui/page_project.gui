@@ -110,7 +110,7 @@
             <property name="xpad">2</property>
             <property name="ypad">2</property>
             <property name="stock">gtk-info</property>
-            <property name="icon-size">1</property>
+            
           </object>
           <packing>
             <property name="expand">False</property>

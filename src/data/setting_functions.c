@@ -1,5 +1,5 @@
 /****************************
-Copyright © 2007-2013 Luke Salisbury
+Copyright © 2007-2014 Luke Salisbury
 This software is provided 'as-is', without any express or implied warranty. In no event will the authors be held liable for any damages arising from the use of this software.
 
 Permission is granted to anyone to use this software for any purpose, including commercial applications, and to alter it and redistribute it freely, subject to the following restrictions:
@@ -15,6 +15,7 @@ Permission is granted to anyone to use this software for any purpose, including 
 /* Required Headers */
 #include "setting_functions.h"
 #include "package.h"
+#include "loader_functions.h"
 
 /* Global Variables */
 extern GError * mokoiError;
@@ -330,7 +331,18 @@ void Setting_WidgetWrite(gchar * name, GObject * wid )
 	}
 	else if ( !g_ascii_strcasecmp( G_OBJECT_TYPE_NAME(wid), "GtkLabel" ) )
 	{
-		gtk_label_set_markup( GTK_LABEL(wid), AL_Setting_GetString(name) );
+		if ( !g_ascii_strcasecmp("project.id", name) )
+		{
+			gchar * ident = AL_Setting_GetString("project.id");
+			gchar * markup = g_markup_printf_escaped( "%s [%X]", ident, Project_GenerateInternalID(ident) );
+			gtk_label_set_markup( GTK_LABEL(wid), markup );
+			g_free( ident );
+			g_free( markup );
+		}
+		else
+		{
+			gtk_label_set_markup( GTK_LABEL(wid), AL_Setting_GetString(name) );
+		}
 	}
 	else
 	{

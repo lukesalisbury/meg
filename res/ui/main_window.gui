@@ -128,7 +128,6 @@
                     </child>
                     <child>
                       <object class="GtkSeparatorMenuItem" id="menuitem8">
-                        <property name="use_action_appearance">False</property>
                         <property name="visible">True</property>
                         <property name="can_focus">False</property>
                       </object>
@@ -261,7 +260,6 @@
             </child>
             <child>
               <object class="GtkMenuItem" id="menuitem1">
-                <property name="use_action_appearance">False</property>
                 <property name="visible">True</property>
                 <property name="can_focus">False</property>
                 <property name="label" translatable="yes">Content</property>
@@ -286,7 +284,6 @@
                     </child>
                     <child>
                       <object class="GtkSeparatorMenuItem" id="menuitem3">
-                        <property name="use_action_appearance">False</property>
                         <property name="visible">True</property>
                         <property name="can_focus">False</property>
                       </object>
@@ -316,6 +313,8 @@
             <property name="events">GDK_POINTER_MOTION_MASK | GDK_POINTER_MOTION_HINT_MASK | GDK_BUTTON_PRESS_MASK | GDK_BUTTON_RELEASE_MASK</property>
             <property name="toolbar_style">both</property>
             <property name="show_arrow">False</property>
+            <property name="icon_size">4</property>
+            <property name="icon_size_set">True</property>
           </object>
           <packing>
             <property name="expand">False</property>
@@ -350,6 +349,7 @@
           <object class="GtkStatusbar" id="alchera_main_statusbar">
             <property name="visible">True</property>
             <property name="can_focus">False</property>
+            <property name="spacing">2</property>
           </object>
           <packing>
             <property name="expand">False</property>

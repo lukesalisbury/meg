@@ -1,5 +1,5 @@
 /****************************
-Copyright © 2007-2013 Luke Salisbury
+Copyright © 2007-2014 Luke Salisbury
 This software is provided 'as-is', without any express or implied warranty. In no event will the authors be held liable for any damages arising from the use of this software.
 
 Permission is granted to anyone to use this software for any purpose, including commercial applications, and to alter it and redistribute it freely, subject to the following restrictions:
@@ -30,6 +30,7 @@ DisplayObject * AL_Object_Get( MapInfo * map_info, gint id);
 gboolean AL_Object_Remove( MapInfo * map_info, gint id);
 gboolean AL_Object_Update( MapInfo * map_info, gint id, gdouble x, gdouble y, gdouble w, gdouble h, gint z );
 gboolean AL_Object_Advance( MapInfo * map_info, gint id, GtkWindow * window );
+cairo_font_face_t * Meg_GetBitmapFont();
 
 /* UI */
 
@@ -520,8 +521,11 @@ void Alchera_DisplayObject_DrawBitText(DisplayObject* object, cairo_t *cr)
 {
 	if ( !object->text )
 		return;
+
+
 	cairo_text_extents_t extents;
-	cairo_select_font_face( cr, "monospace", CAIRO_FONT_SLANT_NORMAL, CAIRO_FONT_WEIGHT_NORMAL );
+	cairo_set_font_face( cr, Meg_GetBitmapFont() );// TODO MODIFY
+
 	cairo_set_font_size( cr, 8.0 );
 	cairo_text_extents( cr, object->text, &extents );
 	cairo_move_to( cr, object->x , object->y + extents.height );

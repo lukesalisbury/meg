@@ -1,5 +1,5 @@
 /****************************
-Copyright © 2007-2013 Luke Salisbury
+Copyright © 2007-2014 Luke Salisbury
 This software is provided 'as-is', without any express or implied warranty. In no event will the authors be held liable for any damages arising from the use of this software.
 
 Permission is granted to anyone to use this software for any purpose, including commercial applications, and to alter it and redistribute it freely, subject to the following restrictions:
@@ -154,32 +154,51 @@ GHashTable * EntityOptionParser_Load(gchar * file)
 */
 void EntityOptionEditor_Menu_Add( GtkWidget * menuitem, GtkWidget *treeview )
 {
-	GtkWidget * dialog, * label;
+	GtkWidget * dialog, * label, * combo, * vbox;
 
 	/* Create the widgets */
-	dialog = gtk_dialog_new_with_buttons( "New Option", NULL, GTK_DIALOG_DESTROY_WITH_PARENT, GTK_STOCK_OK, GTK_RESPONSE_ACCEPT, NULL );
+	dialog = gtk_dialog_new_with_buttons( "Add New Option", Meg_Misc_ParentWindow(treeview), GTK_DIALOG_DESTROY_WITH_PARENT, GTK_STOCK_OK, GTK_RESPONSE_ACCEPT, NULL );
 	label = gtk_entry_new();
+	combo = gtk_combo_box_new();
+	vbox = gtk_box_new( GTK_ORIENTATION_HORIZONTAL, 1 );
+
+	Meg_ComboText_Setup( combo, TRUE );
+
+	/**/
+	Meg_ComboText_AppendText( GTK_COMBO_BOX(combo), "" );
+	Meg_ComboText_AppendText( GTK_COMBO_BOX(combo), "boolean" );
+	Meg_ComboText_AppendText( GTK_COMBO_BOX(combo), "music" );
+	Meg_ComboText_AppendText( GTK_COMBO_BOX(combo), "soundfx" );
+	Meg_ComboText_AppendText( GTK_COMBO_BOX(combo), "entity" );
+	Meg_ComboText_AppendText( GTK_COMBO_BOX(combo), "section" );
+	Meg_ComboText_AppendText( GTK_COMBO_BOX(combo), "sectionmap" );
+	Meg_ComboText_AppendText( GTK_COMBO_BOX(combo), "map" );
+	Meg_ComboText_AppendText( GTK_COMBO_BOX(combo), "mapentity" );
+
 
 	/* Add the label, and show everything we've added to the dialog.*/
-	gtk_container_add( GTK_CONTAINER (gtk_dialog_get_content_area( GTK_DIALOG(dialog) )), label );
-	gtk_widget_show( label );
+	gtk_container_add( GTK_CONTAINER(vbox), label );
+	gtk_container_add( GTK_CONTAINER(vbox), combo );
+	gtk_container_add( GTK_CONTAINER(gtk_dialog_get_content_area( GTK_DIALOG(dialog) )), vbox );
+	gtk_widget_show_all( vbox );
 
-	gtk_window_set_transient_for( GTK_WINDOW(dialog), Meg_Misc_ParentWindow(treeview) );
 
 	gint result = gtk_dialog_run( GTK_DIALOG(dialog) );
 	if ( result == GTK_RESPONSE_ACCEPT )
 	{
 		const gchar * title = gtk_entry_get_text( GTK_ENTRY(label) );
+		const gchar * type = Meg_ComboText_GetText( GTK_COMBO_BOX(combo) );
+
 
 		GtkTreeIter iter;
 		GtkTreeModel * model = gtk_tree_view_get_model( GTK_TREE_VIEW(treeview) );
 		GHashTable * settings = g_object_get_data( G_OBJECT(model), "runtime-hashtable" );
 
-		EntityOption_InsertNew( settings, title, "", NULL );
+		EntityOption_InsertNew( settings, title, "", type );
 
 
 		gtk_list_store_append( GTK_LIST_STORE(model), &iter );
-		gtk_list_store_set( GTK_LIST_STORE(model), &iter, 0, g_strdup(title), 1, "", 2, "", -1 );
+		gtk_list_store_set( GTK_LIST_STORE(model), &iter, 0, g_strdup(title), 1, "", 2, g_strdup(type), -1 );
 
 	}
 	gtk_widget_destroy(dialog);
@@ -340,7 +359,7 @@ gboolean EntityOptionEditor_Open( gchar * entity_name )
 	SET_OBJECT_SIGNAL( ui, "cell_type", "edited", G_CALLBACK(EntityOptionEditor_EditStoreType), tree_items );
 
 	/* Label */
-	Meg_Misc_SetLabel(label, entity_name, "Options", ' ' );
+	Meg_Misc_SetLabel(label, entity_name, "Options", '\n' );
 
 	gtk_widget_show_all( gtk_dialog_get_content_area( GTK_DIALOG(dialog) ) );
 	gtk_window_set_transient_for( GTK_WINDOW(dialog), Meg_Main_GetWindow() );

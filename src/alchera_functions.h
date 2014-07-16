@@ -77,6 +77,8 @@
 	void Meg_ComboText_Clear( GtkComboBox * widget );
 	void Meg_ComboText_SetIndex( GtkComboBox * widget, gchar * search );
 
+	/* */
+
 
 	/* */
 	void Meg_Misc_SetLabel( GtkWidget *label, gchar * section, gchar * text, gchar sep );

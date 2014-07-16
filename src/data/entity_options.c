@@ -1,5 +1,5 @@
 /****************************
-Copyright © 2007-2013 Luke Salisbury
+Copyright © 2007-2014 Luke Salisbury
 This software is provided 'as-is', without any express or implied warranty. In no event will the authors be held liable for any damages arising from the use of this software.
 
 Permission is granted to anyone to use this software for any purpose, including commercial applications, and to alter it and redistribute it freely, subject to the following restrictions:
@@ -155,7 +155,7 @@ EntityOptionStruct * EntityOption_Copy( EntityOptionStruct * value )
 * EntityOption_InsertNew
 *
 */
-void EntityOption_InsertNew( GHashTable * settings_table, const gchar * key, const gchar * value, const gchar * type )
+EntityOptionStruct * EntityOption_InsertNew( GHashTable * settings_table, const gchar * key, const gchar * value, const gchar * type )
 {
 	EntityOptionStruct * option = EntityOption_New( value, type );
 
@@ -165,6 +165,8 @@ void EntityOption_InsertNew( GHashTable * settings_table, const gchar * key, con
 	}
 
 	g_hash_table_insert( settings_table, g_strdup(key), option );
+
+	return option;
 }
 
 /********************************
@@ -409,26 +411,47 @@ gboolean EntityOption_BooleanCheck( GHashTable * settings_table, gchar * value )
 */
 void EntityOption_AddOption( GtkButton * button, GtkWidget * table )
 {
-	GtkWidget * dialog, * label;
+	GtkWidget * dialog, * label, * combo, * vbox;
 
 	/* Create the widgets */
-	dialog = gtk_dialog_new_with_buttons( "New Option", NULL, GTK_DIALOG_DESTROY_WITH_PARENT, GTK_STOCK_OK, GTK_RESPONSE_ACCEPT, NULL );
+	dialog = gtk_dialog_new_with_buttons( "Add New Option", Meg_Misc_ParentWindow(table), GTK_DIALOG_DESTROY_WITH_PARENT, GTK_STOCK_OK, GTK_RESPONSE_ACCEPT, NULL );
 	label = gtk_entry_new();
+	combo = gtk_combo_box_new();
+	vbox = gtk_box_new( GTK_ORIENTATION_VERTICAL, 1 );
+
+	Meg_ComboText_Setup( combo, TRUE );
+
+	/**/
+	Meg_ComboText_AppendText( GTK_COMBO_BOX(combo), "" );
+	Meg_ComboText_AppendText( GTK_COMBO_BOX(combo), "boolean" );
+	Meg_ComboText_AppendText( GTK_COMBO_BOX(combo), "music" );
+	Meg_ComboText_AppendText( GTK_COMBO_BOX(combo), "soundfx" );
+	Meg_ComboText_AppendText( GTK_COMBO_BOX(combo), "entity" );
+	Meg_ComboText_AppendText( GTK_COMBO_BOX(combo), "section" );
+	Meg_ComboText_AppendText( GTK_COMBO_BOX(combo), "sectionmap" );
+	Meg_ComboText_AppendText( GTK_COMBO_BOX(combo), "map" );
+	Meg_ComboText_AppendText( GTK_COMBO_BOX(combo), "mapentity" );
+
+
 
 	/* Add the label, and show everything we've added to the dialog.*/
-	gtk_container_add( GTK_CONTAINER (gtk_dialog_get_content_area( GTK_DIALOG(dialog) )), label );
-	gtk_widget_show( label );
+	gtk_container_add( GTK_CONTAINER(vbox), label );
+	gtk_container_add( GTK_CONTAINER(vbox), combo );
+	gtk_container_add( GTK_CONTAINER(gtk_dialog_get_content_area( GTK_DIALOG(dialog) )), vbox );
+	gtk_widget_show_all( vbox );
 
 
-	if ( gtk_dialog_run( GTK_DIALOG(dialog) ) == GTK_RESPONSE_ACCEPT )
+	gint result = gtk_dialog_run( GTK_DIALOG(dialog) );
+	if ( result == GTK_RESPONSE_ACCEPT )
 	{
 		const gchar * title = gtk_entry_get_text( GTK_ENTRY(label) );
+		const gchar * type = Meg_ComboText_GetText( GTK_COMBO_BOX(combo) );
 
 		GHashTable * settings = g_object_get_data( G_OBJECT(table), "runtime-hashtable" );
 
-		EntityOptionStruct * option = EntityOption_New("", "");
+		EntityOptionStruct * option = EntityOption_InsertNew( settings, title, "", type );
 
-		g_hash_table_insert( settings, g_strdup(title), option );
+
 		EntityOption_CreateWidget( (gchar*)title, option, table );
 		EntityOption_AttachWidget( (gchar*)title, option, table );
 
@@ -787,44 +810,45 @@ void EntityOption_AttachWidget( const gchar * name, EntityOptionStruct * option,
 void EntityOption_SaveWidget_Foreach( const gchar * name, EntityOptionStruct * option, gpointer data )
 {
 	g_return_if_fail( option );
-	g_return_if_fail( option->widget );
 
-	if ( !g_ascii_strcasecmp( G_OBJECT_TYPE_NAME(option->widget), "GtkEntry" ) )
+	if ( option->widget )
 	{
-		const gchar * value_str = gtk_entry_get_text( GTK_ENTRY(option->widget) );
-		option->value = g_strdup( value_str );
-	}
-	else if ( !g_ascii_strcasecmp( G_OBJECT_TYPE_NAME(option->widget), "GtkSpinButton" ) )
-	{
-
-		gint value = gtk_spin_button_get_value_as_int(GTK_SPIN_BUTTON(option->widget) );
-		option->value = g_strdup_printf("%d", value);
-
-	}
-	else if ( !g_ascii_strcasecmp( G_OBJECT_TYPE_NAME(option->widget), "GtkToggleButton" ) || !g_ascii_strcasecmp( G_OBJECT_TYPE_NAME(option->widget), "GtkCheckButton" ) )
-	{
-		option->value = g_strdup( (gtk_toggle_button_get_active( GTK_TOGGLE_BUTTON(option->widget)) ? "true" : "false") );
-	}
-	else if ( !g_ascii_strcasecmp( G_OBJECT_TYPE_NAME(option->widget), "GtkHScale" ) )
-	{
-
-	}
-	else if ( !g_ascii_strcasecmp( G_OBJECT_TYPE_NAME(option->widget), "GtkComboBox" ) || !g_ascii_strcasecmp( G_OBJECT_TYPE_NAME(option->widget), "GtkComboBoxEntry" ) )
-	{
-		if  ( option->internal_type == ENTITYOPTION_SECTION )
+		if ( !g_ascii_strcasecmp( G_OBJECT_TYPE_NAME(option->widget), "GtkEntry" ) )
 		{
-			gchar * text = Meg_ComboText_GetText( GTK_COMBO_BOX(option->widget) );
-
-			option->value = STRIP_FILE_EXTENSION(text, 4); // Strip .txt
-
-			g_free(text);
+			const gchar * value_str = gtk_entry_get_text( GTK_ENTRY(option->widget) );
+			option->value = g_strdup( value_str );
 		}
-		else
+		else if ( !g_ascii_strcasecmp( G_OBJECT_TYPE_NAME(option->widget), "GtkSpinButton" ) )
 		{
-			option->value =  Meg_ComboText_GetText( GTK_COMBO_BOX(option->widget) );
+			gint value = gtk_spin_button_get_value_as_int(GTK_SPIN_BUTTON(option->widget) );
+			option->value = g_strdup_printf("%d", value);
+		}
+		else if ( !g_ascii_strcasecmp( G_OBJECT_TYPE_NAME(option->widget), "GtkToggleButton" ) || !g_ascii_strcasecmp( G_OBJECT_TYPE_NAME(option->widget), "GtkCheckButton" ) )
+		{
+			option->value = g_strdup( (gtk_toggle_button_get_active( GTK_TOGGLE_BUTTON(option->widget)) ? "true" : "false") );
+		}
+		else if ( !g_ascii_strcasecmp( G_OBJECT_TYPE_NAME(option->widget), "GtkHScale" ) )
+		{
+
+		}
+		else if ( !g_ascii_strcasecmp( G_OBJECT_TYPE_NAME(option->widget), "GtkComboBox" ) || !g_ascii_strcasecmp( G_OBJECT_TYPE_NAME(option->widget), "GtkComboBoxEntry" ) )
+		{
+			if  ( option->internal_type == ENTITYOPTION_SECTION )
+			{
+				gchar * text = Meg_ComboText_GetText( GTK_COMBO_BOX(option->widget) );
+
+				option->value = STRIP_FILE_EXTENSION(text, 4); // Strip .txt
+
+				g_free(text);
+			}
+			else
+			{
+				option->value =  Meg_ComboText_GetText( GTK_COMBO_BOX(option->widget) );
+			}
 		}
 	}
 }
+
 
 /********************************
 * EntityOption_SetDefaultValue

@@ -1,5 +1,5 @@
 /****************************
-Copyright © 2007-2013 Luke Salisbury
+Copyright © 2007-2014 Luke Salisbury
 This software is provided 'as-is', without any express or implied warranty. In no event will the authors be held liable for any damages arising from the use of this software.
 
 Permission is granted to anyone to use this software for any purpose, including commercial applications, and to alter it and redistribute it freely, subject to the following restrictions:
@@ -34,10 +34,9 @@ GtkWidget * mokoiEntityTreeview = NULL;
 
 /* UI */
 #include "ui/entity_menu.gui.h"
-#include "ui/entity_page.gui.h"
+#include "ui/page_entity.gui.h"
 const gchar * mokoiUI_EntityMenu = GUIENTITY_MENU
-const gchar * mokoiUI_Entity = GUIENTITY_PAGE
-
+const gchar * mokoiUI_Entity = GUIPAGE_ENTITY
 
 /********************************
 * MegWidget_EntityList_Create

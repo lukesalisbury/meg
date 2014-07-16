@@ -1,5 +1,5 @@
 /****************************
-Copyright © 2007-2013 Luke Salisbury
+Copyright © 2007-2014 Luke Salisbury
 This software is provided 'as-is', without any express or implied warranty. In no event will the authors be held liable for any damages arising from the use of this software.
 
 Permission is granted to anyone to use this software for any purpose, including commercial applications, and to alter it and redistribute it freely, subject to the following restrictions:
@@ -330,7 +330,8 @@ void help_parser_append_text( const gchar * text )
 
 void help_parser_start_element( GMarkupParseContext *context, const gchar *element_name, const gchar **attribute_names, const gchar **attribute_values, gpointer user_data, GError **error )
 {
-	g_assert(alchera_help_textbuffer != NULL);
+	if ( alchera_help_textbuffer == NULL )
+		return;
 	GtkTextView * textview = GTK_TEXT_VIEW(user_data);
 	GtkTextIter iter;
 	alcheraHelpValidTag = TRUE;
@@ -497,7 +498,9 @@ void help_parser_text( GMarkupParseContext *context, const gchar * text, gsize t
 
 void help_parser_end_element( GMarkupParseContext *context, const gchar *element_name, gpointer user_data, GError **error )
 {
-	g_assert(alchera_help_textbuffer != NULL);
+	if ( alchera_help_textbuffer == NULL )
+		return;
+
 	alcheraHelpStyle = *((gint*)alcheraHelpStyles->data);
 	if ( (alcheraHelpStyle & TEXT_COLUMNS) )
 	{

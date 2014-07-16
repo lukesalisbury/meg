@@ -1,5 +1,5 @@
 /****************************
-Copyright © 2007-2013 Luke Salisbury
+Copyright © 2007-2014 Luke Salisbury
 This software is provided 'as-is', without any express or implied warranty. In no event will the authors be held liable for any damages arising from the use of this software.
 
 Permission is granted to anyone to use this software for any purpose, including commercial applications, and to alter it and redistribute it freely, subject to the following restrictions:
@@ -18,13 +18,11 @@ Permission is granted to anyone to use this software for any purpose, including 
 
 #define MEG_COMBOFILE_NONE "(None)"
 
-
 gulong Meg_FileCRC( const gchar * filename );
 gboolean Meg_RunProgram( gchar * program, ...);
 GKeyFile * Meg_Preference_Storage();
 gchar * Meg_String_ReplaceFileExtension( gchar * string, gchar * orignal_ext, const gchar * new_ext  );
 gboolean Meg_FileImport(gchar * source, gchar * dest);
-
 
 /* Gtk Widget helpers and compat wrapper */
 GtkWindow * Meg_Misc_ParentWindow( GtkWidget * widget );

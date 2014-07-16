@@ -23,10 +23,10 @@
             <child>
               <object class="GtkImage" id="image4">
                 <property name="can_focus">False</property>
-                <property name="xpad">2</property>
-                <property name="ypad">2</property>
+				<property name="xpad">2</property>
+				<property name="ypad">2</property>
                 <property name="stock">gtk-help</property>
-                <property name="icon-size">1</property>
+                
               </object>
               <packing>
                 <property name="expand">False</property>
@@ -139,13 +139,13 @@
   </object>
   <object class="GtkTreeStore" id="liststore1">
     <columns>
-      <!-- column-name gchararray1 -->
+	  <!-- column-name Title/folder -->
       <column type="gchararray"/>
-      <!-- column-name gchararray2 -->
+	  <!-- column-name file -->
       <column type="gchararray"/>
       <!-- column-name gchararray3 -->
       <column type="gchararray"/>
-      <!-- column-name gboolean1 -->
+	  <!-- column-name file -->
       <column type="gboolean"/>
     </columns>
   </object>

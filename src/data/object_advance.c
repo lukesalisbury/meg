@@ -1,5 +1,5 @@
 /****************************
-Copyright © 2007-2013 Luke Salisbury
+Copyright © 2007-2014 Luke Salisbury
 This software is provided 'as-is', without any express or implied warranty. In no event will the authors be held liable for any damages arising from the use of this software.
 
 Permission is granted to anyone to use this software for any purpose, including commercial applications, and to alter it and redistribute it freely, subject to the following restrictions:
@@ -161,7 +161,7 @@ GtkWidget * ObjectAdvance_EntityWidget_New( DisplayObject * object )
 	}
 
 	g_object_set_data( G_OBJECT(runtime_box), "runtime-hashtable", object_data->settings);
-	g_signal_connect(add_button, "clicked", (GCallback)EntityOption_AddOption, runtime_box);
+	g_signal_connect(add_button, "clicked", (GCallback)EntityOption_AddOption, runtime_box );
 
 	g_free(entity_file);
 
@@ -578,24 +578,21 @@ gboolean ObjectAdvance_Text( DisplayObject * object, GtkWindow * window )
 	string_number_value = EntityOption_GetValue( object_data->settings, "text-string" );
 	strings_total = (gdouble)( Language_Size() ) - 1.0;
 
-
-
 	/* Set Default Value */
 	g_object_set_data_full ( G_OBJECT(edit_text), "old-string", (gchar*)object->text, NULL ); // Keeps a copy of Original String.
 
 	Meg_Misc_SetLabel_Print( label, "<b>Edit Text</b>\n%s (%d)", object_data->name, object->id );
 
-	//gtk_spin_button_set_range( spin_x, -200.0, (gdouble)map_width );
+	gtk_spin_button_set_range( spin_x, -200.0, (gdouble)map_width );
 	gtk_spin_button_set_value( spin_x, object->x );
 
-	//gtk_spin_button_set_range( spin_y, -200.0, (gdouble)map_height );
+	gtk_spin_button_set_range( spin_y, -200.0, (gdouble)map_height );
 	gtk_spin_button_set_value( spin_y, object->y );
 
 	gtk_spin_button_set_range( spin_z, 0.0, 6.0 );
 	gtk_spin_button_set_value( spin_z, (gdouble)object->layer );
 
 	Meg_ColorButton_SetColor( GTK_COLOR_BUTTON(button_colour), &object->colour );
-
 
 	gtk_spin_button_set_range( spin_string, -1.0, strings_total );
 	gtk_spin_button_set_value( spin_string, (gdouble)string_number_value );
@@ -636,7 +633,7 @@ gboolean ObjectAdvance_Text( DisplayObject * object, GtkWindow * window )
 
 			if ( str_value != -1 )
 			{
-				gchar * text =  AL_String_Get( "00.txt", str_value );
+				gchar * text = AL_String_Get( "00.txt", str_value );
 				REPLACE_STRING_DUPE( object_data->name, text );
 				REPLACE_STRING_DUPE( object->text, text );
 			}
@@ -660,13 +657,13 @@ gboolean ObjectAdvance_Text( DisplayObject * object, GtkWindow * window )
 
 			Meg_ColorButton_GetColor( GTK_COLOR_BUTTON(button_colour), &object->colour );
 			gdk2rgbacolor( &object->colour, &object_data->colour8 );
-
 		}
 	}
 	gtk_widget_destroy( dialog );
 
 	return (result == GTK_RESPONSE_APPLY ? TRUE : FALSE);
 }
+
 
 /********************************
 * ObjectAdvance_File

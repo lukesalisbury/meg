@@ -1,5 +1,5 @@
 /****************************
-Copyright © 2007-2013 Luke Salisbury
+Copyright © 2007-2014 Luke Salisbury
 This software is provided 'as-is', without any express or implied warranty. In no event will the authors be held liable for any damages arising from the use of this software.
 
 Permission is granted to anyone to use this software for any purpose, including commercial applications, and to alter it and redistribute it freely, subject to the following restrictions:
@@ -40,8 +40,8 @@ guint32 sheetAlignValue = 8;
 void MegWidget_Spritesheet_Refresh( GtkWidget * widget, gpointer user_data );
 
 /* UI */
-#include "ui/sheet_page.gui.h"
-const gchar * alchera_sheet_ui = GUISHEET_PAGE;
+#include "ui/page_sheet.gui.h"
+const gchar * alchera_sheet_ui = GUIPAGE_SHEET;
 
 /********************************
 * MegWidget_Spritesheet_Create

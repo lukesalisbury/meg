@@ -11,8 +11,8 @@
  * player) to the values you wish to use.
  * http://mokoi.info/docs/Meg#CustomControls
 */
-#tryinclude <game_controller>
 
+#tryinclude <game_controller>
 
 #if defined _controller_included
 	#endinput
@@ -36,13 +36,12 @@
 #define BUTTON_MOUSELEFT 11
 #define BUTTON_MOUSEMIDDLE 12
 #define BUTTON_MOUSERIGHT 13
-#define BUTTON_MOUSEUP 14
-#define BUTTON_MOUSEDOWN 15
+#define BUTTON_MISC 14
+#define BUTTON_BACK 15
 
 #define BUTTON_CONFIRM 16
 #define BUTTON_CANCEL 17
 #define BUTTON_POINTER_PRESS 18
-
 
 #define AXIS_X1 0
 #define AXIS_Y1 1

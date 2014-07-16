@@ -17,7 +17,7 @@
 #define POSITION_MAP 0
 #define POSITION_SCREEN 1
 
-const _DIRECTION: {
+const Directions: {
 	SOUTH = 0,	//0 deg
 	SOUTHEAST,	//45 deg
 	EAST,		//90 deg
@@ -40,6 +40,35 @@ const DisplayDevice: {
 	HARDWARE, // Uses OpenGL/Direct3D SDL 2.0 backends. 
 	OPENGL, // If supported, Rotating, scaling & colouring are done via the Video Card.
 }
+
+const GraphicTypes: {
+	SPRITE = 's',
+	RECTANGLE = 'r',
+	LINE = 'l',
+	TEXT = 't',
+	POLYGON = 'p',
+	CIRCLE = 'c',
+	CANVAS = 'M',
+}
+
+const StyleTypes: {
+	STYLE_NORMAL = 0,
+	STYLE_VGRADIENT,
+	STYLE_HGRADIENT,
+	STYLE_GLOW,
+	STYLE_OUTLINE,
+	STYLE_REPLACECOLOUR,
+	STYLE_NEGATIVE
+}
+
+const ObjectFlags: {
+	FLAG_SPEED = 0,
+	FLAG_ANIMLOOP = 1,
+	FLAG_ANIMREVERSE = 2,
+	FLAG_ANIMRESET = 3,
+	FLAG_HIDDEN = 6
+}
+
 
 #define WHITE 0xFFFFFFFF
 #define BLACK 0x000000FF

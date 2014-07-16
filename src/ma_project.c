@@ -1,5 +1,5 @@
 /****************************
-Copyright © 2007-2013 Luke Salisbury
+Copyright © 2007-2014 Luke Salisbury
 This software is provided 'as-is', without any express or implied warranty. In no event will the authors be held liable for any damages arising from the use of this software.
 
 Permission is granted to anyone to use this software for any purpose, including commercial applications, and to alter it and redistribute it freely, subject to the following restrictions:
@@ -27,8 +27,8 @@ void MegWidget_Project_Refresh( GtkWidget * widget, gpointer user_data );
 void AL_Settings_RefreshAdvance(  );
 
 /* UI */
-#include "ui/project_settings.gui.h"
-const gchar * alchera_project_ui = GUIPROJECT_SETTINGS;
+#include "ui/page_project.gui.h"
+const gchar * alchera_project_ui = GUIPAGE_PROJECT
 
 
 /********************************

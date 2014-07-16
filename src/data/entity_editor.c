@@ -1,5 +1,5 @@
 /****************************
-Copyright © 2007-2013 Luke Salisbury
+Copyright © 2007-2014 Luke Salisbury
 This software is provided 'as-is', without any express or implied warranty. In no event will the authors be held liable for any damages arising from the use of this software.
 
 Permission is granted to anyone to use this software for any purpose, including commercial applications, and to alter it and redistribute it freely, subject to the following restrictions:
@@ -24,13 +24,12 @@ Permission is granted to anyone to use this software for any purpose, including 
 /* External Functions */
 gboolean EntityEditor_InsertDialog( GtkWidget * widget, GtkWidget * view );
 GtkWidget *  ManagedEntity_Edit(gchar * filename);
-
+GHashTable * Funclist_GetHashTable();
 /* Global Variables */
 extern GError * mokoiError;
 extern GtkWidget * mokoiCompileLog;
 extern GtkWidget * mokoiEntityTreeview;
-extern GSList * mokoiFunctionDatabase;
-extern GHashTable * mokoiFunctionFiles;
+
 
 /* Local Variables */
 
@@ -191,7 +190,7 @@ void EntityEditor_InsertFunctions( GtkComboBox * widget )
 	GHashTableIter iter;
 	gpointer key, value;
 
-	g_hash_table_iter_init( &iter, mokoiFunctionFiles );
+	g_hash_table_iter_init( &iter, Funclist_GetHashTable() );
 	while (g_hash_table_iter_next( &iter, &key, &value) )
 	{
 		Meg_ComboText_AppendText( widget, (gchar*)key);
@@ -225,10 +224,11 @@ void EntityEditor_SwitchFunction( GtkComboBox * widget, GtkListStore * argument_
 	if ( !widget )
 		g_warning( "No combobox found");
 
-	if ( gtk_combo_box_get_active_iter( widget, &iter ) )
-		gtk_tree_model_get( gtk_combo_box_get_model(widget), &iter, 1, &text, 2, &function, -1 );
-	else
-		g_warning( "No combobox found");
+	if ( !gtk_combo_box_get_active_iter( widget, &iter ) )
+		return;
+
+	gtk_tree_model_get( gtk_combo_box_get_model(widget), &iter, 1, &text, 2, &function, -1 );
+
 
 	if ( !function || !argument_store )
 	{
@@ -241,14 +241,13 @@ void EntityEditor_SwitchFunction( GtkComboBox * widget, GtkListStore * argument_
 
 	/* Update Arguments */
 	gtk_list_store_clear( argument_store );
-	list = (GSList*)function->user_data;
+	list = function->arguments;
 	while ( list != NULL )
 	{
-
 		EditorDatabaseListing * listing = (EditorDatabaseListing *)list->data;
 		gtk_list_store_append( argument_store, &iter );
-		gtk_list_store_set( argument_store, &iter, 0, g_strdup(listing->name), 1, (listing->user_data ? g_strdup(listing->user_data) : ""), 2, FALSE, 3, FALSE, 4, TRUE, 5, (listing->arguments ? listing->arguments[0] : 'n'), 6, g_strdup(listing->info), -1 );
-		list = g_slist_next( list );
+		gtk_list_store_set( argument_store, &iter, 0, g_strdup(listing->name), 1, (listing->user_data ? g_strdup(listing->user_data) : ""), 2, FALSE, 3, FALSE, 4, TRUE, 5, (listing->arguments_string ? listing->arguments_string[0] : 'n'), 6, g_strdup(listing->info), -1 );
+		list = g_list_next( list );
 	}
 
 }
@@ -259,19 +258,22 @@ void EntityEditor_SwitchFunction( GtkComboBox * widget, GtkListStore * argument_
 @ widget:
 @ api_store: label, info, EntityDatabaseItems
 */
-void EntityEditor_SwitchFiles( GtkComboBox * widget, GtkListStore * api_store )
+void EntityEditor_SwitchFiles( GtkComboBox * widget, GtkComboBox * api_combo )
 {
+	GtkListStore * api_store;
 	GtkTreeIter iter;
 	GSList * list = NULL;
 	gchar * file = Meg_ComboText_GetText(widget);
 
-	list = (GSList*) g_hash_table_lookup(mokoiFunctionFiles, file );
+	list = (GSList*) g_hash_table_lookup(Funclist_GetHashTable(), file );
+	api_store = GTK_LIST_STORE(gtk_combo_box_get_model(api_combo));
 
 	if ( !list || !api_store )
 	{
 		return;
 	}
 
+	gtk_combo_box_set_active_iter( api_combo, NULL );
 	gtk_list_store_clear( api_store );
 	while ( list != NULL )
 	{
@@ -407,7 +409,7 @@ void EntityEditor_Save( GtkButton * button_save, GtkWidget * textview_content )
 gboolean EntityEditor_InsertDialog( GtkWidget * widget, GtkWidget * view )
 {
 	GtkWidget * dialog, * combobox, * label, * file_combobox;
-	GtkListStore * argument_store, * file_store, * api_store;
+	GtkListStore * argument_store;
 	GtkTreeIter iter;
 	GtkTextBuffer * buffer = gtk_text_view_get_buffer( GTK_TEXT_VIEW(view) );
 
@@ -428,12 +430,10 @@ gboolean EntityEditor_InsertDialog( GtkWidget * widget, GtkWidget * view )
 	file_combobox = GET_WIDGET( ui, "combo_file" );
 
 	argument_store = GET_LISTSTORE( ui, "argument_store" );
-	file_store = GET_LISTSTORE( ui, "file_store" );
-	api_store = GET_LISTSTORE( ui, "api_store" );
 
 	/* Signals */
 	SET_OBJECT_SIGNAL( ui, "spritelist-renderer2", "edited", G_CALLBACK(EntityEditor_EditStore), argument_store );
-	SET_OBJECT_SIGNAL( ui, "combo_file", "changed", G_CALLBACK(EntityEditor_SwitchFiles), api_store );
+	SET_OBJECT_SIGNAL( ui, "combo_file", "changed", G_CALLBACK(EntityEditor_SwitchFiles), combobox );
 	g_signal_connect( combobox, "changed", G_CALLBACK(EntityEditor_SwitchFunction), argument_store );
 
 	g_object_set_data( G_OBJECT(combobox), "formlabel", label );

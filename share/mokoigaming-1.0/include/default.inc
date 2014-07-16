@@ -1,4 +1,4 @@
-#include <mokoi>
+#include <game>
 #include <graphics>
 #include <entities>
 #include <fixed>
@@ -8,13 +8,14 @@
 #tryinclude <game_default>
 #include <controller>
 
-
 forward public Init(...);
 forward public UpdatePosition();
 forward public Close();
 
-forward public AutoPreInit();
-forward public AutoPostInit();
-forward public AutoPreClose();
-forward public AutoPostClose();
-forward public AutoUpdatePosition();
+/*
+forward public @PreInit();
+forward public @PostInit();
+forward public @PreClose();
+forward public @PostClose();
+forward public @UpdatePosition();
+*/

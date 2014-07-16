@@ -1,5 +1,5 @@
 /****************************
-Copyright © 2007-2013 Luke Salisbury
+Copyright © 2007-2014 Luke Salisbury
 This software is provided 'as-is', without any express or implied warranty. In no event will the authors be held liable for any damages arising from the use of this software.
 
 Permission is granted to anyone to use this software for any purpose, including commercial applications, and to alter it and redistribute it freely, subject to the following restrictions:
@@ -41,7 +41,7 @@ EntityOptionStruct * EntityOption_New(const gchar *value, const gchar *type );
 void EntityOption_FreePointer( gpointer data );
 
 EntityOptionStruct * EntityOption_Copy( EntityOptionStruct * value );
-void EntityOption_InsertNew( GHashTable * settings_table, const gchar * key, const gchar * value, const gchar * type );
+EntityOptionStruct * EntityOption_InsertNew( GHashTable * settings_table, const gchar * key, const gchar * value, const gchar * type );
 void EntityOption_Update( GHashTable * settings_table, const gchar *key, const gchar *value, const gchar  *type);
 void EntityOption_UpdateValue(GHashTable * settings_table, const gchar *key, const gint value , const gchar * type);
 void EntityOption_UpdateBoolean( GHashTable * settings_table, const gchar * key, const gboolean value, const gchar *type );

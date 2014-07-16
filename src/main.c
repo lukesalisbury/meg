@@ -1,5 +1,5 @@
 /****************************
-Copyright © 2007-2013 Luke Salisbury
+Copyright © 2007-2014 Luke Salisbury
 This software is provided 'as-is', without any express or implied warranty. In no event will the authors be held liable for any damages arising from the use of this software.
 
 Permission is granted to anyone to use this software for any purpose, including commercial applications, and to alter it and redistribute it freely, subject to the following restrictions:
@@ -37,6 +37,7 @@ GKeyFile * meg_pref_storage = NULL;
 /* External Functions */
 gboolean Meg_Main_Init();
 void Entity_RebuildAll( GtkButton * button, GtkTreeStore * list );
+void Funclist_Free( );
 
 /* UI */
 
@@ -120,26 +121,6 @@ void Meg_Icon_Update()
 	gtk_icon_theme_append_search_path( gtk_icon_theme_get_default(), local_icons );
 	gtk_icon_theme_append_search_path( gtk_icon_theme_get_default(), global_icons );
 
-
-	/*
-	gchar ** path;
-	gint n_elements;
-	gint lc = 0;
-
-	gtk_icon_theme_get_search_path( gtk_icon_theme_get_default(), &path, &n_elements);
-
-	if ( g_strv_length(path) )
-	{
-		while(path[lc] != NULL)
-		{
-			g_print( "gtk_icon_theme_search_path: %s\n", path[lc] );
-			lc++;
-		}
-	}
-
-	g_strfreev(path);
-	*/
-
 	g_free(global_icons);
 	g_free(local_icons);
 }
@@ -217,7 +198,7 @@ gint main (gint argc, char *argv[])
 				g_print("Rebuild Entities\n");
 				AL_LoadProject( project_path );
 				Entity_RebuildAll( NULL, NULL );
-				return 0;
+				goto program_exit;
 				break;
 			}
 			case 2:
@@ -225,7 +206,7 @@ gint main (gint argc, char *argv[])
 				g_print("Compile Game\n");
 				AL_LoadProject( project_path );
 				MegProject_Compile();
-				return 0;
+				goto program_exit;
 				break;
 			}
 			default:
@@ -248,6 +229,9 @@ gint main (gint argc, char *argv[])
 
 	gtk_main();
 
+program_exit:
+
+	Funclist_Free( );
 	if ( PHYSFS_isInit() )
 	{
 		PHYSFS_deinit();

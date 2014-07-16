@@ -76,8 +76,9 @@ typedef enum LogStyle
 typedef struct
 {
 	gchar * name;
-	gchar * arguments;
+	gchar * arguments_string;
 	gchar * info;
+	GList * arguments;
 	gpointer user_data;
 } EditorDatabaseListing;
 

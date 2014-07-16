@@ -1,5 +1,5 @@
 /****************************
-Copyright © 2007-2013 Luke Salisbury
+Copyright © 2007-2014 Luke Salisbury
 This software is provided 'as-is', without any express or implied warranty. In no event will the authors be held liable for any damages arising from the use of this software.
 
 Permission is granted to anyone to use this software for any purpose, including commercial applications, and to alter it and redistribute it freely, subject to the following restrictions:
@@ -27,8 +27,8 @@ GtkWidget * sectionNotebook = NULL;
 void Meg_Help_Load( const gchar * file, GtkWidget * textview );
 
 /* UI */
-#include "ui/section_page.gui.h"
-const gchar * alchera_section_ui_main = GUISECTION_PAGE;
+#include "ui/page_section.gui.h"
+const gchar * alchera_section_ui_main = GUIPAGE_SECTION;
 
 
 /********************************
@@ -55,8 +55,8 @@ void MegWidget_Section_Create()
 	g_object_ref(widget);
 
 	/* Tab Setting */
-	g_object_set_data( G_OBJECT(widget), "meg-help-page", g_strdup(PROGRAMSHELPDIRECTORY"/SectionPage.xml") ); //Set the help page
-	Meg_Main_AddSection(widget, "Sections", PAGE_ICON_SECTION);
+	g_object_set_data( G_OBJECT(widget), "meg-help-page", g_strdup(PROGRAMSHELPDIRECTORY"/WorldPage.xml") ); //Set the help page
+	Meg_Main_AddSection(widget, "Worlds", PAGE_ICON_SECTION);
 
 	/* Signals */
 	g_signal_connect( G_OBJECT(treeview_section), "row-activated", G_CALLBACK(Meg_MapSection_OpenFile), NULL);
@@ -66,7 +66,7 @@ void MegWidget_Section_Create()
 	SET_OBJECT_SIGNAL(ui, "actionRemoveSection", "activate", G_CALLBACK(Meg_MapSection_RemoveFile), treeview_section );
 
 	/* */
-	Meg_Help_Load(PROGRAMSHELPDIRECTORY"/SectionPage.xml", help_text);
+	Meg_Help_Load(PROGRAMSHELPDIRECTORY"/WorldPage.xml", help_text);
 
 }
 
@@ -77,9 +77,7 @@ void MegWidget_Section_Create()
 */
 void MegWidget_Section_Refresh()
 {
-
 	AL_MapSections_Files(sectionFileStore);
-
 }
 
 /********************************
@@ -88,7 +86,6 @@ void MegWidget_Section_Refresh()
 */
 void MegWidget_Section_Init()
 {
-
 	MegWidget_Section_Refresh();
 }
 
