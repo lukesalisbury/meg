@@ -299,7 +299,7 @@ void EntityOption_Append( const gchar * key, EntityOptionStruct * value, GHashTa
 */
 void EntityOption_SectionChanged( GtkComboBox * widget, GtkWidget * list )
 {
-	MokoiSectionFile * section = NULL;
+	MokoiWorldFile * section = NULL;
 	GtkTreeModel * model = NULL;
 	GtkWidget * map_widget = (GtkWidget *)g_object_get_data( G_OBJECT(list), "options-map-widget" );
 	gchar * text = Meg_ComboText_GetText( GTK_COMBO_BOX(widget) );
@@ -317,7 +317,7 @@ void EntityOption_SectionChanged( GtkComboBox * widget, GtkWidget * list )
 		GSList * list = section->maps;
 		while ( list )
 		{
-			MokoiSectionMap * w = (MokoiSectionMap *)list->data;
+			MokoiWorldMap * w = (MokoiWorldMap *)list->data;
 			gchar * name = g_strdup_printf("%d: %s", w->position.x + (64*w->position.y), w->name );
 
 			Meg_ComboText_AppendText( GTK_COMBO_BOX(map_widget), name );
@@ -651,7 +651,7 @@ void EntityOption_CreateWidget( const gchar * name, EntityOptionStruct * option,
 				Meg_ComboText_AppendText( GTK_COMBO_BOX(value_widget), g_strdup_printf("%s.txt",option->value) );
 				gtk_combo_box_set_active( GTK_COMBO_BOX(value_widget), 0);
 			}
-			Meg_ComboFile_Scan( value_widget, "sections", ".txt", TRUE, 0 );
+			Meg_ComboFile_Scan( value_widget, "worlds", ".tsv", TRUE, 0 );
 			g_object_set_data( G_OBJECT(list), "option-section-widget", value_widget );
 			break;
 		case ENTITYOPTION_SECTIONMAP:

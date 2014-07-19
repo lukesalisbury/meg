@@ -850,3 +850,6 @@ src/ma_widgets.h
 src/main.c
 src/meg_setting.h
 src/widgets/bitmap_font.c
+meg_pawn/makefiles/apple.make
+meg_pawn/makefiles/linux.make
+meg_pawn/makefiles/windows.make

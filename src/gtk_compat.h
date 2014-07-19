@@ -14,6 +14,13 @@ Permission is granted to anyone to use this software for any purpose, including 
 
 #include <gtk/gtk.h>
 
+#ifndef GDK_BUTTON_PRIMARY
+#define GDK_BUTTON_PRIMARY      (1)
+#endif
+#ifndef GDK_BUTTON_SECONDARY
+#define GDK_BUTTON_SECONDARY    (3)
+#endif
+
 #if GTK_MAJOR_VERSION == 2
 typedef struct {
   gdouble red;

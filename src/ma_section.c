@@ -47,9 +47,7 @@ void MegWidget_Section_Create()
 	sectionNotebook = GET_WIDGET( ui, "section_notebook" );
 	widget = GET_WIDGET( ui, "section_widget" );
 	help_text = GET_WIDGET( ui, "help_text" );
-
 	treeview_section = GET_WIDGET( ui, "treeview_section" );
-
 	sectionFileStore = GET_LISTSTORE( ui, "store_section" );
 
 	g_object_ref(widget);
@@ -77,7 +75,7 @@ void MegWidget_Section_Create()
 */
 void MegWidget_Section_Refresh()
 {
-	AL_MapSections_Files(sectionFileStore);
+	AL_Worlds_Files(sectionFileStore);
 }
 
 /********************************

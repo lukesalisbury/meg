@@ -39,15 +39,13 @@ gboolean Meg_HelpParser_Event( GtkWidget * text_view, GdkEvent * ev );
 #include "ui/page_help.gui.h"
 const gchar * alchera_help_ui = GUIPAGE_HELP;
 
-
 /* Functions */
 
-
-
-/********************************
-* Meg_Help_GetFilePath
-*
-*/
+/**
+ * @brief Meg_Help_GetFilePath
+ * @param file
+ * @return
+ */
 
 gchar * Meg_Help_GetFilePath( const gchar * file )
 {
@@ -59,7 +57,6 @@ gchar * Meg_Help_GetFilePath( const gchar * file )
 	{
 		help_global_directory = Meg_Directory_Share("help");
 	}
-
 
 	if ( file )
 	{
@@ -85,26 +82,42 @@ gchar * Meg_Help_GetFilePath( const gchar * file )
 GString * Meg_Help_GeneratePage( EditorDatabaseListing * function )
 {
 	GString * content = g_string_new("");
+	gchar * escaped_string;
 
 	g_string_append_printf( content, "<div xmlns=\"http://www.w3.org/1999/xhtml\">" );
 	g_string_append_printf( content, "<h2>%s</h2>", function->name );
-	g_string_append_printf( content, "<p class=\"fundef\">%s%s</p>", function->name, function->arguments_string );
-	g_string_append_printf( content, "<p>%s</p>", function->info );
 
+	escaped_string = g_markup_printf_escaped("<p class=\"fundef\">%s%s</p>",  function->name, function->arguments_string );
+	content = g_string_append( content, escaped_string );
+	g_free(escaped_string);
+
+	g_string_append_printf( content, "<p>%s</p>", function->info );
 
 	GList * argument = function->arguments;
 	while ( argument )
 	{
 		EditorDatabaseListing * argument_item = (EditorDatabaseListing *)argument->data;
 
-		gchar * escaped_string = g_markup_printf_escaped("<p><strong>Argument '%s':</strong>%s</p>", argument_item->name, (argument_item->info ? argument_item->info : "") );
-
+		escaped_string = g_markup_printf_escaped("<p><strong>Argument '%s':</strong>%s</p>", argument_item->name, (argument_item->info ? argument_item->info : "") );
 		content = g_string_append( content, escaped_string );
-
 		g_free(escaped_string);
 
 		argument = g_list_next( argument );
 	}
+
+	if ( function->return_info )
+	{
+		g_string_append_printf( content, "<p><strong>Returns:</strong> %s</p>", function->return_info );
+	}
+
+	if ( function->user_data )
+	{
+		escaped_string = g_markup_printf_escaped( "<br/><p><strong>Example</strong></p><p><pre>%s</pre></p>", (gchar*)function->user_data );
+		content = g_string_append( content, escaped_string );
+		g_free(escaped_string);
+
+	}
+
 
 	g_string_append_printf( content, "</div>" );
 

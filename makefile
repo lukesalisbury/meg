@@ -78,13 +78,14 @@ OBJ += $(OBJDIR)/ma_physfs.o $(OBJDIR)/physfs/physfs.o $(OBJDIR)/physfs/physfs_b
 
 OBJ += $(RES)
 
+UI = $(patsubst res/ui/%,include/ui/%.h,$(wildcard res/ui/*.gui))
 
 #Build
 
-PHONY: all-before all
+PHONY: all
 	@echo --------------------------------
 
-all: all-before buildheader $(BIN) $(FINALOUTPUT)
+all: all-before buildheader.exe $(BIN) $(FINALOUTPUT)
 	@echo --------------------------------
 
 all-before:
@@ -97,38 +98,47 @@ all-before:
 #	@echo --------------------------------
 
 include/ui/%.gui.h: res/ui/%.gui
-	@echo Converting GUI $<
+	@echo Converting GUI $@
 	@-$(MKDIR) include/ui/
 	@$(OBJDIR)/buildheader.exe $< $@ $(BUILDHEADER_GUI_TITLE) $(BUILDHEADER_GUI_DESCRIPT) $(BUILDHEADER_GUI_ICON)
 
 buildheader.exe:
-#	@echo Building builderheader
+	@echo Building builderheader
 	@-$(MKDIR) $(OBJDIR)
 	@$(CC) $(MINI_PLATFORM_FLAGS) -o $(OBJDIR)/buildheader.o -c buildheader.c
-	@$(CC) $(OBJDIR)/buildheader.o -o $(OBJDIR)/buildheader.exe  $(MINI_PLATFORM_LIBS)
+	@$(CC) $(OBJDIR)/buildheader.o -o $(OBJDIR)/buildheader.exe  $(MINI_PLATFORM_LIBS) -s
 
-buildheader: buildheader.exe $(patsubst res/ui/%,include/ui/%.h,$(wildcard res/ui/*.gui))
-	@echo buildheader done.
+
+buildheader: buildheader.exe $(UI)
+	@echo --------------------------------
 
 clean:
 	@echo Clean up Mokoi Editor
-	${RM} $(OBJ) $(BIN) $(OBJDIR)/buildheader.exe $(wildcard include/ui/*.gui.h)
+	${RM} $(OBJ) $(BIN) $(OBJDIR)/buildheader.exe $(UI)
+ifneq ($(SKIPMODULES), TRUE)
 	@$(MAKE) -C meg_audio clean BUILDDIR=$(CURDIR)/$(BUILDDIR)
 	@$(MAKE) -C meg_pawn clean BUILDDIR=$(CURDIR)/$(BUILDDIR)
+endif
 
 $(OBJDIR)/%.o : src/%.c
 	@echo Compiling $@ $(MESSAGE)
 	@-$(MKDIR) $(dir $@)
 	@$(CC) -c $(COMPILER_FLAGS) -o $@ $<
 
-$(BIN): $(OBJ)
-	@echo Building $(BIN) $(MESSAGE)
-	@-$(MKDIR) $(BUILDDIR)
-	@$(CC) $(OBJ) -o $(BUILDDIR)/$(BIN) $(COMPILER_LIBS)
+modules:
+	@echo --------------------------------
 ifneq ($(SKIPMODULES), TRUE)
 	@$(MAKE) -C meg_audio all BUILDDIR=$(CURDIR)/$(BUILDDIR)
 	@$(MAKE) -C meg_pawn all BUILDDIR=$(CURDIR)/$(BUILDDIR)
 endif
+
+
+$(BIN): modules $(UI) $(OBJ)
+	@echo --------------------------------
+	@echo Building $(BIN) $(MESSAGE)
+	@-$(MKDIR) $(BUILDDIR)
+	@$(CC) $(OBJ) -o $(BUILDDIR)/$(BIN) $(COMPILER_LIBS)
+
 
 install: $(BIN)
 	@echo Installing $< to $(INSTALLDIR)

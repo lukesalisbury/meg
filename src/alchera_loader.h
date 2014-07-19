@@ -48,9 +48,9 @@
 	gboolean AL_MapSection_Redraw( guint id, cairo_t * cr, gint width, gint height );
 
 	/* Sections Function */
-	void AL_MapSections_Files( GtkListStore * store );/* G_TYPE_STRING */
-	gboolean AL_MapSections_Add( const gchar * name );
-	gboolean AL_MapSections_Remove( gchar * name );
+	void AL_Worlds_Files( GtkListStore * store );/* G_TYPE_STRING */
+	gboolean AL_Worlds_Add( const gchar * name );
+	gboolean AL_Worlds_Remove( gchar * name );
 
 	/* Maps */
 	gboolean AL_Map_Add( const gchar * name, const gchar * oldpath );

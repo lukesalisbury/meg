@@ -22,7 +22,7 @@ gboolean AL_Map_Add( const gchar * name, const gchar * old_path );
 
 /* Global Variables */
 extern GError * mokoiError;
-extern GList * mokoiSections;
+extern GList * mokoiWorldsList;
 
 /* Local Variables */
 
@@ -117,17 +117,17 @@ void Section_MapPreview( GtkComboBox * combo, GtkWidget * widget )
 @ section: name of section
 - Returns the MokoiSectionFile or NULL;
 */
-MokoiSectionFile * Section_Get( gchar * section )
+MokoiWorldFile * Section_Get( gchar * section )
 {
 	gchar * filename = NULL;
-	MokoiSectionFile * current = NULL;
-	GList * scan = mokoiSections;
+	MokoiWorldFile * current = NULL;
+	GList * scan = mokoiWorldsList;
 
-	filename = g_strdup_printf( "/sections/%s", section );
+	filename = g_strdup_printf( "/worlds/%s", section );
 
 	while ( scan )
 	{
-		current = (MokoiSectionFile *)scan->data;
+		current = (MokoiWorldFile *)scan->data;
 		if ( !g_ascii_strcasecmp(current->name, filename) )
 		{
 			return current;
@@ -136,7 +136,7 @@ MokoiSectionFile * Section_Get( gchar * section )
 	}
 
 	current = Section_Load( section );
-	mokoiSections = g_list_append( mokoiSections, current );
+	mokoiWorldsList = g_list_append( mokoiWorldsList, current );
 	return current;
 }
 
@@ -145,7 +145,7 @@ MokoiSectionFile * Section_Get( gchar * section )
 *
 *
 */
-void Section_Free( MokoiSectionFile * world )
+void Section_Free( MokoiWorldFile * world )
 {
 	g_free( world->name );
 	g_slist_free( world->maps );
@@ -156,17 +156,17 @@ void Section_Free( MokoiSectionFile * world )
 *
 *
 */
-MokoiSectionFile * Section_Load( gchar * section )
+MokoiWorldFile * Section_Load( gchar * section )
 {
 	gchar * content;
 	guint8 x, y;
-	MokoiSectionFile * new_world = g_new0(MokoiSectionFile, 1);
+	MokoiWorldFile * new_world = g_new0(MokoiWorldFile, 1);
 
 	memset( &new_world->grid, 65535, 4096 ); /* Reset Grid */
 	new_world->width = 64;
 	new_world->height = 64;
 
-	new_world->name  = g_strdup_printf( "/sections/%s", section );
+	new_world->name  = g_strdup_printf( "/worlds/%s", section );
 	Meg_file_get_contents( new_world->name, &content, NULL, &mokoiError );
 
 	if ( !Meg_Error_Check( mokoiError, TRUE, (gchar*)__func__ ) )
@@ -193,7 +193,7 @@ MokoiSectionFile * Section_Load( gchar * section )
 					}
 					else
 					{
-						MokoiSectionMap * new_map = g_new0(MokoiSectionMap, 1);
+						MokoiWorldMap * new_map = g_new0(MokoiWorldMap, 1);
 
 						new_map->name = g_strdup( array[0] );
 						new_map->position.x = strtol( array[1], NULL, 10);
@@ -239,7 +239,7 @@ MokoiSectionFile * Section_Load( gchar * section )
 * Section_Save
 *
 */
-gboolean Section_Save( MokoiSectionFile * world )
+gboolean Section_Save( MokoiWorldFile * world )
 {
 	g_return_val_if_fail( world, FALSE );
 
@@ -249,7 +249,7 @@ gboolean Section_Save( MokoiSectionFile * world )
 	g_string_append_printf( content, "#\t%d\t%d\t%d\n", world->type, world->width, world->height );
 	while ( scan )
 	{
-		MokoiSectionMap * map = (MokoiSectionMap *)scan->data;
+		MokoiWorldMap * map = (MokoiWorldMap *)scan->data;
 		if ( map->id != 65535 )
 		{
 			g_string_append_printf( content, "%s\t%d\t%d\t%d\t%d\n", map->name, map->position.x, map->position.y, map->position.width, map->position.height );
@@ -263,7 +263,46 @@ gboolean Section_Save( MokoiSectionFile * world )
 	return TRUE;
 }
 
+/**
+ * @brief Section_CreateNewMap
+ * @param world
+ * @param window
+ * @return
+ */
+gchar * Section_CreateNewMap( MokoiWorldFile * world, GtkWindow * window )
+{
+	gchar * map = NULL;
+	GtkWidget * dialog, * frame, * vbox, * entry;
 
+	dialog = gtk_dialog_new_with_buttons("New Map", window, GTK_DIALOG_DESTROY_WITH_PARENT, GTK_STOCK_OK, GTK_RESPONSE_ACCEPT, GTK_STOCK_CANCEL, GTK_RESPONSE_REJECT, NULL);
+	frame = gtk_frame_new( "Map Name" );
+	entry = gtk_entry_new();
+	vbox = gtk_dialog_get_content_area( GTK_DIALOG(dialog) );
+
+	gtk_frame_set_shadow_type( GTK_FRAME(frame), GTK_SHADOW_NONE );
+
+	gtk_box_pack_start( GTK_BOX(vbox), frame, TRUE, TRUE, 0 );
+	gtk_container_add( GTK_CONTAINER(frame), entry );
+
+	gtk_widget_show_all(vbox);
+
+	gint result = gtk_dialog_run( GTK_DIALOG(dialog) );
+	if ( result == GTK_RESPONSE_ACCEPT )
+	{
+		const gchar * new_file_name = gtk_entry_get_text( GTK_ENTRY(entry) );
+		if ( g_utf8_strlen( new_file_name, -1) )
+		{
+			if ( AL_Map_Add(new_file_name, NULL) )
+			{
+				map = g_strdup( new_file_name );
+			}
+		}
+	}
+
+	gtk_widget_destroy( dialog );
+
+	return map;
+}
 
 /********************************
 * Section_AddMap
@@ -271,7 +310,7 @@ gboolean Section_Save( MokoiSectionFile * world )
 @ x:
 @ y:
 */
-gchar * Section_AddMap( MokoiSectionFile * world, guint x, guint y, GtkWindow * window )
+gchar * Section_NewMap( MokoiWorldFile * world, guint8 x, guint8 y, GtkWindow * window )
 {
 	g_return_val_if_fail( world, NULL );
 
@@ -279,47 +318,15 @@ gchar * Section_AddMap( MokoiSectionFile * world, guint x, guint y, GtkWindow * 
 
 	if ( map )
 	{
-		if ( !g_ascii_strcasecmp( map, "New Map" ) )
+		if ( g_ascii_strcasecmp( map, "New Map" ) == 0 )
 		{
-			GtkWidget * quest, * frame, * vbox, * entry;
-			quest = gtk_dialog_new_with_buttons("New Map", window, GTK_DIALOG_DESTROY_WITH_PARENT, GTK_STOCK_OK, GTK_RESPONSE_ACCEPT, GTK_STOCK_CANCEL, GTK_RESPONSE_REJECT, NULL);
-			frame = gtk_frame_new( "Map Name" );
-			entry = gtk_entry_new();
-			vbox = gtk_dialog_get_content_area(GTK_DIALOG(quest));
-
-			gtk_frame_set_shadow_type( GTK_FRAME(frame), GTK_SHADOW_NONE );
-
-			gtk_box_pack_start( GTK_BOX(vbox), frame, TRUE, TRUE, 0 );
-			gtk_container_add( GTK_CONTAINER(frame), entry );
-
-			gtk_widget_show_all(vbox);
-
-			gint result = gtk_dialog_run( GTK_DIALOG(quest) );
-			if ( result == GTK_RESPONSE_ACCEPT )
-			{
-				const gchar * new_file_name = gtk_entry_get_text( GTK_ENTRY(entry) );
-
-				g_free(map); // Clear out old string
-
-				if ( g_utf8_strlen(new_file_name, -1) )
-				{
-					map = g_strdup(new_file_name);
-					if ( !AL_Map_Add(map, NULL) )
-					{
-						g_free(map);
-						map = NULL;
-					}
-				}
-				else
-				{
-					map = NULL;
-				}
-			}
+			g_free( map );
+			map = Section_CreateNewMap( world, window );
 		}
 
 		if ( map )
 		{
-			MokoiSectionMap * new_map = g_new0( MokoiSectionMap, 1 );
+			MokoiWorldMap * new_map = g_new0( MokoiWorldMap, 1 );
 			new_map->name = g_strdup(map);
 			new_map->position.x = x;
 			new_map->position.y = y;
@@ -354,12 +361,12 @@ gchar * Section_AddMap( MokoiSectionFile * world, guint x, guint y, GtkWindow * 
 @ x:
 @ y:
 */
-void Section_RemoveMap( MokoiSectionFile * world, guint8 x, guint8 y, GtkWindow * window )
+void Section_RemoveMap( MokoiWorldFile * world, guint8 x, guint8 y, GtkWindow * window )
 {
 	g_return_if_fail( world );
 
 	GtkWidget * dialog = NULL;
-	MokoiSectionMap * item;
+	MokoiWorldMap * item;
 	gint id = -1;
 	guint8 ox, oy;
 
@@ -374,7 +381,7 @@ void Section_RemoveMap( MokoiSectionFile * world, guint8 x, guint8 y, GtkWindow 
 		{
 			case GTK_RESPONSE_YES:
 			{
-				item = (MokoiSectionMap*)g_slist_nth_data( world->maps, id );
+				item = (MokoiWorldMap*)g_slist_nth_data( world->maps, id );
 				if ( item )
 				{
 					x = (guint8)item->position.x;
@@ -388,7 +395,7 @@ void Section_RemoveMap( MokoiSectionFile * world, guint8 x, guint8 y, GtkWindow 
 						}
 					}
 					item->id = 65535;
-					Meg_Main_PrintStatus("Remove Map '%s' from World Overview", item->name);
+					Meg_Main_PrintStatus("Removed Map '%s' from World", item->name);
 					Section_Save(world);
 				}
 
@@ -401,18 +408,19 @@ void Section_RemoveMap( MokoiSectionFile * world, guint8 x, guint8 y, GtkWindow 
 	}
 }
 
-/********************************
-* Section_MapName
-*
-@ world:
-@ x:
-@ y:
-*/
-gchar * Section_MapName( MokoiSectionFile * world, guint8 x, guint8 y, GtkWindow * window )
+/**
+ * @brief Section_MapName
+ * @param world
+ * @param x
+ * @param y
+ * @param window
+ * @return name of map
+ */
+gchar * Section_MapName( MokoiWorldFile * world, guint8 x, guint8 y, GtkWindow * window )
 {
 	g_return_val_if_fail( world, NULL );
 
-	MokoiSectionMap * item;
+	MokoiWorldMap * item;
 	gint id = -1;
 
 	x = CLAMP(x, 0, 63);
@@ -421,7 +429,7 @@ gchar * Section_MapName( MokoiSectionFile * world, guint8 x, guint8 y, GtkWindow
 
 	if ( id != 65535 )
 	{
-		item = (MokoiSectionMap*)g_slist_nth_data( world->maps, id);
+		item = (MokoiWorldMap*)g_slist_nth_data( world->maps, id);
 		if ( item )
 		{
 			return  g_strdup(item->name);
@@ -430,44 +438,11 @@ gchar * Section_MapName( MokoiSectionFile * world, guint8 x, guint8 y, GtkWindow
 	}
 	else
 	{
-		return Section_NewMap( world, x, y, window );
+
 	}
 	return NULL;
 }
 
-/********************************
-* Section_NewMap
-*
-@ x:
-@ y:
-*/
-gchar * Section_NewMap( MokoiSectionFile * world, guint8 x, guint8 y, GtkWindow * window )
-{
-	g_return_val_if_fail( world, NULL );
-
-	MokoiSectionMap * item;
-	gint id = 65535;
-
-	x = CLAMP(x, 0, 63);
-	y = CLAMP(y, 0, 63);
-	id = world->grid[x][y];
-
-	if ( id == 65535 )
-	{
-		Section_AddMap( world, x, y, window );
-		id = world->grid[x][y];
-	}
-	if ( id != 65535 )
-	{
-		item = (MokoiSectionMap*)g_slist_nth_data(world->maps, id);
-		if ( item )
-		{
-			return g_strdup( item->name );
-		}
-	}
-	return NULL;
-
-}
 
 /********************************
 * Section_Available
@@ -475,15 +450,15 @@ gchar * Section_NewMap( MokoiSectionFile * world, guint8 x, guint8 y, GtkWindow 
 @ name:
 @ area:
 */
-gboolean Section_Available( MokoiSectionFile * world, gchar * name, GdkRectangle * area )
+gboolean Section_Available( MokoiWorldFile * world, gchar * name, GdkRectangle * area )
 {
 	g_return_val_if_fail( world, FALSE );
 
-	MokoiSectionMap * map;
+	MokoiWorldMap * map;
 	GSList * frames = world->maps;
 	while( frames )
 	{
-		map = (MokoiSectionMap*)frames->data;
+		map = (MokoiWorldMap*)frames->data;
 		if ( g_ascii_strcasecmp( map->name, name ) == 0 )
 		{
 			guint8 x = (guint8)map->position.x, y = (guint8)map->position.y;

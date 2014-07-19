@@ -40,9 +40,9 @@ void Meg_MapSection_AddFile( GtkAction * action, GtkWidget * treeview )
 {
 	GtkWidget * dialog, * frame, * vbox, * entry;
 
-	dialog = gtk_dialog_new_with_buttons("New Section", Meg_Main_GetWindow(), GTK_DIALOG_DESTROY_WITH_PARENT, GTK_STOCK_OK, GTK_RESPONSE_ACCEPT, GTK_STOCK_CANCEL, GTK_RESPONSE_REJECT, NULL);
+	dialog = gtk_dialog_new_with_buttons("New World", Meg_Main_GetWindow(), GTK_DIALOG_DESTROY_WITH_PARENT, GTK_STOCK_OK, GTK_RESPONSE_ACCEPT, GTK_STOCK_CANCEL, GTK_RESPONSE_REJECT, NULL);
 
-	frame = gtk_frame_new( "Section Name" );
+	frame = gtk_frame_new( "World Name" );
 	entry = gtk_entry_new();
 
 	vbox = gtk_dialog_get_content_area(GTK_DIALOG(dialog));
@@ -62,9 +62,15 @@ void Meg_MapSection_AddFile( GtkAction * action, GtkWidget * treeview )
 
 	if ( result == GTK_RESPONSE_ACCEPT )
 	{
-		AL_MapSections_Add( g_strdup(newfilename) );
-		GtkTreeModel * store = gtk_tree_view_get_model( GTK_TREE_VIEW(treeview) );
-		AL_MapSections_Files( GTK_LIST_STORE(store) );
+		if ( AL_Worlds_Add( newfilename ) )
+		{
+			GtkTreeModel * store = gtk_tree_view_get_model( GTK_TREE_VIEW(treeview) );
+			AL_Worlds_Files( GTK_LIST_STORE(store) );
+		}
+		else
+		{
+			g_warning("Could not add '%s' world.", newfilename );
+		}
 	}
 	gtk_widget_destroy( dialog );
 }
@@ -91,9 +97,9 @@ void Meg_MapSection_RemoveFile( GtkAction * action, GtkWidget * treeview )
 			gtk_widget_destroy( question );
 			if ( answer == GTK_RESPONSE_YES )
 			{
-				AL_MapSections_Remove(filename);
+				AL_Worlds_Remove(filename);
 				GtkTreeModel * store = gtk_tree_view_get_model( GTK_TREE_VIEW(treeview) );
-				AL_MapSections_Files( GTK_LIST_STORE(store) );
+				AL_Worlds_Files( GTK_LIST_STORE(store) );
 			}
 		}
 		g_free( filename );

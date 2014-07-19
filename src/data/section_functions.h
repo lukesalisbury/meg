@@ -16,7 +16,7 @@ Permission is granted to anyone to use this software for any purpose, including 
 		gint id;
 		GdkRectangle position;
 		GdkPixbuf * image;
-	} MokoiSectionMap;
+	} MokoiWorldMap;
 
 	typedef struct {
 		gchar * name;
@@ -25,17 +25,16 @@ Permission is granted to anyone to use this software for any purpose, including 
 		guint height;
 		guint16 grid[64][64];
 		guint8 type;
-	} MokoiSectionFile;
+	} MokoiWorldFile;
 
-
-	gchar * Section_NewMap( MokoiSectionFile * file, guint8 x, guint8 y, GtkWindow * window );
-	void Section_RemoveMap( MokoiSectionFile * file, guint8 x, guint8 y, GtkWindow * window );
-	gchar * Section_MapName( MokoiSectionFile * file, guint8 x, guint8 y, GtkWindow * window );
-	gboolean Section_Save( MokoiSectionFile * file );
-	MokoiSectionFile * Section_Load( gchar * file );
-	void Section_Free( MokoiSectionFile * file );
+	gchar * Section_NewMap( MokoiWorldFile * file, guint8 x, guint8 y, GtkWindow * window );
+	void Section_RemoveMap( MokoiWorldFile * file, guint8 x, guint8 y, GtkWindow * window );
+	gchar * Section_MapName( MokoiWorldFile * file, guint8 x, guint8 y, GtkWindow * window );
+	gboolean Section_Save( MokoiWorldFile * file );
+	MokoiWorldFile * Section_Load( gchar * file );
+	void Section_Free( MokoiWorldFile * file );
 
 	GdkPixbuf * Section_GetMapThumb( gchar * map );
-	gboolean Section_Available( MokoiSectionFile * file, gchar * name, GdkRectangle * area );
-	MokoiSectionFile * Section_Get( gchar * section );
+	gboolean Section_Available( MokoiWorldFile * file, gchar * name, GdkRectangle * area );
+	MokoiWorldFile * Section_Get( gchar * section );
 #endif

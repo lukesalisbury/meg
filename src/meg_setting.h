@@ -27,9 +27,7 @@
 	#define MEGCONFIGDIRECTORY "mokoi-editor"
 #endif
 
-#ifndef PROGRAMSHELPDIRECTORY
-	#define PROGRAMSHELPDIRECTORY "Meg"
-#endif
+#define PROGRAMSHELPDIRECTORY "Editor"
 
 #ifndef ROOT_FILENAME
 	#define ROOT_FILENAME "game.mokoi"

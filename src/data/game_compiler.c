@@ -145,7 +145,7 @@ void GameCompiler_PackFiles( GSList ** file_list, gboolean include_pawn64, Progr
 	Compression_PackFolder( file_list, "maps", ".entities", mokoiCompileLocalFiles );
 	Compression_PackFolder( file_list, "sprites", ".png.xml", mokoiCompileLocalFiles );
 	Compression_PackFolder( file_list, "sprites", ".png", mokoiCompileLocalFiles );
-	Compression_PackFolder( file_list, "sections", ".txt", mokoiCompileLocalFiles );
+	Compression_PackFolder( file_list, "worlds", ".tsv", mokoiCompileLocalFiles );
 	Compression_PackFolder( file_list, "masks", ".xpm", mokoiCompileLocalFiles );
 	Compression_PackFolder( file_list, "soundfx", NULL, mokoiCompileLocalFiles );
 	Compression_PackFolder( file_list, "music", NULL, mokoiCompileLocalFiles );

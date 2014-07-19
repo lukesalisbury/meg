@@ -4,7 +4,7 @@
 #define _helper_included
 
 #include <core>
-#include <mokoi>
+#include <game>
 
 //title Helper Functions
 //description These are define in the helper.inc header, so to use these functions, #include &lt;helper&gt; must be include at the top of the script.

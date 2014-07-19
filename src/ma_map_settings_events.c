@@ -28,10 +28,6 @@ Permission is granted to anyone to use this software for any purpose, including 
 /* UI */
 
 
-
-
-
-
 /********************************
 * Meg_MapSettings_Width_Set
 * Event:

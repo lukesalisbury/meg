@@ -3,6 +3,40 @@
 #endif
 #define _maps_included
 
+
+
+#define MAP_ERROR 0
+#define GLOBAL_MAP 0
+#define CURRENT_MAP MapCurrentIdent();
+
+///Mask Functions 
+native MaskRefresh();
+native MaskGetValue( x, y, layer = 0 );
+native MaskFill( x, y, w, h, value = 0 );
+
+///Map Functions
+native MapOffsetSet( Fixed:x, Fixed:y );
+native Fixed:MapOffsetGet( axis );
+native MapCurrentIdent();
+native MapCurrentDimension( &w, &h );
+
+///Map File Code
+native MapSet(map_ident, offset_x, offset_y );
+native MapGetIdent( map_file{}, create_new );
+native MapReset();
+native MapSnapshot();
+native MapDelete( map_ident );
+
+///World Function
+native WorldSet( section_hash, grid_x, grid_y );
+native WorldGetIdent( section_hash, grid_x, grid_y  );
+native WorldExist( section_name{} );
+
+//Map Collision Functions
+native MapCollisionList();
+native MapCollisionCurrent(objecta, objectb, &angle, &dist, &rect );
+
+
 /***
 <api title="Map Functions">
 	<function name="MaskRefresh">
@@ -80,14 +114,14 @@
 		<param name="map_ident" default="" type="n">ID of the map to remove</param>
 	</function>
 	<function name="WorldSet">
-		<summary>Changes the Section, while keeping the same grid location.</summary>
-		<param name="section_hash" default="" type="n">Section name.</param>
+		<summary>Changes the Section.</summary>
+		<param name="section_hash" default="" type="n">Section Ident.</param>
 		<param name="grid_x" default="-1" type="n">Grid Position</param>
 		<param name="grid_y" default="-1" type="n">Grid Position</param>
 	</function>
 	<function name="WorldGetIdent">
 		<summary>Get the Ident.</summary>
-		<param name="section_hash" default="" type="n">Section name.</param>
+		<param name="section_hash" default="" type="n">Section Ident.</param>
 		<param name="grid_x" default="-1" type="n">Grid Position</param>
 		<param name="grid_y" default="-1" type="n">Grid Position</param>
 	</function>
@@ -97,34 +131,3 @@
 	</function>
 </api>
 ***/
-
-#define MAP_ERROR 0
-#define GLOBAL_MAP 0
-#define CURRENT_MAP MapCurrentIdent();
-
-///Mask Functions 
-native MaskRefresh();
-native MaskGetValue( x, y, layer = 0 );
-native MaskFill( x, y, w, h, value = 0 );
-
-///Map Functions
-native MapOffsetSet( Fixed:x, Fixed:y );
-native Fixed:MapOffsetGet( axis );
-native MapCurrentIdent();
-native MapCurrentDimension( &w, &h );
-
-///Map File Code
-native MapSet(map_ident, offset_x, offset_y );
-native MapGetIdent( map_file{}, create_new );
-native MapReset();
-native MapSnapshot();
-native MapDelete( map_ident );
-
-///World Function
-native WorldSet( section_hash, grid_x, grid_y );
-native WorldGetIdent( section_hash, grid_x, grid_y  );
-native WorldExist( section_name{} );
-
-//Map Collision Functions
-native MapCollisionList();
-native MapCollisionCurrent(objecta, objectb, &angle, &dist, &rect );

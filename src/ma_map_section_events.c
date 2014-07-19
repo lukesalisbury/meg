@@ -41,13 +41,7 @@ gboolean Meg_MapSection_LayoutPressed( GtkWidget * widget, GdkEventButton * even
 
 	if ( new_id )
 	{
-		if ( event->button == 1 )
-		{
-			if ( event->type == GDK_2BUTTON_PRESS )
-			{
-				Meg_MapEdit_OpenFilename( new_id );
-			}
-		}
+		Meg_MapEdit_OpenFilename( new_id );
 		g_free( new_id );
 	}
 	gtk_widget_queue_draw( widget );

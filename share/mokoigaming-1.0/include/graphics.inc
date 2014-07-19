@@ -340,8 +340,8 @@ native PolygonAddPoint(string{}, x, y, string_size = sizeof string);
 ///Display Objects Functions
 native object:ObjectCreate( string{}, GraphicTypes:type, x = 0, y = 0, z = 0, w = 0, h = 0, c = 0xFFFFFFFF, pos = POSITION_MAP, string_size = sizeof string);
 native ObjectPosition( object:id, x, y, z, w, h, pos = POSITION_MAP);
-native ObjectEffect( object:id, colour = WHITE, rotate = 0, scale_w = 1000, scale_h = 1000, mirror = 0, _DISPLAYSTYLES:style = STYLE_NORMAL, colour2 = WHITE);
-native ObjectReplace( object:id, string{}, GraphicTypes:type);
+native ObjectEffect( object:id, colour = WHITE, rotate = 0, scale_w = 1000, scale_h = 1000, mirror = 0, StyleTypes:style = STYLE_NORMAL, colour2 = WHITE);
+native ObjectReplace( object:id, string{}, GraphicTypes:type );
 native ObjectToggle( object:id, show);
 native ObjectFlag( object:id, key, value);
 native ObjectDelete( object:id);

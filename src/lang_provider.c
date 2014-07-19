@@ -14,6 +14,7 @@ Permission is granted to anyone to use this software for any purpose, including 
 #include <gtksourceview/gtksourcecompletion.h>
 #include <gtksourceview/gtksourcecompletioninfo.h>
 #include <gtksourceview/gtksourcecompletionitem.h>
+#include "ma_types.h"
 
 typedef struct _ScriptAutoCompleteProvider ScriptAutoCompleteProvider;
 typedef struct _ScriptAutoCompleteProviderClass ScriptAutoCompleteProviderClass;
@@ -145,7 +146,7 @@ static void script_auto_complete_provider_populate( GtkSourceCompletionProvider 
 				EditorDatabaseListing * listing = (EditorDatabaseListing *)(q->data);
 				if ( listing)
 				{
-					gchar * markup2 = g_markup_printf_escaped("%s<i>%s</i>", listing->name, listing->arguments);
+					gchar * markup2 = g_markup_printf_escaped("%s<i>%s</i>", listing->name, listing->arguments_string);
 /*
 					if ( !g_ascii_strcasecmp( listing->name, word ) )
 					{

@@ -27,7 +27,7 @@ GHashTable * mokoiFunctionFiles = NULL; //< EditorDatabaseListing *>
 /* Local Variables */
 static GMarkupParser funclist_parser = { funclist_start_updates, funclist_end_updates, funclist_text_updates, NULL, NULL};
 gint funclist_mode = 0;
-
+EditorDatabaseListing * funclist_current = NULL;
 /*
 <function name="SetBit">
 	<summary></summary>
@@ -44,15 +44,12 @@ typedef struct
 */
 
 /* Functions */
-
 void funclist_start_updates(GMarkupParseContext * context, const gchar *funclist_name, const gchar **attribute_names, const gchar **attribute_values, gpointer data, GError ** error)
 {
 	GSList ** local_listing = data;
 	if ( g_ascii_strcasecmp( funclist_name, "function" ) == 0 )
 	{
-
-
-		EditorDatabaseListing * function_listing = g_new0(EditorDatabaseListing, 1);
+		EditorDatabaseListing * function_listing = funclist_current = g_new0(EditorDatabaseListing, 1);
 
 		mokoiFunctionDatabase = g_slist_prepend( mokoiFunctionDatabase, function_listing );
 		*local_listing = g_slist_prepend( *local_listing, function_listing );
@@ -69,16 +66,31 @@ void funclist_start_updates(GMarkupParseContext * context, const gchar *funclist
 	}
 	else if ( g_ascii_strcasecmp( funclist_name, "summary" ) == 0 )
 	{
-		funclist_mode = 2;
-	}
-	else if ( g_ascii_strcasecmp( funclist_name, "param" ) == 0 )
-	{
-		/* Add New Argument */
-
-		if ( !mokoiFunctionDatabase )
+		if ( !funclist_current )
 			return;
 
-		EditorDatabaseListing * function_listing = (EditorDatabaseListing * )mokoiFunctionDatabase->data;
+		funclist_mode = 2;
+	}
+	else if ( g_ascii_strcasecmp( funclist_name, "return" ) == 0 )
+	{
+		if ( !funclist_current )
+			return;
+
+		funclist_mode = 4;
+	}
+	else if ( g_ascii_strcasecmp( funclist_name, "example" ) == 0 )
+	{
+		if ( !funclist_current )
+			return;
+
+		funclist_mode = 5;
+	}
+	else if ( g_ascii_strcasecmp( funclist_name, "param" ) == 0 ) /* Add New Argument */
+	{
+		if ( !funclist_current )
+			return;
+
+		EditorDatabaseListing * function_listing = funclist_current;
 		EditorDatabaseListing * argument = g_new0( EditorDatabaseListing, 1);
 
 		function_listing->arguments = g_list_append(function_listing->arguments, argument);
@@ -105,12 +117,16 @@ void funclist_start_updates(GMarkupParseContext * context, const gchar *funclist
 
 void funclist_end_updates( GMarkupParseContext *context, const gchar *funclist_name, gpointer data, GError **error )
 {
-	funclist_mode = 0;
+
 	if ( g_ascii_strcasecmp( funclist_name, "function" ) == 0 )
 	{
+		funclist_mode = 0;
+
+		if ( !funclist_current )
+			return;
+
 		/* Write Arguments to string */
-		EditorDatabaseListing * listing = (EditorDatabaseListing *)(mokoiFunctionDatabase->data);
-		GList * scan = (GList *)listing->user_data;
+		GList * scan = funclist_current->arguments;
 		GString * buff_string = g_string_new("(");
 
 		while ( scan )
@@ -124,8 +140,30 @@ void funclist_end_updates( GMarkupParseContext *context, const gchar *funclist_n
 			}
 		}
 		g_string_append( buff_string, ")" );
-		listing->arguments_string = g_strdup(buff_string->str);
+		funclist_current->arguments_string = g_strdup(buff_string->str);
 		g_string_free( buff_string, TRUE );
+
+		funclist_current = NULL;
+	}
+	else if ( g_ascii_strcasecmp( funclist_name, "summary" ) == 0 )
+	{
+		funclist_mode = 1;
+	}
+	else if ( g_ascii_strcasecmp( funclist_name, "return" ) == 0 )
+	{
+		funclist_mode = 1;
+	}
+	else if ( g_ascii_strcasecmp( funclist_name, "example" ) == 0 )
+	{
+		funclist_mode = 1;
+	}
+	else if ( g_ascii_strcasecmp( funclist_name, "param" ) == 0 )
+	{
+		funclist_mode = 1;
+	}
+	else
+	{
+		funclist_mode = 0;
 	}
 }
 
@@ -133,10 +171,10 @@ void funclist_text_updates( GMarkupParseContext *context, const gchar *text, gsi
 {
 	if ( mokoiFunctionDatabase )
 	{
-		EditorDatabaseListing * function_listing = (EditorDatabaseListing *)(mokoiFunctionDatabase->data);
-		if ( function_listing )
+		if ( text_len )
 		{
-			if ( text_len )
+			EditorDatabaseListing * function_listing = (EditorDatabaseListing *)(mokoiFunctionDatabase->data);
+			if ( function_listing )
 			{
 				if ( funclist_mode == 1)
 				{
@@ -150,6 +188,14 @@ void funclist_text_updates( GMarkupParseContext *context, const gchar *text, gsi
 						EditorDatabaseListing * argument = (EditorDatabaseListing *)arr->data;
 						argument->info = g_strstrip(g_strdup(text));
 					}
+				}
+				else if ( funclist_mode == 4 )
+				{
+					function_listing->return_info = g_strstrip(g_strdup(text));
+				}
+				else if ( funclist_mode == 5 )
+				{
+					function_listing->user_data = g_strdup(text);
 				}
 			}
 		}

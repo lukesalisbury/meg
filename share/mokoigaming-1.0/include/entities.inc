@@ -26,7 +26,6 @@ native EntitySetPosition(Fixed:x = Fixed:cellmin, Fixed:y = Fixed:cellmin, Fixed
 native EntityGetPosition(&Fixed:x, &Fixed:y, &Fixed:z, id = SELF);
 
 ///Entity Functions
-native EntityHash(string{});
 native EntityCreate(parententity{}, id_string{}, Fixed:x, Fixed:y, Fixed:z, map_id, args[]='''', {Fixed,_}:...);
 native EntityDelete(id = SELF);
 native EntityGetSetting(key{}, string{}, id = SELF, length = sizeof string);

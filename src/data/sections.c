@@ -12,6 +12,7 @@ Permission is granted to anyone to use this software for any purpose, including 
 /* Standard Headers */
 #include "loader_global.h"
 #include <glib/gstdio.h>
+#include "gtk_compat.h"
 
 /* Required Headers */
 #include "maps.h"
@@ -25,7 +26,7 @@ Permission is granted to anyone to use this software for any purpose, including 
 extern GError * mokoiError;
 
 /* Local Variables */
-GList * mokoiSections = NULL;
+GList * mokoiWorldsList = NULL;
 
 /* UI */
 
@@ -39,8 +40,8 @@ GList * mokoiSections = NULL;
 */
 guint AL_MapSection_Open( gchar * file, GtkWindow * window )
 {
-	MokoiSectionFile * section = Section_Get( file );
-	return g_list_index( mokoiSections, section );
+	MokoiWorldFile * section = Section_Get( file );
+	return g_list_index( mokoiWorldsList, section );
 }
 
 /********************************
@@ -50,7 +51,7 @@ guint AL_MapSection_Open( gchar * file, GtkWindow * window )
 */
 gboolean AL_MapSection_Save( guint id, GtkWindow * window )
 {
-	MokoiSectionFile * world = (MokoiSectionFile*)g_list_nth_data(mokoiSections, id);
+	MokoiWorldFile * world = (MokoiWorldFile*)g_list_nth_data(mokoiWorldsList, id);
 	return Section_Save( world );
 }
 
@@ -61,7 +62,7 @@ gboolean AL_MapSection_Save( guint id, GtkWindow * window )
 */
 gboolean AL_MapSection_Close( guint id, GtkWindow * window )
 {
-	MokoiSectionFile * world = (MokoiSectionFile*)g_list_nth_data(mokoiSections, id);
+	MokoiWorldFile * world = (MokoiWorldFile*)g_list_nth_data(mokoiWorldsList, id);
 	Section_Free( world );
 	return TRUE;
 }
@@ -73,7 +74,7 @@ gboolean AL_MapSection_Close( guint id, GtkWindow * window )
 */
 gchar * AL_MapSection_Pressed( guint id, GtkWindow * window, guint x, guint y, guint button, GdkEventType event )
 {
-	MokoiSectionFile * world = (MokoiSectionFile*)g_list_nth_data(mokoiSections, id);
+	MokoiWorldFile * world = (MokoiWorldFile*)g_list_nth_data(mokoiWorldsList, id);
 
 	g_return_val_if_fail( world, NULL );
 
@@ -88,11 +89,15 @@ gchar * AL_MapSection_Pressed( guint id, GtkWindow * window, guint x, guint y, g
 	grid_x = x / grid_w;
 	grid_y = y / grid_h;
 
-	if ( button == 1)
+	if ( button == GDK_BUTTON_PRIMARY )
 	{
 		map_name = Section_MapName( world, grid_x, grid_y, window );
+		if ( !map_name )
+		{
+			Section_NewMap( world, grid_x, grid_y, window );
+		}
 	}
-	else
+	else if ( button == GDK_BUTTON_SECONDARY )
 	{
 		Section_RemoveMap( world, grid_x, grid_y, window );
 	}
@@ -106,7 +111,7 @@ gchar * AL_MapSection_Pressed( guint id, GtkWindow * window, guint x, guint y, g
 */
 void AL_MapSection_SizeRequest( guint id, gint * width, gint * height )
 {
-	MokoiSectionFile * world = (MokoiSectionFile*)g_list_nth_data(mokoiSections, id);
+	MokoiWorldFile * world = (MokoiWorldFile*)g_list_nth_data(mokoiWorldsList, id);
 
 	g_return_if_fail( world );
 
@@ -128,12 +133,12 @@ void AL_MapSection_SizeRequest( guint id, gint * width, gint * height )
 */
 gboolean AL_MapSection_Redraw( guint id, cairo_t * cr, gint width, gint height )
 {
-	MokoiSectionFile * world = (MokoiSectionFile*)g_list_nth_data(mokoiSections, id);
+	MokoiWorldFile * world = (MokoiWorldFile*)g_list_nth_data(mokoiWorldsList, id);
 
 	g_return_val_if_fail( world, FALSE );
 
 	GSList * scan = NULL;
-	MokoiSectionMap * current = NULL;
+	MokoiWorldMap * current = NULL;
 	gchar * label_text = NULL;
 
 	GdkRectangle screen_area;
@@ -159,7 +164,7 @@ gboolean AL_MapSection_Redraw( guint id, cairo_t * cr, gint width, gint height )
 	scan = world->maps;
 	while ( scan )
 	{
-		current = (MokoiSectionMap *)scan->data;
+		current = (MokoiWorldMap *)scan->data;
 		if ( current->id != 65535 )
 		{
 			if ( !current->image )
@@ -241,11 +246,11 @@ gboolean AL_MapSection_Redraw( guint id, cairo_t * cr, gint width, gint height )
 
 
 /********************************
-* AL_MapSections_Files (Exported Function)
+* AL_Worlds_Files (Exported Function)
 *
 @ store:  [ 0->name, 1->subtext, 2->image, 3->window pointer ]
 */
-void AL_MapSections_Files( GtkListStore * store )
+void AL_Worlds_Files( GtkListStore * store )
 {
 	GtkTreeIter iter;
 
@@ -258,14 +263,14 @@ void AL_MapSections_Files( GtkListStore * store )
 
 
 	/* Scan Directory */
-	char ** directory_listing = PHYSFS_enumerateFiles("/sections/");
+	char ** directory_listing = PHYSFS_enumerateFiles("/worlds/");
 	char ** listed_file;
 	gchar * current_file = NULL;
 
 	for (listed_file = directory_listing; *listed_file != NULL; listed_file++)
 	{
 		current_file = *listed_file;
-		if ( g_str_has_suffix( current_file, ".txt" ) )
+		if ( g_str_has_suffix( current_file, ".tsv" ) )
 		{
 			gtk_list_store_append(store, &iter);
 			gtk_list_store_set(store, &iter, 0, g_strdup(current_file), 1, "", 2, i, 3, NULL, -1);
@@ -277,39 +282,41 @@ void AL_MapSections_Files( GtkListStore * store )
 }
 
 /********************************
-* AL_MapSections_Add (Exported Function)
+* AL_Worlds_Add (Exported Function)
 *
 * Alchera: Map Overview Page
 */
-gboolean AL_MapSections_Add( const gchar * name )
+gboolean AL_Worlds_Add( const gchar * name )
 {
+	gboolean successful = FALSE;
 	gchar * clean_section, * dest;
 
 	clean_section = g_strdup(name);
 
 	g_strdelimit( clean_section, "_-|> <.\\/\"'!@#$%^&*(){}[]", '_' );
 
-	dest = g_strdup_printf( "/sections/%s.txt", clean_section );
+	dest = g_strdup_printf( "/worlds/%s.tsv", clean_section );
 
 	if ( !Meg_file_test(dest, G_FILE_TEST_IS_REGULAR) )
 	{
 		Meg_file_set_contents( dest, "#\t0\t64\t64\n", -1, NULL);
+		successful = TRUE;
 	}
 
 	g_free(dest);
 	g_free(clean_section);
 
-	return TRUE;
+	return successful;
 }
 
 /********************************
-* AL_MapSections_Remove (Exported Function)
+* AL_Worlds_Remove (Exported Function)
 *
 * Alchera: Map Overview Page
 */
-gboolean AL_MapSections_Remove( gchar * name )
+gboolean AL_Worlds_Remove( gchar * name )
 {
-	gchar * src = g_strdup_printf( "/sections/%s", name );
+	gchar * src = g_strdup_printf( "/worlds/%s", name );
 	if ( Meg_file_test(src, G_FILE_TEST_IS_REGULAR) )
 	{
 		PHYSFS_delete( src );
@@ -327,7 +334,7 @@ gboolean AL_MapSections_Remove( gchar * name )
 */
 guint8 AL_MapSection_Type( guint id, guint8 *type, GtkWindow * window )
 {
-	MokoiSectionFile * world = (MokoiSectionFile*)g_list_nth_data(mokoiSections, id);
+	MokoiWorldFile * world = (MokoiWorldFile*)g_list_nth_data(mokoiWorldsList, id);
 
 	if ( type != NULL )
 	{

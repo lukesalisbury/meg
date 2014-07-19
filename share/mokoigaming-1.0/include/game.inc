@@ -7,6 +7,42 @@
 #include <fixed>
 #include <enums>
 
+
+///Engine Functions 
+native GameState(newstate = -1);
+native GameFrame();
+native Fixed:GameFrameSeconds() = GameFrame;
+
+///Save Functions
+native GameLoad(slot);
+native GameSave(slot, detail[64], maxlength=sizeof detail);
+native GameSaveHibernate();
+native GameHasSave(slot);
+native GameRemoveSave(slot);
+
+native GameGetDetails(slot, array[64], bool:pack_array = false, maxlength=sizeof array);
+native GameDetails(gameid, slot, array[64], bool:pack_array = false, maxlength=sizeof array);
+
+///Language Functions
+native LanguageString(line, returnstring[], maxlength=sizeof returnstring);
+native LanguageSet(lang[], maxlength=sizeof lang);
+
+///Dialog Functions
+native DialogShow(line, callback{} = "dialogbox");
+native DialogGetString(line, returnstring[], maxlength=sizeof returnstring);
+
+/// Audio Functions
+native AudioPlayDialog(line);
+native AudioPlayMusic(file{}, loop, fadeLength);
+native AudioPlaySound(file{}, x = -1, y = -1);
+
+// Misc Functions */
+native FixedToFloat(value);
+native FloatToFixed(value);
+native StringHash(name[]);
+native EntityHash(name[]);
+
+
 /***
 <api title="Game Function">
 	<function name="GameState">
@@ -103,7 +139,6 @@
 		<param name="line" default="" type="n">the requested line.</param>
 		<param name="returnstring[]" default="" type="a"></param>
 	</function>
-
 	<function name="AudioPlayDialog">
 		<summary>Play Dialog Audio</summary>
 		<param name="line" default="" type="n">The Audio device you wish to change.</param>
@@ -121,40 +156,5 @@
 		<param name="loop" default="1" type="n">Set to false to play music only once.</param>
 		<param name="fadeLength" default="0" type="n">The length of fade in milliseconds</param>
 	</function>
-
 </api>
 ***/
-
-///Engine Functions 
-native GameState(newstate = -1);
-native GameFrame();
-native Fixed:GameFrameSeconds() = GameFrame;
-
-///Save Functions
-native GameLoad(slot);
-native GameSave(slot, detail[64],  maxlength=sizeof detail);
-native GameSaveHibernate();
-native GameHasSave(slot);
-native GameRemoveSave(slot);
-
-native GameGetDetails(slot, array[64], bool:pack_array = false, maxlength=sizeof array);
-native GameDetails(gameid, slot, array[64], bool:pack_array = false, maxlength=sizeof array);
-
-///Language Functions
-native LanguageString(line, returnstring[], maxlength=sizeof returnstring);
-native LanguageSet(lang[], maxlength=sizeof lang);
-
-///Dialog Functions
-native DialogShow(line, callback{} = "dialogbox");
-native DialogGetString(line, returnstring[], maxlength=sizeof returnstring);
-
-/// Audio Functions
-native AudioPlayDialog(line);
-nativeAudioPlayMusic(file[], loop, fadeLength);
-native AudioPlaySound(file[], x = -1, y = -1);
-
-// Misc Functions */
-native FixedToFloat(value);
-native FloatToFixed(value);
-native StringHash(name[]);
-native EntityHash(name[]);

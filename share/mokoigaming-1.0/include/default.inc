@@ -3,7 +3,8 @@
 #include <entities>
 #include <fixed>
 #include <string>
-#include <map>
+#include <maps>
+#include <input>
 
 #tryinclude <game_default>
 #include <controller>

@@ -78,6 +78,7 @@ typedef struct
 	gchar * name;
 	gchar * arguments_string;
 	gchar * info;
+	gchar * return_info;
 	GList * arguments;
 	gpointer user_data;
 } EditorDatabaseListing;

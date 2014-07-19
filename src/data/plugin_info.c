@@ -63,7 +63,7 @@ gchar * mokoiGameDirectories[] = {
 	"scripts/maps",
 	"scripts/maps/routines",
 	"scripts/routines",
-	"sections",
+	"worlds",
 	"soundfx",
 	"sprites",
 	"sprites/virtual",

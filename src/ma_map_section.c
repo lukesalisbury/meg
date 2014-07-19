@@ -25,7 +25,6 @@ extern GtkListStore * sectionFileStore;
 /* External Functions */
 void Meg_MapEdit_OpenFilename( gchar * file );
 
-
 /* */
 gboolean Meg_MapSection_LayoutDraw( GtkWidget * widget, cairo_t * cr, GtkWidget * overview );
 gboolean Meg_MapSection_LayoutExpose( GtkWidget * widget, GdkEventExpose *event, GtkWidget * overview );
@@ -56,14 +55,13 @@ GtkWidget * Meg_MapSection_Open( gchar * file )
 	label_text = GET_WIDGET( ui, "alchera-label");
 	display_overview = GET_WIDGET( ui, "display_overview" );
 
-
 	/* Tab Settings */
 	g_signal_connect( G_OBJECT(widget_overview), "key-release-event", G_CALLBACK(Meg_Main_HelpRequest), NULL);
-	g_object_set_data( G_OBJECT(widget_overview), "meg-help-page", g_strdup(PROGRAMSHELPDIRECTORY"/MapSection.xml") );
+	g_object_set_data( G_OBJECT(widget_overview), "meg-help-page", g_strdup(PROGRAMSHELPDIRECTORY"/Worlds.xml") );
 	g_object_ref( widget_overview );
 
 	/* Set names */
-	Meg_Misc_SetLabel( label_text, "Section:", file, ' ' );
+	Meg_Misc_SetLabel( label_text, "World:", file, ' ' );
 
 	guint32 section_id = 0;
 	section_id = AL_MapSection_Open( file, Meg_Misc_ParentWindow( sectionNotebook ) );
@@ -102,15 +100,11 @@ GtkWidget * Meg_MapSection_Open( gchar * file )
 	Meg_Misc_SetLabel( notebook_label, "Section", file, ' ' );
 
 	notebook_close = gtk_event_box_new();
-	notebook_image = gtk_image_new_from_stock( GTK_STOCK_CLOSE,GTK_ICON_SIZE_MENU );
+	notebook_image = gtk_image_new_from_stock( GTK_STOCK_CLOSE, GTK_ICON_SIZE_MENU );
 	gtk_container_add( GTK_CONTAINER(notebook_close), notebook_image);
 	g_signal_connect( G_OBJECT(notebook_close), "button_press_event", G_CALLBACK(Meg_MapSection_CloseTab), widget_overview);
 
-#if GTK_MAJOR_VERSION == 2
-	notebook_box = gtk_hbox_new( FALSE, 2 );
-#else
 	notebook_box = gtk_box_new(GTK_ORIENTATION_HORIZONTAL, 2);
-#endif
 
 	gtk_container_add( GTK_CONTAINER(notebook_box), notebook_label);
 	gtk_container_add( GTK_CONTAINER(notebook_box), notebook_close);

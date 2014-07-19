@@ -41,7 +41,7 @@ gchar * mokoiPatchDirectories[] = {
 	"soundfx",
 	"sprites",
 	"preload",
-	"sections",
+	"worlds",
 	"",
 	NULL
 };
