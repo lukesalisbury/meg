@@ -288,6 +288,8 @@ int main( int argc, char *argv[] )
 		output_directory = g_strdup(source_directory);
 	}
 
+	g_mkdir_with_parents( output_directory, 0755 );
+
 	output_filename_64 = g_strdup_printf( "%s.amx64", output_filename );
 	output_filename_32 = g_strdup_printf( "%s.amx", output_filename );
 

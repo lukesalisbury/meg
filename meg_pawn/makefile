@@ -75,6 +75,7 @@ all: all-before $(SO32) $(SO64) $(BIN)
 all-before:
 	@echo --------------------------------
 	@echo Building pawn compiler
+	@echo Build Platform: $(BUILDDIR)
 #	@echo Build Platform: $(BUILDPLATFORM)
 #	@echo Target Platform: $(BUILDOS)/$(PLATFORMBITS)
 #	@echo Debug Build? $(BUILDDEBUG)
