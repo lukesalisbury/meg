@@ -251,6 +251,7 @@ GString * Funclist_GetFile( const gchar * file )
 
 	return function_xml;
 }
+
 /********************************
 * Funclist_Scan
 *
@@ -262,6 +263,7 @@ void Funclist_ScanFile( const gchar * name )
 	GString * function_xml = Funclist_GetFile( name );
 	GError * error = NULL;
 	GMarkupParseContext * ctx;
+
 	if ( function_xml->len > 0 )
 	{
 		ctx = g_markup_parse_context_new( &funclist_parser, (GMarkupParseFlags)0, &local_functions, NULL );

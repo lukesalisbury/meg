@@ -45,8 +45,8 @@ gchar * mokoiScriptBlankEntity = "/* Init function is the call before anything e
 GtkWidget * mokoiEntityEditor = NULL;
 
 /* UI */
-#include "ui/entity_add.gui.h"
-const gchar * mokoiUI_EntityAdd = GUIENTITY_ADD
+
+const gchar * mokoiUI_EntityAdd = GUI_ENTITY_ADD;
 
 
 /********************************

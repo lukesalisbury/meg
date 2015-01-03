@@ -2,8 +2,9 @@
 	#define _ALCHERA_FUNCTIONS_H_
 	#include "ma_types.h"
 	#include "ma_misc.h"
+	#include "ui_resources.h"
 
-	/**/
+/**/
 	gboolean Meg_Loaders_AddRecent( const gchar * file_path );
 
 
@@ -62,12 +63,8 @@
 
 	/* */
 	gboolean Meg_Web_Enable( );
-	gboolean Meg_Web_RetrieveFile( GString * address, gchar * user, gchar * pass, gchar * file_name, guint directory );
-	gchar * Meg_Web_RetrieveText( GString * address, gchar * user, gchar * pass );
-	gboolean Meg_Web_SendFile( GString * address, gchar * user, gchar * pass, gchar * file_name, guint directory );
-	gboolean Meg_Web_SendText( GString * address, gchar * user, gchar * pass, gchar * text );
-	GAsyncQueue * Meg_Web_RetrieveQueue(GtkWidget * parent, const gchar * url, gchar * user, gchar * pass, const gchar * file_name, gint (*return_function)(gchar *,gpointer), gpointer data );
-	GAsyncQueue * Meg_Web_RetrieveTextQueue(GtkWidget *parent, const gchar * url, gchar * user, gchar * pass, gint (*return_text)( gchar *, gpointer ) , gpointer data);
+	GAsyncQueue * Meg_WebQueue_Retrieve(GtkWidget * parent, const gchar * url, gchar * user, gchar * pass, const gchar * file_name, gint (*return_function)(gchar *,gpointer), gpointer data );
+	GAsyncQueue * Meg_WebQueue_RetrieveText(GtkWidget *parent, const gchar * url, gchar * user, gchar * pass, gint (*return_text)( gchar *, gpointer ) , gpointer data);
 
 	/* */
 	GtkWidget * Meg_ComboText_New( gboolean force_model );

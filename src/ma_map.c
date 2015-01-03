@@ -31,8 +31,8 @@ gint Alchera_Map_AnimationWatch(GtkWidget * view);
 void Meg_Help_Load( const gchar * file, GtkWidget * textview );
 
 /* UI */
-#include "ui/page_map.gui.h"
-const gchar * alchera_map_ui_main = GUIPAGE_MAP
+
+const gchar * alchera_map_ui_main = GUI_PAGE_MAP;
 
 
 /********************************

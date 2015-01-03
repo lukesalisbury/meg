@@ -94,7 +94,7 @@ void Meg_Preference_Load( )
 
 	/* Load Meg Preferences */
 	meg_pref_storage = g_key_file_new();
-	pref_file = g_build_filename( config_directory, "mokoi-editor.ini", NULL);
+	pref_file = g_build_filename( config_directory, "settings.ini", NULL);
 	if ( !g_key_file_load_from_file( meg_pref_storage, pref_file, 0, NULL) )
 	{
 		/*
@@ -135,7 +135,6 @@ gint main (gint argc, char *argv[])
 
 	/* Set up GTK */
 	g_set_application_name( PROGRAM_TITLE );
-
 	gtk_init( &argc, &argv );
 
 	#if GLIB_CHECK_VERSION(2,32,0)
@@ -154,13 +153,14 @@ gint main (gint argc, char *argv[])
 	PHYSFS_init( argv[0] );
 	Meg_Directory_Set( argv[0] );
 
-	/* Meg preferred settings */
+	/* Load settings */
 	settings = gtk_settings_get_default();
 	gtk_settings_set_long_property( settings, "gtk-button-images", TRUE, "main" );
 	gtk_settings_set_long_property( settings, "gtk-menu-images", TRUE, "main" );
 
 	Meg_Preference_Load();
 
+	/* Update Icon theme Path */
 	Meg_Icon_Update();
 
 	checkDirectoryValues();
@@ -218,6 +218,7 @@ gint main (gint argc, char *argv[])
 
 	/* We need to watch a time out queue so not to lock up GUI if we need to download something in precheck */
 	GAsyncQueue * queue = AL_PrecheckFiles();
+
 	if ( queue )
 	{
 		g_timeout_add( 20, (GSourceFunc)Meg_Load_Wait, (gpointer)queue );

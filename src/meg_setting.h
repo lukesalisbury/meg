@@ -16,7 +16,7 @@
 #endif
 
 #ifndef MEGSHAREDIRECTORY
-	#define MEGSHAREDIRECTORY "mokoigaming-1.0"
+	#define MEGSHAREDIRECTORY "mokoi-1.0"
 #endif
 
 #ifndef MEGDATADIRECTORY
@@ -27,7 +27,10 @@
 	#define MEGCONFIGDIRECTORY "mokoi-editor"
 #endif
 
-#define PROGRAMSHELPDIRECTORY "Editor"
+#ifndef PROGRAMSHELPDIRECTORY
+	#define PROGRAMSHELPDIRECTORY "Editor"
+#endif
+
 
 #ifndef ROOT_FILENAME
 	#define ROOT_FILENAME "game.mokoi"
@@ -90,3 +93,4 @@
 
 #define PAGE_ICON_SCRIPTS "text-x-script"
 #define PAGE_ICON_HELP "help-browser"
+

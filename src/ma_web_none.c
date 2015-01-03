@@ -8,11 +8,58 @@ Permission is granted to anyone to use this software for any purpose, including 
 2. Altered source versions must be plainly marked as such, and must not be misrepresented as being the original software.
 3. This notice may not be removed or altered from any source distribution.
 ****************************/
-#ifndef _PACKAGE_H
-	#define _PACKAGE_H
 
-	gboolean Package_ChangeMain( const gchar * new_package_name );
-	gboolean Package_ImportInital(const gchar * file, const gchar * root_dir );
-	void Package_ImportConfig(gboolean remove_file);
-	gchar * Package_GetPath( const gchar * package );
+#if !defined(USE_SOUP) && !defined(USE_CURL)
+
+/* Global Header */
+#include "global.h"
+#include "ma_web.h"
+
+/* UI */
+/*****************************
+* Meg_Web_RetrieveFile
+*
+*/
+gboolean Meg_Web_Enable( )
+{
+	return FALSE;
+}
+
+/*****************************
+* Meg_Web_RetrieveFileOverwrite
+*
+*/
+gboolean Meg_Web_RetrieveFileOverwrite( WebRetrieve * request, gchar * user, gchar * pass )
+{
+	return FALSE;
+}
+
+/*****************************
+* Meg_Web_RetrieveText
+*
+*/
+gchar * Meg_Web_RetrieveText( WebRetrieve * request, gchar * user, gchar * pass )
+{
+	return NULL;
+}
+
+/*****************************
+* Meg_Web_SendFile
+*
+*/
+gboolean Meg_Web_SendFile( WebRetrieve * request, gchar * user, gchar * pass, gchar * file_name )
+{
+	return FALSE;
+}
+
+/*****************************
+* Meg_Web_RetrieveText
+*
+*/
+gboolean Meg_Web_SendText( WebRetrieve * request, gchar * user, gchar * pass, gchar * text )
+{
+	return FALSE;
+}
+
+
 #endif

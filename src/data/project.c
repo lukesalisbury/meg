@@ -37,8 +37,8 @@ extern gchar * mokoiGameDirectories[];
 ProgressDialogWidgets mokoiGameComplier;
 
 /* UI */
-#include "ui/project_publish.gui.h"
-const gchar * mokoiUI_Publish = GUIPROJECT_PUBLISH;
+
+const gchar * mokoiUI_Publish = GUI_PROJECT_PUBLISH;
 
 
 /********************************

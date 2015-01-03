@@ -2,11 +2,11 @@ COMPILER_LIBS =
 COMPILER_FLAGS =
 
 ifeq ($(OBJDIR), )
-	OBJDIR = objects
+	OBJDIR = ./objects
 endif
 
 ifeq ($(BUILDDIR), )
-	BUILDDIR = bin
+	BUILDDIR = ./bin
 endif
 
 ifeq ($(INSTALLDIR), )
@@ -30,8 +30,6 @@ endif
 ifeq ($(PLATFORMBITS), )
 	PLATFORMBITS = other
 endif
-
-
 
 #Build platform & target
 ifeq ($(BUILDOS), )
@@ -80,7 +78,12 @@ else
 	endif
 endif
 
-
-
 buildall: all
 
+info:
+	@echo --------------------------------
+	@echo Build Platform: $(BUILDPLATFORM)
+	@echo Target Platform: $(BUILDOS)/$(PLATFORMBITS)
+	@echo Debug Build? $(BUILDDEBUG)
+	@echo Build Flags: $(COMPILER_FLAGS)
+	@echo Build Libs: $(COMPILER_LIBS)

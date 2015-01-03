@@ -46,8 +46,8 @@ const gchar * mokoiUI_ManagedState = "";
 const gchar * mokoiUI_ManagedFunction = "";
 
 /* UI */
-#include "ui/managed_entity_editor.gui.h"
-const gchar * mokoiUI_ManagedEntityEditor = GUIMANAGED_ENTITY_EDITOR
+
+const gchar * mokoiUI_ManagedEntityEditor = GUI_MANAGED_ENTITY_EDITOR;
 
 /********************************
 * Compares EntityState name against a string

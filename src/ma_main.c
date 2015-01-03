@@ -50,10 +50,8 @@ gboolean Meg_Event_Drop( GtkWidget *widget, GdkDragContext *context, gint x, gin
 void Meg_Event_DropReceived( GtkWidget *widget, GdkDragContext *context, gint x, gint y, GtkSelectionData *data, guint ttype, guint time, gpointer user_data );
 gboolean Funclist_Scan( );
 
-
 /* UI */
-#include "ui/main_window.gui.h"
-const gchar * alchera_main_ui = GUIMAIN_WINDOW;
+const gchar * alchera_main_ui = GUI_MAIN_WINDOW;
 
 /********************************
 * Meg_Main_ToolbarSetActive
@@ -192,8 +190,6 @@ gboolean Meg_Main_Init()
 	g_timer_start(yimer);
 	GError * error = NULL;
 
-	g_print("----Meg_Main_Init: ");
-
 	GtkAccelGroup * accel_group = NULL;
 
 	GtkBuilder * ui = gtk_builder_new();
@@ -258,7 +254,7 @@ gboolean Meg_Main_Init()
 
 
 	/* Add Play button to toolbar */
-	GtkWidget * widget_play_icon = gtk_image_new_from_icon_name(PAGE_ICON_PLAY, GTK_ICON_SIZE_LARGE_TOOLBAR);
+	GtkWidget * widget_play_icon = gtk_image_new_from_icon_name( PAGE_ICON_PLAY, GTK_ICON_SIZE_LARGE_TOOLBAR );
 
 	GtkToolItem * button_play = gtk_tool_button_new(widget_play_icon, "Play Game");
 	g_signal_connect(button_play, "clicked", G_CALLBACK(Meg_Event_Play), NULL);
@@ -280,9 +276,7 @@ gboolean Meg_Main_Init()
 	MegWidget_Language_Create();
 	MegWidget_Project_Create();
 
-
-	g_print("%f\n", g_timer_elapsed(yimer, NULL) );
-
+	g_print("Creation time: %f\n", g_timer_elapsed(yimer, NULL) );
 
 	g_timer_destroy(yimer);
 
@@ -312,7 +306,7 @@ GtkWidget * Meg_Main_AddSection( GtkWidget * section_widget, gchar * section_tit
 	}
 	toolbutton = gtk_toggle_tool_button_new( );
 
-	gtk_tool_button_set_icon_widget ( GTK_TOOL_BUTTON(toolbutton), icon_widget );
+	gtk_tool_button_set_icon_widget( GTK_TOOL_BUTTON(toolbutton), icon_widget );
 	gtk_tool_button_set_label( GTK_TOOL_BUTTON(toolbutton), section_title );
 
 	g_signal_connect(toolbutton, "toggled", G_CALLBACK (Meg_Main_ToolbarToggle), section_widget);

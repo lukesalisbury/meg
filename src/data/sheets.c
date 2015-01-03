@@ -36,8 +36,8 @@ extern GSList * mokoiSpritesheets;
 
 /* UI */
 
-#include "ui/sprite_add.gui.h"
-const gchar * mokoiUI_SpriteAdd = GUISPRITE_ADD;
+
+const gchar * mokoiUI_SpriteAdd = GUI_SPRITE_ADD;
 
 
 /********************************

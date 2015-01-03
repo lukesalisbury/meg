@@ -27,6 +27,16 @@ extern MokoiLanguage mokoiCurrentLanguage;
 /* Local Variables */
 
 
+gchar * escape_newline( gchar * haystack )
+{
+	GRegex * regex = g_regex_new( "\n", 0, 0, NULL );
+	gchar * new_string = g_regex_replace_literal( regex, haystack, -1, 0, "\\n", 0, NULL );
+
+	g_regex_unref( regex );
+
+	return new_string;
+}
+
 /********************************
 * Language_Set_String
 *
@@ -248,7 +258,10 @@ void Language_SaveFile( MokoiLanguage * details, gchar * filename )
 				value = g_hash_table_lookup( mokoiDefaultDialog.values, GINT_TO_POINTER(c) );
 			}
 		}
-		g_string_append_printf( content, "%s\n", value );
+
+		gchar * compressed = escape_newline( value );
+		g_string_append_printf( content, "%s\n", compressed );
+		g_free( compressed );
 	}
 
 

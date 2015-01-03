@@ -47,10 +47,10 @@ typedef struct {
 
 
 /* UI */
-#include "ui/package_question.gui.h"
-#include "ui/package_files.gui.h"
-const gchar * uiPackageFiles = GUIPACKAGE_FILES
-const gchar * uiPackageQuestion = GUIPACKAGE_QUESTION
+
+
+const gchar * uiPackageFiles = GUI_PACKAGE_FILES;
+const gchar * uiPackageQuestion = GUI_PACKAGE_QUESTION;
 
 /********************************
 * Package_ExtractFile
@@ -81,6 +81,47 @@ gboolean Package_ExtractFile( FILE * fd, StoredFileInfo * fi )
 	return FALSE;
 }
 
+/********************************
+* Package_GetPath
+*
+@ package:
+
+*/
+
+gchar * Package_GetPath( const gchar * package )
+{
+	gchar * package_location = NULL;
+	gchar * directories[2];
+
+	directories[0] = Meg_Directory_Share("packages");
+	directories[1] = Meg_Directory_Data("packages");
+
+	/* Check if package exist */
+	package_location = g_build_path(G_DIR_SEPARATOR_S, directories[0], package, NULL );
+	if ( g_file_test(package_location, G_FILE_TEST_IS_DIR | G_FILE_TEST_IS_REGULAR) )
+	{
+		goto function_exit;
+	}
+	g_free( package_location );
+
+	package_location = g_build_path(G_DIR_SEPARATOR_S, directories[1], package, NULL );
+	if ( g_file_test(package_location, G_FILE_TEST_IS_DIR | G_FILE_TEST_IS_REGULAR) )
+	{
+		goto function_exit;
+	}
+	g_free( package_location );
+
+
+
+	package_location = NULL;
+
+	function_exit:
+
+	g_free( directories[0] );
+	g_free( directories[1] );
+
+	return package_location;
+}
 
 
 /********************************
@@ -193,7 +234,7 @@ GSList * Package_FileSelectionDialog( const gchar * file, GtkWidget * widget  )
 	store_files = GET_LISTSTORE( ui, "store_files" ); /* char*, boolean , StoredFileInfo */
 
 	/* signals */
-	g_signal_connect( gtk_builder_get_object( ui, "cellrenderertoggle1" ), "toggled", G_CALLBACK(CellRender_Event_FixToggled), NULL );
+	g_signal_connect( gtk_builder_get_object( ui, "cellrenderertoggle1" ), "toggled", G_CALLBACK(CellRender_Event_FixToggled), store_files );
 
 	/* Update Dialog */
 	gtk_window_set_transient_for( GTK_WINDOW(dialog), Meg_Misc_ParentWindow(widget) );
@@ -483,7 +524,7 @@ gboolean Package_ChangeMain( const gchar * new_package_name )
 
 	if ( package_name )
 	{
-		package_location = Meg_Directory_DataFile( "packages", package_name );
+		package_location = Package_GetPath( package_name );
 		if ( !PHYSFS_removeFromSearchPath(package_location) )
 		{
 			g_warning( "Package Unload Error %s", PHYSFS_getLastError() );
@@ -497,7 +538,7 @@ gboolean Package_ChangeMain( const gchar * new_package_name )
 
 	if ( new_package_name )
 	{
-		package_location = Meg_Directory_DataFile( "packages", new_package_name );
+		package_location = Package_GetPath( new_package_name );
 		if ( !PHYSFS_mount(package_location, NULL, 1) )
 		{
 			g_warning( "Package Load Error %s", PHYSFS_getLastError() );
@@ -533,7 +574,7 @@ gboolean Package_ImportInital(const gchar * file, const gchar * root_dir )
 
 	Meg_Log_Print( LOG_NONE, "Installing Base System: '%s'", file);
 
-	package_path = Meg_Directory_DataFile( "packages", file );
+	package_path = Package_GetPath( file );
 
 	/* Run Dialog */
 	dialog = GTK_DIALOG( gtk_builder_get_object( ui, "messagedialog1" ) );

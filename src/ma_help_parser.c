@@ -389,7 +389,7 @@ void help_parser_start_element( GMarkupParseContext *context, const gchar *eleme
 			}
 			else if ( !g_ascii_strcasecmp( *attribute_names, "class" ) && !g_ascii_strcasecmp( *attribute_values, "docnavbar" ) )
 			{
-				alcheraHelpStyle = TEXT_SPECIAL | TEXT_BLOCK;;
+				alcheraHelpStyle = TEXT_SPECIAL | TEXT_BLOCK;
 			}
 
 		}

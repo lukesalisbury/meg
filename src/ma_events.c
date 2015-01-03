@@ -196,6 +196,12 @@ gboolean Meg_Event_OpenProject()
 */
 gboolean Meg_Event_CloseProgram( void )
 {
+	if ( !project_file_path )
+	{
+		gtk_main_quit();
+		return FALSE;
+	}
+
 	GtkWidget * dialog, * label;
 	GtkWindow * parent = Meg_Main_GetWindow();
 

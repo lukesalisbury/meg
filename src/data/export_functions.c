@@ -27,8 +27,8 @@ extern GKeyFile * mokoiConfigTable;
 extern gchar * mokoiGameDirectories[];
 
 /* UI */
-#include "ui/export_dialog.gui.h"
-const gchar * mokoiUI_Export = GUIEXPORT_DIALOG
+
+const gchar * mokoiUI_Export = GUI_EXPORT_DIALOG;
 
 
 /* Functions */

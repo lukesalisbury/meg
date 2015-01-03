@@ -40,8 +40,8 @@ guint32 sheetAlignValue = 8;
 void MegWidget_Spritesheet_Refresh( GtkWidget * widget, gpointer user_data );
 
 /* UI */
-#include "ui/page_sheet.gui.h"
-const gchar * alchera_sheet_ui = GUIPAGE_SHEET;
+
+const gchar * alchera_sheet_ui = GUI_PAGE_SHEET;
 
 /********************************
 * MegWidget_Spritesheet_Create

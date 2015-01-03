@@ -25,11 +25,7 @@ Permission is granted to anyone to use this software for any purpose, including 
 #include "sheets_functions.h"
 #include "package.h"
 
-#ifdef CUSTOMSETTINGS
-#include "default_banner.h"
-#else
 #include "../res/default_banner.h"
-#endif
 
 /* External Functions */
 void Patch_CreatePage();
@@ -67,9 +63,7 @@ gchar * mokoiGameDirectories[] = {
 	"soundfx",
 	"sprites",
 	"sprites/virtual",
-	"collisions",
 	"preload",
-	"paths",
 	"resources",
 	NULL
 };
@@ -426,8 +420,7 @@ gchar * AL_LoadProject(const gchar *path )
 		gchar * package_name = AL_Setting_GetString("package.main");
 		if ( package_name )
 		{
-			gchar * package_location = Meg_Directory_DataFile( "packages", package_name );
-			g_print( "Package Load %s\n", package_location );
+			gchar * package_location = Package_GetPath( package_name );
 			if ( !PHYSFS_mount(package_location, NULL, 1) )
 			{
 				g_warning( "Package Load Error %s", PHYSFS_getLastError() );
@@ -449,6 +442,9 @@ gchar * AL_LoadProject(const gchar *path )
 	return g_strdup(mokoiBasePath);
 }
 
+
+
+
 /********************************
 * AL_PrecheckFiles
 *
@@ -458,78 +454,16 @@ GAsyncQueue * AL_PrecheckFiles()
 	GAsyncQueue * queue = NULL;
 
 	#ifdef FORCE_PACKAGE
-	gchar * package_location = Meg_Directory_DataFile( "packages", FORCE_PACKAGE );
-
+	gchar * package_location = Package_GetPath( FORCE_PACKAGE );
+	if ( !package_location )
+	{
+		package_location = Meg_Directory_DataFile("packages", FORCE_PACKAGE );
+	}
 	/* Check if package exist */
 	if ( !g_file_test(package_location, G_FILE_TEST_IS_DIR | G_FILE_TEST_IS_REGULAR) )
 	{
-		queue = Meg_Web_RetrieveQueue(NULL, FORCE_PACKAGE_URL, NULL, NULL, package_location, NULL, NULL );
+		queue = Meg_WebQueue_Retrieve(NULL, FORCE_PACKAGE_URL, NULL, NULL, package_location, NULL, NULL );
 	}
-	else
-	{
-		#define FORCE_PACKAGE_CHECKSUM_URL "http://openzelda.net/package/2_0alpha1.txt"
-
-		/* Check if package is up to date */
-		gchar * content = NULL;
-		gchar ** lines_contents = NULL;
-		GString * address = g_string_new(FORCE_PACKAGE_CHECKSUM_URL);
-		gulong crc = 0;
-		gulong latest_crc = 0;
-		gchar * message = NULL;
-		gchar * latest_url = NULL;
-
-		if ( !g_file_test(package_location, G_FILE_TEST_IS_DIR ) )
-		{
-			content = Meg_Web_RetrieveText( address, NULL, NULL );
-		}
-
-		if ( content )
-		{
-			lines_contents = g_strsplit( content, "\n", 4 );
-
-			if ( g_strv_length(lines_contents) > 2 )
-			{
-				gchar * latest_crc_string = strpbrk( lines_contents[1], ":" )+1;
-				latest_url = strpbrk( lines_contents[2], ":" )+1;
-				message = strpbrk( lines_contents[0], ":" )+1;
-
-				if ( latest_crc_string )
-				{
-					latest_crc = strtoul(latest_crc_string,NULL, 10);
-				}
-			}
-		}
-
-		if ( latest_crc )
-		{
-			crc = Meg_FileCRC( package_location );
-			if ( crc ) // A Directory won't return a value, so we know it's a file.
-			{
-				if ( crc != latest_crc )
-				{
-					if ( latest_url != NULL && message != NULL )
-					{
-						if ( g_str_has_prefix(latest_url, "http") )
-						{
-							queue = Meg_Web_RetrieveQueue(NULL, FORCE_PACKAGE_URL, NULL, NULL, package_location, NULL, NULL );
-						}
-						else
-						{
-							GtkWidget * dialog = gtk_message_dialog_new( NULL, GTK_DIALOG_DESTROY_WITH_PARENT, GTK_MESSAGE_QUESTION, GTK_BUTTONS_NONE, "%s", message );
-							gtk_dialog_add_buttons( GTK_DIALOG(dialog), GTK_STOCK_OK, 1, NULL );
-							gtk_dialog_run( GTK_DIALOG(dialog) );
-							gtk_widget_destroy( dialog );
-						}
-					}
-
-				}
-			}
-		}
-		g_strfreev( lines_contents );
-		g_free(content);
-
-	}
-
 	g_free(package_location);
 	#endif
 
@@ -537,7 +471,59 @@ GAsyncQueue * AL_PrecheckFiles()
 }
 
 
+/********************************
+* AL_CheckUpdate
+*
+*/
+gint AL_CheckUpdate( gchar * content, gpointer data )
+{
+	GtkBox * dialog_box = GTK_BOX( data );
+	gchar ** lines_contents = g_strsplit(  g_strstrip(content), "\n", 5 );
 
+	if ( g_strv_length(lines_contents) > 3 )
+	{
+		gchar * title_string = strpbrk( lines_contents[0], ":" );
+		gchar * message = strpbrk( lines_contents[1], ":" );
+		//CRC
+		gchar * latest_url = strpbrk( lines_contents[3], ":" );
 
+		if ( latest_url != NULL && message != NULL && title_string != NULL )
+		{
+			GtkWidget * label = NULL, * action = NULL, * icon = NULL;
+			GtkWidget * info_box = gtk_box_new( GTK_ORIENTATION_HORIZONTAL, 2 );
 
+			gchar * markup = g_markup_printf_escaped("%s - %s", title_string+1, message+1);
 
+			label = gtk_label_new( markup );
+			icon = gtk_image_new_from_icon_name( "dialog-warning", GTK_ICON_SIZE_SMALL_TOOLBAR );
+
+			if ( g_str_has_prefix(latest_url+1, "http") )
+			{
+				action = gtk_link_button_new_with_label( latest_url+1, "link" );
+			}
+			else
+			{
+				action = gtk_label_new( "" );
+			}
+
+			gtk_box_pack_start( GTK_BOX(info_box), icon, FALSE, FALSE, 1);
+			gtk_box_pack_start( GTK_BOX(info_box), label, FALSE, TRUE, 1);
+			gtk_box_pack_start( GTK_BOX(info_box), action, FALSE, FALSE, 1);
+
+			gtk_box_pack_start( dialog_box, info_box, FALSE, FALSE, 1);
+			gtk_widget_show_all( info_box );
+
+			CLEAR_STRING(markup);
+		}
+
+		//CLEAR_STRING(title_string);
+		//CLEAR_STRING(message);
+		//CLEAR_STRING(latest_url);
+
+	}
+	g_strfreev( lines_contents );
+
+	g_object_unref( dialog_box );
+
+	return 0;
+}

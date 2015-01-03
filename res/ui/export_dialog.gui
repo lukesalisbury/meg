@@ -133,7 +133,6 @@
                         <child>
                           <object class="GtkButton" id="button_packageid">
                             <property name="label" translatable="yes">Get Package ID</property>
-                            <property name="use_action_appearance">False</property>
                             <property name="visible">True</property>
                             <property name="can_focus">True</property>
                             <property name="receives_default">True</property>
@@ -305,7 +304,7 @@
                             <property name="label" translatable="yes">Settings</property>
                           </object>
                           <packing>
-                            <property name="expand">True</property>
+                            <property name="expand">False</property>
                             <property name="fill">False</property>
                             <property name="position">0</property>
                           </packing>
@@ -367,6 +366,7 @@
                             <property name="visible">True</property>
                             <property name="can_focus">False</property>
                             <property name="xalign">0</property>
+                            <property name="yalign">1</property>
                             <property name="label" translatable="yes">Files</property>
                           </object>
                           <packing>
@@ -387,7 +387,6 @@
                                 <child>
                                   <object class="GtkCheckButton" id="check_lang">
                                     <property name="label" translatable="yes">Languages</property>
-                                    <property name="use_action_appearance">False</property>
                                     <property name="visible">True</property>
                                     <property name="can_focus">True</property>
                                     <property name="receives_default">False</property>
@@ -403,7 +402,6 @@
                                 <child>
                                   <object class="GtkCheckButton" id="check_music">
                                     <property name="label" translatable="yes">Music</property>
-                                    <property name="use_action_appearance">False</property>
                                     <property name="visible">True</property>
                                     <property name="can_focus">True</property>
                                     <property name="receives_default">False</property>
@@ -419,7 +417,6 @@
                                 <child>
                                   <object class="GtkCheckButton" id="check_entities">
                                     <property name="label" translatable="yes">Entities</property>
-                                    <property name="use_action_appearance">False</property>
                                     <property name="visible">True</property>
                                     <property name="can_focus">True</property>
                                     <property name="receives_default">False</property>
@@ -435,7 +432,6 @@
                                 <child>
                                   <object class="GtkCheckButton" id="check_sounds">
                                     <property name="label" translatable="yes">Sound Effects</property>
-                                    <property name="use_action_appearance">False</property>
                                     <property name="visible">True</property>
                                     <property name="can_focus">True</property>
                                     <property name="receives_default">False</property>
@@ -451,7 +447,6 @@
                                 <child>
                                   <object class="GtkCheckButton" id="check_sprite">
                                     <property name="label" translatable="yes">Sprites</property>
-                                    <property name="use_action_appearance">False</property>
                                     <property name="visible">True</property>
                                     <property name="can_focus">True</property>
                                     <property name="receives_default">False</property>
@@ -477,7 +472,6 @@
                                 <child>
                                   <object class="GtkCheckButton" id="check_customfiles">
                                     <property name="label" translatable="yes">Custom File List</property>
-                                    <property name="use_action_appearance">False</property>
                                     <property name="visible">True</property>
                                     <property name="can_focus">True</property>
                                     <property name="receives_default">False</property>
@@ -601,7 +595,6 @@
                 <child>
                   <object class="GtkButton" id="button_chooser">
                     <property name="label">gtk-save-as</property>
-                    <property name="use_action_appearance">False</property>
                     <property name="visible">True</property>
                     <property name="can_focus">True</property>
                     <property name="receives_default">True</property>
@@ -639,7 +632,6 @@
             <child>
               <object class="GtkButton" id="button2">
                 <property name="label">gtk-cancel</property>
-                <property name="use_action_appearance">False</property>
                 <property name="visible">True</property>
                 <property name="can_focus">True</property>
                 <property name="receives_default">True</property>
@@ -655,7 +647,6 @@
             <child>
               <object class="GtkButton" id="button1">
                 <property name="label">gtk-ok</property>
-                <property name="use_action_appearance">False</property>
                 <property name="visible">True</property>
                 <property name="can_focus">True</property>
                 <property name="receives_default">True</property>

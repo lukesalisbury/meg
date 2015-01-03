@@ -31,8 +31,8 @@ extern GtkWidget * mapNotebook;
 /* External Functions */
 
 /* UI */
-#include "ui/map_edit.gui.h"
-const gchar * alchera_map_edit_ui = GUIMAP_EDIT;
+
+const gchar * alchera_map_edit_ui = GUI_MAP_EDIT;
 
 /********************************
 * Meg_MapEdit_GetMapInfo

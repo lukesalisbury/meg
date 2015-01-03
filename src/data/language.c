@@ -29,8 +29,8 @@ MokoiLanguage mokoiDefaultString = {NULL, NULL, NULL};
 MokoiLanguage mokoiDefaultDialog = {NULL, NULL, NULL};
 
 /* UI */
-#include "ui/language_add.gui.h"
-const gchar * mokoiUI_LanguageAdd = GUILANGUAGE_ADD
+
+const gchar * mokoiUI_LanguageAdd = GUI_LANGUAGE_ADD;
 
 /* Events */
 
@@ -242,8 +242,6 @@ gchar * AL_String_Get( gchar * file, guint id )
 */
 gboolean AL_String_Set( gchar * file, guint id, gchar * string )
 {
-	g_print( "language_file = %s; id: %d", file, id );
-
 	Language_Set_String( mokoiCurrentLanguage.values, id, string );
 
 	/* Check if it's a default File */

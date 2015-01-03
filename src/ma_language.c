@@ -24,8 +24,8 @@ GtkListStore * language_string_liststore, * language_type_liststore, * language_
 gchar * language_file = NULL;
 
 /* UI */
-#include "ui/page_language.gui.h"
-const gchar * meg_language_ui = GUIPAGE_LANGUAGE;
+
+const gchar * meg_language_ui = GUI_PAGE_LANGUAGE;
 
 /* Functions */
 

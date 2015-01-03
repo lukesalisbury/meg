@@ -60,8 +60,8 @@ static GMarkupParser entity_error_parser = {
 };
 
 /* UI */
-#include "ui/progress_dialog.gui.h"
-const gchar * mokoiUI_EntityRebuild = GUIPROGRESS_DIALOG
+
+const gchar * mokoiUI_EntityRebuild = GUI_PROGRESS_DIALOG;
 
 /* Events */
 

@@ -16,18 +16,6 @@
     <property name="stock_id">gtk-remove</property>
     <property name="always_show_image">True</property>
   </object>
-  <object class="GtkListStore" id="store_section">
-    <columns>
-      <!-- column-name Section -->
-      <column type="gchararray"/>
-      <!-- column-name gchararray1 -->
-      <column type="gchararray"/>
-      <!-- column-name GdkPixbuf1 -->
-      <column type="GdkPixbuf"/>
-      <!-- column-name window -->
-      <column type="gpointer"/>
-    </columns>
-  </object>
   <object class="GtkVBox" id="section_widget">
     <property name="can_focus">False</property>
     <child>
@@ -72,14 +60,14 @@
       </packing>
     </child>
     <child>
-      <object class="GtkNotebook" id="section_notebook">
+      <object class="GtkHPaned" id="hpaned1">
         <property name="visible">True</property>
         <property name="can_focus">True</property>
         <child>
-          <object class="GtkHBox" id="hbox2">
+          <object class="GtkExpander" id="expander1">
             <property name="visible">True</property>
-            <property name="can_focus">False</property>
-            <property name="homogeneous">True</property>
+            <property name="can_focus">True</property>
+            <property name="expanded">True</property>
             <child>
               <object class="GtkVBox" id="vbox2">
                 <property name="visible">True</property>
@@ -95,21 +83,12 @@
                         <property name="visible">True</property>
                         <property name="can_focus">True</property>
                         <property name="model">store_section</property>
+                        <property name="headers_visible">False</property>
                         <property name="headers_clickable">False</property>
                         <property name="search_column">0</property>
                         <child>
-                          <object class="GtkTreeViewColumn" id="treeviewcolumn4">
-                            <child>
-                              <object class="GtkCellRendererPixbuf" id="cellrendererpixbuf2"/>
-                              <attributes>
-                                <attribute name="pixbuf">2</attribute>
-                              </attributes>
-                            </child>
-                          </object>
-                        </child>
-                        <child>
                           <object class="GtkTreeViewColumn" id="treeviewcolumn2">
-                            <property name="title">Files</property>
+                            <property name="title">Worlds</property>
                             <child>
                               <object class="GtkCellRendererText" id="cellrenderertext3"/>
                               <attributes>
@@ -175,12 +154,25 @@
                   </packing>
                 </child>
               </object>
-              <packing>
-                <property name="expand">True</property>
-                <property name="fill">True</property>
-                <property name="position">0</property>
-              </packing>
             </child>
+            <child type="label">
+              <object class="GtkLabel" id="label1">
+                <property name="visible">True</property>
+                <property name="can_focus">False</property>
+                <property name="label" translatable="yes">Files</property>
+                <property name="track_visited_links">False</property>
+              </object>
+            </child>
+          </object>
+          <packing>
+            <property name="resize">False</property>
+            <property name="shrink">False</property>
+          </packing>
+        </child>
+        <child>
+          <object class="GtkNotebook" id="section_notebook">
+            <property name="visible">True</property>
+            <property name="can_focus">True</property>
             <child>
               <object class="GtkScrolledWindow" id="scrolledwindow2">
                 <property name="visible">True</property>
@@ -191,6 +183,7 @@
                   <object class="GtkViewport" id="viewport1">
                     <property name="visible">True</property>
                     <property name="can_focus">False</property>
+                    <property name="shadow_type">none</property>
                     <child>
                       <object class="GtkTextView" id="help_text">
                         <property name="visible">True</property>
@@ -200,36 +193,35 @@
                   </object>
                 </child>
               </object>
+            </child>
+            <child type="tab">
+              <object class="GtkLabel" id="label4">
+                <property name="visible">True</property>
+                <property name="can_focus">False</property>
+                <property name="label" translatable="yes">&lt;b&gt;Help&lt;/b&gt;</property>
+                <property name="use_markup">True</property>
+              </object>
               <packing>
-                <property name="expand">True</property>
-                <property name="fill">True</property>
-                <property name="position">1</property>
+                <property name="tab_fill">False</property>
               </packing>
             </child>
-          </object>
-        </child>
-        <child type="tab">
-          <object class="GtkLabel" id="label4">
-            <property name="visible">True</property>
-            <property name="can_focus">False</property>
-            <property name="label" translatable="yes">&lt;b&gt;List&lt;/b&gt;</property>
-            <property name="use_markup">True</property>
+            <child>
+              <placeholder/>
+            </child>
+            <child type="tab">
+              <placeholder/>
+            </child>
+            <child>
+              <placeholder/>
+            </child>
+            <child type="tab">
+              <placeholder/>
+            </child>
           </object>
           <packing>
-            <property name="tab_fill">False</property>
+            <property name="resize">True</property>
+            <property name="shrink">True</property>
           </packing>
-        </child>
-        <child>
-          <placeholder/>
-        </child>
-        <child type="tab">
-          <placeholder/>
-        </child>
-        <child>
-          <placeholder/>
-        </child>
-        <child type="tab">
-          <placeholder/>
         </child>
       </object>
       <packing>
@@ -238,5 +230,17 @@
         <property name="position">1</property>
       </packing>
     </child>
+  </object>
+  <object class="GtkListStore" id="store_section">
+    <columns>
+      <!-- column-name Section -->
+      <column type="gchararray"/>
+      <!-- column-name gchararray1 -->
+      <column type="gchararray"/>
+      <!-- column-name GdkPixbuf1 -->
+      <column type="GdkPixbuf"/>
+      <!-- column-name window -->
+      <column type="gpointer"/>
+    </columns>
   </object>
 </interface>

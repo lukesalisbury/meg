@@ -16,21 +16,17 @@ typedef struct {
 	gchar * filename;
 	gchar * content;
 	GtkWidget * dialog;
+	GtkWidget * label;
 	gint (*return_function)( gchar * content, gpointer data );
 	gpointer return_function_data;
 } WebRetrieve;
 
-typedef struct {
-	GAsyncQueue * queue;
-	GtkWidget * dialog;
-	void (*download_function)(gpointer);
-	void (*callback_function)(gpointer);
-} WebRetrieveCallback;
 
-	gboolean Meg_Web_Enable( );
-	gboolean Meg_Web_RetrieveFile( GString * address, gchar * user, gchar * pass, gchar * file_name, guint directory );
-	gchar * Meg_Web_RetrieveText( GString * address, gchar * user, gchar * pass );
-	gboolean Meg_Web_SendFile( GString * address, gchar * user, gchar * pass, gchar * file_name, guint directory );
-	gboolean Meg_Web_SendText( GString * address, gchar * user, gchar * pass, gchar * text );
+gboolean Meg_Web_Enable( );
 
+gboolean Meg_Web_RetrieveFileOverwrite( WebRetrieve * request, gchar * user, gchar * pass );
+gboolean Meg_Web_RetrieveFile( WebRetrieve * request, gchar * user, gchar * pass );
+gchar * Meg_Web_RetrieveText( WebRetrieve * request, gchar * user, gchar * pass );
+gboolean Meg_Web_SendFile( WebRetrieve * request, gchar * user, gchar * pass, gchar * file_name );
+gboolean Meg_Web_SendText( WebRetrieve * request, gchar * user, gchar * pass, gchar * text );
 

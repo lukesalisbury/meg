@@ -27,8 +27,8 @@ GtkWidget * sectionNotebook = NULL;
 void Meg_Help_Load( const gchar * file, GtkWidget * textview );
 
 /* UI */
-#include "ui/page_section.gui.h"
-const gchar * alchera_section_ui_main = GUIPAGE_SECTION;
+
+const gchar * alchera_section_ui_main = GUI_PAGE_SECTION;
 
 
 /********************************

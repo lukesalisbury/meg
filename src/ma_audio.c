@@ -29,8 +29,8 @@ GtkWidget * alchera_audio_treeview = NULL;
 
 
 /* UI */
-#include "ui/page_audio.gui.h"
-const gchar * mokoiUI_Audio = GUIPAGE_AUDIO
+
+const gchar * mokoiUI_Audio = GUI_PAGE_AUDIO;
 
 
 /********************************

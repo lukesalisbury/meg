@@ -34,12 +34,12 @@ extern GtkWidget * mokoiEntityTreeview;
 /* Local Variables */
 
 /* UI */
-#include "ui/entity_editor_function.gui.h"
-#include "ui/entity_editor.gui.h"
-#include "ui/error_dialog.gui.h"
-const gchar * mokoiUI_EntityFunction = GUIENTITY_EDITOR_FUNCTION
-const gchar * mokoiUI_EntityEditor = GUIENTITY_EDITOR
-const gchar * mokoiUI_ErrorDialog = GUIERROR_DIALOG
+
+
+
+const gchar * mokoiUI_EntityFunction = GUI_ENTITY_EDITOR_FUNCTION;
+const gchar * mokoiUI_EntityEditor = GUI_ENTITY_EDITOR;
+const gchar * mokoiUI_ErrorDialog = GUI_ERROR_DIALOG;
 
 
 
@@ -142,7 +142,7 @@ gboolean EntityEditor_Help( GtkWidget * widget, gpointer view )
 	gtk_text_buffer_get_selection_bounds( buffer, &start, &end );
 	search_text = gtk_text_buffer_get_text( buffer, &start, &end, FALSE );
 
-	file_path = g_strdup_printf("ScriptAPI/Pawn/%s.xml", search_text);
+	file_path = g_strdup_printf("ScriptAPI/%s", search_text);
 
 	Meg_Help_Open( file_path );
 
@@ -217,7 +217,7 @@ void EntityEditor_SwitchFunction( GtkComboBox * widget, GtkListStore * argument_
 {
 	GtkTreeIter iter;
 	EditorDatabaseListing * function;
-	GSList * list = NULL;
+	GList * list = NULL;
 	gchar * text = NULL;
 	GtkLabel * label = NULL;
 

@@ -33,10 +33,10 @@ GtkWidget * mokoiEntityMainLabel = NULL;
 GtkWidget * mokoiEntityTreeview = NULL;
 
 /* UI */
-#include "ui/entity_menu.gui.h"
-#include "ui/page_entity.gui.h"
-const gchar * mokoiUI_EntityMenu = GUIENTITY_MENU
-const gchar * mokoiUI_Entity = GUIPAGE_ENTITY
+
+
+const gchar * mokoiUI_EntityMenu = GUI_ENTITY_MENU;
+const gchar * mokoiUI_Entity = GUI_PAGE_ENTITY;
 
 /********************************
 * MegWidget_EntityList_Create

@@ -22,8 +22,7 @@ extern GtkListStore * language_string_liststore, * language_type_liststore, * la
 extern gchar * language_file;
 
 /* UI */
-#include <ui/language_edit.gui.h>
-const gchar * meg_language_edit_ui = GUILANGUAGE_EDIT;
+const gchar * meg_language_edit_ui = GUI_LANGUAGE_EDIT;
 
 /* Functions */
 
@@ -85,7 +84,7 @@ void Meg_Language_EditDialog( GtkTreeView * tree_view, GtkTreePath * path, GtkTr
 
 	guint id;
 	GtkTextBuffer * buffer = NULL;
-	gchar * orginal_text = NULL, *translated_text = NULL;
+	gchar * orginal_text = NULL, * translated_text = NULL, * new_text = NULL;
 
 	GtkTextIter start, end;
 
@@ -113,14 +112,16 @@ void Meg_Language_EditDialog( GtkTreeView * tree_view, GtkTreePath * path, GtkTr
 		{
 			gtk_text_buffer_get_bounds( buffer, &start, &end );
 
-			translated_text = gtk_text_buffer_get_text( buffer, &start, &end, FALSE );
-			translated_text = g_strescape( translated_text, "❶❷❸❹❺❻❼❽❾❿➀➁➂➃➄➅➆➇➈▲△▼▽◀◁▶▷◐◒◑◓" );
+			new_text = gtk_text_buffer_get_text( buffer, &start, &end, FALSE );
+			//translated_text = g_strescape( translated_text, "❶❷❸❹❺❻❼❽❾❿➀➁➂➃➄➅➆➇➈▲△▼▽◀◁▶▷◐◒◑◓" );
 
-			gtk_list_store_set( GTK_LIST_STORE(model), &iter, 2, translated_text, -1 );
+			gtk_list_store_set( GTK_LIST_STORE(model), &iter, 2, new_text, -1 );
 
-			AL_String_Set( language_file, id, translated_text );
+			AL_String_Set( language_file, id, new_text );
+
 		}
 
+		g_free( translated_text );
 		gtk_widget_destroy( dialog );
 
 	}

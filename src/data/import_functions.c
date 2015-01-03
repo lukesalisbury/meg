@@ -97,11 +97,11 @@ GAsyncQueue * ImportDialog_Download( GtkWidget * parent, const gchar * url, cons
 
 	if ( target_file_name )
 	{
-		queue = Meg_Web_RetrieveQueue( parent, url, NULL, NULL, target_file_name, return_text, data );
+		queue = Meg_WebQueue_Retrieve( parent, url, NULL, NULL, target_file_name, return_text, data );
 	}
 	else if ( return_text )
 	{
-		queue = Meg_Web_RetrieveTextQueue( parent, url, NULL, NULL, return_text, data );
+		queue = Meg_WebQueue_RetrieveText( parent, url, NULL, NULL, return_text, data );
 	}
 
 	return queue;

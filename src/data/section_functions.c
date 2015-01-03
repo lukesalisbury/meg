@@ -27,8 +27,8 @@ extern GList * mokoiWorldsList;
 /* Local Variables */
 
 /* UI */
-#include "ui/world_add.gui.h"
-const gchar * mokoiUI_WorldAdd = GUIWORLD_ADD
+
+const gchar * mokoiUI_WorldAdd = GUI_WORLD_ADD;
 extern const gchar * mokoiUI_MapChooser;
 
 /********************************

@@ -4,8 +4,8 @@ BUILDPLATFORM = ${shell uname}
 CPP = g++
 CC = gcc
 MAKE=make
-MKDIR = mkdir -p
-RM = rm -f
+MKDIR=mkdir -p
+RM=rm -f
 MESSAGE =
 PAWN=4
 
@@ -14,5 +14,5 @@ PAWN=4
 #INSTALLDIR = /opt/mokoi
 #BUILDOS =
 
-
+-include ../globalsettings.mk
 include platform.mk

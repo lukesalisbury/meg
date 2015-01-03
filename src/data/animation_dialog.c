@@ -28,8 +28,8 @@ extern GSList * mokoiSpritesheets;
 
 
 /* UI */
-#include "ui/animation_advance.gui.h"
-const gchar * mokoiUI_AnimationAdvance = GUIANIMATION_ADVANCE
+
+const gchar * mokoiUI_AnimationAdvance = GUI_ANIMATION_ADVANCE;
 
 
 /********************************

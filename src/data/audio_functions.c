@@ -28,8 +28,8 @@ extern gchar * mokoiBasePath;
 /* Local Variables */
 
 /* UI */
-#include "ui/audio_custom_widget.gui.h"
-const gchar * mokoiUI_AudioCustomWidget = GUIAUDIO_CUSTOM_WIDGET
+
+const gchar * mokoiUI_AudioCustomWidget = GUI_AUDIO_CUSTOM_WIDGET;
 
 
 /********************************

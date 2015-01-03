@@ -28,22 +28,15 @@ void Patch_FileChanged( GtkFileChooserButton * widget, gpointer user_data);
 void Patch_Create( gchar * file, GtkListStore * store );
 
 /* UI */
-#include "ui/project_new.gui.h"
-#include "ui/pref_dialog.gui.h"
-#include "ui/import_dialog.gui.h"
-#include "ui/patch_page.gui.h"
-
-const gchar * UIImportDialog = GUIIMPORT_DIALOG
-const gchar * UIProjectNew = GUIPROJECT_NEW
-const gchar * UIPrefDialog = GUIPREF_DIALOG
-const gchar * UIPatchPage = GUIPATCH_PAGE
+const gchar * UIImportDialog = GUI_IMPORT_DIALOG;
+const gchar * UIProjectNew = GUI_PROJECT_NEW;
+const gchar * UIPrefDialog = GUI_PREF_DIALOG;
+const gchar * UIPatchPage = GUI_PATCH_PAGE;
 
 #ifdef CUSTOMSETTINGS
-#include "ui/about_window_custom.gui.h"
-const gchar * UIAboutWindow = GUIABOUT_WINDOW_CUSTOM
+const gchar * UIAboutWindow = GUI_ABOUT_WINDOW_CUSTOM;
 #else
-#include "ui/about_window.gui.h"
-const gchar * UIAboutWindow = GUIABOUT_WINDOW
+const gchar * UIAboutWindow = GUI_ABOUT_WINDOW;
 #endif
 
 /* Functions */

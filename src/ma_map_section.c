@@ -31,8 +31,8 @@ gboolean Meg_MapSection_LayoutExpose( GtkWidget * widget, GdkEventExpose *event,
 gboolean Meg_MapSection_CloseTab( GtkWidget *event_box, GdkEventButton *event, GtkWidget * overview );
 
 /* UI */
-#include "ui/map_section.gui.h"
-const gchar * alchera_map_overview_ui = GUIMAP_SECTION
+
+const gchar * alchera_map_overview_ui = GUI_MAP_SECTION;
 
 
 /********************************

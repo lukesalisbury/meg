@@ -27,8 +27,8 @@ void MegWidget_Project_Refresh( GtkWidget * widget, gpointer user_data );
 void AL_Settings_RefreshAdvance(  );
 
 /* UI */
-#include "ui/page_project.gui.h"
-const gchar * alchera_project_ui = GUIPAGE_PROJECT
+
+const gchar * alchera_project_ui = GUI_PAGE_PROJECT;
 
 
 /********************************

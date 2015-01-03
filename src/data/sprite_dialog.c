@@ -40,8 +40,8 @@ extern GdkRectangle Mokoi_SpriteCollision;
 
 
 /* UI */
-#include "ui/sprite_advance.gui.h"
-const gchar * mokoiUI_SpriteAdvance = GUISPRITE_ADVANCE;
+
+const gchar * mokoiUI_SpriteAdvance = GUI_SPRITE_ADVANCE;
 
 
 /********************************

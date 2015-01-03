@@ -35,10 +35,10 @@ guint16 map_bgalpha = 65535;
 gchar * map_script_default = "// To ease development, <map_default> may include a Init Function.\n// If You wish to use your own uncomment the next line\n//#define HASINITFUNCTION 1\n#tryinclude <map_default>\n#tryinclude <standard>\nmain()\n{\n		//Your Code\n}\n";
 
 /* UI */
-#include "ui/map_advance.gui.h"
-#include "ui/map_graphic_replace.gui.h"
-const gchar * mokoiUI_MapAdvance = GUIMAP_ADVANCE;
-const gchar * mokoiUI_MapGraphicReplace = GUIMAP_GRAPHIC_REPLACE;
+
+
+const gchar * mokoiUI_MapAdvance = GUI_MAP_ADVANCE;
+const gchar * mokoiUI_MapGraphicReplace = GUI_MAP_GRAPHIC_REPLACE;
 
 /* Events */
 

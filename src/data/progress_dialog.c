@@ -26,8 +26,8 @@ GtkWidget * mokoiCompileProgressBar;
 /* Local Variables */
 
 /* UI */
-#include "ui/progress_dialog.gui.h"
-const gchar * mokoiUI_ProgessDialog = GUIPROGRESS_DIALOG
+
+const gchar * mokoiUI_ProgessDialog = GUI_PROGRESS_DIALOG;
 
 /********************************
 * ProgressDialog_Watch

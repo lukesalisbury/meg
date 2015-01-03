@@ -51,8 +51,8 @@ static gchar * mokoiChildPositionStrings[] = {
 };
 
 /* UI */
-#include "ui/sheet_create.gui.h"
-const gchar * mokoiUI_SheetCreate = GUISHEET_CREATE
+
+const gchar * mokoiUI_SheetCreate = GUI_SHEET_CREATE;
 
 
 

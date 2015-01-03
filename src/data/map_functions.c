@@ -31,8 +31,8 @@ extern GKeyFile * mokoiConfigTable;
 
 
 /* UI */
-#include "ui/map_chooser.gui.h"
-const gchar * mokoiUI_MapChooser = GUIMAP_CHOOSER;
+
+const gchar * mokoiUI_MapChooser = GUI_MAP_CHOOSER;
 
 
 /********************************

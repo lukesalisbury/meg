@@ -45,8 +45,8 @@ gboolean mokoiCompileError = FALSE;
 */
 
 /* UI */
-#include "ui/compilecreate_dialog.gui.h"
-const gchar * mokoiUI_CompileCreate = GUICOMPILECREATE_DIALOG;
+
+const gchar * mokoiUI_CompileCreate = GUI_COMPILECREATE_DIALOG;
 
 
 typedef enum GameCompiler_Distro

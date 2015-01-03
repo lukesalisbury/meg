@@ -22,7 +22,6 @@ src/ma_types.h
 src/alchera_loader.h
 src/alchera_functions.h
 src/main.c
-src/ma_web.c
 src/ma_textedit_events.c
 src/ma_textedit.c
 src/ma_spritesheets_events.c
@@ -302,7 +301,6 @@ src/data/map_objects.c
 src/widgets/display_object.h
 src/widgets/display_object.c
 res/ui/about_window_custom.gui
-buildheader.c
 src/data/sprite_grouping.c
 src/data/sprite_grouping.h
 res/ui/world_add.gui
@@ -853,3 +851,8 @@ src/widgets/bitmap_font.c
 meg_pawn/makefiles/apple.make
 meg_pawn/makefiles/linux.make
 meg_pawn/makefiles/windows.make
+buildheaderfile.c
+src/ma_web_curl.c
+src/ma_web_none.c
+src/ma_web_soup.c
+src/ma_web.c

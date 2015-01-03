@@ -11,7 +11,7 @@ Permission is granted to anyone to use this software for any purpose, including 
 
 /* Standard Headers */
 #include "loader_global.h"
-
+#include "global.h"
 /* External Functions */
 
 /* Global Variables */
@@ -21,8 +21,7 @@ Permission is granted to anyone to use this software for any purpose, including 
 
 
 /* UI */
-#include "ui/sprite_grouping.gui.h"
-const gchar * mokoiUI_SpriteGrouping = GUISPRITE_GROUPING
+const gchar * mokoiUI_SpriteGrouping = GUI_SPRITE_GROUPING;
 
 
 /* Functions */

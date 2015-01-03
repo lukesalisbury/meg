@@ -13,6 +13,7 @@ Permission is granted to anyone to use this software for any purpose, including 
 #include "global.h"
 #include "ma_initwin.h"
 #include "ma_events.h"
+#include "data/package.h"
 
 /* Global Variables */
 extern GtkWidget * alchera_init_window;
@@ -22,8 +23,8 @@ GtkWidget * alchera_current_parent_window = NULL;
 gboolean Meg_Main_Init();
 
 /* UI */
-#include "ui/init.gui.h"
-const gchar * alchera_init_ui = GUIINIT
+
+const gchar * alchera_init_ui = GUI_INIT;
 
 /********************************
 * Meg_Event_OpenByButton
@@ -58,6 +59,9 @@ void Meg_Event_OpenRecent( GtkRecentChooser * chooser, gpointer user_data )
 
 }
 
+
+gint AL_CheckUpdate( gchar * content, gpointer data );
+
 /********************************
 * Meg_Project_Open
 *
@@ -66,7 +70,7 @@ void Meg_Project_Open()
 {
 	/* Create initial dialog windows */
 	GError * error = NULL;
-	GtkWidget * chooser_recent = NULL, * box_example, * button_open_game, * button_new_game;
+	GtkWidget * chooser_recent = NULL, * box_example, * button_open_game, * button_new_game, * dialog_box;
 	GtkRecentFilter * filter_recent = gtk_recent_filter_new();
 
 	GtkBuilder * ui = gtk_builder_new();
@@ -78,10 +82,38 @@ void Meg_Project_Open()
 	}
 
 	alchera_init_window = GET_WIDGET( ui, "alchera-init-window" );
+	dialog_box = GET_WIDGET( ui, "dialog-vbox2" );
 	chooser_recent = GET_WIDGET( ui, "alchera-recent-chooser" );
 	box_example = GET_WIDGET( ui, "alchera-examples-box" );
 	button_open_game = GET_WIDGET( ui, "alchera-game-open" );
 	button_new_game = GET_WIDGET( ui, "alchera-game-new" );
+
+
+	/* Update Location */
+
+	if ( Meg_Web_Enable( ) )
+	{
+		gchar * package_location = NULL, * program_location = NULL;
+
+		#ifdef FORCE_PACKAGE
+		package_location = FORCE_PACKAGE_CHECKSUM_URL;
+		if ( package_location )
+		{
+			g_object_ref( dialog_box );
+			Meg_WebQueue_RetrieveText( alchera_init_window, package_location, NULL, NULL, &AL_CheckUpdate, dialog_box);
+		}
+		#endif
+
+		#ifdef PROGRAM_UPDATE_URL
+		program_location = PROGRAM_UPDATE_URL;
+
+		if ( program_location )
+		{
+			g_object_ref( dialog_box );
+			Meg_WebQueue_RetrieveText( alchera_init_window, program_location, NULL, NULL, &AL_CheckUpdate, dialog_box);
+		}
+		#endif
+	}
 
 	/* Add Signal to Widget */
 	g_signal_connect( chooser_recent, "item-activated", G_CALLBACK(Meg_Event_OpenRecent), NULL);
@@ -127,6 +159,21 @@ void Meg_Project_Open()
 	}
 
 
+#ifdef FORCE_PACKAGE
+	gchar * content_package_location = Package_GetPath( FORCE_PACKAGE );
+	if ( !content_package_location )
+	{
+		content_package_location = Meg_Directory_DataFile("packages", FORCE_PACKAGE );
+	}
+	/* Check if package exist */
+	if ( g_file_test(content_package_location, G_FILE_TEST_IS_DIR ) )
+	{
+		GtkWidget * button_example = gtk_button_new_with_label("Content Package");
+		g_signal_connect( button_example, "clicked", G_CALLBACK(Meg_Event_OpenByButton), g_strdup(content_package_location) );
+		gtk_box_pack_start( GTK_BOX(box_example), button_example, FALSE, TRUE, 2 );
+	}
+	g_free(content_package_location);
+#endif
 
 	gtk_widget_show_all(Meg_Main_GetWidget());
 

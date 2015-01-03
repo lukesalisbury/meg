@@ -36,8 +36,8 @@ gboolean Meg_HelpParser_Load( GtkTextView * textview, gchar * content );
 gboolean Meg_HelpParser_Event( GtkWidget * text_view, GdkEvent * ev );
 
 /* UI */
-#include "ui/page_help.gui.h"
-const gchar * alchera_help_ui = GUIPAGE_HELP;
+
+const gchar * alchera_help_ui = GUI_PAGE_HELP;
 
 /* Functions */
 
@@ -151,7 +151,7 @@ void Meg_Help_Load( const gchar * file, GtkWidget * textview )
 
 		if ( function == NULL )
 		{
-			if ( !Meg_HelpParser_Load( GTK_TEXT_VIEW(textview), "<div>File Not Found</div>" ) )
+			if ( !Meg_HelpParser_Load( GTK_TEXT_VIEW(textview), "<div>Function Not Found</div>" ) )
 			{
 				Meg_Error_Print( (char*)__func__, __LINE__, "Can not parse help file '%s'", file);
 			}

@@ -27,17 +27,17 @@ extern gchar * mokoiBasePath;
 
 
 /* UI */
-#include "ui/object_entity.gui.h"
-#include "ui/object_shape.gui.h"
-#include "ui/object_sprite.gui.h"
-#include "ui/object_line.gui.h"
-#include "ui/object_text.gui.h"
 
-const gchar * mokoiUI_ObjectEntites = GUIOBJECT_ENTITY
-const gchar * mokoiUI_ObjectShape = GUIOBJECT_SHAPE
-const gchar * mokoiUI_ObjectSprite = GUIOBJECT_SPRITE
-const gchar * mokoiUI_ObjectText = GUIOBJECT_TEXT
-const gchar * mokoiUI_ObjectLine = GUIOBJECT_LINE
+
+
+
+
+
+const gchar * mokoiUI_ObjectEntites = GUI_OBJECT_ENTITY;
+const gchar * mokoiUI_ObjectShape = GUI_OBJECT_SHAPE;
+const gchar * mokoiUI_ObjectSprite = GUI_OBJECT_SPRITE;
+const gchar * mokoiUI_ObjectText = GUI_OBJECT_TEXT;
+const gchar * mokoiUI_ObjectLine = GUI_OBJECT_LINE;
 
 
 /********************************

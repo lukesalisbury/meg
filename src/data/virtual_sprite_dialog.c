@@ -32,8 +32,8 @@ extern const GtkTargetEntry alchera_map_drop_target;
 
 
 /* UI */
-#include "ui/virtual_sprite_dialog.gui.h"
-const gchar * ui_data_virtual_sprite_dialog = GUIVIRTUAL_SPRITE_DIALOG;
+
+const gchar * ui_data_virtual_sprite_dialog = GUI_VIRTUAL_SPRITE_DIALOG;
 
 
 /********************************

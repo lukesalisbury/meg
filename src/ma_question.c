@@ -28,8 +28,8 @@ GtkWidget * mokoi_questions_treeview = NULL;
 GtkWidget * mokoi_questions_text = NULL;
 
 /* UI */
-#include "ui/question_page.gui.h"
-const gchar * mokoiUI_Questions = GUIQUESTION_PAGE
+
+const gchar * mokoiUI_Questions = GUI_QUESTION_PAGE;
 
 #if defined(USE_SOUP) && defined(Q2A_URL)
 

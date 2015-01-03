@@ -6,9 +6,10 @@
 # PLATFORMBITS 64, 32
 # CC (Compiler)
 # BIN (Binary output)
+# SKIPMODULES
 # USEGTKSOURCEVIEW
 # USESOUP
-
+# USECURL
 
 #Default Settings
 include ./setting.mk
@@ -34,14 +35,12 @@ COMPILER_LIBS += $(LDFLAGS)
 
 ifeq ($(PLATFORMBITS), 64)
 	COMPILER_FLAGS += -m64
-	COMPILER_LIBS +=  -m64
+	COMPILER_LIBS += -m64
 endif
 ifeq ($(PLATFORMBITS), 32)
-	COMPILER_FLAGS +=  -m32
-	COMPILER_LIBS +=  -m32
+	COMPILER_FLAGS += -m32
+	COMPILER_LIBS += -m32
 endif
-
-
 
 # Objects
 OBJ := $(OBJDIR)/ma_dialog.o $(OBJDIR)/ma_directories.o $(OBJDIR)/ma_editor.o $(OBJDIR)/ma_events.o $(OBJDIR)/ma_help.o
@@ -53,6 +52,8 @@ OBJ += $(OBJDIR)/ma_spritesheets_events.o $(OBJDIR)/ma_git.o $(OBJDIR)/ma_texted
 OBJ += $(OBJDIR)/ma_web.o $(OBJDIR)/main.o $(OBJDIR)/ma_audio.o $(OBJDIR)/ma_entitylist.o $(OBJDIR)/gtk_compat.o
 OBJ += $(OBJDIR)/ma_question.o $(OBJDIR)/ma_question_functions.o $(OBJDIR)/ma_map_settings.o
 OBJ += $(OBJDIR)/ma_map_settings_events.o $(OBJDIR)/ma_section.o $(OBJDIR)/ma_section_events.o $(OBJDIR)/ma_types.o
+
+OBJ += $(OBJDIR)/ma_web_curl.o $(OBJDIR)/ma_web_soup.o $(OBJDIR)/ma_web_none.o
 
 OBJ += $(OBJDIR)/widgets/widget_map.o $(OBJDIR)/widgets/map_info.o $(OBJDIR)/widgets/display_object.o $(OBJDIR)/widgets/bitmap_font.o
 
@@ -78,49 +79,42 @@ OBJ += $(OBJDIR)/ma_physfs.o $(OBJDIR)/physfs/physfs.o $(OBJDIR)/physfs/physfs_b
 
 OBJ += $(RES)
 
-UI = $(patsubst res/ui/%,include/ui/%.h,$(wildcard res/ui/*.gui))
+
+# UI header
+UI = $(wildcard res/ui/*.gui)
+UIH = include/ui_resources.h
 
 #Build
-
 PHONY: all
 	@echo --------------------------------
 
-all: all-before buildheader.exe $(BIN) $(FINALOUTPUT)
+all: all-before $(BIN) $(FINALOUTPUT)
 	@echo --------------------------------
 
 all-before:
 	@echo --------------------------------
-	@echo Building Mokoi Editor
-#	@echo Build Platform: $(BUILDPLATFORM)
-#	@echo Target Platform: $(BUILDOS)/$(PLATFORMBITS)
-#	@echo Debug Build? $(BUILDDEBUG)
-#	@echo Build Flags? $(COMPILER_FLAGS)
-#	@echo --------------------------------
+	@echo Building $(BIN)
+	@echo Build Platform: $(BUILDPLATFORM)
+	@echo Target Platform: $(BUILDOS)/$(PLATFORMBITS)
 
-include/ui/%.gui.h: res/ui/%.gui
-	@echo Converting GUI $@
-	@-$(MKDIR) include/ui/
-	@$(OBJDIR)/buildheader.exe $< $@ $(BUILDHEADER_GUI_TITLE) $(BUILDHEADER_GUI_DESCRIPT) $(BUILDHEADER_GUI_ICON)
-
-buildheader.exe:
-	@echo Building builderheader
+$(UIH): $(UI)
+	@echo --------------------------------
+	@echo Converting UI to Header
 	@-$(MKDIR) $(OBJDIR)
-	@$(CC) $(MINI_PLATFORM_FLAGS) -o $(OBJDIR)/buildheader.o -c buildheader.c
-	@$(CC) $(OBJDIR)/buildheader.o -o $(OBJDIR)/buildheader.exe  $(MINI_PLATFORM_LIBS) -s
-
-
-buildheader: buildheader.exe $(UI)
+	@$(CC) $(MINI_PLATFORM_FLAGS) -o $(OBJDIR)/buildheaderfile.o -c buildheaderfile.c
+	@$(CC) $(OBJDIR)/buildheaderfile.o -o $(OBJDIR)/buildheaderfile.exe  $(MINI_PLATFORM_LIBS) -s
+	@$(OBJDIR)/buildheaderfile.exe res/ui/ $(UIH) $(BUILDHEADER_GUI_TITLE) $(BUILDHEADER_GUI_DESCRIPT) $(BUILDHEADER_GUI_ICON)
 	@echo --------------------------------
 
 clean:
-	@echo Clean up Mokoi Editor
-	${RM} $(OBJ) $(BIN) $(OBJDIR)/buildheader.exe $(UI)
+	@echo Clean up $(BIN)
+	@${RM} $(OBJ) $(BIN) $(OBJDIR)/buildheaderfile.exe $(UIH)
 ifneq ($(SKIPMODULES), TRUE)
 	@$(MAKE) -C meg_audio clean BUILDDIR=$(CURDIR)/$(BUILDDIR)
 	@$(MAKE) -C meg_pawn clean BUILDDIR=$(CURDIR)/$(BUILDDIR)
 endif
 
-$(OBJDIR)/%.o : src/%.c
+$(OBJDIR)/%.o : src/%.c $(UIH)
 	@echo Compiling $@ $(MESSAGE)
 	@-$(MKDIR) $(dir $@)
 	@$(CC) -c $(COMPILER_FLAGS) -o $@ $<
@@ -132,13 +126,26 @@ ifneq ($(SKIPMODULES), TRUE)
 	@$(MAKE) -C meg_pawn all BUILDDIR=$(CURDIR)/$(BUILDDIR)
 endif
 
+buildmodules:
+	@echo --------------------------------
+	@$(MAKE) -C meg_audio all BUILDDIR=$(CURDIR)/$(BUILDDIR)
+	@$(MAKE) -C meg_pawn all BUILDDIR=$(CURDIR)/$(BUILDDIR)
 
-$(BIN): modules $(UI) $(OBJ)
+cleanmodules:
+	@echo --------------------------------
+	@$(MAKE) -C meg_audio clean BUILDDIR=$(CURDIR)/$(BUILDDIR)
+	@$(MAKE) -C meg_pawn clean BUILDDIR=$(CURDIR)/$(BUILDDIR)
+
+installmodules:
+	@echo --------------------------------
+	@$(MAKE) -C meg_audio install BUILDDIR=$(CURDIR)/$(BUILDDIR) INSTALLDIR=$(CURDIR)/$(INSTALLDIR)
+	@$(MAKE) -C meg_pawn install BUILDDIR=$(CURDIR)/$(BUILDDIR) INSTALLDIR=$(CURDIR)/$(INSTALLDIR)
+
+$(BIN): $(UIH) modules $(OBJ)
 	@echo --------------------------------
 	@echo Building $(BIN) $(MESSAGE)
 	@-$(MKDIR) $(BUILDDIR)
 	@$(CC) $(OBJ) -o $(BUILDDIR)/$(BIN) $(COMPILER_LIBS)
-
 
 install: $(BIN)
 	@echo Installing $< to $(INSTALLDIR)
@@ -146,5 +153,5 @@ install: $(BIN)
 	@-$(MKDIR) $(INSTALLDIR)/bin/
 	@cp $(BUILDDIR)/$(BIN) $(INSTALLDIR)/bin/
 	@cp -r ./share/ $(INSTALLDIR)/
-	@$(MAKE) -C meg_audio install BUILDDIR=$(CURDIR)/$(BUILDDIR)
-	@$(MAKE) -C meg_pawn install BUILDDIR=$(CURDIR)/$(BUILDDIR)
+
+

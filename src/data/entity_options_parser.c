@@ -34,8 +34,8 @@ void EntityOptionParser_StartHandler( GMarkupParseContext *context, const gchar 
 
 static GMarkupParser mokoiRuntimeParser = {EntityOptionParser_StartHandler, NULL, NULL, NULL, NULL};
 
-#include "ui/entity_option_editor.gui.h"
-const gchar * mokoiUI_EntityOption = GUIENTITY_OPTION_EDITOR
+
+const gchar * mokoiUI_EntityOption = GUI_ENTITY_OPTION_EDITOR;
 
 
 /********************************
