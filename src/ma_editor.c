@@ -39,9 +39,9 @@ GdkRGBA error_color = { 1.0, 0.0, 0.0, .2 };
 GdkRGBA warning_color = {  0, 1.0, 1.0, .2 };
 #endif
 
-
 #ifdef USEGTKSOURCEVIEW
 	#include "lang_provider.c"
+
 	#if GTK_MAJOR_VERSION == 2
 	static gchar * Meg_Editor_Tooltip( GtkSourceMark *mark, gpointer user_data )
 	{

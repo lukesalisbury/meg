@@ -130,7 +130,7 @@ static void script_auto_complete_provider_populate( GtkSourceCompletionProvider 
 	word = script_auto_complete_get_word( &iter );
 
 	gtk_widget_set_has_tooltip( ((ScriptAutoCompleteProvider *)provider)->widget, TRUE );
-	if (word == NULL || g_utf8_strlen(word, -1) < 2 )
+	if ( word == NULL || g_utf8_strlen(word, -1) < 2 )
 	{
 		gtk_source_completion_context_add_proposals( context, provider, NULL, TRUE ); /* Clear */
 		return;
@@ -144,22 +144,16 @@ static void script_auto_complete_provider_populate( GtkSourceCompletionProvider 
 			while ( q )
 			{
 				EditorDatabaseListing * listing = (EditorDatabaseListing *)(q->data);
-				if ( listing)
+				if ( listing )
 				{
-					gchar * markup2 = g_markup_printf_escaped("%s<i>%s</i>", listing->name, listing->arguments_string);
-/*
-					if ( !g_ascii_strcasecmp( listing->name, word ) )
-					{
-						gchar * markup = g_markup_printf_escaped("<i>Arg:%s</i>\n\n%s", listing->arguments, listing->info);
-						gtk_widget_set_tooltip_markup( ((ScriptAutoCompleteProvider *)provider)->widget, markup );
-						gtk_widget_set_has_tooltip( ((ScriptAutoCompleteProvider *)provider)->widget, TRUE );
-					}
-					else
-						*/
+
 					if ( g_str_has_prefix( listing->name, word ) )
 					{
+						gchar * markup2 = g_markup_printf_escaped("%s<i>%s</i>", listing->name, listing->arguments_string);
 						proposals = g_list_prepend( proposals, gtk_source_completion_item_new_with_markup(markup2, listing->name, NULL, listing->info ) );
+						g_free(markup2);
 					}
+
 				}
 				q = g_slist_next( q );
 

@@ -9,6 +9,13 @@ Permission is granted to anyone to use this software for any purpose, including 
 3. This notice may not be removed or altered from any source distribution.
 ****************************/
 
+#define FL_MODE_NONE 0
+#define FL_MODE_FUNCTION 1
+#define FL_MODE_SUMMARY 2
+#define FL_MODE_PARAM 3
+#define FL_MODE_RETURN 4
+#define FL_MODE_EXAMPLE 5
+
 /* Standard Headers */
 #include "loader_global.h"
 
@@ -26,7 +33,7 @@ GHashTable * mokoiFunctionFiles = NULL; //< EditorDatabaseListing *>
 
 /* Local Variables */
 static GMarkupParser funclist_parser = { funclist_start_updates, funclist_end_updates, funclist_text_updates, NULL, NULL};
-gint funclist_mode = 0;
+gint funclist_mode = FL_MODE_NONE;
 EditorDatabaseListing * funclist_current = NULL;
 /*
 <function name="SetBit">
@@ -62,28 +69,28 @@ void funclist_start_updates(GMarkupParseContext * context, const gchar *funclist
 			}
 		}
 
-		funclist_mode = 1;
+		funclist_mode = FL_MODE_FUNCTION;
 	}
 	else if ( g_ascii_strcasecmp( funclist_name, "summary" ) == 0 )
 	{
 		if ( !funclist_current )
 			return;
 
-		funclist_mode = 2;
+		funclist_mode = FL_MODE_SUMMARY;
 	}
 	else if ( g_ascii_strcasecmp( funclist_name, "return" ) == 0 )
 	{
 		if ( !funclist_current )
 			return;
 
-		funclist_mode = 4;
+		funclist_mode = FL_MODE_RETURN;
 	}
 	else if ( g_ascii_strcasecmp( funclist_name, "example" ) == 0 )
 	{
 		if ( !funclist_current )
 			return;
 
-		funclist_mode = 5;
+		funclist_mode = FL_MODE_EXAMPLE;
 	}
 	else if ( g_ascii_strcasecmp( funclist_name, "param" ) == 0 ) /* Add New Argument */
 	{
@@ -110,7 +117,7 @@ void funclist_start_updates(GMarkupParseContext * context, const gchar *funclist
 				argument->user_data = (gpointer)g_strdup(*attribute_values);
 			}
 		}
-		funclist_mode = 3;
+		funclist_mode = FL_MODE_PARAM;
 	}
 
 }
@@ -120,7 +127,7 @@ void funclist_end_updates( GMarkupParseContext *context, const gchar *funclist_n
 
 	if ( g_ascii_strcasecmp( funclist_name, "function" ) == 0 )
 	{
-		funclist_mode = 0;
+		funclist_mode = FL_MODE_NONE;
 
 		if ( !funclist_current )
 			return;
@@ -147,23 +154,23 @@ void funclist_end_updates( GMarkupParseContext *context, const gchar *funclist_n
 	}
 	else if ( g_ascii_strcasecmp( funclist_name, "summary" ) == 0 )
 	{
-		funclist_mode = 1;
+		funclist_mode = FL_MODE_FUNCTION;
 	}
 	else if ( g_ascii_strcasecmp( funclist_name, "return" ) == 0 )
 	{
-		funclist_mode = 1;
+		funclist_mode = FL_MODE_FUNCTION;
 	}
 	else if ( g_ascii_strcasecmp( funclist_name, "example" ) == 0 )
 	{
-		funclist_mode = 1;
+		funclist_mode = FL_MODE_FUNCTION;
 	}
 	else if ( g_ascii_strcasecmp( funclist_name, "param" ) == 0 )
 	{
-		funclist_mode = 1;
+		funclist_mode = FL_MODE_FUNCTION;
 	}
 	else
 	{
-		funclist_mode = 0;
+		funclist_mode = FL_MODE_NONE;
 	}
 }
 
@@ -176,24 +183,15 @@ void funclist_text_updates( GMarkupParseContext *context, const gchar *text, gsi
 			EditorDatabaseListing * function_listing = (EditorDatabaseListing *)(mokoiFunctionDatabase->data);
 			if ( function_listing )
 			{
-				if ( funclist_mode == 1)
+				if ( funclist_mode == FL_MODE_SUMMARY )
 				{
 					function_listing->info = g_strdup(text);
 				}
-				else if ( funclist_mode == 2)
-				{
-					GList * arr = g_list_last( function_listing->arguments );
-					if ( arr )
-					{
-						EditorDatabaseListing * argument = (EditorDatabaseListing *)arr->data;
-						argument->info = g_strstrip(g_strdup(text));
-					}
-				}
-				else if ( funclist_mode == 4 )
+				else if ( funclist_mode == FL_MODE_RETURN )
 				{
 					function_listing->return_info = g_strstrip(g_strdup(text));
 				}
-				else if ( funclist_mode == 5 )
+				else if ( funclist_mode == FL_MODE_EXAMPLE )
 				{
 					function_listing->user_data = g_strdup(text);
 				}
