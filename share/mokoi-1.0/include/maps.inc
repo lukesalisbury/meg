@@ -7,7 +7,7 @@
 
 #define MAP_ERROR 0
 #define GLOBAL_MAP 0
-#define CURRENT_MAP MapCurrentIdent();
+#define CURRENT_MAP MapCurrentIdent()
 
 ///Mask Functions 
 native MaskRefresh();
@@ -31,6 +31,7 @@ native MapDelete( map_ident );
 native WorldSet( section_hash, grid_x, grid_y );
 native WorldGetIdent( section_hash, grid_x, grid_y  );
 native WorldExist( section_name{} );
+native WorldLoad( section_name{} );
 
 //Map Collision Functions
 native MapCollisionList();
@@ -65,14 +66,15 @@ native MapCollisionCurrent(objecta, objectb, &angle, &dist, &rect );
 		<param name="h" default="" type="n">Area of Mask to change.</param>
 		<param name="value" default="0" type="n">Set the mask are to this value.</param>
 	</function>
-	<function name="MapSetOffset">
+	<function name="MapOffsetSet">
 		<summary>Set the Offset from the Top-left of the map.</summary>
 		<param name="Fixed:x" default="" type="n"></param>
 		<param name="Fixed:y" default="" type="n"></param>
 	</function>
-	<function name="MapGetOffset">
+	<function name="MapOffsetGet">
 		<summary>Get the Offset from the Top-left of the map.</summary>
 		<param name="axis" default="" type="n"></param>
+		<return>Offset for axis.</return>
 	</function>
 	<function name="MapCurrentIdent">
 		<summary>Ident of Current Map.</summary>
@@ -114,7 +116,7 @@ native MapCollisionCurrent(objecta, objectb, &angle, &dist, &rect );
 		<param name="map_ident" default="" type="n">ID of the map to remove</param>
 	</function>
 	<function name="WorldSet">
-		<summary>Changes the Section.</summary>
+		<summary>Changes to new World Section using the current grid location.</summary>
 		<param name="section_hash" default="" type="n">Section Ident.</param>
 		<param name="grid_x" default="-1" type="n">Grid Position</param>
 		<param name="grid_y" default="-1" type="n">Grid Position</param>
@@ -126,8 +128,9 @@ native MapCollisionCurrent(objecta, objectb, &angle, &dist, &rect );
 		<param name="grid_y" default="-1" type="n">Grid Position</param>
 	</function>
 	<function name="WorldExist">
-		<summary>Loads a section</summary>
+		<summary>Checks to see if world exist.</summary>
 		<param name="section_name" default="" type="s"></param>
+		<return>World ID or 0 if world does not exist.</return>
 	</function>
 </api>
 ***/

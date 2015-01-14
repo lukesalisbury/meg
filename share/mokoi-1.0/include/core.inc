@@ -12,39 +12,8 @@ native heapspace();
 native numargs();
 native getarg(arg, index=0);
 native setarg(arg, index=0, value);
-
-
-
-
-
-///ASCII Character functions
-native tolower(c);
-native toupper(c);
-native swapchars(c);
-native CharLower(c) = tolower;
-native CharUpper(c) = toupper;
-native CharSwap(c) = swapchars;
-
-///Whole Number functions
-native random(max);
-native min(value1, value2);
-native max(value1, value2);
-native clamp(value, min=cellmin, max=cellmax);
-
-native NumberRandom(max) = random;
-native NumberMin(value1, value2) = min;
-native NumberMax(value1, value2) = max;
-native NumberClamp(value, min=cellmin, max=cellmax) = clamp;
-native NumberString(const string[], index=0) = strval;
-stock NumberAbs( value )
-{
-	return (value < 0 ? -value : value);
-}
-
-
-
 /***
-<api title="Core Scripting Functions">
+<api title="Argument Functions">
 	<function name="numargs">
 		<summary>Get the number of arguments.</summary>
 		<return>Number of arguments</return>
@@ -62,6 +31,19 @@ stock NumberAbs( value )
 		<param name="value" default="" type="n"></param>
 		<return></return>
 	</function>
+</api>
+***/
+
+
+///ASCII Character functions
+native tolower(c);
+native toupper(c);
+native swapchars(c);
+native CharLower(c) = tolower;
+native CharUpper(c) = toupper;
+native CharSwap(c) = swapchars;
+/***
+<api title="ASCII Character functions">
 	<function name="CharLower">
 		<summary>Returns lower case of c.</summary>
 		<param name="c" default="" type="n"></param>
@@ -74,6 +56,27 @@ stock NumberAbs( value )
 		<summary>Returns the swapped case of c.</summary>
 		<param name="c" default="" type="n"></param>
 	</function>
+</api>
+***/
+
+
+///Whole Number functions
+native random(max);
+native min(value1, value2);
+native max(value1, value2);
+native clamp(value, min=cellmin, max=cellmax);
+
+native NumberRandom(max) = random;
+native NumberMin(value1, value2) = min;
+native NumberMax(value1, value2) = max;
+native NumberClamp(value, min=cellmin, max=cellmax) = clamp;
+native NumberString(const string[], index=0) = strval;
+stock NumberAbs( value )
+{
+	return (value < 0 ? -value : value);
+}
+/***
+<api title="Whole Number Functions">
 	<function name="NumberRandom">
 		<summary>Returns a random number between 0 and max - 1</summary>
 		<param name="max" default="" type="n">max value.</param>

@@ -33,7 +33,16 @@
 		<param name="y" default="" type="n">new point position.</param>
 		<return>1 for successful, 0 for error.</return>
 	</futurefunction>
-
+	<function name="CanvasChildInfo">
+		<summary>Get the position of an object on canvas.</summary>
+		<param name="object:id" default="" type="n">Object's ID.</param>
+		<param name="child{}" default="" type="a">name of child.</param>
+		<param name="&amp;w" default="" type="n">Variable to store the width. </param>
+		<param name="&amp;h" default="" type="n">Variable to store the height. </param>
+		<param name="&amp;x" default="" type="n">Variable to store the x value. </param>
+		<param name="&amp;y" default="" type="n">Variable to store the y value. </param>
+		<return>child id for successful, 0 for error.</return>
+	</function>
 	<function name="GraphicsType">
 		<summary>Returns the type of graphic display. Can be used to enable some effects.</summary>
 		<return>Current Display Type</return>
@@ -59,6 +68,14 @@
 		<param name="old_sheet[]" default="" type="a"></param>
 		<param name="news_sheet[]" default="" type="a"></param>
 	</function>
+	<function name="SheetSpriteDimension">
+		<summary>Get Dimension of a sprite</summary>
+		<param name="sprite{}" default="" type="a"></param>
+		<param name="&amp;w" default="" type="n"></param>
+		<param name="&amp;h" default="" type="n"></param>
+		<return>True if sprite exists.</return>
+	</function>
+
 	<function name="AnimationGetLength">
 		<summary>Returns length of animation in milliseconds.</summary>
 		<param name="sheet[]" default="" type="a"></param>
@@ -83,11 +100,11 @@
 		<param name="GraphicTypes:type" default="" type="n">Type of Object.</param>
 		<param name="x" default="0" type="n">Map position of the object.</param>
 		<param name="y" default="0" type="n">Map position of the object.</param>
-		<param name="z" default="0" type="n">Map position of the object.</param>
+		<param name="Fixed:z" default="0" type="n">Map position of the object.</param>
 		<param name="w" default="0" type="n">Width of the object. Sprites and Animations repeat until they fit into the Width , also Width can be zero.</param>
 		<param name="h" default="0" type="n">Height of the object. Sprites and Animations repeat until they fit into the  Height, also Height can be zero.</param>
 		<param name="c" default="0xFFFFFFFF" type="n">a RGBA hex value such as 0xFF33BBAA, FF is red value, 33 is green, BB is blue and AA would be the alpha.</param>
-		<param name="pos" default="POSITION_MAP" type="n"></param>
+		<param name="global" default="false" type="n"></param>
 		<return>New object ID</return>
 		<example>
 		new helded = 0xFF00FFFF; 
@@ -156,7 +173,7 @@
 		<param name="object:id" default="" type="n">Object's ID.</param>
 		<param name="x" default="" type="n">Map position of the object.</param>
 		<param name="y" default="" type="n">Map position of the object.</param>
-		<param name="z" default="" type="n">Map position of the object.</param>
+		<param name="Fixed:z" default="" type="n">Map position of the object.</param>
 		<param name="w" default="0" type="n">Width of the object. Sprites and Animations repeat until they fit into the Width , also Width can be zero.</param>
 		<param name="h" default="0" type="n">Height of the object. Sprites and Animations repeat until they fit into the  Height, also Height can be zero.</param>
 		<param name="pos" default="POSITION_MAP" type="n"></param>
@@ -178,11 +195,6 @@
 		<param name="string[]" default="" type="a">Sprite/animation name or text.</param>
 		<param name="GraphicTypes:type" default="" type="n">Type of Object.</param>
 	</function>
-	<function name="ObjectToggle">
-		<summary>Toggle the visibility of a Display Object.</summary>
-		<param name="object:id" default="" type="n">Object's ID.</param>
-		<param name="show" default="" type="n"></param>
-	</function>
 	<function name="ObjectFlag">
 		<summary>Sets Display Object flags.</summary>
 		<param name="object:id" default="" type="n">Object's ID.</param>
@@ -198,6 +210,8 @@
 		<param name="object:id" default="" type="n">Object's ID.</param>
 		<param name="&amp;w" default="" type="n">Variable to store the width. </param>
 		<param name="&amp;h" default="" type="n">Variable to store the height. </param>
+		<param name="&amp;x" default="" type="n">Variable to store the x value. </param>
+		<param name="&amp;y" default="" type="n">Variable to store the y value. </param>
 	</function>
 
 	<function name="CameraSetScroll">
@@ -322,6 +336,7 @@ native SheetReference(sheet{}, ref = 1);
 native SheetReplace(old_sheet{}, news_sheet{});
 native SheetSpriteDimension(sprite{}, &w, &h);
 
+
 ///Animation Functions
 native AnimationGetLength(sheet{}, anim{});
 native Fixed:AnimationGetLength2(sheet{}, anim{}) = AnimationGetLength;
@@ -337,15 +352,18 @@ native PolygonCreate(string{});
 #pragma deprecated Future Feature
 native PolygonAddPoint(string{}, x, y, string_size = sizeof string);
 
+///Canvas Functions
+native CanvasChildInfo(object_id, child{}, &x, &y, &w, &h);
+
+
 ///Display Objects Functions
-native object:ObjectCreate( string{}, GraphicTypes:type, x = 0, y = 0, z = 0, w = 0, h = 0, c = 0xFFFFFFFF, pos = POSITION_MAP, string_size = sizeof string);
-native ObjectPosition( object:id, x, y, z, w, h, pos = POSITION_MAP);
+native object:ObjectCreate( string{}, GraphicTypes:type, x, y, Fixed:z, w = 0, h = 0, c = 0xFFFFFFFF, global = false, string_size = sizeof string);
+native ObjectPosition( object:id, x, y, Fixed:z, w, h, pos = POSITION_MAP);
 native ObjectEffect( object:id, colour = WHITE, rotate = 0, scale_w = 1000, scale_h = 1000, mirror = 0, StyleTypes:style = STYLE_NORMAL, colour2 = WHITE);
 native ObjectReplace( object:id, string{}, GraphicTypes:type );
-native ObjectToggle( object:id, show);
 native ObjectFlag( object:id, key, value);
 native ObjectDelete( object:id);
-native ObjectInfo( object:id, &w, &h);
+native ObjectInfo( object:id, &w, &h, &x, &y);
 
 
 ///Camera Functions

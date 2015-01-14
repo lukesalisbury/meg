@@ -6,7 +6,7 @@
 
 #include <fixed>
 #include <enums>
-
+#include <console>
 
 ///Engine Functions 
 native GameState(newstate = -1);
@@ -39,8 +39,23 @@ native AudioPlaySound(file{}, x = -1, y = -1);
 // Misc Functions */
 native FixedToFloat(value);
 native FloatToFixed(value);
-native StringHash(name[]);
-native EntityHash(name[]);
+native StringHash(name{});
+native entity:EntityHash(name{});
+
+stock object:ObjectHash(name{}, global)
+{
+	new o = StringHash(name)
+	if ( global )
+	{
+		o |= OBJECT_GLOBAL_VALUE;
+	}
+	else
+	{
+		o &= OBJECT_LOCAL_VALUE;
+	}
+	return object:o;
+
+}
 
 
 /***
@@ -68,7 +83,7 @@ native EntityHash(name[]);
 		<return>Length of time of last frame.</return>
 		<example>
 		new time = GameFrame();
-		DebugText("Last Frame took %d milliseconds", time);
+		ConsoleOutput("Last Frame took %d milliseconds", time);
 		</example>
 	</function>
 	<function name="GameFrameSeconds">
@@ -76,7 +91,7 @@ native EntityHash(name[]);
 		<return>Length of time of last frame.</return>
 		<example>
 		new Fixed:time = GameFrameSeconds();
-		DebugText("Last Frame took %q seconds", time);
+		ConsoleOutput("Last Frame took %q seconds", time);
 		</example>
 	</function>
 	<function name="GameLoad">

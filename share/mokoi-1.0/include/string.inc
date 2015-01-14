@@ -125,7 +125,7 @@ stock bool: StringEqual(const string1[], const string2[], bool:ignorecase=false,
 		<example>
 		new string[128];
 		strformat(string, _, true, "Text: %s, Color: %x, Number: %d, Fixed: %q\n", "Hello", 0xFFBBAAFF, 42, 50.254);
-		DebugText(string);
+		ConsoleOutput(string);
 		</example>
 	</function>
 	<function name="StringEqual">

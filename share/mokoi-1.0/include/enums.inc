@@ -5,11 +5,12 @@
 
 
 
-#define SELF 0
+#define SELF entity:0
 #define SELF_STRING ""
 
 #define OBJECT_NONE object:-1
-
+#define OBJECT_GLOBAL_VALUE 0x80000000
+#define OBJECT_LOCAL_VALUE 0x7FFFFFFF
 #define XAXIS 0
 #define YAXIS 1
 #define ZAXIS 2
@@ -32,13 +33,6 @@ const AudioDevice:{
 	SOUNDFX = 0,
 	DIALOG, // Dialog most likely share the SOUNDFX channels
 	MUSIC
-}
-
-const DisplayDevice: {
-	UNKNOWN = 0,
-	SOFTWARE, // Rotating, scaling & colouring are done via Software. 
-	HARDWARE, // Uses OpenGL/Direct3D SDL 2.0 backends. 
-	OPENGL, // If supported, Rotating, scaling & colouring are done via the Video Card.
 }
 
 const GraphicTypes: {

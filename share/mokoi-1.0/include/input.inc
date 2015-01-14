@@ -16,7 +16,7 @@
 		forward public KeyboardInput( unicode );
 		public KeyboardInput( unicode )
 		{
-			DebugText("Input: %c %d", unicode, unicode)
+			ConsoleOutput("Input: %c %d", unicode, unicode)
 		}
 
 		public Init( ... )
@@ -41,7 +41,7 @@
 		<param name="player" default="0" type="n">0 for current player otherwise the selected player.</param>
 		<return>Value between -255 and 255.</return>
 		<example>
-		if ( InputButton(1,0) == 255 )
+		if ( InputAxis(1,0) == 255 )
 			MoveUp();
 		</example>
 	</function>

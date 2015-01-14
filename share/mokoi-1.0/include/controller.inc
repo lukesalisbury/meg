@@ -50,3 +50,42 @@
 #define AXIS_X2 3
 #define AXIS_Y2 4
 #define AXIS_Z2 5
+
+#define ICON_ACTION1 "❶"
+#define ICON_ACTION2 "❷"
+#define ICON_ACTION3 "❸"
+#define ICON_ACTION4 "❹"
+#define ICON_ACTION5 "❺"
+#define ICON_ACTION6 "❻"
+
+#define ICON_MENU "❼"
+
+#define ICON_ARROWUP "❽"
+#define ICON_ARROWDOWN "❾"
+#define ICON_ARROWRIGHT "❿"
+#define ICON_ARROWLEFT "➀"
+
+#define ICON_MOUSELEFT "➁"
+#define ICON_MOUSEMIDDLE "➂"
+#define ICON_MOUSERIGHT "➃"
+#define ICON_MISC "➄"
+#define ICON_BACK "➅"
+
+#define ICON_CONFIRM "➆"
+#define ICON_CANCEL "➇"
+#define ICON_POINTER_PRESS "➈"
+
+#define ICON_LEFT1 ◀
+#define ICON_RIGHT1 ▶
+#define ICON_UP1 ▲
+#define ICON_DOWN1 ▼
+#define ICON_IN1 ◐
+#define ICON_OUT1 ◑
+
+#define ICON_LEFT2 ◁
+#define ICON_RIGHT2 ▷
+#define ICON_UP2 △
+#define ICON_DOWN2 ▽
+#define ICON_IN2 ◒
+#define ICON_OUT2 ◓
+

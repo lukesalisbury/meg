@@ -9,8 +9,6 @@
 //title Helper Functions
 //description These are define in the helper.inc header, so to use these functions, #include &lt;helper&gt; must be include at the top of the script.
 
-
-
 /***
 <api title="Helper functions">
 	<function name="TimerCountdown">
@@ -182,7 +180,7 @@ stock ObjectsHide( ... )
 	if ( c > 0 )
 	{
 		for ( new i = 0; i < c; i++) 
-			ObjectToggle(object:getarg(c), 0);
+			ObjectFlag(object:getarg(c), 6, 0);
 	}
 }
 
@@ -192,7 +190,7 @@ stock ObjectsShow( ... )
 	if ( c >0 )
 	{
 		for ( new i = 0; i < c; i++) 
-			ObjectToggle(object:getarg(c), 1);
+			ObjectFlag(object:getarg(c), 6, 1);
 	}
 }
 

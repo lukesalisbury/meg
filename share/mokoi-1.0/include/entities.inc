@@ -22,34 +22,35 @@
 
 
 ///Entity Position Functions
-native EntitySetPosition(Fixed:x = Fixed:cellmin, Fixed:y = Fixed:cellmin, Fixed:z = Fixed:cellmin, id = SELF);
-native EntityGetPosition(&Fixed:x, &Fixed:y, &Fixed:z, id = SELF);
+native EntitySetPosition(Fixed:x = Fixed:cellmin, Fixed:y = Fixed:cellmin, layer = cellmin, id = SELF);
+native EntityGetPosition(&Fixed:x, &Fixed:y, &z, id = SELF);
+native EntityGetPosition2(&x, &y, &z, id = SELF, whole = 1 ) = EntityGetPosition;
 
 ///Entity Functions
-native EntityCreate(parententity{}, id_string{}, Fixed:x, Fixed:y, Fixed:z, map_id, args[]='''', {Fixed,_}:...);
-native EntityDelete(id = SELF);
-native EntityGetSetting(key{}, string{}, id = SELF, length = sizeof string);
-native EntityGetSettingHash(key{}, id = SELF);
-native EntityGetNumber(key{}, id = SELF );
-native object:EntityGetObject(key{} = "object-id", id = SELF ) = EntityGetNumber;
+native entity:EntityCreate(parententity{}, id_string{}, Fixed:x, Fixed:y, layer, map_id, args[]='''', {Fixed,_}:...);
+native EntityDelete(entity:id = SELF);
+native EntityGetSetting(key{}, string{}, entity:id = SELF, length = sizeof string);
+native EntityGetSettingHash(key{}, entity:id = SELF);
+native EntityGetNumber(key{}, entity:id = SELF );
+native object:EntityGetObject(key{} = "object-id", entity:id = SELF ) = EntityGetNumber;
 
-native EntityPublicFunction(id, function{}, args[]='''', ...);
-native EntityPublicVariable(id, variable{});
-native EntityPublicVariableSet(id, variable{}, value);
+native EntityPublicFunction(entity:id, function{}, args[]='''', ...);
+native EntityPublicVariable(entity:id, variable{});
+native EntityPublicVariableSet(entity:id, variable{}, value);
 
 ///Entity Collision Functions
-native CollisionFromObject(obj, type = 0, id = SELF);
-native CollisionCheck(id1, id2, rect1 = -1, rect2 = -1);
-native CollisionSet(id = SELF, rect = 0, type = 0, x = 0, y = 0, w = 0, h = 0);
-native CollisionGet(id = SELF, rect, &x, &y, &w, &h);
-native CollisionCalculate(id = SELF, rect = -1, type = -1);
-native CollisionGetCurrent(id = SELF, &current, &angle, &dist, &rect, &type );
+native CollisionFromObject(obj, type = 0, entity:id = SELF);
+native CollisionCheck(entity:id1, entity:id2, rect1 = -1, rect2 = -1);
+native CollisionSet(entity:id = SELF, rect = 0, type = 0, x = 0, y = 0, w = 0, h = 0);
+native CollisionGet(entity:id = SELF, rect, &x, &y, &w, &h);
+native CollisionCalculate(entity:id = SELF, rect = -1, type = -1);
+native CollisionGetCurrent(entity:id = SELF, &current, &angle, &dist, &rect, &type );
 
 
 
 ///Entity Management Functions
 native EntitiesList(mapid = 0);
-native EntitiesNext(&id, map_id = 0, string{} = "", maxlength = sizeof(string) );
+native EntitiesNext(&entity:id, map_id = 0, string{} = "", maxlength = sizeof(string) );
 
 
 ///Paths Functions
@@ -69,19 +70,19 @@ native FunctionIdent(const name{});
 		<summary>Set Entities position on current map.</summary>
 		<param name="Fixed:x" default="_" type="n">New Position. Pass cellmin to skip update that value.</param>
 		<param name="Fixed:y" default="_" type="n">New Position. Pass cellmin to skip update that value.</param>
-		<param name="Fixed:z" default="_" type="n">New Position. Pass cellmin to skip update that value.</param>
+		<param name="z" default="_" type="n">New Position. Pass cellmin to skip update that value.</param>
 		<param name="id" default="_" type="n">Entity ID.</param>
 	</function>
 	<function name="EntityGetPosition">
 		<summary>Get Entity position on current map.</summary>
 		<param name="&amp;Fixed:x" default="" type="n">Variable to store Position.</param>
 		<param name="&amp;Fixed:y" default="" type="n">Variable to store Position.</param>
-		<param name="&amp;Fixed:z" default="" type="n">Variable to store Position.</param>
+		<param name="&amp;z" default="" type="n">Variable to store Position.</param>
 		<param name="id" default="_" type="n">Entity ID.</param>
 	</function>
 	<function name="EntityHash">
 		<summary>Convert Entity Name to hash</summary>
-		<param name="id_string[]" default="" type="a">ID to give the entity.</param>
+		<param name="id_string[]" default="" type="a">ID of the entity.</param>
 		<return>Returns the Entity Hash.</return>
 	</function>
 	<function name="EntityCreate">
