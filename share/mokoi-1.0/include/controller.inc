@@ -19,7 +19,7 @@
 #endif
 #define _controller_included
 
-#define BUTTON_ACTION1 0
+#define BUTTON_ACTION1 0 
 #define BUTTON_ACTION2 1
 #define BUTTON_ACTION3 2
 #define BUTTON_ACTION4 3
@@ -28,10 +28,10 @@
 
 #define BUTTON_MENU 6
 
-#define BUTTON_ARROWUP 7
-#define BUTTON_ARROWDOWN 8
-#define BUTTON_ARROWRIGHT 9
-#define BUTTON_ARROWLEFT 10
+#define BUTTON_ARROWRIGHT 7
+#define BUTTON_ARROWLEFT 8
+#define BUTTON_ARROWDOWN 9
+#define BUTTON_ARROWUP 10
 
 #define BUTTON_MOUSELEFT 11
 #define BUTTON_MOUSEMIDDLE 12
@@ -60,10 +60,10 @@
 
 #define ICON_MENU "❼"
 
-#define ICON_ARROWUP "❽"
-#define ICON_ARROWDOWN "❾"
-#define ICON_ARROWRIGHT "❿"
-#define ICON_ARROWLEFT "➀"
+#define ICON_ARROWRIGHT "❽"
+#define ICON_ARROWLEFT "❾"
+#define ICON_ARROWDOWN "❿"
+#define ICON_ARROWUP "➀"
 
 #define ICON_MOUSELEFT "➁"
 #define ICON_MOUSEMIDDLE "➂"

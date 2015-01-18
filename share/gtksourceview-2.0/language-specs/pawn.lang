@@ -164,11 +164,58 @@
 					<keyword>Float:</keyword>
 					<keyword>Fixed:</keyword>
 					<keyword>object:</keyword>
+					<keyword>entity:</keyword>
+					
 				</context>
 
 				<context id="common-defines" style-ref="common-defines">
 					<keyword>true</keyword>
 					<keyword>false</keyword>
+					<keyword>OBJECT_NONE</keyword>
+					<keyword>GLOBAL_MAP</keyword>
+					<keyword>CURRENT_MAP</keyword>
+					<keyword>SELF</keyword>
+					<keyword>XAXIS</keyword>
+					<keyword>YAXIS</keyword>
+					<keyword>ZAXIS</keyword>
+
+					<keyword>POSITION_MAP</keyword>
+					<keyword>POSITION_SCREEN</keyword>
+					<keyword>SOUTH</keyword>
+					<keyword>SOUTHEAST</keyword>
+					<keyword>EAST</keyword>
+					<keyword>NORTHEAST</keyword>
+					<keyword>NORTH</keyword>
+					<keyword>NORTHWEST</keyword>
+					<keyword>WEST</keyword>
+					<keyword>SOUTHWEST</keyword>
+					<keyword>SOUNDFX</keyword>
+					<keyword>DIALOG</keyword>
+					<keyword>MUSIC</keyword>
+					<keyword>SPRITE</keyword>
+					<keyword>RECTANGLE</keyword>
+					<keyword>LINE</keyword>
+					<keyword>TEXT</keyword>
+					<keyword>POLYGON</keyword>
+					<keyword>CIRCLE</keyword>
+					<keyword>CANVAS</keyword>
+					<keyword>STYLE_NORMAL</keyword>
+					<keyword>STYLE_VGRADIENT</keyword>
+					<keyword>STYLE_HGRADIENT</keyword>
+					<keyword>STYLE_GLOW</keyword>
+					<keyword>STYLE_OUTLINE</keyword>
+					<keyword>STYLE_REPLACECOLOUR</keyword>
+					<keyword>STYLE_NEGATIVE</keyword>
+					<keyword>FLAG_SPEED</keyword>
+					<keyword>FLAG_ANIMLOOP</keyword>
+					<keyword>FLAG_ANIMREVERSE</keyword>
+					<keyword>FLAG_ANIMRESET</keyword>
+					<keyword>FLAG_HIDDEN</keyword>
+					<keyword>WHITE</keyword>
+					<keyword>BLACK</keyword>
+					<keyword>RED</keyword>
+					<keyword>BLUE</keyword>
+					<keyword>GREEN</keyword>
 				</context>
 
 				<context id="function" style-ref="function">

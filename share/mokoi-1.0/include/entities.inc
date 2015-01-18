@@ -23,8 +23,8 @@
 
 ///Entity Position Functions
 native EntitySetPosition(Fixed:x = Fixed:cellmin, Fixed:y = Fixed:cellmin, layer = cellmin, id = SELF);
-native EntityGetPosition(&Fixed:x, &Fixed:y, &z, id = SELF);
-native EntityGetPosition2(&x, &y, &z, id = SELF, whole = 1 ) = EntityGetPosition;
+native EntityGetPosition(&Fixed:x, &Fixed:y, &layer, id = SELF, whole = 0);
+native EntityGetPosition2(&x, &y, &layer, id = SELF, whole = 1 ) = EntityGetPosition;
 
 ///Entity Functions
 native entity:EntityCreate(parententity{}, id_string{}, Fixed:x, Fixed:y, layer, map_id, args[]='''', {Fixed,_}:...);
@@ -50,7 +50,7 @@ native CollisionGetCurrent(entity:id = SELF, &current, &angle, &dist, &rect, &ty
 
 ///Entity Management Functions
 native EntitiesList(mapid = 0);
-native EntitiesNext(&entity:id, map_id = 0, string{} = "", maxlength = sizeof(string) );
+native EntitiesNext(&entity:id, map_id = 0, entity_name{} = "", maxlength = sizeof(entity_name) );
 
 
 ///Paths Functions
@@ -91,7 +91,7 @@ native FunctionIdent(const name{});
 		<param name="id_string[]" default="&quot;&quot;" type="a">ID to give the entity.</param>
 		<param name="x" default="" type="n">position to give the the entity.</param>
 		<param name="y" default="" type="n">position to give the the entity.</param>
-		<param name="z" default="" type="n">position to give the the entity.</param>
+		<param name="layer" default="" type="n">position to give the the entity.</param>
 		<param name="map_id" default="CURRENT_MAP" type="n">Map to create it on. CURRENT_MAP will created it on the current map. GLOBAL_MAP with create a global entity which always on.</param>
 		<param name="args[]" default="{ ARG_END }" type="a">Defines the follow arguments that will be passed to the entity Init function.
 		ARG_ARRAY - Array, last value must be CELLMIN

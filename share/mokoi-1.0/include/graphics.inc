@@ -330,7 +330,7 @@
 ***/
 
 ///Misc Graphic Functions
-native GraphicsDraw(string{}, GraphicTypes:type, x, y, z, w, h, c = WHITE, string_size = sizeof string );
+native GraphicsDraw(string{}, GraphicTypes:type, x, y, Fixed:z, w, h, c = WHITE, string_size = sizeof string );
 native TextSprites(able, sheet{});
 native SheetReference(sheet{}, ref = 1);
 native SheetReplace(old_sheet{}, news_sheet{});

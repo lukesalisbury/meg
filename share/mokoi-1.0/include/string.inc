@@ -48,7 +48,7 @@ native StringFind(const string[], const sub[], bool:ignorecase=false, index=0)  
 native StringNumber(dest[], value, bool:pack=false)  = valstr;
 native bool:StringIsPacked(const string[]) = ispacked;
 
-native StringFormat(dest[], size=sizeof dest, bool:pack=false, const format[], {Fixed,Float,_}:...) = strformat;
+native StringFormat(dest[], size=sizeof dest, const format[], {Fixed,Float,_}:...);
 
 stock bool: StringEqual(const string1[], const string2[], bool:ignorecase=false, length=cellmax)
 {

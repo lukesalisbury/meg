@@ -288,7 +288,7 @@ static PHYSFS_sint64 MokoiResource_tell(fvoid *opaque)
 {
 	if ( opaque )
 	{
-		return ((MokoiResourceFileinfo *) opaque)->pos;;
+		return ((MokoiResourceFileinfo *) opaque)->pos;
 	}
 	return 0;
 } /* MokoiResource_tell */
