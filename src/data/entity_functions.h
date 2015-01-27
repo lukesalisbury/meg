@@ -24,7 +24,6 @@ void EntityList_UpdateMain();
 void EntityList_Menu(GtkWidget * treeview, gpointer data);
 gboolean EntityList_MenuClick( GtkWidget *treeview, GdkEventButton *event, gpointer data);
 void EntityList_Selection( GtkTreeView * tree_view, GtkTreePath * path, GtkTreeViewColumn * column, gpointer user_data );
-void EntityList_UpdatePage( GtkTreeStore * list );
 void Entity_RebuildAll( GtkButton * button, GtkTreeStore * list );
 
 void EntityListMenu_OpenAction( GtkMenuItem * menuitem, GtkTreeView * tree_view  );
@@ -42,7 +41,7 @@ gboolean EntityCompiler_File( gchar * inputfile, GtkWidget * logwidget, GtkWidge
 
 // Entity List Functions
 void EntityList_CreatePage();
-void EntityList_UpdatePage( GtkTreeStore * list );
+void EntityList_UpdatePage( GtkTreeModel * list );
 
 // Editor
 GtkWidget * EntityEditor_New( gchar * file );

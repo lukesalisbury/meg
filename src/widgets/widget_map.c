@@ -609,6 +609,12 @@ void gtk_alchera_map_select_object( GtkWidget * widget, AlcheraMap * map, GdkEve
 		gtk_alchera_map_status_text( map->status_widget, "Click to select an Object.");
 	}
 
+	if ( object->type == DT_DELETE )
+	{
+		gtk_alchera_map_status_text( map->status_widget, "Click to select an Object.");
+		return;
+	}
+
 	map->selected = object;
 	map->parent = parent_object;
 	map->object_held = event->time;
@@ -1476,7 +1482,12 @@ static gboolean gtk_alchera_map_key_release( GtkWidget * widget, GdkEventKey *ev
 	}
 	else if ( event->keyval == GDK_KEY_Delete )
 	{
-		Alchera_DisplayObject_Remove( map->info, map->selected, gtk_alchera_map_toplevel_window(widget) );
+		if ( Alchera_DisplayObject_Remove( map->info, map->selected, gtk_alchera_map_toplevel_window(widget) ) )
+		{
+			map->map_mode = WIDGETMAP_NORMAL;
+			map->selection_region.mode = MAP_NONE;
+			map->selection_region.active = FALSE;
+		}
 	}
 	else if ( event->keyval == GDK_KEY_Undo || (event->keyval == GDK_KEY_z && event->state & GDK_CONTROL_MASK) )
 	{
@@ -1789,6 +1800,9 @@ DisplayObject * gtk_alchera_map_get_selected( AlcheraMap * wid )
 {
 	g_return_val_if_fail( wid != NULL, NULL );
 	g_return_val_if_fail( GTK_IS_ALCHERA_MAP(wid), NULL );
+	if ( wid->selected )
+		if ( wid->selected->type == DT_DELETE )
+			return NULL;
 	return wid->selected;
 }
 

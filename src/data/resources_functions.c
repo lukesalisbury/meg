@@ -462,12 +462,9 @@ DisplayObject * VirtualObject_New(gchar * name, gdouble area_width, gdouble area
 
 	object_data->type = MapObject_SetInitialType( object, name, area_width, area_height );
 
-
-
 	if ( object_data->type == 's' )
 	{
 		VirtualObject_UpdateSprite( object );
-
 	}
 
 	return object;

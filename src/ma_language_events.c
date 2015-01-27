@@ -108,6 +108,7 @@ void Meg_Language_EditDialog( GtkTreeView * tree_view, GtkTreePath * path, GtkTr
 		gtk_label_set_text( GTK_LABEL(label_string), orginal_text );
 		gtk_text_buffer_set_text( buffer, translated_text, -1 );
 
+		gtk_window_set_transient_for( GTK_WINDOW(dialog), Meg_Main_GetWindow());
 		if ( gtk_dialog_run( GTK_DIALOG(dialog) ) == 1 )
 		{
 			gtk_text_buffer_get_bounds( buffer, &start, &end );

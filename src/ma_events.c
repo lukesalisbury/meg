@@ -27,6 +27,7 @@ extern gchar * project_file_path;
 /* External Functions */
 void Meg_Project_Open();
 gboolean Package_ImportDrop(const gchar * file );
+
 /* UI */
 
 /* Functions */
@@ -209,7 +210,6 @@ gboolean Meg_Event_CloseProgram( void )
 	label = gtk_label_new( "Are you sure you wish to exit?" );
 	gtk_container_add( GTK_CONTAINER(gtk_dialog_get_content_area( GTK_DIALOG(dialog) )), label );
 	gtk_widget_show( label );
-
 
 	if ( gtk_dialog_run( GTK_DIALOG(dialog) ) == GTK_RESPONSE_ACCEPT )
 	{

@@ -102,7 +102,7 @@ void EntityListMenu_CompileAction(GtkMenuItem * menuitem , GtkTreeView * tree_vi
 			Meg_Log_Print( LOG_NONE, "Entity '%s' compiled\n", file );
 		}
 		GtkTreeModel * model = gtk_tree_view_get_model( tree_view );
-		EntityList_UpdatePage( GTK_TREE_STORE(model) );
+		EntityList_UpdatePage( model );
 		gtk_tree_view_expand_all( tree_view );
 		g_free( file );
 	}
@@ -136,7 +136,7 @@ void EntityListMenu_RemoveAction(GtkMenuItem * menuitem , GtkTreeView * tree_vie
 		g_rename( oldfile, newfile );
 
 		GtkTreeModel * model = gtk_tree_view_get_model( tree_view );
-		EntityList_UpdatePage( GTK_TREE_STORE(model) );
+		EntityList_UpdatePage( model );
 		gtk_tree_view_expand_all( tree_view );
 		g_free( newfile );
 		g_free( oldfile );

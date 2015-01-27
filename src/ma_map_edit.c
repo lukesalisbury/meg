@@ -133,7 +133,7 @@ GtkWidget * Meg_MapEdit_Open( gchar * file )
 	}
 
 	/* Widgets */
-	GtkWidget * widget_editor, * label_text, * widget_map, * iconview_objects, * combo_groups, * combo_layers, * viewport_display, * object_menu, * box_virtualkeys, * button_objectmenu;
+	GtkWidget * widget_editor, * label_text, * widget_map, * iconview_objects, * combo_groups, * combo_layers, * viewport_display, * object_menu, * box_virtualkeys, * button_objectmenu, * status_bar;
 	GtkAdjustment * adjust_map_width, * adjust_map_height;
 	GtkListStore * store_layers, * store_current_objects, * store_groups;
 
@@ -147,6 +147,7 @@ GtkWidget * Meg_MapEdit_Open( gchar * file )
 	box_virtualkeys = GET_WIDGET( ui, "box_virtualkeys" );
 	object_menu = GET_WIDGET( ui, "object_menu");
 	button_objectmenu = GET_WIDGET(ui, "button_objectmenu");
+	status_bar  = GET_WIDGET(ui, "status_bar");
 
 	store_layers = GET_LISTSTORE( ui, "store_layers" );
 	store_current_objects = GET_LISTSTORE( ui, "store_current_objects" );
@@ -168,7 +169,7 @@ GtkWidget * Meg_MapEdit_Open( gchar * file )
 	widget_map = gtk_alchera_map_new( map_info );
 	if ( GTK_IS_ALCHERA_MAP(widget_map) )
 	{
-		gtk_alchera_map_set_support_widget( GTK_ALCHERA_MAP(widget_map), store_current_objects, GTK_STATUSBAR(alchera_main_statusbar), object_menu );
+		gtk_alchera_map_set_support_widget( GTK_ALCHERA_MAP(widget_map), store_current_objects, GTK_STATUSBAR(status_bar), object_menu );
 		gtk_widget_set_size_request( GTK_WIDGET(viewport_display), MIN(GTK_ALCHERA_MAP(widget_map)->info->width, 640), MIN(GTK_ALCHERA_MAP(widget_map)->info->height, 480) );
 	}
 	gtk_container_add( GTK_CONTAINER(viewport_display), widget_map );

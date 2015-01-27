@@ -151,6 +151,9 @@ DisplayObject * AL_Object_Add( MapInfo * map_info, gchar * ident, gdouble x, gdo
 	if ( object )
 	{
 		DisplayObject_UpdateInformation( object, ident, x, y, w, h, z );
+
+		Alchera_DisplayObject_RefreshBorder( object );
+
 	}
 
 	return object;
@@ -163,15 +166,22 @@ DisplayObject * AL_Object_Add( MapInfo * map_info, gchar * ident, gdouble x, gdo
 */
 G_MODULE_EXPORT gboolean AL_Object_Remove( MapInfo * map_info, gint id )
 {
-	GList * object_item = g_list_nth( map_info->display_list, id );
-	if ( object_item != NULL )
+	DisplayObject * object = AL_Object_Get( map_info, id );
+
+	if ( object )
 	{
-		DisplayObject * object = (DisplayObject *)object_item->data;
 		if ( object->free )
 		{
 			object->free(object->data);
 			object->data = NULL;
 		}
+
+		if ( object->shape )
+		{
+			g_slist_free_full(object->shape, g_free);
+		}
+
+
 		object->type = DT_DELETE;
 		return TRUE;
 	}
@@ -234,15 +244,11 @@ void AL_Object_OpenAdvance( GtkWidget * widget, MapInfo * map_info )
 GtkWidget * Object_GetSettingMenu( MapInfo * map_info, guint id )
 {
 	GtkWidget * menu_widget = NULL;
-	GList * object_item = g_list_nth(map_info->display_list, id);
-	DisplayObject * object = NULL;
+	DisplayObject * object = AL_Object_Get(map_info, id);
 	MapObjectData * map_object = NULL;
 
-	if ( object_item != NULL )
+	if ( object != NULL )
     {
-
-		object = (DisplayObject*)object_item->data;
-
 		if ( object->type > DT_DELETE )
 		{
 			menu_widget = gtk_menu_new();
@@ -271,6 +277,9 @@ GtkWidget * Object_GetSettingMenu( MapInfo * map_info, guint id )
     return menu_widget;
 }
 
+
+
+
 /********************************
 * AL_Object_Advance
 *
@@ -280,37 +289,28 @@ GtkWidget * Object_GetSettingMenu( MapInfo * map_info, guint id )
 G_MODULE_EXPORT gboolean AL_Object_Advance( MapInfo * map_info, gint id, GtkWindow * window )
 {
 	gboolean result = FALSE;
-	GList * object_item = g_list_nth(map_info->display_list, id);
+	DisplayObject * object = AL_Object_Get( map_info, id );
 
-	if ( object_item != NULL )
+
+	if ( object->type > DT_DELETE )
 	{
-
-		DisplayObject * object = (DisplayObject*)object_item->data;
-
-		if ( object->type > DT_DELETE )
-		{
-			if ( MAP_OBJECT_DATA(object)->type == 's'  )
-				result = ObjectAdvance_Sprite( object, window );
-			else if ( MAP_OBJECT_DATA(object)->type == 't' )
-				result = ObjectAdvance_Text( object, window );
-			else if ( MAP_OBJECT_DATA(object)->type == 'r' || MAP_OBJECT_DATA(object)->type == 'c' || MAP_OBJECT_DATA(object)->type == 'p' )
-				result = ObjectAdvance_Shape( object, window );
-			else if ( MAP_OBJECT_DATA(object)->type == 'l' )
-				result = ObjectAdvance_Line( object, window );
-			else if ( MAP_OBJECT_DATA(object)->type == 'M' || MAP_OBJECT_DATA(object)->type == 'p' )
-				result = ObjectAdvance_File( object, window );
-			else
-				Meg_Error_Print( __func__, __LINE__, "No Options for that object type. (%c)", MAP_OBJECT_DATA(object)->type);
-		}
+		if ( MAP_OBJECT_DATA(object)->type == 's'  )
+			result = ObjectAdvance_Sprite( object, window );
+		else if ( MAP_OBJECT_DATA(object)->type == 't' )
+			result = ObjectAdvance_Text( object, window );
+		else if ( MAP_OBJECT_DATA(object)->type == 'r' || MAP_OBJECT_DATA(object)->type == 'c' || MAP_OBJECT_DATA(object)->type == 'p' )
+			result = ObjectAdvance_Shape( object, window );
+		else if ( MAP_OBJECT_DATA(object)->type == 'l' )
+			result = ObjectAdvance_Line( object, window );
+		else if ( MAP_OBJECT_DATA(object)->type == 'M' || MAP_OBJECT_DATA(object)->type == 'p' )
+			result = ObjectAdvance_File( object, window );
+		else
+			Meg_Error_Print( __func__, __LINE__, "No Options for that object type. (%c)", MAP_OBJECT_DATA(object)->type);
 	}
-	else
-	{
-		Meg_Error_Print( __func__, __LINE__, "AL_Object_Advance can't find object.");
-	}
+
 
 	return result;
 }
-
 
 /********************************
 * AL_Object_Get
@@ -321,13 +321,22 @@ G_MODULE_EXPORT gboolean AL_Object_Advance( MapInfo * map_info, gint id, GtkWind
 G_MODULE_EXPORT DisplayObject * AL_Object_Get( MapInfo * map_info, gint id )
 {
 	DisplayObject * object = NULL;
-	GList * object_item = g_list_nth(map_info->display_list, id);
+	GList * scan = g_list_first( map_info->display_list );
 
-	if ( object_item != NULL )
+	while ( scan )
 	{
-		object = (DisplayObject*)object_item->data;
+		object = (DisplayObject *)scan->data;
+
+		if ( object->id == id )
+		{
+			return object;
+		}
+
+		scan = g_list_next(scan);
 	}
-	return object;
+
+	return NULL;
+
 }
 
 /********************************

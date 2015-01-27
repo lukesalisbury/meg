@@ -1034,7 +1034,6 @@ MokoiManagedEntity * ManagedEntity_Load( gchar * entity_name )
 	{
 		Meg_Error_Print( __func__, __LINE__, "Managed Entity setting could not loaded. Reason: %s", error->message );
 		g_clear_error (&error);
-		return NULL;
 	}
 
 	ctx = g_markup_parse_context_new( &mokoiEntityParser, (GMarkupParseFlags)G_MARKUP_TREAT_CDATA_AS_TEXT, (gpointer)managed_file, NULL );
@@ -1042,7 +1041,6 @@ MokoiManagedEntity * ManagedEntity_Load( gchar * entity_name )
 	{
 		Meg_Error_Print( __func__, __LINE__, "Parsing setting error. Reason: %s", error->message );
 		g_clear_error (&error);
-		return NULL;
 	}
 
 	g_markup_parse_context_end_parse(ctx, &error);

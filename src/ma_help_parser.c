@@ -187,11 +187,12 @@ gboolean Meg_HelpParser_Load( GtkTextView * textview, gchar * content )
 }
 
 
-/********************************
-* Meg_Help_TextViewEvent
-* Event:
-* Result:
-*/
+/**
+ * @brief Meg_HelpParser_Event
+ * @param text_view
+ * @param ev
+ * @return
+ */
 gboolean Meg_HelpParser_Event( GtkWidget * text_view, GdkEvent * ev )
 {
 	GtkTextIter start, end, iter;
@@ -240,6 +241,10 @@ gboolean Meg_HelpParser_Event( GtkWidget * text_view, GdkEvent * ev )
 
 
 /* Parsers Functions */
+
+/**
+ * @brief help_parser_append_newline
+ */
 void help_parser_append_newline()
 {
 	GtkTextIter last_iter;
@@ -253,6 +258,10 @@ void help_parser_append_newline()
 }
 
 
+/**
+ * @brief help_parser_append_text
+ * @param text
+ */
 void help_parser_append_text( const gchar * text )
 {
 	GtkTextIter iter, iter2;
@@ -328,6 +337,15 @@ void help_parser_append_text( const gchar * text )
 	}
 }
 
+/**
+ * @brief help_parser_start_element
+ * @param context
+ * @param element_name
+ * @param attribute_names
+ * @param attribute_values
+ * @param user_data
+ * @param error
+ */
 void help_parser_start_element( GMarkupParseContext *context, const gchar *element_name, const gchar **attribute_names, const gchar **attribute_values, gpointer user_data, GError **error )
 {
 	if ( alchera_help_textbuffer == NULL )
@@ -475,6 +493,15 @@ void help_parser_start_element( GMarkupParseContext *context, const gchar *eleme
 	}
 }
 
+
+/**
+ * @brief help_parser_text
+ * @param context
+ * @param text
+ * @param text_len
+ * @param user_data
+ * @param error
+ */
 void help_parser_text( GMarkupParseContext *context, const gchar * text, gsize text_len, gpointer user_data, GError **error )
 {
 	if ( text_len )
@@ -495,7 +522,13 @@ void help_parser_text( GMarkupParseContext *context, const gchar * text, gsize t
 	}
 }
 
-
+/**
+ * @brief help_parser_end_element
+ * @param context
+ * @param element_name
+ * @param user_data
+ * @param error
+ */
 void help_parser_end_element( GMarkupParseContext *context, const gchar *element_name, gpointer user_data, GError **error )
 {
 	if ( alchera_help_textbuffer == NULL )

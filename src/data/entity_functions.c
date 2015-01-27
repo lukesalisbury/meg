@@ -230,7 +230,7 @@ void Entity_NewDialog( GtkButton * button, GtkTreeView * tree )
 	if ( Entity_Add() )
 	{
 		GtkTreeModel * model = gtk_tree_view_get_model( tree );
-		EntityList_UpdatePage( GTK_TREE_STORE(model) );
+		EntityList_UpdatePage( model );
 	}
 }
 
@@ -334,6 +334,38 @@ void EntityList_Selection( GtkTreeView * tree_view, GtkTreePath * path, GtkTreeV
 	}
 }
 
+/**
+ * @brief EntityList_GetIter
+ * @param file
+ * @param list [ 0=>file, 1=>time, 2=>desc, 3=>compiled time, 4=>window, 5=?wintext ]
+ * @param parent
+ * @return
+ */
+GtkTreeIter  EntityList_GetIter( const gchar * file, GtkTreeStore * list, GtkTreeIter * parent )
+{
+	GtkTreeIter child, search;
+	gchar * sfile;
+	GtkTreeModel * model = GTK_TREE_MODEL(list);
+
+	if ( gtk_tree_model_iter_children( model, &search, parent ) )
+	{
+		do
+		{
+			gtk_tree_model_get( model, &search, 0, &sfile, -1);
+			if ( !g_strcmp0(sfile, file) )
+			{
+				return search;
+			}
+		} while ( gtk_tree_model_iter_next( model, &search ) );
+	}
+
+	gtk_tree_store_append( list, &child, parent );
+	gtk_tree_store_set( list, &child, 4, NULL, 5, NULL, -1 );
+
+	return child;
+}
+
+
 /********************************
 * EntityList_ScanDirectory
 *
@@ -341,13 +373,10 @@ void EntityList_Selection( GtkTreeView * tree_view, GtkTreePath * path, GtkTreeV
 @ ext:
 @ list: [ 0=>file, 1=>time, 2=>desc, 3=>compiled time, 4=>window, 5=?wintext ]
 */
-void EntityList_ScanDirectory( gchar * path, gchar * ext, gboolean routines, GtkTreeStore * list, gchar * title )
+void EntityList_ScanDirectory( gchar * path, gchar * ext, gboolean routines, GtkTreeStore * list, GtkTreeIter * parent )
 {
-	GtkTreeIter children, parent;
+	GtkTreeIter children;
 	gchar * full_path = g_strconcat( "/scripts/", path, NULL );
-
-	gtk_tree_store_append( list, &parent, NULL );
-	gtk_tree_store_set( list, &parent, 0, g_strdup(title), 1, 0, 2, NULL, 3, 0, 4, NULL, 5, NULL, -1 );
 
 	/* Scan Directory */
 	char ** directory_listing = PHYSFS_enumerateFiles(full_path);
@@ -366,8 +395,8 @@ void EntityList_ScanDirectory( gchar * path, gchar * ext, gboolean routines, Gtk
 
 			if ( routines )
 			{
-				gtk_tree_store_append( list, &children, &parent );
-				gtk_tree_store_set( list, &children, 0, g_strdup( file ), 1, 0, 2, "Routine Source", 3, 0, 4, NULL, 5, NULL, -1 );
+				children = EntityList_GetIter( file, list, parent );
+				gtk_tree_store_set( list, &children, 0, g_strdup( file ), 1, 0, 2, "Routine Source", 3, 0, -1 );
 			}
 			else
 			{
@@ -377,8 +406,8 @@ void EntityList_ScanDirectory( gchar * path, gchar * ext, gboolean routines, Gtk
 				time_t source = physfs_file_get_date( sfile );
 				time_t script = physfs_file_get_date( cfile );
 
-				gtk_tree_store_append( list, &children, &parent );
-				gtk_tree_store_set( list, &children, 0, g_strdup( file ), 1, 0, 2, (source > script ? "Need compiling" : ""), 3, script, 4, NULL, 5, NULL, -1 );
+				children = EntityList_GetIter( file, list, parent );
+				gtk_tree_store_set( list, &children, 0, g_strdup( file ), 1, 0, 2, (source > script ? "Need compiling" : ""), 3, script, -1 );
 
 				g_free( sfile );
 				g_free( cfile );
@@ -396,16 +425,53 @@ void EntityList_ScanDirectory( gchar * path, gchar * ext, gboolean routines, Gtk
 *
 @ list: [ 0=>file, 1=>time, 2=>desc, 3=>compiled time, 4=>window, 5=?wintext ]
 */
-void EntityList_UpdatePage( GtkTreeStore * list )
+void EntityList_UpdatePage( GtkTreeModel * list )
 {
 	if ( !Project_ValidDir() || !list )
 		return;
 
-	gtk_tree_store_clear( list );
+	gint c = 0;
+	GtkTreeIter parent;
+	if ( gtk_tree_model_get_iter_first( list, &parent ) )
+	{
+		gchar * sfile;
+		do
+		{
+			gtk_tree_model_get( list, &parent, 0, &sfile, -1);
+			switch (c) {
+				case 0:
+					EntityList_ScanDirectory( NULL, ".mps", FALSE, GTK_TREE_STORE(list), &parent );
+					break;
+				case 1:
+					EntityList_ScanDirectory( "routines/", ".inc", TRUE, GTK_TREE_STORE(list), &parent );
+					break;
+				case 2:
+					EntityList_ScanDirectory( "maps/", ".mps", FALSE, GTK_TREE_STORE(list), &parent );
+					break;
+				case 3:
+					EntityList_ScanDirectory( "maps/routines/", ".inc", TRUE, GTK_TREE_STORE(list), &parent );
+					break;
+			}
+			c++;
+		} while ( gtk_tree_model_iter_next( list, &parent ) );
+	}
+	else
+	{
+		gtk_tree_store_append( GTK_TREE_STORE(list), &parent, NULL );
+		gtk_tree_store_set( GTK_TREE_STORE(list), &parent, 0, "<b>Entities</b>", 1, 0, 2, NULL, 3, 0, 4, NULL, 5, NULL, -1 );
+		EntityList_ScanDirectory( NULL, ".mps", FALSE, GTK_TREE_STORE(list), &parent );
 
-	EntityList_ScanDirectory( NULL, ".mps", FALSE, list, "<b>Object Scripts</b>" );
-	EntityList_ScanDirectory( "routines/", ".inc", TRUE, list, "<b>Routines</b>" );
-	EntityList_ScanDirectory( "maps/", ".mps", FALSE, list, "<b>Maps</b>" );
-	EntityList_ScanDirectory( "maps/routines/", ".inc", TRUE, list, "<b>Maps Routines</b>" );
+		gtk_tree_store_append( GTK_TREE_STORE(list), &parent, NULL );
+		gtk_tree_store_set( GTK_TREE_STORE(list), &parent, 0, "<b>Entities Routines</b>", 1, 0, 2, NULL, 3, 0, 4, NULL, 5, NULL, -1 );
+		EntityList_ScanDirectory( "routines/", ".inc", TRUE, GTK_TREE_STORE(list), &parent );
+
+		gtk_tree_store_append( GTK_TREE_STORE(list), &parent, NULL );
+		gtk_tree_store_set( GTK_TREE_STORE(list), &parent, 0, "<b>Entities Routines</b>", 1, 0, 2, NULL, 3, 0, 4, NULL, 5, NULL, -1 );
+		EntityList_ScanDirectory( "maps/", ".mps", FALSE, GTK_TREE_STORE(list), &parent );
+
+		gtk_tree_store_append( GTK_TREE_STORE(list), &parent, NULL );
+		gtk_tree_store_set( GTK_TREE_STORE(list), &parent, 0, "<b>Maps Routines</b>", 1, 0, 2, NULL, 3, 0, 4, NULL, 5, NULL, -1 );
+		EntityList_ScanDirectory( "maps/routines/", ".inc", TRUE, GTK_TREE_STORE(list), &parent );
+	}
 }
 

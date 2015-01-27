@@ -469,13 +469,13 @@ gboolean EntityEditor_InsertDialog( GtkWidget * widget, GtkWidget * view )
 			}
 			else
 			{
-				if (temp)
+				if ( temp )
 				{
-					string = g_strjoin(",", temp, ( type == 'a' ? "\"\"" : "0"), NULL);
+					string = g_strjoin(",", temp, ( type == 's' ? "\"\"" : "0"), NULL);
 					g_free(temp);
 				}
 				else
-					string = g_strdup(( type == 'a' ? "\"\"" : "0"));
+					string = g_strdup(( type == 's' ? "\"\"" : "0"));
 
 				temp = string;
 			}

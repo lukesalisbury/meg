@@ -193,7 +193,14 @@ void ObjectAdvance_EntityWidget_Save( GtkWidget * parent, DisplayObject * object
 
 	if ( entity == NULL )
 	{
-		REPLACE_STRING( object_data->object_name, NULL );
+		if ( gtk_entry_get_text_length( GTK_ENTRY(edit_id) ) )
+		{
+			REPLACE_STRING( object_data->object_name, g_strdup(name) );
+		}
+		else
+		{
+			REPLACE_STRING( object_data->object_name, NULL );
+		}
 		REPLACE_STRING( object_data->entity_file, NULL );
 		REPLACE_STRING( object_data->entity_language, NULL );
 
@@ -233,7 +240,15 @@ void ObjectAdvance_EntityWidget_Save( GtkWidget * parent, DisplayObject * object
 	}
 	else
 	{
-		REPLACE_STRING( object_data->object_name, NULL );
+		if ( gtk_entry_get_text_length( GTK_ENTRY(edit_id) ) )
+		{
+			REPLACE_STRING( object_data->object_name, g_strdup(name) );
+		}
+		else
+		{
+			REPLACE_STRING( object_data->object_name, NULL );
+		}
+
 		REPLACE_STRING( object_data->entity_file, NULL );
 		REPLACE_STRING( object_data->entity_language, NULL );
 
@@ -583,10 +598,10 @@ gboolean ObjectAdvance_Text( DisplayObject * object, GtkWindow * window )
 
 	Meg_Misc_SetLabel_Print( label, "<b>Edit Text</b>\n%s (%d)", object_data->name, object->id );
 
-	gtk_spin_button_set_range( spin_x, -200.0, (gdouble)map_width );
+	//gtk_spin_button_set_range( spin_x, -200.0, (gdouble)map_width );
 	gtk_spin_button_set_value( spin_x, object->x );
 
-	gtk_spin_button_set_range( spin_y, -200.0, (gdouble)map_height );
+	//gtk_spin_button_set_range( spin_y, -200.0, (gdouble)map_height );
 	gtk_spin_button_set_value( spin_y, object->y );
 
 	gtk_spin_button_set_range( spin_z, 0.0, 6.0 );

@@ -16,6 +16,8 @@ Permission is granted to anyone to use this software for any purpose, including 
 #include "data/audio_functions.h"
 #include "data/audio_playback.h"
 
+void MegWidget_Audio_Refresh(GtkWidget * widget, gpointer user_data);
+
 /* External Functions */
 
 
@@ -53,8 +55,11 @@ void MegWidget_Audio_Create()
 	widget = GET_WIDGET( ui, "meg_audio_widget" );
 	alchera_audio_treeview = GET_WIDGET( ui, "meg_audio_main_treeview" );
 
+
+
 	/* Signals */
-	SET_OBJECT_SIGNAL( ui, "button_refresh", "clicked", G_CALLBACK(Audio_Listing_Refresh), (gpointer) alchera_audio_treeview);
+	g_signal_connect( widget, "realize", G_CALLBACK(MegWidget_Audio_Refresh), alchera_audio_treeview );
+
 	SET_OBJECT_SIGNAL( ui, "button_add", "clicked", G_CALLBACK(Audio_File_Add), (gpointer) alchera_audio_treeview );
 	SET_OBJECT_SIGNAL( ui, "button_remove", "clicked", G_CALLBACK(Audio_File_Remove), (gpointer) alchera_audio_treeview );
 
@@ -62,6 +67,11 @@ void MegWidget_Audio_Create()
 	SET_OBJECT_SIGNAL( ui, "meg_audio_main_treeview", "row-activated", G_CALLBACK(Audio_File_Selected), NULL );
 
 	Audio_Payback_Register();
+
+	/* Help support */
+	GtkWidget *help_text = GET_WIDGET( ui, "meg_audio_help" );
+	Meg_Help_Load(PROGRAMSHELPDIRECTORY"/Audio.xml", help_text);
+	g_object_set_data( G_OBJECT(widget), "meg-help-page", g_strdup(PROGRAMSHELPDIRECTORY"/Audio.xml") ); //Set the help page
 
 	Meg_Main_AddSection( widget, "Audio", PAGE_ICON_AUDIO );
 

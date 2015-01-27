@@ -489,7 +489,6 @@ gint Entity_Count( )
 	Meg_enumerateFilesCallback("/scripts/maps/", EntityCompiler_RebuildCount, &c);
 	Meg_enumerateFilesCallback("/scripts/", EntityCompiler_RebuildCount, &c);
 
-
 	return c;
 }
 

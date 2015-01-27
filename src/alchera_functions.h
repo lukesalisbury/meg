@@ -75,7 +75,7 @@
 	void Meg_ComboText_SetIndex( GtkComboBox * widget, gchar * search );
 
 	/* */
-
+	void Meg_Help_Load( const gchar * file, GtkWidget * textview );
 
 	/* */
 	void Meg_Misc_SetLabel( GtkWidget *label, gchar * section, gchar * text, gchar sep );

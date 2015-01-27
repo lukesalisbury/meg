@@ -725,6 +725,9 @@ gboolean Alchera_Map_RectCollided( gdouble ox, gdouble oy, gdouble w, gdouble h,
 */
 void Meg_DisplayObject_UpdateBorder( DisplayObject * obj, DisplayObjectBorder * border )
 {
+	g_return_if_fail(obj != NULL);
+	g_return_if_fail(border != NULL);
+
 	gint width = 0, height = 0;
 	//gint parent_width = 0, parent_height = 0;
 

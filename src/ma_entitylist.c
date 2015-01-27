@@ -84,6 +84,12 @@ void MegWidget_EntityList_Create()
 	//g_signal_connect( mokoiEntityTreeview, "show", G_CALLBACK(MegWidget_EntityList_Refresh), NULL );
 
 
+	/* Help support */
+	GtkWidget *help_text = GET_WIDGET( ui, "meg_entitylist_help" );
+	Meg_Help_Load(PROGRAMSHELPDIRECTORY"/Entities.xml", help_text);
+	g_object_set_data( G_OBJECT(widget), "meg-help-page", g_strdup(PROGRAMSHELPDIRECTORY"/Entities.xml") ); //Set the help page
+
+
 	Meg_Main_AddSection( widget, "Scripts", PAGE_ICON_SCRIPTS );
 
 }
@@ -96,6 +102,8 @@ void MegWidget_EntityList_Refresh( GtkWidget * widget, gpointer user_data)
 {
 	EntityList_UpdateMain();
 	EntityList_UpdatePage( GTK_TREE_STORE(gtk_tree_view_get_model(GTK_TREE_VIEW(mokoiEntityTreeview))) );
+
+
 	gtk_tree_view_expand_all( GTK_TREE_VIEW(mokoiEntityTreeview) );
 }
 
@@ -106,7 +114,7 @@ void MegWidget_EntityList_Refresh( GtkWidget * widget, gpointer user_data)
 */
 void MegWidget_EntityList_Init()
 {
-	/* Use 'show' event instead */
+
 	/* MegWidget_EntityList_Refresh(NULL, NULL); */
 }
 
@@ -116,5 +124,6 @@ void MegWidget_EntityList_Init()
 */
 void MegWidget_EntityList_Close()
 {
-
+	GtkTreeModel * model = gtk_tree_view_get_model( GTK_TREE_VIEW(mokoiEntityTreeview) );
+	gtk_tree_store_clear( GTK_TREE_STORE(model) );
 }

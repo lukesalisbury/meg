@@ -264,7 +264,7 @@ void Meg_MapEdit_ObjectDrop( GtkWidget * widget, GdkDragContext * drag_context, 
 * Event: Double clicking on Icon
 * Result: To bring up New Object Placing
 */
-void Meg_MapEdit_ObjectSelected( GtkIconView * icon_view, GtkTreePath *path, GtkWidget * map_widget )
+void Meg_MapEdit_ObjectSelected( GtkIconView * icon_view, GtkTreePath * path, GtkWidget * map_widget )
 {
 	if ( !map_widget )
 		g_error("No Map Widget Found");
@@ -299,7 +299,7 @@ void Meg_MapEdit_ObjectSelected( GtkIconView * icon_view, GtkTreePath *path, Gtk
 */
 void Meg_MapEdit_Undo( GtkAction * action, AlcheraMap * map )
 {
-	if ( map)
+	if ( map )
 	{
 		gtk_alchera_map_undo( map );
 		gtk_alchera_map_refresh( map );
