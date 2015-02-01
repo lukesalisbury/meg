@@ -24,12 +24,12 @@ native GameGetDetails(slot, array[64], bool:pack_array = false, maxlength=sizeof
 native GameDetails(gameid, slot, array[64], bool:pack_array = false, maxlength=sizeof array);
 
 ///Language Functions
-native LanguageString(line, returnstring[], maxlength=sizeof returnstring);
+native LanguageString(line, returnstring{}, maxlength=sizeof returnstring);
 native LanguageSet(lang[], maxlength=sizeof lang);
 
 ///Dialog Functions
 native DialogShow(line, callback{} = "dialogbox");
-native DialogGetString(line, returnstring[], maxlength=sizeof returnstring);
+native DialogGetString(line, returnstring{}, maxlength=sizeof returnstring);
 
 /// Audio Functions
 native AudioPlayDialog(line);
@@ -40,7 +40,7 @@ native AudioPlaySound(file{}, x = -1, y = -1);
 native FixedToFloat(value);
 native FloatToFixed(value);
 native StringHash(name{});
-native entity:EntityHash(name{});
+
 
 stock object:ObjectHash(name{}, global)
 {

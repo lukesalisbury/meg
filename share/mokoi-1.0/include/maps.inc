@@ -3,8 +3,6 @@
 #endif
 #define _maps_included
 
-
-
 #define MAP_ERROR 0
 #define GLOBAL_MAP 0
 #define CURRENT_MAP MapCurrentIdent()
@@ -36,7 +34,6 @@ native WorldLoad( section_name{} );
 //Map Collision Functions
 native MapCollisionList();
 native MapCollisionCurrent(objecta, objectb, &angle, &dist, &rect );
-
 
 /***
 <api title="Map Functions">

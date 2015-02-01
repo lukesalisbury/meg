@@ -9,6 +9,8 @@ Permission is granted to anyone to use this software for any purpose, including 
 3. This notice may not be removed or altered from any source distribution.
 ****************************/
 
+#define REPLACE_STRING_DUPE(s,v)	g_free( s ); if (v) { s = g_strdup(v); } else { s = NULL; }
+
 /* Global Header */
 #include "display_object.h"
 
@@ -35,7 +37,7 @@ cairo_font_face_t * Meg_GetBitmapFont();
 /* UI */
 
 
-
+/* Functions */
 gboolean Alchera_DisplayObject_Advance( MapInfo * map_info, DisplayObject * obj, GtkWindow * parent_window )
 {
 	if ( obj && map_info )
@@ -316,14 +318,36 @@ guint Alchera_DisplayObject_StandardMovement( guint state, gboolean mapAlign )
 gint Alchera_DisplayObject_Order( gconstpointer a, gconstpointer b, gpointer data )
 {
 	DisplayObject * q, * t;
+	gboolean sort_y = FALSE;
 	q = (DisplayObject*)a;
 	t = (DisplayObject*)b;
+
+	if ( data )
+	{
+		sort_y = TRUE;
+	}
+
 	if( q->layer > t->layer )
 		return 1;
 	else if( q->layer < t->layer )
 		return -1;
-	else
+	else // layers are equal
 	{
+		if ( sort_y )
+		{
+			if( q->y > t->y )
+				return 1;
+			else if( q->y < t->y )
+				return -1;
+
+			if( q->x > t->x )
+				return 1;
+			else if( q->x < t->x )
+				return -1;
+
+		}
+
+		//Just Order by the order the object was placed on the map
 		if( q->id > t->id )
 			return 1;
 		else if( q->id < t->id )
@@ -355,8 +379,6 @@ void Alchera_DisplayObject_DrawBorderPixbuf(DisplayObject * object, cairo_t *cr)
 		pattern = cairo_get_source( cr );
 		cairo_pattern_set_extend( pattern, CAIRO_EXTEND_REPEAT);
 		cairo_fill( cr );
-
-
 
 		border_list = g_list_next(border_list);
 	}
@@ -552,9 +574,6 @@ void Alchera_DisplayObject_DrawText(DisplayObject* object, cairo_t *cr)
 	object->w = extents.width;
 	object->h = extents.height;
 	cairo_show_text( cr, object->text );
-
-
-	//gunichar g_utf8_get_char                     (const gchar *p);
 
 }
 
@@ -903,11 +922,22 @@ DisplayObject * Alchera_DisplayObject_New( gpointer data, gboolean (*free)(gpoin
 	object->is_flipped = 0;
 	object->colour.red = object->colour.blue = object->colour.green = object->colour.alpha = 1.0;
 
-
+	object->name = g_strdup("Unknown");
 
 	return object;
 }
 
-
+gchar * display_object_type_names[] = { "None", "Deleted", "Image", "Animation", "Rectangle", "Circle", "Line", "Text", "Polygon", "Other", "Other", "Other", NULL };
+void Alchera_DisplayObject_SetName( DisplayObject * object, gchar * name )
+{
+	if ( name )
+	{
+		REPLACE_STRING_DUPE(object->name, name);
+	}
+	else
+	{
+		REPLACE_STRING_DUPE(object->name, display_object_type_names[object->type]);
+	}
+}
 
 

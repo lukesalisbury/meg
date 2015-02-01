@@ -12,11 +12,3 @@
 forward public Init(...);
 forward public UpdatePosition();
 forward public Close();
-
-/*
-forward public @PreInit();
-forward public @PostInit();
-forward public @PreClose();
-forward public @PostClose();
-forward public @UpdatePosition();
-*/

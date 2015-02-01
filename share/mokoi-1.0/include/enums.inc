@@ -8,7 +8,7 @@
 #define SELF entity:0
 #define SELF_STRING ""
 
-#define OBJECT_NONE object:-1
+#define OBJECT_NONE object:0
 #define OBJECT_GLOBAL_VALUE 0x80000000
 #define OBJECT_LOCAL_VALUE 0x7FFFFFFF
 #define XAXIS 0

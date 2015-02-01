@@ -34,9 +34,6 @@ extern GtkWidget * mokoiEntityTreeview;
 /* Local Variables */
 
 /* UI */
-
-
-
 const gchar * mokoiUI_EntityFunction = GUI_ENTITY_EDITOR_FUNCTION;
 const gchar * mokoiUI_EntityEditor = GUI_ENTITY_EDITOR;
 const gchar * mokoiUI_ErrorDialog = GUI_ERROR_DIALOG;

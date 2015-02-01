@@ -8,37 +8,9 @@ Permission is granted to anyone to use this software for any purpose, including 
 2. Altered source versions must be plainly marked as such, and must not be misrepresented as being the original software.
 3. This notice may not be removed or altered from any source distribution.
 ****************************/
+#ifdef USEGTKSOURCEVIEW
 
-#include <gtk/gtk.h>
-#include <gtksourceview/gtksourceview.h>
-#include <gtksourceview/gtksourcecompletion.h>
-#include <gtksourceview/gtksourcecompletioninfo.h>
-#include <gtksourceview/gtksourcecompletionitem.h>
-#include "ma_types.h"
-
-typedef struct _ScriptAutoCompleteProvider ScriptAutoCompleteProvider;
-typedef struct _ScriptAutoCompleteProviderClass ScriptAutoCompleteProviderClass;
-
-struct _ScriptAutoCompleteProvider
-{
-	GObject parent;
-	GList * proposals;
-	gint priority;
-	gchar * name;
-	GdkPixbuf * icon;
-	GSList * database;
-	gchar * function;
-	GtkWidget * widget;
-};
-
-struct _ScriptAutoCompleteProviderClass
-{
-	GObjectClass parent_class;
-};
-
-static void script_auto_complete_provider_iface_init(GtkSourceCompletionProviderIface * iface);
-GType script_auto_complete_provider_get_type(void);
-
+#include "lang_provider.h"
 
 #if GTK_MAJOR_VERSION > 2
 G_DEFINE_TYPE_WITH_CODE( ScriptAutoCompleteProvider, script_auto_complete_provider, G_TYPE_OBJECT, G_IMPLEMENT_INTERFACE(GTK_SOURCE_TYPE_COMPLETION_PROVIDER, script_auto_complete_provider_iface_init) )
@@ -107,17 +79,15 @@ static gint script_auto_complete_provider_get_priority( GtkSourceCompletionProvi
 static gboolean script_auto_complete_provider_match( GtkSourceCompletionProvider * provider, GtkSourceCompletionContext * context )
 {
 	gboolean results = TRUE;
-	/*
-	gchar * word = NULL;
-	GtkTextIter iter;
-	gtk_source_completion_context_get_iter( context, &iter);
 
-	word = script_auto_complete_get_word( &iter );
+//	gchar * word = NULL;
+//	GtkTextIter iter;
+//	gtk_source_completion_context_get_iter( context, &iter);
 
-	if (word == NULL || g_utf8_strlen(word, -1) < 2 )
-		results = FALSE;
-	gtk_widget_set_has_tooltip( ((ScriptAutoCompleteProvider *)provider)->widget, results );
-	*/
+//	word = script_auto_complete_get_word( &iter );
+
+//	if (word == NULL || g_utf8_strlen(word, -1) < 2 )
+//		results = FALSE;
 	return results;
 }
 
@@ -146,7 +116,6 @@ static void script_auto_complete_provider_populate( GtkSourceCompletionProvider 
 				EditorDatabaseListing * listing = (EditorDatabaseListing *)(q->data);
 				if ( listing )
 				{
-
 					if ( g_str_has_prefix( listing->name, word ) )
 					{
 						gchar * markup2 = g_markup_printf_escaped("%s<i>%s</i>", listing->name, listing->arguments_string);
@@ -201,3 +170,4 @@ static void script_auto_complete_provider_init( ScriptAutoCompleteProvider *self
 	self->database = AL_Editor_Database("");
 }
 
+#endif

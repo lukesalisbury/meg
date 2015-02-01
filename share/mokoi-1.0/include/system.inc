@@ -8,7 +8,7 @@
 #include <enums>
 
 /// System Function
-native SystemAudioVolume(_AUDIO:device, level = -1);
+native SystemAudioVolume(AudioDevice:device, level = -1);
 native SystemCommand( command, value = 0 );
 native SystemListCount( list );
 native SystemListItem( list, item, content{},  maxlength=sizeof content );
@@ -20,7 +20,7 @@ native ConfigGetString(key{}, value{});
 native ConfigSave();
 
 ///Files
-native FileGetList(strings[][], directory{} = "map", size=sizeof strings);
+native FileGetList(strings[]{}, directory{} = "map", size=sizeof strings);
 
 /***
 <api title="System Function">

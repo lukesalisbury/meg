@@ -14,27 +14,25 @@
 #define ARG_STRING	's'
 #define ARG_END	'\0'
 
+#define MAP_ENTITY entity:0xD4824F64
+#define MAIN_ENTITY entity:0x1D1A8BF1
 
-#define __MAP_ENTITY__ EntityHash("__map__")
-#define __MAIN_ENTITY__ EntityHash("main")
-
-
-
+#define SKIP_VALUE Fixed:cellmin
 
 ///Entity Position Functions
-native EntitySetPosition(Fixed:x = Fixed:cellmin, Fixed:y = Fixed:cellmin, layer = cellmin, id = SELF);
-native EntityGetPosition(&Fixed:x, &Fixed:y, &layer, id = SELF, whole = 0);
-native EntityGetPosition2(&x, &y, &layer, id = SELF, whole = 1 ) = EntityGetPosition;
+native EntitySetPosition(Fixed:x = Fixed:SKIP_VALUE, Fixed:y = Fixed:SKIP_VALUE, Fixed:layerz = SKIP_VALUE, id = SELF);
+native EntityGetPosition(&Fixed:x, &Fixed:y, &Fixed:layerz, id = SELF, whole = 0);
+native EntityGetPosition2(&x, &y, &Fixed:layerz, id = SELF, whole = 1 ) = EntityGetPosition;
 
 ///Entity Functions
-native entity:EntityCreate(parententity{}, id_string{}, Fixed:x, Fixed:y, layer, map_id, args[]='''', {Fixed,_}:...);
+native entity:EntityCreate(parententity{}, id_string{}, Fixed:x, Fixed:y, Fixed:layerz, map_id, args[]=[ARG_END], args_count = sizeof(args), {Fixed,_}:...);
 native EntityDelete(entity:id = SELF);
 native EntityGetSetting(key{}, string{}, entity:id = SELF, length = sizeof string);
 native EntityGetSettingHash(key{}, entity:id = SELF);
 native EntityGetNumber(key{}, entity:id = SELF );
 native object:EntityGetObject(key{} = "object-id", entity:id = SELF ) = EntityGetNumber;
 
-native EntityPublicFunction(entity:id, function{}, args[]='''', ...);
+native EntityPublicFunction(entity:id, function{}, args[]=[ARG_END], args_count = sizeof(args), {Fixed,_}:...);
 native EntityPublicVariable(entity:id, variable{});
 native EntityPublicVariableSet(entity:id, variable{}, value);
 
@@ -46,23 +44,21 @@ native CollisionGet(entity:id = SELF, rect, &x, &y, &w, &h);
 native CollisionCalculate(entity:id = SELF, rect = -1, type = -1);
 native CollisionGetCurrent(entity:id = SELF, &current, &angle, &dist, &rect, &type );
 
-
-
 ///Entity Management Functions
-native EntitiesList(mapid = 0);
+native EntitiesList(map_id = 0);
 native EntitiesNext(&entity:id, map_id = 0, entity_name{} = "", maxlength = sizeof(entity_name) );
-
 
 ///Paths Functions
 native PathGetPoint( object:id, point, &x, &y, &t);
 native PathCount( object:id );
-native PathMoveObject(object:id, speed, &x, &y, loop);
+native PathMoveObject( object:id, Fixed:speed, &x, &y, loop);
 
 ///Functions related functions
-native FunctionCall(function);
-native FunctionIdent(const name{});
+native FunctionCall( ident );
+native FunctionIdent( const name{} );
 
-
+// Misc Functions 
+native entity:EntityHash(name{});
 
 /***
 <api title="Entity Functions">
@@ -70,36 +66,38 @@ native FunctionIdent(const name{});
 		<summary>Set Entities position on current map.</summary>
 		<param name="Fixed:x" default="_" type="n">New Position. Pass cellmin to skip update that value.</param>
 		<param name="Fixed:y" default="_" type="n">New Position. Pass cellmin to skip update that value.</param>
-		<param name="z" default="_" type="n">New Position. Pass cellmin to skip update that value.</param>
+		<param name="layer" default="_" type="n">New Position. Pass cellmin to skip update that value.</param>
 		<param name="id" default="_" type="n">Entity ID.</param>
 	</function>
 	<function name="EntityGetPosition">
 		<summary>Get Entity position on current map.</summary>
 		<param name="&amp;Fixed:x" default="" type="n">Variable to store Position.</param>
 		<param name="&amp;Fixed:y" default="" type="n">Variable to store Position.</param>
-		<param name="&amp;z" default="" type="n">Variable to store Position.</param>
+		<param name="&amp;layer" default="" type="n">Variable to store Position.</param>
 		<param name="id" default="_" type="n">Entity ID.</param>
+		<param name="whole" default="_" type="n"></param>
 	</function>
 	<function name="EntityHash">
 		<summary>Convert Entity Name to hash</summary>
-		<param name="id_string[]" default="" type="a">ID of the entity.</param>
+		<param name="id_string{}" default="" type="s">ID of the entity.</param>
 		<return>Returns the Entity Hash.</return>
 	</function>
 	<function name="EntityCreate">
 		<summary>Creates a new entity.</summary>
-		<param name="parententity[]" default="&quot;&quot;" type="a">Entity File name.</param>
-		<param name="id_string[]" default="&quot;&quot;" type="a">ID to give the entity.</param>
+		<param name="parententity{}" default="&quot;&quot;" type="s">Entity File name.</param>
+		<param name="id_string{}" default="&quot;&quot;" type="s">ID to give the entity.</param>
 		<param name="x" default="" type="n">position to give the the entity.</param>
 		<param name="y" default="" type="n">position to give the the entity.</param>
 		<param name="layer" default="" type="n">position to give the the entity.</param>
 		<param name="map_id" default="CURRENT_MAP" type="n">Map to create it on. CURRENT_MAP will created it on the current map. GLOBAL_MAP with create a global entity which always on.</param>
-		<param name="args[]" default="{ ARG_END }" type="a">Defines the follow arguments that will be passed to the entity Init function.
+		<param name="args[]" default="[ ARG_END ]" type="a">Defines the follow arguments that will be passed to the entity Init function.
 		ARG_ARRAY - Array, last value must be CELLMIN
 		ARG_NUMBER - Value, passed by value
 		ARG_STRING - String
 		ARG_END - End
-		{ ARG_STRING, ARG_RETURN_NUMBER, ARG_STRING, ARG_RETURN_NUMBER, ARG_END } means that the follow argument you pass will be a string, a number, a string and a number.
+		[ ARG_STRING, ARG_RETURN_NUMBER, ARG_STRING, ARG_RETURN_NUMBER, ARG_END ] means that the follow argument you pass will be a string, a number, a string and a number.
 		</param>
+		<param name="args_count" default="_" type="n">Size of args. Just use _</param>
 		<param name="..." default="" type="v">List of Arguments to pass to the entity Init function. </param>
 		<return>0 on error, otherwise it returns the Entity Hash.</return>
 	</function>
@@ -109,13 +107,13 @@ native FunctionIdent(const name{});
 	</function>
 	<function name="EntityGetSetting">
 		<summary>Get stored setting for entity. These are set via the Runtime Options.</summary>
-		<param name="key[]" default="" type="a">Name of Setting.</param>
-		<param name="string[]" default="" type="a">String to store value in.</param>
+		<param name="key{}" default="" type="s">Name of Setting.</param>
+		<param name="string{}" default="" type="s">String to store value in.</param>
 		<param name="id" default="_" type="n">Entity ID Hash.</param>
 	</function>
 	<function name="EntityGetNumber">
 		<summary>Returns stored setting for entity. These are set via the Runtime Options.</summary>
-		<param name="key[]" default="" type="a">Name of Setting.</param>
+		<param name="key{}" default="" type="s">Name of Setting.</param>
 		<param name="id" default="_" type="n">Entity ID Hash.</param>
 	</function>
 	<function name="EntityGetObject">
@@ -124,28 +122,29 @@ native FunctionIdent(const name{});
 	<function name="EntityPublicFunction">
 		<summary>Calls a function from another entity.</summary>
 		<param name="id" default="_" type="n">Entity ID Hash.</param>
-		<param name="function[]" default="" type="a">Public Function Name.</param>
-		<param name="args[]" default=" ARG_END }" type="a">Defines the follow arguments that will be passed to the function.
+		<param name="function{}" default="" type="s">Public Function Name.</param>
+		<param name="args[]" default=" [ ARG_END ]" type="a">Defines the follow arguments that will be passed to the function.
 		ARG_ARRAY - Array, last value must be CELLMIN
 		ARG_RETURN_NUMBER - Value, passed by reference
 		ARG_NUMBER - Value, passed by value
 		ARG_STRING - String
 		ARG_END - End
-		{ ARG_STRING, ARG_RETURN_NUMBER, ARG_STRING, ARG_RETURN_NUMBER, ARG_END } means that the follow argument you pass will be a string, a number, a string and a number.
+		[ ARG_STRING, ARG_RETURN_NUMBER, ARG_STRING, ARG_RETURN_NUMBER, ARG_END ] means that the follow argument you pass will be a string, a number, a string and a number.
 		</param>
+		<param name="args_count" default="_" type="n">Size of args. Just use _</param>
 		<param name="..." default="" type="v">List of Arguments to pass to the function.</param>
 		<return>What the function returns. May return -1 and -2 on error. </return>
 	</function>
 	<function name="EntityPublicVariable">
 		<summary>Returns a public variable from entity.</summary>
 		<param name="id" default="_" type="n">Entity ID Hash.</param>
-		<param name="variable[]" default="" type="a">Name of public variable.</param>
+		<param name="variable{}" default="" type="s">Name of public variable.</param>
 		<return>the public variable value.</return>
 	</function>
 	<function name="EntityPublicVariableSet">
 		<summary>Sets a public variable on a entity.</summary>
 		<param name="id" default="_" type="n">Entity ID Hash.</param>
-		<param name="variable[]" default="" type="a">Name of public variable.</param>
+		<param name="variable{}" default="" type="s">Name of public variable.</param>
 		<param name="value" default="" type="n">new value.</param>
 	</function>
 	<function name="CollisionFromObject">
@@ -185,7 +184,7 @@ native FunctionIdent(const name{});
 			new angle;
 			new dist;
 			new rect;
-			new _STATE:type;
+			new type;
 			while ( CollisionGetCurrent(SELF, current, angle, dist, rect, type) )
 			{
 				if ( type == TYPE_AWAKING )
@@ -194,28 +193,28 @@ native FunctionIdent(const name{});
 				}
 				else if ( type == TYPE_ENEMY || type == TYPE_DOOR )
 				{
-					EntityPublicFunction(current, "Hit", ''snnnnnn'', selfid, angle, dist, APLAYER, 0, dx,dy, rect);
+					EntityPublicFunction(current, "Hit", [ ARG_STRING,ARG_NUMBER,ARG_NUMBER,ARG_NUMBER,ARG_NUMBER,ARG_NUMBER,ARG_NUMBER,ARG_END], _, selfid, angle, dist, APLAYER, 0, dx,dy, rect);
 				}
 				else if ( type == TYPE_TRANSPORT )
 				{
-					if ( EntityPublicFunction(current, "MovePlayer", "sn", selfid, _dir_) )
+					if ( EntityPublicFunction(current, "MovePlayer", [ ARG_STRING, ARG_NUMBER, ARG_END], _, selfid, _dir_) )
 					{
-						_state_ = STANDING;
+						state = STANDING;
 					}
 				}
-				else if ( type == TYPE_PUSHABLE &amp;&amp; _state_ == PUSHING )
+				else if ( type == TYPE_PUSHABLE &amp;&amp; state == PUSHING )
 				{
-					EntityPublicFunction(current, "Push", ''snn'', selfid, rect, angle);
+					EntityPublicFunction(current, "Push", [ ARG_STRING, ARG_NUMBER, ARG_NUMBER, ARG_END], _, selfid, rect, angle);
 				}
 				else if ( type == TYPE_SWITCH )
 				{
-					EntityPublicFunction(current, "Pressed", ''s'', selfid);
+					EntityPublicFunction(current, "Pressed", [ ARG_STRING,ARG_END], _, selfid);
 				}
 				else if ( type == TYPE_ITEM )
 				{
-					if ( EntityPublicFunction(current, "Pickup", ''s'', selfid) )
+					if ( EntityPublicFunction(current, "Pickup", [ ARG_STRING,ARG_END], _, selfid) )
 					{
-						_state_ = LIFTING;
+						state = LIFTING;
 					}
 				}
 			}
@@ -238,7 +237,7 @@ native FunctionIdent(const name{});
 			new angle;
 			new dist;
 			new rect;
-			new _STATE:type;
+			new type;
 			while ( CollisionGetCurrent(SELF, current, angle, dist, rect, type) )
 			{
 				if ( type == TYPE_AWAKING )
@@ -247,28 +246,28 @@ native FunctionIdent(const name{});
 				}
 				else if ( type == TYPE_ENEMY || type == TYPE_DOOR )
 				{
-					EntityPublicFunction(current, "Hit", ''snnnnnn'', selfid, angle, dist, APLAYER, 0, dx,dy, rect);
+					EntityPublicFunction(current, "Hit", [ ARG_STRING,ARG_NUMBER,ARG_NUMBER,ARG_NUMBER,ARG_NUMBER,ARG_NUMBER,ARG_NUMBER,ARG_END], _, selfid, angle, dist, APLAYER, 0, dx,dy, rect);
 				}
 				else if ( type == TYPE_TRANSPORT )
 				{
-					if ( EntityPublicFunction(current, "MovePlayer", "sn", selfid, _dir_) )
+					if ( EntityPublicFunction(current, "MovePlayer", [ ARG_STRING, ARG_NUMBER, ARG_END], _, selfid, _dir_) )
 					{
-						_state_ = STANDING;
+						state = STANDING;
 					}
 				}
-				else if ( type == TYPE_PUSHABLE &amp;&amp; _state_ == PUSHING )
+				else if ( type == TYPE_PUSHABLE &amp;&amp; state == PUSHING )
 				{
-					EntityPublicFunction(current, "Push", ''snn'', selfid, rect, angle);
+					EntityPublicFunction(current, "Push", [ ARG_STRING, ARG_NUMBER, ARG_NUMBER, ARG_END], _, selfid, rect, angle);
 				}
 				else if ( type == TYPE_SWITCH )
 				{
-					EntityPublicFunction(current, "Pressed", ''s'', selfid);
+					EntityPublicFunction(current, "Pressed", [ ARG_STRING,ARG_END], _, selfid);
 				}
 				else if ( type == TYPE_ITEM )
 				{
-					if ( EntityPublicFunction(current, "Pickup", ''s'', selfid) )
+					if ( EntityPublicFunction(current, "Pickup", [ ARG_STRING,ARG_END], _, selfid) )
 					{
-						_state_ = LIFTING;
+						state = LIFTING;
 					}
 				}
 			}
@@ -286,22 +285,22 @@ native FunctionIdent(const name{});
 	</function>
 	<function name="EntitiesList">
 		<summary>Generate a list of entities for required map.</summary>
-		<param name="map" default="0" type="n">map id you wish to check.</param>
+		<param name="map" default="0" type="n">The Map that you wish to check.</param>
 		<return>Amount of entities on the list.</return>
 	</function>
 	<function name="EntitiesNext">
 		<summary>Retrieves current entity name from generated list.</summary>
-		<param name="&amp;id" default="" type="a">String to store the Entity ID.</param>
-		<param name="map_id" default="0" type="n">map id you wish to check.</param>
-		<param name="string[]" default="&quot;&quot;" type="a">String to store the Entity Name.</param>
+		<param name="&amp;id" default="" type="n">Store the Entity ID.</param>
+		<param name="map_id" default="0" type="n">The Map that you wish to check.</param>
+		<param name="&amp;entity_name" default="" type="a">String to store the Entity Name.</param>
 		<return>True if there still more entities. False if no more is in the list.</return>
 	</function>
 	<function name="PathGetPoint">
 		<summary>Returns Object Path point values.</summary>
 		<param name="object:id" default="" type="n">Object's ID.</param>
 		<param name="point" default="" type="n">requested point in path.</param>
-		<param name="&amp;x" default="" type="n">Variable to store the dimension.</param>
-		<param name="&amp;y" default="" type="n">Variable to store the dimension.</param>
+		<param name="&amp;x" default="" type="n">Variable to store the position.</param>
+		<param name="&amp;y" default="" type="n">Variable to store the position.</param>
 		<param name="&amp;t" default="" type="n">Variable to store the time.</param>
 	</function>
 	<function name="PathMoveObject">
@@ -310,7 +309,7 @@ native FunctionIdent(const name{});
 		<param name="Fixed:speed" default="" type="n">movement speed.</param>
 		<param name="&amp;x" default="" type="n">Variable to store the dimension.</param>
 		<param name="&amp;y" default="" type="n">Variable to store the dimension.</param>
-		<param name="bool:loop" default="" type="n">loop movement.</param>
+		<param name="loop" default="" type="n">loop movement.</param>
 	</function>
 	<function name="PathCount">
 		<summary>Returns Object Path count</summary>
@@ -318,12 +317,12 @@ native FunctionIdent(const name{});
 	</function>
 	<function name="FunctionCall">
 		<summary>Calls a local function base on it's ID.</summary>
-		<param name="id" default="" type="n">The Function ID</param>
+		<param name="ident" default="" type="n">The Function ID</param>
 		<return>What the function returns.</return>
 	</function>
 	<function name="FunctionIdent">
 		<summary>Return the id of the function.</summary>
-		<param name="name[]" default="" type="s"></param>
+		<param name="name{}" default="" type="s"></param>
 	</function>
 
 </api>

@@ -28,7 +28,7 @@ typedef struct
 GdkPixbuf * alchera_map_cursor = NULL;
 extern GKeyFile * meg_pref_storage;
 
-gchar * display_object_type_names[] = { "None", "Deleted", "Image", "Animation", "Rectangle", "Circle", "Line", "Text", "Polygon", "Other", "Other", "Other", NULL };
+
 const GtkTargetEntry alchera_map_drop_target = { "text/plain", GTK_TARGET_SAME_APP, 1 };
 
 GtkWidget * Object_GetSettingMenu( MapInfo * map_info, guint id );
@@ -105,10 +105,10 @@ void gtk_alchera_object_each( DisplayObject * object, GtkListStore * store )
 	gtk_list_store_append( store, &iter );
 	gtk_list_store_set( store, &iter,
 			0, object->id,
-			1, display_object_type_names[object->type],
-			2, object->x,
-			3, object->y,
-			4, object->layer,
+			1, object->name,
+			2, (gint)object->x,
+			3, (gint)object->y,
+			4, (gint)object->layer,
 			-1);
 }
 
@@ -506,7 +506,8 @@ GtkWidget * gtk_alchera_map_object_submenu( AlcheraMap * map, DisplayObject * se
 			if ( list )
 			{
 				GtkWidget * menu_item = GTK_WIDGET(list->data);
-				gtk_menu_item_set_label( GTK_MENU_ITEM(menu_item), display_object_type_names[selected->type]);
+				//gtk_menu_item_set_label( GTK_MENU_ITEM(menu_item), display_object_type_names[selected->type]);
+				gtk_menu_item_set_label( GTK_MENU_ITEM(menu_item), selected->name);
 
 				/* Remove old sub menu */
 				gtk_menu_item_set_submenu( GTK_MENU_ITEM(menu_item), NULL );
@@ -1697,7 +1698,7 @@ void gtk_alchera_map_refresh( AlcheraMap * wid )
 
 	GtkWidget * widget  = GTK_WIDGET(wid);
 
-	wid->info->display_list = g_list_sort_with_data(wid->info->display_list, (GCompareDataFunc)Alchera_DisplayObject_Order, NULL);
+	//wid->info->display_list = g_list_sort_with_data(wid->info->display_list, (GCompareDataFunc)Alchera_DisplayObject_Order, NULL);
 	wid->scale_width = ((gdouble)wid->info->width * wid->scale);
 	wid->scale_height = ((gdouble)wid->info->height * wid->scale);
 

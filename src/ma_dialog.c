@@ -162,6 +162,7 @@ gboolean Meg_Dialog_OpenProject( )
 	if ( gtk_dialog_run( GTK_DIALOG(file_chooser) ) == GTK_RESPONSE_ACCEPT )
 	{
 		gchar * filename = gtk_file_chooser_get_filename( GTK_FILE_CHOOSER(file_chooser) );
+		Meg_Event_CloseProject();
 		if ( Meg_Loaders_Init(filename) )
 		{
 			success = TRUE;

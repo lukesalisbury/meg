@@ -87,6 +87,7 @@ gboolean Meg_Loaders_Init( gchar * project_path )
 		MegWidget_EntityList_Init();
 		MegWidget_Audio_Init();
 		MegWidget_Questions_Init();
+		MegWidget_Help_Init();
 
 		/* Switch to project info widget */
 		default_item = gtk_toolbar_get_nth_item( GTK_TOOLBAR(alchera_main_toolbar), 0 );

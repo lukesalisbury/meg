@@ -50,3 +50,5 @@ void MegWidget_Questions_Close();
 
 
 void MegWidget_Help_Create();
+void MegWidget_Help_Init();
+void MegWidget_Help_Close();

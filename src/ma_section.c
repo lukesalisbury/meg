@@ -64,7 +64,7 @@ void MegWidget_Section_Create()
 	SET_OBJECT_SIGNAL(ui, "actionRemoveSection", "activate", G_CALLBACK(Meg_MapSection_RemoveFile), treeview_section );
 
 	/* */
-	Meg_Help_Load(PROGRAMSHELPDIRECTORY"/WorldPage.xml", help_text);
+	Meg_Help_Load(PROGRAMSHELPDIRECTORY"/Worlds.xml", help_text);
 
 }
 

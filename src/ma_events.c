@@ -147,7 +147,7 @@ gboolean Meg_Event_NewProjectDialog()
 		gtk_widget_destroy( alchera_init_window );
 		alchera_init_window = NULL;
 
-		Meg_Help_Open( "welcome.xml" );
+		Meg_Help_Open( "index.xml" );
 	}
 
 	return success;

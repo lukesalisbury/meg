@@ -69,7 +69,7 @@ void MegWidget_Map_Create()
 	SET_OBJECT_SIGNAL(ui, "actionRemoveMap", "activate", G_CALLBACK(Meg_MapEdit_RemoveFile), treeview_map );
 
 	/* */
-	Meg_Help_Load(PROGRAMSHELPDIRECTORY"/MapPage.xml", help_text);
+	Meg_Help_Load(PROGRAMSHELPDIRECTORY"/Maps.xml", help_text);
 
 }
 

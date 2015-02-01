@@ -118,6 +118,9 @@ void MapObject_UpdateDisplayObject( char internal_type, DisplayObject * object )
 		default:
 			break;
 	}
+
+
+
 }
 
 /********************************
@@ -440,6 +443,14 @@ void map_parse_handler_start_root_element( GMarkupParseContext *context, const g
 
 			MapObject_UpdateDisplayObject(object_data->type, object_display);
 			MapObject_SetDefaultSettingOptions( object_data );
+			if ( object_data->type == 's' )
+			{
+				Alchera_DisplayObject_SetName( object_display, object_data->name);
+			}
+			else
+			{
+				Alchera_DisplayObject_SetName( object_display, NULL );
+			}
 
 			if ( object_data->type == 't' )
 			{
@@ -464,11 +475,19 @@ void map_parse_handler_start_root_element( GMarkupParseContext *context, const g
 
 			object_display = Alchera_DisplayObject_New(virtual_object, &VirtualObjectData_FreePointer);
 			MapObject_UpdateDisplayObject(virtual_object->type, object_display);
-
+			if ( virtual_object->type == 's' )
+			{
+				Alchera_DisplayObject_SetName( object_display, virtual_object->name);
+			}
+			else
+			{
+				Alchera_DisplayObject_SetName( object_display, NULL );
+			}
 		}
 		else
 		{
 			object_display = Alchera_DisplayObject_New(NULL, NULL);
+			Alchera_DisplayObject_SetName( object_display, NULL );
 		}
 
 		object_display->id = map_info->id_counter++;

@@ -286,8 +286,8 @@ void Map_SaveObject( DisplayObject * object, GString * map_string , GString * en
 
 	x = (gint)object->x;
 	y = (gint)object->y;
-	l = object->layer;
-	z = l * 1000;
+	l = (gint)object->layer;
+	z = (gint)(object->layer * 1000);
 
 	if ( object_data->type == 'l' )
 	{

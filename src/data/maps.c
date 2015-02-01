@@ -27,11 +27,9 @@ GdkPixbuf * Section_GetMapThumbSized( gchar * map, guint x, guint y );
 /* Local Type */
 
 /* Global Variables */
-//extern guint16 mokoiWorldGrid[256][256];
 
 /* Local Varibles */
 guint16 map_bgalpha = 65535;
-
 gchar * map_script_default = "// To ease development, <map_default> may include a Init Function.\n// If You wish to use your own uncomment the next line\n//#define HASINITFUNCTION 1\n#tryinclude <map_default>\n#tryinclude <standard>\nmain()\n{\n		//Your Code\n}\n";
 
 /* UI */
@@ -163,7 +161,6 @@ gboolean AL_Map_Save( MapInfo * map_info, GtkWindow * window )
 {
 	g_return_val_if_fail( map_info, FALSE );
 	g_return_val_if_fail( map_info->data, FALSE );
-
 
 	/* Save Image of Map */
 	cairo_surface_t * cst;

@@ -36,8 +36,24 @@ typedef enum {
 	TEXT_LISTITEM = 8192,
 	TEXT_COLUMNS = 16384,
 	TEXT_FIRSTCHILD = 32768,
-	TEXT_NTHCHILD = 65536
+	TEXT_HASINLINESIBLING = 65536,
+	TEXT_PARAGRAPH = 131072,
+	TEXT_HEADER = 262144,
+	TEXT_HTML_H2 = TEXT_LARGE | TEXT_BOLD | TEXT_BLOCK,
+	TEXT_HTML_H3 = TEXT_LARGE | TEXT_BOLD | TEXT_BLOCK | TEXT_HEADER,
+	TEXT_HTML_H4 = TEXT_BOLD | TEXT_BLOCK | TEXT_HEADER,
+	TEXT_HTML_P = TEXT_PARAGRAPH |  TEXT_NORMAL,
+	TEXT_HTML_LI = TEXT_LISTITEM |  TEXT_NORMAL,
+	TEXT_HTML_UL = TEXT_PARAGRAPH,
+	TEXT_HTML_PRE = TEXT_CODE | TEXT_BLOCK | TEXT_PARAGRAPH,
 } TextStyle;
+
+typedef struct {
+	gint tag;
+	gint start;
+	gint end;
+} HelpStyle;
+
 
 /* Functions local */
 void help_parser_start_element( GMarkupParseContext *context, const gchar *element_name, const gchar **attribute_names, const gchar **attribute_values, gpointer user_data, GError **error );
@@ -45,14 +61,14 @@ void help_parser_text( GMarkupParseContext *context, const gchar * text, gsize t
 void help_parser_end_element( GMarkupParseContext *context, const gchar *element_name, gpointer user_data, GError **error);
 
 /* Global Variables */
-GtkWidget * alchera_help_viewcolumn = NULL;
-GtkTextTag * alcheraHelpTextBold, * alcheraHelpTextItalic, * alcheraHelpTextNormal, * alcheraHelpTextLarge, * alcheraHelpTextMono, * alcheraHelpTextCenter, * alcheraHelpTextSpecial;
+GtkWidget * meg_help_column_widget = NULL; // Second widget to do coloums
+GtkTextTag * helpTextTagBold, * helpTextTagItalic, * helpTextTagNormal, * helpTextTagLarge, * helpTextTagMono, * helpTextTagCenter, * helpTextTagSpecial;
 gint alcheraHelpStyle = TEXT_NONE;
 gint * alcheraHelpCurrentStyle = NULL;
 gboolean alcheraHelpValidTag = TRUE;
 gchar * alcheraHelpLink = NULL;
-GSList * alcheraHelpStyles = NULL;
-GtkTextBuffer * alchera_help_textbuffer = NULL, * alchera_help_parent_textbuffer = NULL;
+GSList * helpStylesList = NULL;
+GtkTextBuffer * help_textbuffer = NULL, * help_parent_textbuffer = NULL;
 
 static GMarkupParser help_parser = { help_parser_start_element, help_parser_end_element, help_parser_text, NULL, NULL};
 
@@ -61,14 +77,12 @@ GdkPixbuf * Meg_Help_GetImage( const gchar * file );
 gchar * Meg_Help_GetText( const gchar * file );
 void Meg_Help_SwitchPage( gchar * file );
 
-/* UI */
 
-/* Functions */
-/********************************
-* hack_ascii_isspace
-*
-@ c:
-*/
+/**
+ * @brief hack_ascii_isspace
+ * @param c
+ * @return true if c is between 0 & 32
+ */
 gboolean hack_ascii_isspace( guchar c )
 {
 	if ( c < 32 && c > 0 )
@@ -76,12 +90,12 @@ gboolean hack_ascii_isspace( guchar c )
 	return FALSE;
 }
 
-/********************************
-* hack_strchug
-*
-@ string: Text buffer to apply
-- modified string
-*/
+
+/**
+ * @brief hack_strchug
+ * @param string Text buffer to apply
+ * @return modified string
+ */
 gchar * hack_strchug( gchar * string )
 {
 	guchar *start;
@@ -92,12 +106,11 @@ gchar * hack_strchug( gchar * string )
 	return string;
 }
 
-/********************************
-* hack_strchomp
-*
-@ string: Text buffer to apply
-- modified string
-*/
+/**
+ * @brief hack_strchomp
+ * @param string Text buffer to apply
+ * @return  modified string
+ */
 gchar * hack_strchomp( gchar * string )
 {
 	gsize len;
@@ -128,19 +141,20 @@ void help_parser_apply_tags( GtkTextBuffer * buffer )
 		gtk_text_buffer_create_tag( buffer, "italic", "font", "Italic", NULL);
 		gtk_text_buffer_create_tag( buffer, "large", "font", "Sans 16", NULL);
 		gtk_text_buffer_create_tag( buffer, "normal", "wrap-mode", GTK_WRAP_WORD, "justification", GTK_JUSTIFY_LEFT, NULL);
-		gtk_text_buffer_create_tag( buffer, "mono", "font", "Monospace", "paragraph-background", "#BBBBBB", "foreground", "black", "left-margin", 10, NULL);
+		gtk_text_buffer_create_tag( buffer, "mono", "font", "Monospace", "paragraph-background", "#DDDDDD", "foreground", "black",  "indent", 10, "wrap-mode", GTK_WRAP_NONE, NULL);
 		gtk_text_buffer_create_tag( buffer, "center", "justification", GTK_JUSTIFY_CENTER, "wrap-mode", GTK_WRAP_NONE, NULL);
 		gtk_text_buffer_create_tag( buffer, "special", "paragraph-background", "#EEEEEE", "foreground", "black", "left-margin", 10, "right-margin", 10, "justification", GTK_JUSTIFY_CENTER, NULL);
+
+		gtk_text_buffer_create_tag( buffer, "paragraph", "pixels-above-lines", 6, NULL);
 	}
 }
 
-/********************************
-* Meg_HelpParser_Load
-*
-@ content:
-@ content:
--
-*/
+/**
+ * @brief Meg_HelpParser_Load
+ * @param textview
+ * @param content
+ * @return
+ */
 gboolean Meg_HelpParser_Load( GtkTextView * textview, gchar * content )
 {
 	gboolean successful = FALSE;
@@ -149,9 +163,9 @@ gboolean Meg_HelpParser_Load( GtkTextView * textview, gchar * content )
 
 	alcheraHelpStyle = 0;
 
-	alchera_help_textbuffer = alchera_help_parent_textbuffer = gtk_text_view_get_buffer(textview);
-	help_parser_apply_tags( alchera_help_textbuffer );
-	gtk_text_buffer_set_text( alchera_help_textbuffer, "", -1);
+	help_textbuffer = help_parent_textbuffer = gtk_text_view_get_buffer(textview);
+	help_parser_apply_tags( help_textbuffer );
+	gtk_text_buffer_set_text( help_textbuffer, "", -1);
 
 
 	ctx = g_markup_parse_context_new( &help_parser, (GMarkupParseFlags)0, textview, NULL );
@@ -248,12 +262,12 @@ gboolean Meg_HelpParser_Event( GtkWidget * text_view, GdkEvent * ev )
 void help_parser_append_newline()
 {
 	GtkTextIter last_iter;
-	gtk_text_buffer_get_end_iter( alchera_help_textbuffer, &last_iter);
+	gtk_text_buffer_get_end_iter( help_textbuffer, &last_iter);
 	gtk_text_iter_backward_char(&last_iter);
 	if ( gtk_text_iter_get_char(&last_iter) != 10 )
 	{
-		gtk_text_buffer_get_end_iter( alchera_help_textbuffer, &last_iter);
-		gtk_text_buffer_insert( alchera_help_textbuffer, &last_iter, "\n", -1);
+		gtk_text_buffer_get_end_iter( help_textbuffer, &last_iter);
+		gtk_text_buffer_insert( help_textbuffer, &last_iter, "\n", -1);
 	}
 }
 
@@ -262,80 +276,51 @@ void help_parser_append_newline()
  * @brief help_parser_append_text
  * @param text
  */
+
 void help_parser_append_text( const gchar * text )
 {
+	HelpStyle * current_style = (HelpStyle*)helpStylesList->data;
+
 	GtkTextIter iter, iter2;
-	gint start_point = 0;
-	if ( !alchera_help_textbuffer )
+
+	if ( !help_textbuffer )
 	{
 		return;
 	}
-	gtk_text_buffer_get_end_iter( alchera_help_textbuffer, &iter);
 
-	alcheraHelpStyle = *((gint*)alcheraHelpStyles->data);
+	gtk_text_buffer_get_end_iter( help_textbuffer, &iter);
 
-	if ( alcheraHelpStyle )
+
+	if ( current_style )
 	{
-		GSList * parent = g_slist_nth(alcheraHelpStyles,1);
-		if ( !(alcheraHelpStyle & TEXT_BLOCK) )
-		{
-			if ( parent )
-			{
-				gint parent_style = *((gint*)parent->data);
-				if ( (parent_style & TEXT_BLOCK) && !(parent_style & TEXT_SPECIAL))
-				{
-					/* *((gint*)parent->data) ^= TEXT_BLOCK;*/
-					alcheraHelpStyle |= parent_style;
-					if ( (alcheraHelpStyle & TEXT_FIRSTCHILD) )
-						help_parser_append_newline();
-				}
-			}
-		}
-		else
-		{
-			if ( parent )
-			{
-				gint parent_style = *((gint*)parent->data);
-				if ( (parent_style & TEXT_BLOCK))
-				{
-					if ( (alcheraHelpStyle & TEXT_FIRSTCHILD))
-						help_parser_append_newline();
-				}
-			}
-			if ( (alcheraHelpStyle & TEXT_FIRSTCHILD))
-				help_parser_append_newline();
-		}
-		gtk_text_buffer_get_end_iter( alchera_help_textbuffer, &iter);
+		HelpStyle * parent_style = g_slist_nth_data(helpStylesList,1);
 
-		start_point = gtk_text_iter_get_offset(&iter);
-		if ((alcheraHelpStyle & TEXT_LISTITEM))
-			gtk_text_buffer_insert( alchera_help_textbuffer, &iter, " • ", -1);
-		gtk_text_buffer_insert( alchera_help_textbuffer, &iter, text, -1);
-		gtk_text_buffer_get_iter_at_offset( alchera_help_textbuffer, &iter2, start_point);
 
-		if ((alcheraHelpStyle & TEXT_NORMAL))
-			gtk_text_buffer_apply_tag_by_name( alchera_help_textbuffer, "normal", &iter, &iter2);
-		if ((alcheraHelpStyle & TEXT_BOLD))
-			gtk_text_buffer_apply_tag_by_name( alchera_help_textbuffer, "bold", &iter, &iter2);
-		if ((alcheraHelpStyle & TEXT_LARGE))
-			gtk_text_buffer_apply_tag_by_name( alchera_help_textbuffer, "large", &iter, &iter2);
-		if ((alcheraHelpStyle & TEXT_CODE))
-			gtk_text_buffer_apply_tag_by_name( alchera_help_textbuffer, "mono", &iter, &iter2);
-		if ((alcheraHelpStyle & TEXT_CENTER))
-			gtk_text_buffer_apply_tag_by_name( alchera_help_textbuffer, "center", &iter, &iter2);
-		if ((alcheraHelpStyle & TEXT_SPECIAL))
-			gtk_text_buffer_apply_tag_by_name( alchera_help_textbuffer, "special", &iter, &iter2);
+		gtk_text_buffer_get_end_iter( help_textbuffer, &iter);
+
+		current_style->start = gtk_text_iter_get_offset(&iter);
+
+		if ( (current_style->tag & TEXT_LISTITEM) )
+		{
+			gtk_text_buffer_insert( help_textbuffer, &iter, " • ", -1);
+		}
+
+		gtk_text_buffer_insert( help_textbuffer, &iter, text, -1);
 
 		if ( alcheraHelpLink )
 		{
-			GtkTextTag * tag = gtk_text_buffer_create_tag( alchera_help_textbuffer, NULL, "foreground", "blue", "underline", PANGO_UNDERLINE_SINGLE, NULL);
+			GtkTextTag * tag = gtk_text_buffer_create_tag( help_textbuffer, NULL, "foreground", "blue", "underline", PANGO_UNDERLINE_SINGLE, NULL);
+
+			gtk_text_buffer_get_iter_at_offset( help_textbuffer, &iter2, current_style->start);
 			g_object_set_data_full( G_OBJECT(tag), "page", g_strdup(alcheraHelpLink), g_free );
-			gtk_text_buffer_apply_tag( alchera_help_textbuffer, tag, &iter, &iter2 );
+			gtk_text_buffer_apply_tag( help_textbuffer, tag, &iter, &iter2 );
+
 			g_free( alcheraHelpLink );
 			alcheraHelpLink = NULL;
 		}
 	}
 }
+
 
 /**
  * @brief help_parser_start_element
@@ -346,53 +331,61 @@ void help_parser_append_text( const gchar * text )
  * @param user_data
  * @param error
  */
-void help_parser_start_element( GMarkupParseContext *context, const gchar *element_name, const gchar **attribute_names, const gchar **attribute_values, gpointer user_data, GError **error )
+void help_parser_start_element( GMarkupParseContext * context, const gchar *element_name, const gchar **attribute_names, const gchar **attribute_values, gpointer user_data, GError **error )
 {
-	if ( alchera_help_textbuffer == NULL )
+	if ( help_textbuffer == NULL )
 		return;
+
 	GtkTextView * textview = GTK_TEXT_VIEW(user_data);
 	GtkTextIter iter;
-	alcheraHelpValidTag = TRUE;
-	alcheraHelpStyle = 0;
-	gint parent_style = 0;
+	HelpStyle * current_style = g_new0(HelpStyle, 1);
+	HelpStyle * parent_style = NULL;
 
-	if ( alcheraHelpStyles )
+	if ( helpStylesList )
 	{
-		parent_style = *((gint*)alcheraHelpStyles->data);
-		if ( (parent_style & TEXT_COLUMNS) && alchera_help_viewcolumn )
+		parent_style = (HelpStyle*)helpStylesList->data;
+
+		/* Columns. Create new Text View */
+		if ( (parent_style->tag & TEXT_COLUMNS) && meg_help_column_widget )
 		{
 			GtkWidget * new_view = gtk_text_view_new();
-			gtk_box_pack_start( GTK_BOX(alchera_help_viewcolumn), new_view, 1, 1, 0 );
+			gtk_box_pack_start( GTK_BOX(meg_help_column_widget), new_view, 1, 1, 0 );
 
-			alchera_help_textbuffer = gtk_text_view_get_buffer( GTK_TEXT_VIEW(new_view) );
+			help_textbuffer = gtk_text_view_get_buffer( GTK_TEXT_VIEW(new_view) );
 
 			gtk_text_view_set_editable( GTK_TEXT_VIEW(new_view), FALSE );
 			gtk_text_view_set_wrap_mode( GTK_TEXT_VIEW(new_view), GTK_WRAP_WORD );
 
-			help_parser_apply_tags( alchera_help_textbuffer );
+			help_parser_apply_tags( help_textbuffer );
 		}
 	}
 
+	/*  Check Current Element */
 	if ( !g_ascii_strncasecmp(element_name, "h2", 2) )
-		alcheraHelpStyle = TEXT_LARGE | TEXT_BOLD | TEXT_CENTER | TEXT_BLOCK;
+		current_style->tag = TEXT_HTML_H2;
 	else if (!g_ascii_strncasecmp(element_name, "h3", 2) )
-		alcheraHelpStyle = TEXT_LARGE | TEXT_BOLD | TEXT_BLOCK;
+		current_style->tag = TEXT_HTML_H3;
 	else if (!g_ascii_strncasecmp(element_name, "h4", 2) )
-		alcheraHelpStyle = TEXT_BOLD | TEXT_BLOCK;
+		current_style->tag = TEXT_HTML_H4;
 	else if ( !g_ascii_strncasecmp(element_name, "pre", 3) )
-		alcheraHelpStyle = TEXT_CODE | TEXT_BLOCK;
+		current_style->tag = TEXT_CODE | TEXT_BLOCK;
 	else if ( !g_ascii_strncasecmp(element_name, "li", 2) )
-		alcheraHelpStyle = TEXT_NORMAL | TEXT_LISTITEM | TEXT_BLOCK;
-	else if (!g_ascii_strncasecmp(element_name, "p", 1) || !g_ascii_strncasecmp(element_name, "div", 3) )
-		alcheraHelpStyle = TEXT_NORMAL | TEXT_BLOCK;
+		current_style->tag = TEXT_HTML_LI;
+	else if ( !g_ascii_strncasecmp(element_name, "p", 1) )
+		current_style->tag = TEXT_HTML_P;
+	else if	( !g_ascii_strncasecmp(element_name, "div", 3) )
+		current_style->tag = TEXT_NORMAL | TEXT_BLOCK;
+	else if	( !g_ascii_strncasecmp(element_name, "dd", 2) || !g_ascii_strncasecmp(element_name, "dt", 2) )
+		current_style->tag = TEXT_NORMAL | TEXT_BLOCK;
 	else if ( !g_ascii_strncasecmp(element_name, "ul", 2))
-		alcheraHelpStyle = TEXT_NORMAL | TEXT_BLOCK;
+		current_style->tag = TEXT_NORMAL | TEXT_PARAGRAPH;
 	else if ( !g_ascii_strncasecmp(element_name, "strong", 6) )
-		alcheraHelpStyle = TEXT_BOLD;
+		current_style->tag = TEXT_BOLD;
 	else if ( !g_ascii_strncasecmp(element_name, "em", 2))
-		alcheraHelpStyle = TEXT_NORMAL;
+		current_style->tag = TEXT_ITALIC;
 	else if ( !g_ascii_strncasecmp(element_name, "img", 3) )
 	{
+		/* img required src attribute */
 		for (; *attribute_names && *attribute_values; attribute_names++, attribute_values++)
 		{
 			if ( !g_ascii_strcasecmp (*attribute_names, "src") )
@@ -400,21 +393,17 @@ void help_parser_start_element( GMarkupParseContext *context, const gchar *eleme
 				GdkPixbuf * pixbuf = Meg_Help_GetImage( *attribute_values );
 				if ( pixbuf )
 				{
-					gtk_text_buffer_get_end_iter( alchera_help_textbuffer, &iter);
-					gtk_text_buffer_insert_pixbuf( alchera_help_textbuffer, &iter, pixbuf);
-					gtk_text_buffer_insert( alchera_help_textbuffer, &iter, "\n", -1);
+					gtk_text_buffer_get_end_iter( help_textbuffer, &iter);
+					gtk_text_buffer_insert_pixbuf( help_textbuffer, &iter, pixbuf);
+					gtk_text_buffer_insert( help_textbuffer, &iter, "\n", -1);
 				}
 			}
-			else if ( !g_ascii_strcasecmp( *attribute_names, "class" ) && !g_ascii_strcasecmp( *attribute_values, "docnavbar" ) )
-			{
-				alcheraHelpStyle = TEXT_SPECIAL | TEXT_BLOCK;
-			}
-
 		}
 	}
 	else if ( !g_ascii_strncasecmp(element_name, "a", 1) )
 	{
-		alcheraHelpStyle = TEXT_NORMAL;
+		/* a required src attribute */
+		current_style->tag = TEXT_NORMAL;
 		for (; *attribute_names && *attribute_values; attribute_names++, attribute_values++)
 		{
 			if ( !g_ascii_strcasecmp (*attribute_names, "href") )
@@ -425,7 +414,7 @@ void help_parser_start_element( GMarkupParseContext *context, const gchar *eleme
 	}
 	else if ( !g_ascii_strncasecmp(element_name, "include", 7) )
 	{
-		alcheraHelpStyle |= TEXT_NORMAL;
+		current_style->tag |= TEXT_NORMAL;
 		for (; *attribute_names && *attribute_values; attribute_names++, attribute_values++)
 		{
 			if ( !g_ascii_strcasecmp (*attribute_names, "src") )
@@ -439,60 +428,68 @@ void help_parser_start_element( GMarkupParseContext *context, const gchar *eleme
 			}
 		}
 	}
-	if ( (alcheraHelpStyle & TEXT_BLOCK) )
+
+	/* Check against styles */
+	if ( (current_style->tag & TEXT_BLOCK) )
 	{
 		for (; *attribute_names && *attribute_values; attribute_names++, attribute_values++)
 		{
 			if ( !g_ascii_strcasecmp( *attribute_names, "class" ) )
 			{
-				if ( !g_ascii_strcasecmp( *attribute_values, "docnavbar" ) )
+				if ( !g_ascii_strcasecmp( *attribute_values, "columns" ) )
 				{
-					alcheraHelpStyle = TEXT_SPECIAL | TEXT_BLOCK;
-				}
-				else if ( !g_ascii_strcasecmp( *attribute_values, "columns" ) )
-				{
-					alcheraHelpStyle = TEXT_COLUMNS | TEXT_BLOCK;
-					alchera_help_viewcolumn = gtk_box_new( GTK_ORIENTATION_HORIZONTAL, 4 );
+					current_style->tag = TEXT_COLUMNS | TEXT_BLOCK;
+					meg_help_column_widget = gtk_box_new( GTK_ORIENTATION_HORIZONTAL, 4 );
 
 					GtkTextIter iter;
 					GtkTextChildAnchor * alchera_help_col_widget = NULL;
-					gtk_text_buffer_get_end_iter( alchera_help_textbuffer, &iter );
-					alchera_help_col_widget = gtk_text_buffer_create_child_anchor( alchera_help_textbuffer, &iter );
-					gtk_text_view_add_child_at_anchor( textview, alchera_help_viewcolumn, alchera_help_col_widget );
+					gtk_text_buffer_get_end_iter( help_textbuffer, &iter );
+					alchera_help_col_widget = gtk_text_buffer_create_child_anchor( help_textbuffer, &iter );
+					gtk_text_view_add_child_at_anchor( textview, meg_help_column_widget, alchera_help_col_widget );
 
 
 				}
 			}
 			else if ( !g_ascii_strcasecmp( *attribute_names, "xmlns" ) )
 			{
-				alcheraHelpStyle = TEXT_NORMAL;
+				current_style->tag = TEXT_NORMAL;
 			}
 		}
 	}
-	alcheraHelpCurrentStyle = g_new0(gint, 1);
-	*alcheraHelpCurrentStyle = alcheraHelpStyle;
-	if ( alcheraHelpStyles )
+
+//	if ( helpStylesList )
+//	{
+//		current_style->tag |= TEXT_FIRSTCHILD;
+//	}
+
+	/*  */
+
+	helpStylesList = g_slist_prepend(helpStylesList, current_style);
+
+	gboolean hasInlinePrevSibling = FALSE;
+
+	/* Mark For Prev inline sibling */
+	if ( parent_style )
 	{
-		*alcheraHelpCurrentStyle |= TEXT_FIRSTCHILD;
-	}
-	if ( parent_style & TEXT_FIRSTCHILD )
-	{
-		parent_style &= ~TEXT_FIRSTCHILD;
-		parent_style |= TEXT_NTHCHILD;
-		*alcheraHelpCurrentStyle |= TEXT_FIRSTCHILD;
-		*((gint*)alcheraHelpStyles->data) = parent_style;
+		if ( (parent_style->tag & TEXT_HASINLINESIBLING) )
+		{
+			hasInlinePrevSibling = !!(current_style->tag & TEXT_BLOCK);
+			parent_style->tag &= ~TEXT_HASINLINESIBLING;
+		}
+		else
+		{
+			parent_style->tag |= TEXT_HASINLINESIBLING;
+			current_style->tag |= TEXT_FIRSTCHILD;
+		}
 	}
 
-	alcheraHelpStyles = g_slist_prepend(alcheraHelpStyles, alcheraHelpCurrentStyle);
-
-	if ( (alcheraHelpStyle & TEXT_CODE) || !g_ascii_strncasecmp(element_name, "br", 2) )
+	if ( !g_ascii_strncasecmp(element_name, "br", 2) || hasInlinePrevSibling )
 	{
 		GtkTextIter iter;
-		gtk_text_buffer_get_end_iter( alchera_help_textbuffer, &iter);
-		gtk_text_buffer_insert( alchera_help_textbuffer, &iter, "\n", -1);
+		gtk_text_buffer_get_end_iter( help_textbuffer, &iter);
+		gtk_text_buffer_insert( help_textbuffer, &iter, "\n", -1);
 	}
 }
-
 
 /**
  * @brief help_parser_text
@@ -504,10 +501,12 @@ void help_parser_start_element( GMarkupParseContext *context, const gchar *eleme
  */
 void help_parser_text( GMarkupParseContext *context, const gchar * text, gsize text_len, gpointer user_data, GError **error )
 {
+	HelpStyle * current_style = (HelpStyle*)helpStylesList->data;
+
 	if ( text_len )
 	{
 		gchar * new_string = g_strdup(text);
-		if ( (alcheraHelpStyle & TEXT_MONO) )
+		if ( (current_style->tag & TEXT_MONO) )
 		{
 			help_parser_append_text(new_string);
 		}
@@ -531,28 +530,49 @@ void help_parser_text( GMarkupParseContext *context, const gchar * text, gsize t
  */
 void help_parser_end_element( GMarkupParseContext *context, const gchar *element_name, gpointer user_data, GError **error )
 {
-	if ( alchera_help_textbuffer == NULL )
+	if ( help_textbuffer == NULL )
 		return;
 
-	alcheraHelpStyle = *((gint*)alcheraHelpStyles->data);
-	if ( (alcheraHelpStyle & TEXT_COLUMNS) )
+	GtkTextIter start_iter, end_iter;
+	HelpStyle * current_style = (HelpStyle*)helpStylesList->data;
+
+	gtk_text_buffer_get_iter_at_offset( help_textbuffer, &start_iter, current_style->start);
+	gtk_text_buffer_get_end_iter( help_textbuffer, &end_iter );
+
+	if ( (current_style->tag & TEXT_COLUMNS) )
 	{
-		if ( alchera_help_viewcolumn )
+		if ( meg_help_column_widget )
 		{
-			alchera_help_viewcolumn = NULL;
-			alchera_help_textbuffer = alchera_help_parent_textbuffer;
+			meg_help_column_widget = NULL;
+			help_textbuffer = help_parent_textbuffer;
 		}
 	}
-	if ( (alcheraHelpStyle & TEXT_BLOCK) )
-	{
-		GtkTextIter iter;
-		gtk_text_buffer_get_end_iter( alchera_help_textbuffer, &iter);
-		if ( (alcheraHelpStyle & TEXT_SPECIAL) )
-			gtk_text_buffer_insert_with_tags_by_name( alchera_help_textbuffer, &iter, "\n", -1, "special", NULL);
-		else
-			gtk_text_buffer_insert_with_tags_by_name( alchera_help_textbuffer, &iter, "\n", -1, "normal", NULL);
 
+	if ((current_style->tag & TEXT_NORMAL))
+		gtk_text_buffer_apply_tag_by_name( help_textbuffer, "normal", &start_iter, &end_iter);
+	if ((current_style->tag & TEXT_BOLD))
+		gtk_text_buffer_apply_tag_by_name( help_textbuffer, "bold", &start_iter, &end_iter);
+	if ((current_style->tag & TEXT_ITALIC))
+		gtk_text_buffer_apply_tag_by_name( help_textbuffer, "italic", &start_iter, &end_iter);
+	if ((current_style->tag & TEXT_LARGE))
+		gtk_text_buffer_apply_tag_by_name( help_textbuffer, "large", &start_iter, &end_iter);
+	if ((current_style->tag & TEXT_CODE))
+		gtk_text_buffer_apply_tag_by_name( help_textbuffer, "mono", &start_iter, &end_iter);
+	if ((current_style->tag & TEXT_CENTER))
+		gtk_text_buffer_apply_tag_by_name( help_textbuffer, "center", &start_iter, &end_iter);
+	if ((current_style->tag & TEXT_SPECIAL))
+		gtk_text_buffer_apply_tag_by_name( help_textbuffer, "special", &start_iter, &end_iter);
+	if ((current_style->tag & TEXT_HEADER))
+		gtk_text_buffer_apply_tag_by_name( help_textbuffer, "paragraph", &start_iter, &end_iter);
+	if ((current_style->tag & TEXT_PARAGRAPH))
+		gtk_text_buffer_apply_tag_by_name( help_textbuffer, "paragraph", &start_iter, &end_iter);
+	if ( (current_style->tag & TEXT_BLOCK) || (current_style->tag & TEXT_PARAGRAPH)|| (current_style->tag & TEXT_LISTITEM) )
+	{
+		gtk_text_buffer_insert_with_tags_by_name( help_textbuffer, &end_iter, "\n", -1, "normal", NULL);
 	}
 
-	alcheraHelpStyles = g_slist_remove(alcheraHelpStyles, alcheraHelpStyles->data);
+	helpStylesList = g_slist_remove(helpStylesList, current_style);
+
+
 }
+

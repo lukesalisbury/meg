@@ -250,6 +250,10 @@ GtkWidget * Meg_MapEdit_Open( gchar * file )
 	SET_OBJECT_SIGNAL( ui, "action_map_openscript" , "activate", G_CALLBACK(Meg_MapSettings_OpenEntity), widget_map );
 
 	SET_OBJECT_SIGNAL( ui, "action_map_undo" , "activate", G_CALLBACK(Meg_MapEdit_Undo), widget_map );
+	SET_OBJECT_SIGNAL( ui, "action_resortobject" , "activate", G_CALLBACK(Meg_MapEdit_Resort), widget_map );
+
+
+
 
 	/* Help */
 	g_signal_connect( G_OBJECT(widget_editor), "key-release-event", G_CALLBACK(Meg_Main_HelpRequest), NULL);

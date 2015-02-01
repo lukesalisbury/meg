@@ -32,15 +32,17 @@ Permission is granted to anyone to use this software for any purpose, including 
 #endif
 
 #if GTK_MAJOR_VERSION == 2
-GdkColor error_color = { 0, 65535, 0, 0 };
-GdkColor warning_color = { 0, 65535, 65535, 0 };
+GdkColor error_color = { 0, 61440, 47104, 47104 };
+GdkColor warning_color = { 0, 47104, 47104, 0 };
 #else
 GdkRGBA error_color = { 1.0, 0.0, 0.0, .2 };
 GdkRGBA warning_color = {  0, 1.0, 1.0, .2 };
 #endif
 
+#include "lang_provider.h"
+
 #ifdef USEGTKSOURCEVIEW
-	#include "lang_provider.c"
+
 
 	#if GTK_MAJOR_VERSION == 2
 	static gchar * Meg_Editor_Tooltip( GtkSourceMark *mark, gpointer user_data )

@@ -292,6 +292,22 @@ void Meg_MapEdit_ObjectSelected( GtkIconView * icon_view, GtkTreePath * path, Gt
 	g_free( ident );
 }
 
+
+/********************************
+* Meg_MapEdit_Resort
+* Event:
+* Result:
+*/
+void Meg_MapEdit_Resort( GtkAction * action, AlcheraMap * map )
+{
+	if ( map )
+	{
+		MapInfo * info  = gtk_alchera_map_get_info( map );
+		info->display_list = g_list_sort_with_data( info->display_list, (GCompareDataFunc)Alchera_DisplayObject_Order, info );
+		gtk_alchera_map_refresh( map );
+	}
+}
+
 /********************************
 * Meg_MapEdit_Undo
 * Event:

@@ -76,9 +76,9 @@ gchar * mokoiGameRequiredFiles[] = {
 	"preload/audio.txt", "",
 	"preload/entities.txt", "",
 	"preload/spritesheet.txt", "",
-	"scripts/main.mps", "main()\n{\n}",
+	"/scripts/main.mps", "main()\n{\n}",
 	"maps/empty.xml", "<map xmlns=\"http://mokoi.info/projects/mokoi\"><settings><dimensions width=\"1\" height=\"1\" /><color red=\"64\" blue=\"124\" green=\"98\" mode=\"0\"/></settings></map>",
-	"scripts/maps/empty.mps", "#tryinclude <map_default>\nmain()\n{\n\t/**/\n}\n",
+	"/scripts/maps/empty.mps", "#tryinclude <map_default>\nmain()\n{\n\t/**/\n}\n",
 	NULL
 };
 
@@ -179,15 +179,13 @@ gboolean AL_CreateRequiredFiles( gchar * root_dir )
 			{
 				Meg_Log_Print( LOG_NONE, "Error creating '%s', this may cause a issue down the track.", temp_path );
 			}
-			else
-			{
-				/*
-				if ( g_str_has_suffix(temp_path, ".mps") )
-				{
-					EntityCompiler_FileWithRountines( temp_path, NULL, NULL );
-				}
-				*/
-			}
+//			else
+//			{
+//				if ( g_str_has_suffix(temp_path, ".mps") )
+//				{
+//					EntityCompiler_FileWithRountines( temp_path, NULL, NULL );
+//				}
+//			}
 			g_free( temp_path );
 			array_count++;
 		}
@@ -362,7 +360,28 @@ gchar * AL_CopyProject( const gchar * source )
 
 }
 
+/********************************
+* Project_BuildDefaultEntities
+* Load spritesheets
+*/
+void Project_BuildDefaultEntities()
+{
+	/* Compiler Required Entities */
+	guint array_count = 0;
+	if ( g_strv_length( mokoiGameRequiredFiles ) )
+	{
+		while ( mokoiGameRequiredFiles[array_count] != NULL)
+		{
+			if ( g_str_has_suffix(mokoiGameRequiredFiles[array_count], ".mps") )
+			{
+				EntityCompiler_FileWithRountines( mokoiGameRequiredFiles[array_count], NULL, NULL );
+			}
+			array_count++;
+			array_count++;
+		}
+	}
 
+}
 
 /********************************
 * AL_LoadProject
@@ -432,6 +451,7 @@ gchar * AL_LoadProject(const gchar *path )
 			g_free(package_location);
 		}
 
+		Project_BuildDefaultEntities();
 		Project_LoadSpritesheet();
 
 	}

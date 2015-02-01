@@ -48,10 +48,9 @@ typedef struct {
 struct _DisplayObject {
 
 	DisplayObjectTypes type;
-	gdouble x, y, w, h;
+	gdouble x, y, w, h, z_offset;
 	guint tw, th, layer, id, rotate;
 	gboolean active, animation_timeout, tiled_image, resizable, rotatable, is_flipped, supports_path;
-
 
 	GdkRGBA colour;
 
@@ -61,11 +60,10 @@ struct _DisplayObject {
 
 	GdkPixbuf * image;
 	gchar * text;
+	gchar * name;
 	gpointer data;
 
 	gboolean (*draw_function) ( cairo_t *cr );
-	/*GtkWidget * (*get_submenu ) ( MapInfo * map_info, guint id );*/
-
 	gboolean (*free) ( gpointer data );
 
 };
@@ -74,6 +72,7 @@ struct _DisplayObject {
 
 
 DisplayObject * Alchera_DisplayObject_New( gpointer data, gboolean (*free)(gpointer) );
+void Alchera_DisplayObject_SetName( DisplayObject * object, gchar * name );
 
 void Alchera_DisplayObject_DrawForeach( DisplayObject * object, cairo_t *cr );
 gint Alchera_DisplayObject_Order( gconstpointer a, gconstpointer b, gpointer data );

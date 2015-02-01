@@ -29,14 +29,12 @@ gchar * help_global_directory  = NULL;
 gchar * help_local_directory  = NULL;
 gchar * help_language = "en";
 
-
 /* Functions */
 void Meg_Help_ScanDirectory(GtkTreeStore * store, GtkTreeIter * parent, gchar * dir);
 gboolean Meg_HelpParser_Load( GtkTextView * textview, gchar * content );
 gboolean Meg_HelpParser_Event( GtkWidget * text_view, GdkEvent * ev );
 
 /* UI */
-
 const gchar * alchera_help_ui = GUI_PAGE_HELP;
 
 /* Functions */
@@ -46,7 +44,6 @@ const gchar * alchera_help_ui = GUI_PAGE_HELP;
  * @param file
  * @return
  */
-
 gchar * Meg_Help_GetFilePath( const gchar * file )
 {
 	gsize c = 0;
@@ -69,7 +66,6 @@ gchar * Meg_Help_GetFilePath( const gchar * file )
 		}
 		help_file_path = g_build_filename( help_global_directory, help_language, help_file_name, NULL );
 	}
-
 
 	return help_file_path;
 }
@@ -117,7 +113,6 @@ GString * Meg_Help_GeneratePage( EditorDatabaseListing * function )
 		g_free(escaped_string);
 
 	}
-
 
 	g_string_append_printf( content, "</div>" );
 
@@ -194,19 +189,21 @@ void Meg_Help_Load( const gchar * file, GtkWidget * textview )
 		g_free(help_file_path);
 	}
 }
-/********************************
-*
-*
-*/
+
+/**
+ * @brief Meg_Help_SwitchPage
+ * @param file
+ */
 void Meg_Help_SwitchPage( gchar * file )
 {
 	Meg_Help_Load( file, alchera_help_textview );
 }
 
-/********************************
-*
-*
-*/
+/**
+ * @brief Meg_Help_GetImage
+ * @param file
+ * @return
+ */
 GdkPixbuf * Meg_Help_GetImage( gchar * file )
 {
 	GdkPixbuf * pixbuf = NULL;
@@ -220,10 +217,11 @@ GdkPixbuf * Meg_Help_GetImage( gchar * file )
 	return pixbuf;
 }
 
-/********************************
-*
-*
-*/
+/**
+ * @brief Meg_Help_GetText
+ * @param file
+ * @return
+ */
 gchar * Meg_Help_GetText( gchar * file )
 {
 	gchar * help_file_path = NULL, * content = NULL;
@@ -235,10 +233,10 @@ gchar * Meg_Help_GetText( gchar * file )
 
 }
 
-/********************************
-*
-*
-*/
+/**
+ * @brief Meg_Help_Open
+ * @param file
+ */
 void Meg_Help_Open( gchar * file )
 {
 	Meg_Help_Load( file, alchera_help_textview );
@@ -246,10 +244,13 @@ void Meg_Help_Open( gchar * file )
 	gtk_toggle_tool_button_set_active( GTK_TOGGLE_TOOL_BUTTON(alchera_help_toolbutton), TRUE );
 }
 
-/********************************
-*
-*
-*/
+/**
+ * @brief g_strjoinv_count
+ * @param separator
+ * @param str_array
+ * @param count
+ * @return
+ */
 gchar *g_strjoinv_count( const gchar *separator, gchar **str_array, guint count )
 {
 	char *res;
@@ -295,7 +296,6 @@ void Meg_Help_ScanAddFile( gchar * file, GtkTreeStore * store )
 
 	if ( g_strv_length(info) == 3 )
 	{
-
 		parent = g_hash_table_lookup( alchera_help_folders_list, info[1] );
 		if ( g_hash_table_lookup( alchera_help_folders_list, info[2] ) == NULL )
 		{
@@ -328,10 +328,12 @@ GtkTreeIter * Meg_Help_AddDirectoryList(  GtkTreeStore * store, const gchar * ti
 	return folder;
 }
 
-/********************************
-*
-*
-*/
+/**
+ * @brief Meg_Help_ScanDirectory
+ * @param store
+ * @param parent
+ * @param dir
+ */
 void Meg_Help_ScanDirectory( GtkTreeStore * store, GtkTreeIter * parent, gchar * dir )
 {
 	gtk_tree_sortable_set_sort_func( GTK_TREE_SORTABLE(store), 0, Meg_Misc_TreeIterCompare, GINT_TO_POINTER(2), NULL);
@@ -430,27 +432,34 @@ void Meg_Help_ScanDirectory( GtkTreeStore * store, GtkTreeIter * parent, gchar *
 	g_slist_foreach( file_list, (GFunc)Meg_Help_ScanAddFile, store);
 }
 
-/********************************
-* Event:
-* Result:
-*/
+/**
+ * @brief Meg_Help_Refresh
+ * @param button
+ * @param user_data
+ */
 void Meg_Help_Refresh( GtkButton * button, gpointer user_data )
 {
+	GtkTreeModel * store;
 	if ( alchera_help_filelist )
 	{
 		if ( alchera_help_folders_list )
 			g_hash_table_destroy( alchera_help_folders_list );
+
 		alchera_help_folders_list = g_hash_table_new( g_str_hash, g_str_equal );
-		GtkTreeModel * store = gtk_tree_view_get_model( GTK_TREE_VIEW(alchera_help_filelist) );
+		store = gtk_tree_view_get_model( GTK_TREE_VIEW(alchera_help_filelist) );
+
 		gtk_tree_store_clear( GTK_TREE_STORE(store) );
 		Meg_Help_ScanDirectory( GTK_TREE_STORE(store), NULL, NULL);
 	}
 }
 
-/********************************
-*
-*
-*/
+/**
+ * @brief Meg_Help_LoadFile
+ * @param tree_view
+ * @param path
+ * @param column
+ * @param user_data
+ */
 void Meg_Help_LoadFile(GtkTreeView * tree_view, GtkTreePath * path, GtkTreeViewColumn * column, gpointer user_data)
 {
 	gboolean is_a_file = FALSE;
@@ -461,7 +470,6 @@ void Meg_Help_LoadFile(GtkTreeView * tree_view, GtkTreePath * path, GtkTreeViewC
 
 	if ( gtk_tree_selection_get_selected(select, &model, &iter) )
 	{
-
 		gtk_tree_model_get( model, &iter, 1, &file, 3, &is_a_file, -1 );
 		if ( is_a_file )
 		{
@@ -472,10 +480,9 @@ void Meg_Help_LoadFile(GtkTreeView * tree_view, GtkTreePath * path, GtkTreeViewC
 }
 
 
-/********************************
-* Event:
-* Result:
-*/
+/**
+ * @brief MegWidget_Help_Create
+ */
 void MegWidget_Help_Create()
 {
 	GtkWidget * main_widget;
@@ -490,7 +497,6 @@ void MegWidget_Help_Create()
 	alchera_help_filelist = GET_WIDGET( ui, "alchera_help_filelist");
 	alchera_help_label = GET_WIDGET( ui, "alchera-label");
 
-
 	/* Signals */
 	g_signal_connect( alchera_help_textview, "event-after", G_CALLBACK(Meg_HelpParser_Event), NULL );
 	g_signal_connect( alchera_help_filelist, "row-activated", G_CALLBACK(Meg_Help_LoadFile), NULL );
@@ -503,15 +509,20 @@ void MegWidget_Help_Create()
 
 	g_object_unref(ui);
 
-
 }
 
+/**
+ * @brief MegWidget_Help_Init
+ */
 void MegWidget_Help_Init()
 {
-
+	Meg_Help_Open( "index.xml" );
 
 }
 
+/**
+ * @brief MegWidget_Help_Close
+ */
 void MegWidget_Help_Close()
 {
 

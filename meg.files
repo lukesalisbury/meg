@@ -893,3 +893,5 @@ meg_pawn/src/pawn4/scstate.c
 meg_pawn/src/pawn4/scstub.c
 meg_pawn/src/pawn4/scvars.c
 meg_pawn/src/pawn4/svnrev.h
+lang_provider.h
+src/lang_provider.h

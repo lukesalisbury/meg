@@ -154,6 +154,14 @@ DisplayObject * AL_Object_Add( MapInfo * map_info, gchar * ident, gdouble x, gdo
 
 		Alchera_DisplayObject_RefreshBorder( object );
 
+		if ( object->type == 's' )
+		{
+			Alchera_DisplayObject_SetName( object, object->name);
+		}
+		else
+		{
+			Alchera_DisplayObject_SetName( object, NULL );
+		}
 	}
 
 	return object;
@@ -164,7 +172,7 @@ DisplayObject * AL_Object_Add( MapInfo * map_info, gchar * ident, gdouble x, gdo
 *
 @ id: id for display object.
 */
-G_MODULE_EXPORT gboolean AL_Object_Remove( MapInfo * map_info, gint id )
+gboolean AL_Object_Remove( MapInfo * map_info, gint id )
 {
 	DisplayObject * object = AL_Object_Get( map_info, id );
 
@@ -195,7 +203,7 @@ G_MODULE_EXPORT gboolean AL_Object_Remove( MapInfo * map_info, gint id )
 @ map:
 @ id:
 */
-G_MODULE_EXPORT gboolean AL_Object_Update( MapInfo * map_info, gint id, gdouble x, gdouble y, gdouble w, gdouble h, gint z )
+gboolean AL_Object_Update( MapInfo * map_info, gint id, gdouble x, gdouble y, gdouble w, gdouble h, gint z )
 {
 	return FALSE;
 }
@@ -208,13 +216,11 @@ G_MODULE_EXPORT gboolean AL_Object_Update( MapInfo * map_info, gint id, gdouble 
 */
 void AL_Object_OpenAdvance( GtkWidget * widget, MapInfo * map_info )
 {
-
 	GtkWindow * window = Meg_Main_GetWindow();
 	DisplayObject * object = map_info->selected;
 
 	if ( object != NULL )
 	{
-
 		if ( MAP_OBJECT_DATA(object)->type == 's'  )
 			ObjectAdvance_Sprite( object, window );
 		else if ( MAP_OBJECT_DATA(object)->type == 't' )
@@ -276,8 +282,6 @@ GtkWidget * Object_GetSettingMenu( MapInfo * map_info, guint id )
     }
     return menu_widget;
 }
-
-
 
 
 /********************************

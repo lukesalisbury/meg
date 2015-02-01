@@ -466,7 +466,7 @@ void EntityList_UpdatePage( GtkTreeModel * list )
 		EntityList_ScanDirectory( "routines/", ".inc", TRUE, GTK_TREE_STORE(list), &parent );
 
 		gtk_tree_store_append( GTK_TREE_STORE(list), &parent, NULL );
-		gtk_tree_store_set( GTK_TREE_STORE(list), &parent, 0, "<b>Entities Routines</b>", 1, 0, 2, NULL, 3, 0, 4, NULL, 5, NULL, -1 );
+		gtk_tree_store_set( GTK_TREE_STORE(list), &parent, 0, "<b>Maps</b>", 1, 0, 2, NULL, 3, 0, 4, NULL, 5, NULL, -1 );
 		EntityList_ScanDirectory( "maps/", ".mps", FALSE, GTK_TREE_STORE(list), &parent );
 
 		gtk_tree_store_append( GTK_TREE_STORE(list), &parent, NULL );

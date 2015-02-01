@@ -101,7 +101,7 @@ void MegWidget_EntityList_Create()
 void MegWidget_EntityList_Refresh( GtkWidget * widget, gpointer user_data)
 {
 	EntityList_UpdateMain();
-	EntityList_UpdatePage( GTK_TREE_STORE(gtk_tree_view_get_model(GTK_TREE_VIEW(mokoiEntityTreeview))) );
+	EntityList_UpdatePage( gtk_tree_view_get_model(GTK_TREE_VIEW(mokoiEntityTreeview)) );
 
 
 	gtk_tree_view_expand_all( GTK_TREE_VIEW(mokoiEntityTreeview) );

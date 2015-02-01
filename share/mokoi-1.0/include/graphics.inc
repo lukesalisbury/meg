@@ -330,7 +330,7 @@
 ***/
 
 ///Misc Graphic Functions
-native GraphicsDraw(string{}, GraphicTypes:type, x, y, Fixed:z, w, h, c = WHITE, string_size = sizeof string );
+native GraphicsDraw(string{}, GraphicTypes:type, x, y, Fixed:layerz, w, h, c = WHITE, string_size = sizeof string );
 native TextSprites(able, sheet{});
 native SheetReference(sheet{}, ref = 1);
 native SheetReplace(old_sheet{}, news_sheet{});
@@ -339,7 +339,7 @@ native SheetSpriteDimension(sprite{}, &w, &h);
 
 ///Animation Functions
 native AnimationGetLength(sheet{}, anim{});
-native Fixed:AnimationGetLength2(sheet{}, anim{}) = AnimationGetLength;
+native Fixed:AnimationGetLengthSeconds(sheet{}, anim{}) = AnimationGetLength;
 #pragma deprecated Future Feature
 native AnimationCreate(string{}, length);
 #pragma deprecated Future Feature
@@ -354,14 +354,14 @@ native PolygonAddPoint(string{}, x, y, string_size = sizeof string);
 
 ///Canvas Functions
 native CanvasChildInfo(object_id, child{}, &x, &y, &w, &h);
-
+native CanvasChildSetEffect(object_id, child_id, colour = WHITE, rotate = 0, scale_w = 1000, scale_h = 1000, mirror = 0, StyleTypes:style = STYLE_NORMAL, colour2 = WHITE);
 
 ///Display Objects Functions
-native object:ObjectCreate( string{}, GraphicTypes:type, x, y, Fixed:z, w = 0, h = 0, c = 0xFFFFFFFF, global = false, string_size = sizeof string);
-native ObjectPosition( object:id, x, y, Fixed:z, w, h, pos = POSITION_MAP);
+native object:ObjectCreate( string{}, GraphicTypes:type, x, y, Fixed:layerz, w = 0, h = 0, c = 0xFFFFFFFF, global = false, string_size = sizeof string);
+native ObjectPosition( object:id, x, y, Fixed:layerz, w, h, pos = POSITION_MAP);
 native ObjectEffect( object:id, colour = WHITE, rotate = 0, scale_w = 1000, scale_h = 1000, mirror = 0, StyleTypes:style = STYLE_NORMAL, colour2 = WHITE);
 native ObjectReplace( object:id, string{}, GraphicTypes:type );
-native ObjectFlag( object:id, key, value);
+native ObjectFlag( object:id, ObjectFlags:key, value);
 native ObjectDelete( object:id);
 native ObjectInfo( object:id, &w, &h, &x, &y);
 
