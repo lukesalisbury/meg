@@ -15,6 +15,8 @@ Permission is granted to anyone to use this software for any purpose, including 
 #include <gtksourceview/gtksourcecompletion.h>
 #include <gtksourceview/gtksourcecompletioninfo.h>
 #include <gtksourceview/gtksourcecompletionitem.h>
+#include <gtksourceview/gtksourcecompletion.h>
+#include <gtksourceview/gtksourcecompletionprovider.h>
 #include "ma_types.h"
 
 typedef struct _ScriptAutoCompleteProvider ScriptAutoCompleteProvider;
@@ -37,7 +39,7 @@ struct _ScriptAutoCompleteProviderClass
 	GObjectClass parent_class;
 };
 
-static void script_auto_complete_provider_iface_init(GtkSourceCompletionProviderIface * iface);
+void script_auto_complete_provider_iface_init(GtkSourceCompletionProviderIface * iface);
 GType script_auto_complete_provider_get_type(void);
 
 

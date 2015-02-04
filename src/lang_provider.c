@@ -10,7 +10,11 @@ Permission is granted to anyone to use this software for any purpose, including 
 ****************************/
 #ifdef USEGTKSOURCEVIEW
 
+
+#include "global.h"
 #include "lang_provider.h"
+
+GSList * AL_Editor_Database( gchar * filename );
 
 #if GTK_MAJOR_VERSION > 2
 G_DEFINE_TYPE_WITH_CODE( ScriptAutoCompleteProvider, script_auto_complete_provider, G_TYPE_OBJECT, G_IMPLEMENT_INTERFACE(GTK_SOURCE_TYPE_COMPLETION_PROVIDER, script_auto_complete_provider_iface_init) )
@@ -18,12 +22,12 @@ G_DEFINE_TYPE_WITH_CODE( ScriptAutoCompleteProvider, script_auto_complete_provid
 G_DEFINE_TYPE_WITH_CODE( ScriptAutoCompleteProvider, script_auto_complete_provider, G_TYPE_OBJECT, G_IMPLEMENT_INTERFACE(GTK_TYPE_SOURCE_COMPLETION_PROVIDER, script_auto_complete_provider_iface_init) )
 #endif
 
-static gboolean script_auto_complete_valid_word( gunichar ch )
+gboolean script_auto_complete_valid_word( gunichar ch )
 {
 	return g_unichar_isalnum(ch);
 }
 
-static gchar * script_auto_complete_get_word( GtkTextIter * iter )
+gchar * script_auto_complete_get_word( GtkTextIter * iter )
 {
 	GtkTextIter start = *iter;
 	GtkTextIter end = *iter;
@@ -66,17 +70,17 @@ static gchar * script_auto_complete_get_word( GtkTextIter * iter )
 	}
 }
 
-static gchar * script_auto_complete_provider_get_name( GtkSourceCompletionProvider * provider )
+gchar * script_auto_complete_provider_get_name( GtkSourceCompletionProvider * provider )
 {
 	return g_strdup(((ScriptAutoCompleteProvider *)provider)->name);
 }
 
-static gint script_auto_complete_provider_get_priority( GtkSourceCompletionProvider * provider )
+gint script_auto_complete_provider_get_priority( GtkSourceCompletionProvider * provider )
 {
 	return ((ScriptAutoCompleteProvider *)provider)->priority;
 }
 
-static gboolean script_auto_complete_provider_match( GtkSourceCompletionProvider * provider, GtkSourceCompletionContext * context )
+gboolean script_auto_complete_provider_match( GtkSourceCompletionProvider * provider, GtkSourceCompletionContext * context )
 {
 	gboolean results = TRUE;
 
@@ -91,7 +95,7 @@ static gboolean script_auto_complete_provider_match( GtkSourceCompletionProvider
 	return results;
 }
 
-static void script_auto_complete_provider_populate( GtkSourceCompletionProvider * provider, GtkSourceCompletionContext * context )
+void script_auto_complete_provider_populate( GtkSourceCompletionProvider * provider, GtkSourceCompletionContext * context )
 {
 	gchar * word = NULL;
 	GtkTextIter iter;
@@ -132,24 +136,24 @@ static void script_auto_complete_provider_populate( GtkSourceCompletionProvider 
 	}
 }
 
-static GdkPixbuf * script_auto_complete_provider_get_icon( GtkSourceCompletionProvider *provider)
+GdkPixbuf * script_auto_complete_provider_get_icon( GtkSourceCompletionProvider *provider)
 {
 	return NULL;
 }
 
-static GtkSourceCompletionActivation script_auto_complete_provider_get_activation( GtkSourceCompletionProvider *provider )
+GtkSourceCompletionActivation script_auto_complete_provider_get_activation( GtkSourceCompletionProvider *provider )
 {
 	return GTK_SOURCE_COMPLETION_ACTIVATION_USER_REQUESTED;
 }
 
 
-static gboolean script_auto_complete_provider_activate_proposal( GtkSourceCompletionProvider * provider, GtkSourceCompletionProposal * proposal, GtkTextIter * iter)
+gboolean script_auto_complete_provider_activate_proposal( GtkSourceCompletionProvider * provider, GtkSourceCompletionProposal * proposal, GtkTextIter * iter)
 {
 
 	return FALSE;
 }
 
-static void script_auto_complete_provider_iface_init( GtkSourceCompletionProviderIface * iface )
+void script_auto_complete_provider_iface_init( GtkSourceCompletionProviderIface * iface )
 {
 	iface->get_name = script_auto_complete_provider_get_name;
 	iface->populate = script_auto_complete_provider_populate;
@@ -161,13 +165,13 @@ static void script_auto_complete_provider_iface_init( GtkSourceCompletionProvide
 }
 
 
-static void script_auto_complete_provider_class_init( ScriptAutoCompleteProviderClass * klass )
+void script_auto_complete_provider_class_init( ScriptAutoCompleteProviderClass * klass )
 {
 }
 
-static void script_auto_complete_provider_init( ScriptAutoCompleteProvider *self )
+void script_auto_complete_provider_init( ScriptAutoCompleteProvider *self )
 {
-	self->database = AL_Editor_Database("");
+	self->database = AL_Editor_Database( NULL);
 }
 
 #endif

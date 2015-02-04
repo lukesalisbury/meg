@@ -153,5 +153,8 @@ install: $(BIN)
 	@-$(MKDIR) $(INSTALLDIR)/bin/
 	@cp $(BUILDDIR)/$(BIN) $(INSTALLDIR)/bin/
 	@cp -r ./share/ $(INSTALLDIR)/
-
+ifneq ($(SKIPMODULES), TRUE)
+	@$(MAKE) -C meg_audio install BUILDDIR=$(CURDIR)/$(BUILDDIR) INSTALLDIR=$(CURDIR)/$(INSTALLDIR)
+	@$(MAKE) -C meg_pawn install BUILDDIR=$(CURDIR)/$(BUILDDIR) INSTALLDIR=$(CURDIR)/$(INSTALLDIR)
+endif
 
