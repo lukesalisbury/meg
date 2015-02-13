@@ -73,6 +73,7 @@
 	void Meg_ComboText_AppendText( GtkComboBox * widget, const gchar * text );
 	void Meg_ComboText_Clear( GtkComboBox * widget );
 	void Meg_ComboText_SetIndex( GtkComboBox * widget, gchar * search );
+	void Meg_ComboText_SetIndex_Prefix( GtkComboBox * widget, gchar * name, gchar * ext );
 
 	/* */
 	void Meg_Help_Load( const gchar * file, GtkWidget * textview );

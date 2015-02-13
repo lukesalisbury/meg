@@ -16,7 +16,7 @@ Permission is granted to anyone to use this software for any purpose, including 
 #include "game_compiler.h"
 
 /* Global Variables */
-extern GtkWidget * mokoiEntityEditor;
+
 
 /* Local Variables */
 GAsyncQueue * mokoiLoggerQueue = NULL;

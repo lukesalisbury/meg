@@ -25,29 +25,29 @@ Permission is granted to anyone to use this software for any purpose, including 
 #define	ENTITYOPTION_MAP 8
 #define	ENTITYOPTION_MAPENTITY 9
 #define	ENTITYOPTION_NUMBER 10
+#define	ENTITYOPTION_TARGET 11
 
+EntitySettingsStruct * EntitySettings_Lookup( GHashTable * hash_table, const gchar * key);
+guint EntitySettings_Type( const gchar *type );
+gboolean EntitySettings_BooleanCheck( GHashTable * settings_table, gchar * value);
 
-EntityOptionStruct * EntityOption_Lookup( GHashTable * hash_table, const gchar * key);
-guint EntityOption_Type( const gchar *type );
-gboolean EntityOption_BooleanCheck( GHashTable * settings_table, gchar * value);
+void EntitySettings_AddOption( GtkButton * button, GtkWidget * table );
+void EntitySettings_CreateWidget( const gchar * name, EntitySettingsStruct * options, GtkWidget * list );
+void EntitySettings_CreateWidgetWithSignal( const gchar * name, EntitySettingsStruct * options, GtkWidget * list );
+void EntitySettings_AttachWidget( const gchar * name, EntitySettingsStruct * options, GtkWidget * list );
+void EntitySettings_SaveWidget_Foreach( const gchar * name, EntitySettingsStruct * options, gpointer data );
 
-void EntityOption_AddOption( GtkButton * button, GtkWidget * table );
-void EntityOption_CreateWidget( const gchar * name, EntityOptionStruct * options, GtkWidget * list );
-void EntityOption_CreateWidgetWithSignal( const gchar * name, EntityOptionStruct * options, GtkWidget * list );
-void EntityOption_AttachWidget( const gchar * name, EntityOptionStruct * options, GtkWidget * list );
-void EntityOption_SaveWidget_Foreach( const gchar * name, EntityOptionStruct * options, gpointer data );
+EntitySettingsStruct * EntitySettings_New(const gchar *value, const gchar *type );
+void EntitySettings_FreePointer( gpointer data );
 
-EntityOptionStruct * EntityOption_New(const gchar *value, const gchar *type );
-void EntityOption_FreePointer( gpointer data );
-
-EntityOptionStruct * EntityOption_Copy( EntityOptionStruct * value );
-EntityOptionStruct * EntityOption_InsertNew( GHashTable * settings_table, const gchar * key, const gchar * value, const gchar * type );
-void EntityOption_Update( GHashTable * settings_table, const gchar *key, const gchar *value, const gchar  *type);
-void EntityOption_UpdateValue(GHashTable * settings_table, const gchar *key, const gint value , const gchar * type);
-void EntityOption_UpdateBoolean( GHashTable * settings_table, const gchar * key, const gboolean value, const gchar *type );
-void EntityOption_Delete( EntityOptionStruct * data );
-void EntityOption_Append(const gchar *key, EntityOptionStruct * value, GHashTable * table );
-gint EntityOption_GetValue( GHashTable * settings_table, gchar * key );
-void EntityOption_SetDefaultValues( DisplayObject * object );
+EntitySettingsStruct * EntitySettings_Copy( EntitySettingsStruct * value );
+EntitySettingsStruct * EntitySettings_InsertNew( GHashTable * settings_table, const gchar * key, const gchar * value, const gchar * type );
+void EntitySettings_Update( GHashTable * settings_table, const gchar *key, const gchar *value, const gchar  *type);
+void EntitySettings_UpdateValue(GHashTable * settings_table, const gchar *key, const gint value , const gchar * type);
+void EntitySettings_UpdateBoolean( GHashTable * settings_table, const gchar * key, const gboolean value, const gchar *type );
+void EntitySettings_Delete( EntitySettingsStruct * data );
+void EntitySettings_Append(const gchar *key, EntitySettingsStruct * value, GHashTable * table );
+gint EntitySettings_GetValue( GHashTable * settings_table, gchar * key );
+void EntitySettings_SetDefaultValues( MapObjectData * object_data );
 
 #endif

@@ -634,7 +634,7 @@ G_MODULE_EXPORT void ManagedEntity_FunctionProperties(GtkTreeView *tree_view, Gt
 * Result:
 * Uses G_CONNECT_SWAPPED
 */
-G_MODULE_EXPORT void Entity_Properties_AddState(GtkTreeView * user_data, GtkButton * button)
+G_MODULE_EXPORT void Meg_EntityList_Properties_AddState(GtkTreeView * user_data, GtkButton * button)
 {
 	EntityState * state = g_new0(EntityState, 1);
 	state->name = "New State";
@@ -657,16 +657,16 @@ G_MODULE_EXPORT void Entity_Properties_AddState(GtkTreeView * user_data, GtkButt
 * Event:
 * Result:
 */
-void Entity_Properties_RemoveState( GtkTreeView * user_data, GtkButton * button )
+void Meg_EntityList_Properties_RemoveState( GtkTreeView * user_data, GtkButton * button )
 {
-	Meg_Error_Print( __func__, __LINE__, "Entity_Properties_RemoveState to be added");
+	Meg_Error_Print( __func__, __LINE__, "Meg_EntityList_Properties_RemoveState to be added");
 }
 
 /*******************************
 * Event:
 * Result:
 */
-void Entity_Properties_AddRuntime( GtkButton * button, GtkTreeView * user_data )
+void Meg_EntityList_Properties_AddRuntime( GtkButton * button, GtkTreeView * user_data )
 {
 	/*
 	EntityOptions * options = g_new0(EntityOptions, 1);
@@ -689,27 +689,27 @@ void Entity_Properties_AddRuntime( GtkButton * button, GtkTreeView * user_data )
 * Event:
 * Result:
 */
-void Entity_Properties_RemoveRuntime( GtkButton * button, GtkTreeView * user_data )
+void Meg_EntityList_Properties_RemoveRuntime( GtkButton * button, GtkTreeView * user_data )
 {
-	Meg_Error_Print( __func__, __LINE__, "Entity_Properties_RemoveRuntime to be added");
+	Meg_Error_Print( __func__, __LINE__, "Meg_EntityList_Properties_RemoveRuntime to be added");
 }
 
 /*******************************
 * Event:
 * Result:
 */
-void Entity_Properties_AddRoutines( GtkButton * button, GtkTreeView * user_data )
+void Meg_EntityList_Properties_AddRoutines( GtkButton * button, GtkTreeView * user_data )
 {
-	Meg_Error_Print( __func__, __LINE__, "Entity_Properties_AddRoutines to be added. Meanwhile just copy the file into the game's script folder");
+	Meg_Error_Print( __func__, __LINE__, "Meg_EntityList_Properties_AddRoutines to be added. Meanwhile just copy the file into the game's script folder");
 }
 
 /*******************************
 * Event:
 * Result:
 */
-void Entity_Properties_RemoveRoutines( GtkButton * button, GtkTreeView * user_data )
+void Meg_EntityList_Properties_RemoveRoutines( GtkButton * button, GtkTreeView * user_data )
 {
-	Meg_Error_Print( __func__, __LINE__, "Entity_Properties_RemoveRoutines to be added");
+	Meg_Error_Print( __func__, __LINE__, "Meg_EntityList_Properties_RemoveRoutines to be added");
 }
 
 

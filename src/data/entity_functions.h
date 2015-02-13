@@ -17,14 +17,14 @@ void Entity_Save( gchar * name, GtkTextBuffer * buffer );
 gboolean Entity_New( gchar * filename, gchar * script );
 gboolean Entity_Add();
 gboolean Entity_Remove( gchar * filename );
-gboolean Entity_Properties(const gchar *filename );
+gboolean Meg_EntityList_Properties(const gchar *filename );
 
 void Entity_NewDialog(GtkButton * button , GtkTreeView * tree);
 void EntityList_UpdateMain();
 void EntityList_Menu(GtkWidget * treeview, gpointer data);
 gboolean EntityList_MenuClick( GtkWidget *treeview, GdkEventButton *event, gpointer data);
 void EntityList_Selection( GtkTreeView * tree_view, GtkTreePath * path, GtkTreeViewColumn * column, gpointer user_data );
-void Entity_RebuildAll( GtkButton * button, GtkTreeStore * list );
+void Entity_RebuildAll();
 
 void EntityListMenu_OpenAction( GtkMenuItem * menuitem, GtkTreeView * tree_view  );
 void EntityListMenu_CompileAction( GtkMenuItem * menuitem, GtkTreeView * tree_view );

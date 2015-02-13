@@ -27,27 +27,29 @@ extern GList * mokoiEntityStateList;
 /* Global Function */
 
 /* Local Functions */
-void EntityOptionParser_StartHandler( GMarkupParseContext *context, const gchar *element_name, const gchar **attribute_names, const gchar **attribute_values,  gpointer data, GError **error);
+void EntitySettings_Parser_StartHandler( GMarkupParseContext *context, const gchar *element_name, const gchar **attribute_names, const gchar **attribute_values,  gpointer data, GError **error);
 
 
 /* Local Variables */
 
-static GMarkupParser mokoiRuntimeParser = {EntityOptionParser_StartHandler, NULL, NULL, NULL, NULL};
+static GMarkupParser mokoiRuntimeParser = {EntitySettings_Parser_StartHandler, NULL, NULL, NULL, NULL};
 
 
 const gchar * mokoiUI_EntityOption = GUI_ENTITY_OPTION_EDITOR;
 
 
 /********************************
-* EntityOptionParser_StartHandler
+* EntitySettings_Parser_StartHandler
 * Part of the XML parser
 */
-void EntityOptionParser_StartHandler( GMarkupParseContext *context, const gchar *element_name, const gchar **attribute_names, const gchar **attribute_values, gpointer data, GError **error)
+void EntitySettings_Parser_StartHandler( GMarkupParseContext *context, const gchar *element_name, const gchar **attribute_names, const gchar **attribute_values, gpointer data, GError **error)
 {
 	if ( !g_ascii_strcasecmp(element_name, "option") )
 	{
 		gchar * name = NULL;
-		EntityOptionStruct * options = EntityOption_New( NULL, NULL );
+		EntitySettingsStruct * options = EntitySettings_New( NULL, NULL );
+
+		options->removable = FALSE;
 
 		for (; *attribute_names && *attribute_values; attribute_names++, attribute_values++)
 		{
@@ -62,41 +64,59 @@ void EntityOptionParser_StartHandler( GMarkupParseContext *context, const gchar 
 		}
 		if ( name )
 		{
-			options->internal_type = EntityOption_Type(options->type);
-			g_hash_table_insert(( GHashTable *)data, name, options);
+			options->internal_type = EntitySettings_Type(options->type);
+
+			if ( options->internal_type == ENTITYOPTION_NONE )
+			{
+				EntitySettings_Delete( options );
+			}
+			else
+			{
+				g_hash_table_insert(( GHashTable *)data, name, options);
+			}
 		}
 	}
 }
 
 
 /********************************
-* EntityOptionParser_SaveString
+* EntitySettings_Parser_SaveString
 *
 */
-void EntityOptionParser_SaveString(gchar * key, EntityOptionStruct * option, GString * file_content )
+void EntitySettings_Parser_SaveString(gchar * key, EntitySettingsStruct * option, GString * file_content )
 {
 	if ( option )
 	{
-		g_string_append_printf( file_content, "\t<option name=\"%s\" value=\"%s\" type=\"%s\" />\n", key, (option->value != NULL ? option->value : ""), (option->type != NULL ? option->type : "") );
+		g_string_append_printf( file_content, "\t<option name=\"%s\" value=\"%s\" type=\"%s\"", key, (option->value != NULL ? option->value : ""), (option->type != NULL ? option->type : "") );
+
+		if ( option->removable )
+		{
+			g_string_append( file_content, " removable=\"removable\"" );
+		}
+
+		g_string_append( file_content, " />\n" );
+
+
+
 	}
 
 }
 
 
 /********************************
-* EntityOptionParser_Save
+* EntitySettings_Parser_Save
 *
 */
-gboolean EntityOptionParser_Save(gchar * entity_option_file, GHashTable * options)
+gboolean EntitySettings_Parser_Save(gchar * entity_option_file, GHashTable * options)
 {
 	gboolean successful = FALSE;
 	GString * file_content = g_string_new("");
 
 	if ( g_hash_table_size(options) )
 	{
-		g_string_append( file_content, "<entity>\n");
-		g_hash_table_foreach( options, (GHFunc)EntityOptionParser_SaveString, (gpointer)file_content );
-		g_string_append( file_content, "</entity>");
+		file_content = g_string_append( file_content, "<entity>\n");
+		g_hash_table_foreach( options, (GHFunc)EntitySettings_Parser_SaveString, (gpointer)file_content );
+		file_content = g_string_append( file_content, "</entity>");
 
 		successful = Meg_file_set_contents( entity_option_file, file_content->str, -1, &mokoiError);
 		if ( mokoiError )
@@ -120,15 +140,15 @@ gboolean EntityOptionParser_Save(gchar * entity_option_file, GHashTable * option
 
 
 /********************************
-* EntityOptionParser_Load
+* EntitySettings_Parser_Load
 *
 */
-GHashTable * EntityOptionParser_Load(gchar * file)
+GHashTable * EntitySettings_Parser_Load(gchar * file)
 {
 	GError * error  = NULL;
 	gchar * file_content = NULL;
 	GMarkupParseContext * ctx = NULL;
-	GHashTable * table = g_hash_table_new_full( g_str_hash, g_str_equal, (GDestroyNotify)g_free, (GDestroyNotify)EntityOption_Delete );
+	GHashTable * table = g_hash_table_new_full( g_str_hash, g_str_equal, (GDestroyNotify)g_free, (GDestroyNotify)EntitySettings_Delete );
 
 	if ( Meg_file_get_contents( file, &file_content, NULL, NULL ) )
 	{
@@ -149,10 +169,10 @@ GHashTable * EntityOptionParser_Load(gchar * file)
 }
 
 /********************************
-* EntityOptionEditor_Menu_Add
+* EntitySettings_Editor_Menu_Add
 * Event:
 */
-void EntityOptionEditor_Menu_Add( GtkWidget * menuitem, GtkWidget *treeview )
+void EntitySettings_Editor_Menu_Add( GtkWidget * menuitem, GtkWidget *treeview )
 {
 	GtkWidget * dialog, * label, * combo, * vbox;
 
@@ -170,9 +190,7 @@ void EntityOptionEditor_Menu_Add( GtkWidget * menuitem, GtkWidget *treeview )
 	Meg_ComboText_AppendText( GTK_COMBO_BOX(combo), "music" );
 	Meg_ComboText_AppendText( GTK_COMBO_BOX(combo), "soundfx" );
 	Meg_ComboText_AppendText( GTK_COMBO_BOX(combo), "entity" );
-	Meg_ComboText_AppendText( GTK_COMBO_BOX(combo), "section" );
-	Meg_ComboText_AppendText( GTK_COMBO_BOX(combo), "sectionmap" );
-	Meg_ComboText_AppendText( GTK_COMBO_BOX(combo), "map" );
+	Meg_ComboText_AppendText( GTK_COMBO_BOX(combo), "target" );
 	Meg_ComboText_AppendText( GTK_COMBO_BOX(combo), "mapentity" );
 
 
@@ -194,8 +212,8 @@ void EntityOptionEditor_Menu_Add( GtkWidget * menuitem, GtkWidget *treeview )
 		GtkTreeModel * model = gtk_tree_view_get_model( GTK_TREE_VIEW(treeview) );
 		GHashTable * settings = g_object_get_data( G_OBJECT(model), "runtime-hashtable" );
 
-		EntityOption_InsertNew( settings, title, "", type );
-
+		EntitySettingsStruct * setting = EntitySettings_InsertNew( settings, title, "", type );
+		setting->removable = FALSE;
 
 		gtk_list_store_append( GTK_LIST_STORE(model), &iter );
 		gtk_list_store_set( GTK_LIST_STORE(model), &iter, 0, g_strdup(title), 1, "", 2, g_strdup(type), -1 );
@@ -205,15 +223,15 @@ void EntityOptionEditor_Menu_Add( GtkWidget * menuitem, GtkWidget *treeview )
 }
 
 /********************************
-* EntityOptionEditor_Menu_Display
+* EntitySettings_Editor_Menu_Display
 * Event:
 */
-void EntityOptionEditor_Menu_Display( GtkWidget *treeview, GdkEventButton *event, GHashTable * settings )
+void EntitySettings_Editor_Menu_Display( GtkWidget *treeview, GdkEventButton *event, GHashTable * settings )
 {
 	GtkWidget * menu, * menuitem;
 	menu = gtk_menu_new();
 	menuitem = gtk_image_menu_item_new_from_stock(GTK_STOCK_ADD, NULL);
-	g_signal_connect(menuitem, "activate", (GCallback) EntityOptionEditor_Menu_Add, treeview);
+	g_signal_connect(menuitem, "activate", (GCallback) EntitySettings_Editor_Menu_Add, treeview);
 	gtk_menu_shell_append(GTK_MENU_SHELL(menu), menuitem);
 	gtk_widget_show_all(menu);
 
@@ -221,34 +239,34 @@ void EntityOptionEditor_Menu_Display( GtkWidget *treeview, GdkEventButton *event
 }
 
 /********************************
-* EntityOptionEditor_Menu_RightClick
+* EntitySettings_Editor_Menu_RightClick
 * Event:
 */
-gboolean EntityOptionEditor_Menu_RightClick( GtkWidget *treeview, GdkEventButton *event, GHashTable * settings )
+gboolean EntitySettings_Editor_Menu_RightClick( GtkWidget *treeview, GdkEventButton *event, GHashTable * settings )
 {
 	if ( event->type == GDK_BUTTON_PRESS && event->button == 3 )
 	{
-		EntityOptionEditor_Menu_Display( treeview, event, settings );
+		EntitySettings_Editor_Menu_Display( treeview, event, settings );
 		return TRUE;
 	}
 	return FALSE;
 }
 
 /********************************
-* EntityOptionEditor_Menu_Button
+* EntitySettings_Editor_Menu_Button
 * Event:
 */
-gboolean EntityOptionEditor_Menu_Button( GtkWidget *treeview, GHashTable * settings )
+gboolean EntitySettings_Editor_Menu_Button( GtkWidget *treeview, GHashTable * settings )
 {
-	EntityOptionEditor_Menu_Display( treeview, NULL, settings );
+	EntitySettings_Editor_Menu_Display( treeview, NULL, settings );
 	return TRUE;
 }
 
 /********************************
-* EntityOptionEditor_EditStoreType
+* EntitySettings_Editor_EditStoreType
 * Event:
 */
-void EntityOptionEditor_EditStoreType( GtkCellRendererText * cellrenderertext, gchar * path_string, gchar * new_text, GtkTreeView * treeview  )
+void EntitySettings_Editor_EditStoreType( GtkCellRendererText * cellrenderertext, gchar * path_string, gchar * new_text, GtkTreeView * treeview  )
 {
 	gchar * key = NULL;
 	GtkTreeIter iter;
@@ -260,7 +278,7 @@ void EntityOptionEditor_EditStoreType( GtkCellRendererText * cellrenderertext, g
 
 	if ( key )
 	{
-		EntityOptionStruct * option = EntityOption_Lookup(settings, key);
+		EntitySettingsStruct * option = EntitySettings_Lookup(settings, key);
 		if ( option )
 		{
 			REPLACE_STRING( option->type, g_strdup(new_text) )
@@ -271,10 +289,10 @@ void EntityOptionEditor_EditStoreType( GtkCellRendererText * cellrenderertext, g
 }
 
 /********************************
-* EntityOptionEditor_EditStoreValue
+* EntitySettings_Editor_EditStoreValue
 * Event:
 */
-void EntityOptionEditor_EditStoreValue( GtkCellRendererText * cellrenderertext, gchar * path_string, gchar * new_text, GtkTreeView * treeview  )
+void EntitySettings_Editor_EditStoreValue( GtkCellRendererText * cellrenderertext, gchar * path_string, gchar * new_text, GtkTreeView * treeview  )
 {
 	gchar * key = NULL;
 	GtkTreeIter iter;
@@ -285,17 +303,17 @@ void EntityOptionEditor_EditStoreValue( GtkCellRendererText * cellrenderertext, 
 	GHashTable * settings = g_object_get_data( G_OBJECT(model), "runtime-hashtable" );
 	if ( key )
 	{
-		EntityOption_Update( settings, key, new_text, NULL );
+		EntitySettings_Update( settings, key, new_text, NULL );
 		gtk_list_store_set( GTK_LIST_STORE(model), &iter, 1, g_strdup(new_text), -1 );
 	}
 
 }
 
 /********************************
-* EntityOptionEditor_CreateStore
+* EntitySettings_Editor_CreateStore
 *
 */
-void EntityOptionEditor_CreateStore( gchar * key, EntityOptionStruct * value, GtkListStore * liststore )
+void EntitySettings_Editor_CreateStore( gchar * key, EntitySettingsStruct * value, GtkListStore * liststore )
 {
 	GtkTreeIter iter;
 	gtk_list_store_append( liststore, &iter );
@@ -303,22 +321,22 @@ void EntityOptionEditor_CreateStore( gchar * key, EntityOptionStruct * value, Gt
 }
 
 /********************************
-* EntityOptionEditor_Refresh
+* EntitySettings_Editor_Refresh
 * Event:
 */
-void EntityOptionEditor_Refresh( GtkWidget *treeview, GHashTable * settings )
+void EntitySettings_Editor_Refresh( GtkWidget *treeview, GHashTable * settings )
 {
 	GtkTreeModel * model = gtk_tree_view_get_model( GTK_TREE_VIEW(treeview) );
 	gtk_list_store_clear( GTK_LIST_STORE(model) );
-	g_hash_table_foreach(settings, (GHFunc)EntityOptionEditor_CreateStore, GTK_LIST_STORE(model) );
+	g_hash_table_foreach(settings, (GHFunc)EntitySettings_Editor_CreateStore, GTK_LIST_STORE(model) );
 	return ;
 }
 
 /********************************
-* EntityOptionEditor_Open
+* EntitySettings_Editor_Open
 *
 */
-gboolean EntityOptionEditor_Open( gchar * entity_name )
+gboolean EntitySettings_Editor_Open( gchar * entity_name )
 {
 	gint response = 0;
 	GtkWidget * dialog, * label, * tree_items;
@@ -329,12 +347,11 @@ gboolean EntityOptionEditor_Open( gchar * entity_name )
 	/* Get Options File */
 	option_path = g_strdup_printf("/scripts/%s.options", entity_name );
 
-	options = EntityOptionParser_Load( option_path );
+	options = EntitySettings_Parser_Load( option_path );
 	if ( !options )
 	{
-		Meg_Error_Print( __func__, __LINE__, "EntityOptionParser_Edit");
-		g_free(option_path);
-		return FALSE;
+		Meg_Error_Print( __func__, __LINE__, "EntitySettings_Parser_Edit");
+		goto function_exit;
 	}
 
 	/* UI */
@@ -351,15 +368,15 @@ gboolean EntityOptionEditor_Open( gchar * entity_name )
 	g_object_set_data( G_OBJECT(store_items), "runtime-hashtable", options);
 
 	/* Events */
-	g_signal_connect( tree_items, "realize", G_CALLBACK(EntityOptionEditor_Refresh), options );
-	g_signal_connect( tree_items, "popup-menu", G_CALLBACK(EntityOptionEditor_Menu_Button), options );
-	g_signal_connect( tree_items, "button-press-event", G_CALLBACK(EntityOptionEditor_Menu_RightClick), options );
+	g_signal_connect( tree_items, "realize", G_CALLBACK(EntitySettings_Editor_Refresh), options );
+	g_signal_connect( tree_items, "popup-menu", G_CALLBACK(EntitySettings_Editor_Menu_Button), options );
+	g_signal_connect( tree_items, "button-press-event", G_CALLBACK(EntitySettings_Editor_Menu_RightClick), options );
 
-	SET_OBJECT_SIGNAL( ui, "cell_value", "edited", G_CALLBACK(EntityOptionEditor_EditStoreValue), tree_items );
-	SET_OBJECT_SIGNAL( ui, "cell_type", "edited", G_CALLBACK(EntityOptionEditor_EditStoreType), tree_items );
+	SET_OBJECT_SIGNAL( ui, "cell_value", "edited", G_CALLBACK(EntitySettings_Editor_EditStoreValue), tree_items );
+	SET_OBJECT_SIGNAL( ui, "cell_type", "edited", G_CALLBACK(EntitySettings_Editor_EditStoreType), tree_items );
 
 	/* Label */
-	Meg_Misc_SetLabel(label, entity_name, "Options", '\n' );
+	Meg_Misc_SetLabel(label, "Entity Settings", entity_name, '\n' );
 
 	gtk_widget_show_all( gtk_dialog_get_content_area( GTK_DIALOG(dialog) ) );
 	gtk_window_set_transient_for( GTK_WINDOW(dialog), Meg_Main_GetWindow() );
@@ -368,12 +385,13 @@ gboolean EntityOptionEditor_Open( gchar * entity_name )
 	response = gtk_dialog_run( GTK_DIALOG(dialog) );
 	if ( response == GTK_RESPONSE_APPLY )
 	{
-		EntityOptionParser_Save(option_path, options);
+		EntitySettings_Parser_Save(option_path, options);
 	}
-	gtk_widget_destroy( dialog);
+	gtk_widget_destroy( dialog );
 
+	function_exit:
 
-	g_free(option_path);
+	g_free( option_path );
 
 	return (response == GTK_RESPONSE_ACCEPT ? TRUE : FALSE);
 }

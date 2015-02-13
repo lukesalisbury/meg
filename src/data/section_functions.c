@@ -420,7 +420,7 @@ gchar * Section_MapName( MokoiWorldFile * world, guint8 x, guint8 y, GtkWindow *
 {
 	g_return_val_if_fail( world, NULL );
 
-	MokoiWorldMap * item;
+	MokoiWorldMap * item = NULL;
 	gint id = -1;
 
 	x = CLAMP(x, 0, 63);

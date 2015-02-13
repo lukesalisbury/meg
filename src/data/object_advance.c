@@ -27,12 +27,6 @@ extern gchar * mokoiBasePath;
 
 
 /* UI */
-
-
-
-
-
-
 const gchar * mokoiUI_ObjectEntites = GUI_OBJECT_ENTITY;
 const gchar * mokoiUI_ObjectShape = GUI_OBJECT_SHAPE;
 const gchar * mokoiUI_ObjectSprite = GUI_OBJECT_SPRITE;
@@ -99,12 +93,63 @@ void ObjectAdvance_Text_Spin( GtkSpinButton * spin, GtkWidget * textbox )
 	}
 }
 
-/********************************
-* ObjectAdvance_EntityWidget_New
-*
-@
-@
-*/
+
+
+void ObjectAdvance_ClearEntitySettings( GtkWidget *widget, GtkContainer * box_settings)
+{
+	g_return_if_fail( widget );
+
+	if ( widget )
+	{
+		gtk_container_remove(box_settings, widget);
+		//gtk_widget_destroy( widget);
+	}
+
+
+}
+
+
+
+/**
+ * @brief ObjectAdvance_UpdateEntitySettings
+ * @param view_settings
+ */
+void ObjectAdvance_UpdateEntitySettings(GtkWidget * box_settings, MapObjectData * object_data)
+{
+	// Remove old boxes
+	gtk_container_foreach( GTK_CONTAINER(box_settings), (GtkCallback)ObjectAdvance_ClearEntitySettings, box_settings );
+
+	if ( g_hash_table_size(object_data->settings) )
+	{
+		g_hash_table_foreach( object_data->settings, (GHFunc)EntitySettings_CreateWidgetWithSignal, box_settings );
+		g_hash_table_foreach( object_data->settings, (GHFunc)EntitySettings_AttachWidget, box_settings );
+		gtk_widget_show_all( box_settings );
+	}
+}
+
+
+GHashTable * EntitySettings_DefaultValues(MapObjectData *object_data );
+/**
+ * @brief EntitySettings_Reset
+ * @param button
+ * @param view_settings
+ */
+void bjectAdvance_ResetEntitySettings( GtkButton * button, GtkWidget * box_settings )
+{
+	MapObjectData * object_data = (MapObjectData *)g_object_get_data( G_OBJECT(box_settings), "object_data");
+
+	g_hash_table_destroy(object_data->settings);
+
+	object_data->settings = EntitySettings_DefaultValues(object_data);
+
+	ObjectAdvance_UpdateEntitySettings(box_settings, object_data);
+}
+
+/**
+ * @brief ObjectAdvance_EntityWidget_New
+ * @param object
+ * @return
+ */
 GtkWidget * ObjectAdvance_EntityWidget_New( DisplayObject * object )
 {
 	gchar * entity_file = NULL;
@@ -116,15 +161,15 @@ GtkWidget * ObjectAdvance_EntityWidget_New( DisplayObject * object )
 
 	/* Widget */
 	GtkWidget * entity_widget;
-	GtkWidget * runtime_box, * edit_id, * combo_file, * check_global, * add_button;
+	GtkWidget * edit_id, * combo_file, * check_global, * button_add, * button_reset, * box_settings;
 
 	entity_widget = GET_WIDGET( ui, "entity_page");
-	runtime_box = GET_WIDGET( ui, "box_runtime");
 	edit_id = GET_WIDGET( ui, "entry_entityid");
 	combo_file = GET_WIDGET( ui, "combo_file");
 	check_global = GET_WIDGET( ui, "check_global");
-	add_button = GET_WIDGET( ui, "button_addoption");
-
+	button_add = GET_WIDGET( ui, "button_addoption");
+	button_reset = GET_WIDGET( ui, "button_resetsettings");
+	box_settings = GET_WIDGET( ui, "box_settings");
 
 	/* Settings */
 	g_object_set_data( G_OBJECT(entity_widget), "mokoi-edit-id", edit_id);
@@ -132,7 +177,7 @@ GtkWidget * ObjectAdvance_EntityWidget_New( DisplayObject * object )
 	g_object_set_data( G_OBJECT(entity_widget), "mokoi-check-global", check_global);
 
 	/* Set Default Value */
-	EntityOption_SetDefaultValues( object );
+	EntitySettings_SetDefaultValues( object_data );
 	gtk_toggle_button_set_active( GTK_TOGGLE_BUTTON(check_global), object_data->entity_global );
 
 	/*  Object ID */
@@ -147,21 +192,20 @@ GtkWidget * ObjectAdvance_EntityWidget_New( DisplayObject * object )
 		entity_file = g_strdup_printf("%s.%s", object_data->entity_file, object_data->entity_language );
 		Meg_ComboText_AppendText( GTK_COMBO_BOX(combo_file), entity_file );
 	}
+
 	Meg_ComboFile_Scan( combo_file, "/scripts/", ".mps", TRUE, 0 );
 	Meg_ComboFile_Scan( combo_file, "/scripts/", ".lua", FALSE, 0 );
 	Meg_ComboFile_Scan( combo_file, "/scripts/", ".js", FALSE, 0 );
 	Meg_ComboFile_Scan( combo_file, "/scripts/", ".sq", FALSE, 0 );
 
-	/* Options Treeview settings */
-	if ( g_hash_table_size(object_data->settings) )
-	{
-		g_object_set_data( G_OBJECT(runtime_box), "table-y", GUINT_TO_POINTER(0) );
-		g_hash_table_foreach( object_data->settings, (GHFunc)EntityOption_CreateWidget, runtime_box );
-		g_hash_table_foreach( object_data->settings, (GHFunc)EntityOption_AttachWidget, runtime_box );
-	}
 
-	g_object_set_data( G_OBJECT(runtime_box), "runtime-hashtable", object_data->settings);
-	g_signal_connect(add_button, "clicked", (GCallback)EntityOption_AddOption, runtime_box );
+	g_object_set_data( G_OBJECT(box_settings), "object_data", object_data);
+
+	/* Options Treeview settings */
+	ObjectAdvance_UpdateEntitySettings(box_settings, object_data);
+
+	g_signal_connect(button_add, "clicked", (GCallback)EntitySettings_AddOption, box_settings );
+	g_signal_connect(button_reset, "clicked", (GCallback)bjectAdvance_ResetEntitySettings, box_settings );
 
 	g_free(entity_file);
 
@@ -232,7 +276,7 @@ void ObjectAdvance_EntityWidget_Save( GtkWidget * parent, DisplayObject * object
 		{
 			REPLACE_STRING( object_data->entity_file, g_strdup(file[0]) );
 			REPLACE_STRING( object_data->entity_language, g_strdup(file[1]) );
-			EntityOption_SetDefaultValues( object );
+			EntitySettings_SetDefaultValues( object_data );
 		}
 		g_strfreev( file );
 
@@ -257,7 +301,7 @@ void ObjectAdvance_EntityWidget_Save( GtkWidget * parent, DisplayObject * object
 	g_free(entity);
 
 
-	g_hash_table_foreach( object_data->settings, (GHFunc)EntityOption_SaveWidget_Foreach, NULL );
+	g_hash_table_foreach( object_data->settings, (GHFunc)EntitySettings_SaveWidget_Foreach, NULL );
 }
 
 
@@ -270,7 +314,7 @@ gboolean ObjectAdvance_Shape( DisplayObject * object, GtkWindow * window )
 	g_return_val_if_fail( object, FALSE );
 
 	MapObjectData * object_data = MAP_OBJECT_DATA(object);
-	gint map_width = 320, map_height = 240;
+	//gint map_width = 320, map_height = 240;
 	gint result = 0;
 
 	/* UI */
@@ -291,11 +335,11 @@ gboolean ObjectAdvance_Shape( DisplayObject * object, GtkWindow * window )
 	spin_h = GET_SPIN_WIDGET( ui, "spin_h");
 
 	/* Get Map Dimension */
-	if ( object_data->parent )
-	{
-		map_width = object_data->parent->width;
-		map_height = object_data->parent->height;
-	}
+//	if ( object_data->parent )
+//	{
+//		map_width = object_data->parent->width;
+//		map_height = object_data->parent->height;
+//	}
 
 	/* Set Default Value */
 	Meg_Misc_SetLabel_Print( label, "<b>Edit Shape Object</b>\n%s (%d)", object_data->name, object->id );
@@ -464,7 +508,7 @@ gboolean ObjectAdvance_Line( DisplayObject * object, GtkWindow * window )
 	g_return_val_if_fail( object, FALSE );
 
 	MapObjectData * object_data = MAP_OBJECT_DATA(object);
-	gint map_width = 320, map_height = 240;
+//	gint map_width = 320, map_height = 240;
 	gint result = 0;
 
 	/* UI */
@@ -484,11 +528,11 @@ gboolean ObjectAdvance_Line( DisplayObject * object, GtkWindow * window )
 	spin_h = GET_SPIN_WIDGET( ui, "spin_h");
 
 	/* Get Map Dimension */
-	if ( object_data->parent )
-	{
-		map_width = object_data->parent->width;
-		map_height = object_data->parent->height;
-	}
+//	if ( object_data->parent )
+//	{
+//		map_width = object_data->parent->width;
+//		map_height = object_data->parent->height;
+//	}
 
 	/* Set Default Value */
 	Meg_Misc_SetLabel_Print( label, "<b>Edit Line</b>\n%s (%d)", object_data->name, object->id );
@@ -557,7 +601,7 @@ gboolean ObjectAdvance_Text( DisplayObject * object, GtkWindow * window )
 
 
 	MapObjectData * object_data = MAP_OBJECT_DATA(object);
-	gint map_width = 320, map_height = 240;
+//	gint map_width = 320, map_height = 240;
 	gint result = 0;
 
 	gint string_number_value = 0;
@@ -583,14 +627,14 @@ gboolean ObjectAdvance_Text( DisplayObject * object, GtkWindow * window )
 	g_signal_connect( spin_string, "value-changed", G_CALLBACK(ObjectAdvance_Text_Spin), (gpointer)edit_text );
 
 	/* Get Map Dimension */
-	if ( object_data->parent )
-	{
-		map_width = object_data->parent->width;
-		map_height = object_data->parent->height;
-	}
+//	if ( object_data->parent )
+//	{
+//		map_width = object_data->parent->width;
+//		map_height = object_data->parent->height;
+//	}
 
 
-	string_number_value = EntityOption_GetValue( object_data->settings, "text-string" );
+	string_number_value = EntitySettings_GetValue( object_data->settings, "text-string" );
 	strings_total = (gdouble)( Language_Size() ) - 1.0;
 
 	/* Set Default Value */
@@ -644,7 +688,7 @@ gboolean ObjectAdvance_Text( DisplayObject * object, GtkWindow * window )
 			ObjectAdvance_EntityWidget_Save( widget_entity, object );
 
 			g_object_set_data_full( G_OBJECT(edit_text), "old-string", (gchar*)object->data, NULL );
-			EntityOption_UpdateValue( object_data->settings, "text-string", str_value, NULL );
+			EntitySettings_UpdateValue( object_data->settings, "text-string", str_value, NULL );
 
 			if ( str_value != -1 )
 			{

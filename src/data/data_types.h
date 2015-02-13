@@ -128,7 +128,7 @@ Permission is granted to anyone to use this software for any purpose, including 
 		gboolean removable;
 		gboolean deleted;
 		GtkWidget * widget;
-	} EntityOptionStruct;
+	} EntitySettingsStruct;
 
 
 #endif // DATA_TYPES_H

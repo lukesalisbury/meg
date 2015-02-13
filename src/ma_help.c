@@ -128,6 +128,8 @@ GString * Meg_Help_GeneratePage( EditorDatabaseListing * function )
 */
 void Meg_Help_Load( const gchar * file, GtkWidget * textview )
 {
+	g_return_if_fail( textview != NULL );
+
 	if ( g_str_has_prefix(file, "ScriptAPI/") )
 	{
 		EditorDatabaseListing * function = NULL;

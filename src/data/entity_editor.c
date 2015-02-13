@@ -512,6 +512,7 @@ GtkWidget * EntityEditor_New( gchar * file )
 
 
 	/* Open Managed Entity Editor Instead */
+	/*
 	GtkWidget * managed_widget = NULL;
 	gchar * managed_file = g_strconcat( file, ".managed", NULL );
 
@@ -523,7 +524,7 @@ GtkWidget * EntityEditor_New( gchar * file )
 
 	if ( managed_widget )
 		return managed_widget;
-
+	*/
 
 
 	/* Check if External Editor can be used */

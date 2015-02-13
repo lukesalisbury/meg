@@ -895,3 +895,6 @@ meg_pawn/src/pawn4/scvars.c
 meg_pawn/src/pawn4/svnrev.h
 lang_provider.h
 src/lang_provider.h
+src/ma_entitylist.h
+src/ma_entitylist_events.c
+res/ui/entity_target_dialog.gui

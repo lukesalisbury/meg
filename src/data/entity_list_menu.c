@@ -12,6 +12,7 @@ Permission is granted to anyone to use this software for any purpose, including 
 #include "loader_global.h"
 
 /* Required Headers */
+
 #include "loader_functions.h"
 #include "entity_functions.h"
 #include "game_compiler.h"
@@ -117,7 +118,7 @@ void EntityListMenu_SettingsAction(GtkMenuItem * menuitem , GtkTreeView * tree_v
 	gchar * file = EntityListMenu_GetFilePath( tree_view );
 	if ( file )
 	{
-		Entity_Properties( file );
+		Meg_EntityList_Properties( file );
 		g_free( file );
 	}
 }

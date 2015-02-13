@@ -72,7 +72,7 @@ void Meg_MapSettings_Centerview_Set( GtkToggleButton * togglebutton, GtkWidget *
 
 	MapInfo * map_info = gtk_alchera_map_get_info( GTK_ALCHERA_MAP(map_widget) );
 
-	EntityOption_UpdateBoolean( map_info->settings, "centerview", gtk_toggle_button_get_active( togglebutton ), "hidden" );
+	EntitySettings_UpdateBoolean( map_info->settings, "centerview", gtk_toggle_button_get_active( togglebutton ), "hidden" );
 }
 
 /********************************
@@ -87,7 +87,7 @@ void Meg_MapSettings_Independent_Set( GtkToggleButton * togglebutton, GtkWidget 
 
 	MapInfo * map_info = gtk_alchera_map_get_info( GTK_ALCHERA_MAP(map_widget) );
 
-	EntityOption_UpdateBoolean( map_info->settings, "independent", gtk_toggle_button_get_active( togglebutton ), "hidden" );
+	EntitySettings_UpdateBoolean( map_info->settings, "independent", gtk_toggle_button_get_active( togglebutton ), "hidden" );
 }
 
 /********************************
@@ -102,7 +102,7 @@ void Meg_MapSettings_Wrap_Set( GtkComboBox * widget, GtkWidget * map_widget )
 
 	MapInfo * map_info = gtk_alchera_map_get_info( GTK_ALCHERA_MAP(map_widget) );
 
-	EntityOption_UpdateValue( map_info->settings, "wrap", gtk_combo_box_get_active( GTK_COMBO_BOX(widget) ), "hidden" );
+	EntitySettings_UpdateValue( map_info->settings, "wrap", gtk_combo_box_get_active( GTK_COMBO_BOX(widget) ), "hidden" );
 }
 
 
@@ -146,7 +146,7 @@ void Meg_MapSettings_Centerview_Get( GtkToggleButton * togglebutton, GtkWidget *
 	g_return_if_fail( GTK_IS_ALCHERA_MAP(map_widget) );
 
 	MapInfo * map_info = gtk_alchera_map_get_info( GTK_ALCHERA_MAP(map_widget) );
-	gtk_toggle_button_set_active( GTK_TOGGLE_BUTTON(togglebutton), EntityOption_BooleanCheck( map_info->settings, "centerview" ) );
+	gtk_toggle_button_set_active( GTK_TOGGLE_BUTTON(togglebutton), EntitySettings_BooleanCheck( map_info->settings, "centerview" ) );
 }
 
 /********************************
@@ -160,7 +160,7 @@ void Meg_MapSettings_Independent_Get( GtkToggleButton * widget, GtkWidget * map_
 	g_return_if_fail( GTK_IS_ALCHERA_MAP(map_widget) );
 
 	MapInfo * map_info = gtk_alchera_map_get_info( GTK_ALCHERA_MAP(map_widget) );
-	gtk_toggle_button_set_active( GTK_TOGGLE_BUTTON(widget), EntityOption_BooleanCheck( map_info->settings, "independent" )  );
+	gtk_toggle_button_set_active( GTK_TOGGLE_BUTTON(widget), EntitySettings_BooleanCheck( map_info->settings, "independent" )  );
 }
 
 
@@ -175,7 +175,7 @@ void Meg_MapSettings_Wrap_Get(GtkComboBox * widget, GtkWidget *map_widget )
 	g_return_if_fail( GTK_IS_ALCHERA_MAP(map_widget) );
 
 	MapInfo * map_info = gtk_alchera_map_get_info( GTK_ALCHERA_MAP(map_widget) );
-	gtk_combo_box_set_active( GTK_COMBO_BOX(widget), EntityOption_GetValue( map_info->settings, "wrap" ) );
+	gtk_combo_box_set_active( GTK_COMBO_BOX(widget), EntitySettings_GetValue( map_info->settings, "wrap" ) );
 }
 
 

@@ -9,21 +9,10 @@ Permission is granted to anyone to use this software for any purpose, including 
 3. This notice may not be removed or altered from any source distribution.
 ****************************/
 
-#ifndef ENTITY_OPTIONS_PARSER_H
-#define ENTITY_OPTIONS_PARSER_H
 
-#include "loader_global.h"
-
-GHashTable * EntitySettings_Parser_Load( gchar * entity_name );
-gboolean EntitySettings_Parser_Save(gchar * entity_option_file, GHashTable * options );
-
-void EntitySettings_Parser_CreateStore( gchar * key, EntitySettingsStruct * value, GtkListStore * liststore );
-void EntitySettings_Parser_SaveString( gchar * key, EntitySettingsStruct * value, GString * file_content );
-
-#endif
-
-
-
-
-
-
+gboolean Meg_EntityList_Properties( const gchar * file_path );
+void Meg_EntityList_NewDialog( GtkButton * button, GtkTreeView * tree );
+void Meg_EntityList_Menu(GtkWidget * treeview, GtkWidget * entityMenu);
+gboolean Meg_EntityList_MenuClick( GtkWidget * treeview, GdkEventButton *event, gpointer data);
+void Meg_EntityList_Selection( GtkTreeView * tree_view, GtkTreePath * path, GtkTreeViewColumn * column, gpointer user_data );
+void Meg_EntityList_RebuildAll( GtkButton * button, GtkTreeStore * list );

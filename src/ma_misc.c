@@ -216,6 +216,35 @@ void Meg_ComboText_SetIndex( GtkComboBox * widget, gchar * search )
 }
 
 /********************************
+* Meg_ComboText_SetIndex
+* Looks for search in column 0
+*
+*/
+
+void Meg_ComboText_SetIndex_Prefix( GtkComboBox * widget, gchar * name, gchar * ext )
+{
+	GtkTreeModel * model = gtk_combo_box_get_model(widget);
+	GtkTreeIter iter;
+	gchar * search = g_strdup_printf("%s%s", name, ext );
+
+	if ( gtk_tree_model_get_iter_first(model, &iter) )
+	{
+		do {
+			gchar * key = NULL;
+			gtk_tree_model_get(model, &iter, 0, &key, -1);
+			if ( key && search )
+			{
+				if ( g_str_has_prefix(key, search) )
+				{
+					gtk_combo_box_set_active_iter( widget, &iter );
+				}
+			}
+		} while ( gtk_tree_model_iter_next( model, &iter ) );
+	}
+}
+
+
+/********************************
 * Meg_ComboText_Clear
 * Design to replace gtk_combo_box_append_text
 *

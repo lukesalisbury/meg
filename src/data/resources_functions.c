@@ -376,7 +376,7 @@ DisplayObject * MapObject_New( gchar * name, gdouble area_width, gdouble area_he
 
 	if ( object_data->type == 't' )
 	{
-		EntityOption_InsertNew( object_data->settings, "text-string", "-1", "hidden" );
+		EntitySettings_InsertNew( object_data->settings, "text-string", "-1", "hidden" );
 	}
 	else if ( object_data->type == 's' )
 	{
@@ -393,7 +393,7 @@ DisplayObject * MapObject_New( gchar * name, gdouble area_width, gdouble area_he
 			}
 			g_strfreev( file );
 
-			EntityOption_SetDefaultValues( object );
+			EntitySettings_SetDefaultValues( object_data );
 		}
 
 	}

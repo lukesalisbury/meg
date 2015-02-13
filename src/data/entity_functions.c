@@ -28,7 +28,7 @@ Permission is granted to anyone to use this software for any purpose, including 
 /* Local Type */
 
 /* External Functions */
-gboolean EntityOptionEditor_Open( gchar * entity_name );
+gboolean EntitySettings_Editor_Open( gchar * entity_name );
 gboolean ManagedEntity_New(gchar * filename, gchar * image_text);
 
 time_t physfs_file_get_date( gchar * file );
@@ -40,12 +40,9 @@ extern GtkWidget * mokoiEntityMenu;
 extern GtkWidget * mokoiEntityMainLabel;
 
 /* Local Variables */
-gchar * mokoiScriptLoaded = NULL;
 gchar * mokoiScriptBlankEntity = "/* Init function is the call before anything else */\npublic Init(...)\n{\n\t\n}\n\n/* Close function when it is deleted' */\npublic Close()\n{\n\t\n}\n\nmain()\n{\n\t\n}\n";
-GtkWidget * mokoiEntityEditor = NULL;
 
 /* UI */
-
 const gchar * mokoiUI_EntityAdd = GUI_ENTITY_ADD;
 
 
@@ -156,29 +153,6 @@ gboolean Entity_Remove( gchar * filename )
 	return FALSE;
 }
 
-/********************************
-* Entity_Properties
-*
-@ filename:
-*/
-gboolean Entity_Properties( const gchar * file_path )
-{
-	gboolean successful;
-	gchar * file_name = NULL;
-	gchar * entity_name = NULL;
-
-	file_name = g_path_get_basename( file_path );
-	entity_name = STRIP_FILE_EXTENSION( file_name, 4 );
-
-	successful = EntityOptionEditor_Open( entity_name );
-
-
-	g_free( file_name );
-	g_free( entity_name );
-
-	return successful;
-}
-
 
 /********************************
 * EntityCombo_Properties_Show
@@ -198,7 +172,7 @@ gboolean EntityCombo_Properties_Show( GtkButton * button, GtkComboBox * combo )
 	if ( filename )
 	{
 		file_path = g_strdup_printf( "/scripts/%s", filename );
-		return Entity_Properties( file_path );
+		return Meg_EntityList_Properties( file_path );
 	}
 	return FALSE;
 }
@@ -235,61 +209,6 @@ void Entity_NewDialog( GtkButton * button, GtkTreeView * tree )
 }
 
 
-/********************************
-* Entity_UpdateMain
-* Updates Label for Main Entity
-*/
-void EntityList_UpdateMain()
-{
-	time_t source = physfs_file_get_date( "/scripts/main.mps" );
-	time_t script = physfs_file_get_date( "/c/scripts/main.amx" );
-	gboolean latest = ( script >= source );
-
-	gchar * markup = g_markup_printf_escaped( "<span color=\"%s\">%s</span>", (latest ? "green" : "red"), (latest ? "compiled" : "outdated") );
-	gtk_label_set_markup( GTK_LABEL(mokoiEntityMainLabel), markup );
-	g_free( markup );
-
-}
-
-
-/********************************
-* EntityList_Menu
-* Event: Right click on Entity List
-*
-*/
-void EntityList_Menu(GtkWidget * treeview, gpointer data)
-{
-	gtk_widget_show_all( mokoiEntityMenu );
-	gtk_menu_popup( GTK_MENU(mokoiEntityMenu), NULL, treeview, NULL, NULL, 3, gtk_get_current_event_time() );
-}
-
-
-/********************************
-* Event:
-* Result:
-*/
-gboolean EntityList_MenuClick( GtkWidget *treeview, GdkEventButton *event, gpointer data)
-{
-	GtkTreeSelection *selection;
-	if ( event->type == GDK_BUTTON_PRESS && event->button == 3 )
-	{
-		selection = gtk_tree_view_get_selection(GTK_TREE_VIEW(treeview));
-		if ( gtk_tree_selection_count_selected_rows(selection) <= 1 )
-		{
-			GtkTreePath *path;
-			if ( gtk_tree_view_get_path_at_pos(GTK_TREE_VIEW(treeview), (gint) event->x, (gint) event->y, &path, NULL, NULL, NULL) )
-			{
-				gtk_tree_selection_unselect_all(selection);
-				gtk_tree_selection_select_path(selection, path);
-				gtk_tree_path_free(path);
-			}
-		}
-		EntityList_Menu(treeview, NULL);
-		return TRUE;
-	}
-
-	return FALSE;
-}
 
 
 /********************************

@@ -501,7 +501,7 @@ void help_parser_start_element( GMarkupParseContext * context, const gchar *elem
  */
 void help_parser_text( GMarkupParseContext *context, const gchar * text, gsize text_len, gpointer user_data, GError **error )
 {
-	HelpStyle * current_style = (HelpStyle*)helpStylesList->data;
+	HelpStyle * current_style = (HelpStyle*)g_slist_nth_data(helpStylesList, 0);
 
 	if ( text_len )
 	{

@@ -61,7 +61,7 @@ void MapObject_SetDefaultSettingOptions( MapObjectData * object_data )
 		case 's':
 			break;
 		case 't':
-			EntityOption_InsertNew( object_data->settings, "text-string", "-1", "hidden" );
+			EntitySettings_InsertNew( object_data->settings, "text-string", "-1", "hidden" );
 			break;
 		case 'l':
 			break;
@@ -186,7 +186,7 @@ void map_parse_handler_start_settings( GMarkupParseContext *context, const gchar
 		gchar * key = NULL, *value = NULL, *type = NULL;
 		for (; *attribute_names && *attribute_values; attribute_names++, attribute_values++)
 		{
-			if ( g_ascii_strcasecmp(*attribute_names, "key") == 0 )
+			if ( g_ascii_strcasecmp(*attribute_names, "name") == 0 )
 				key = g_strdup(*attribute_values);
 			else if ( g_ascii_strcasecmp(*attribute_names, "value") == 0 )
 				value = g_strdup(*attribute_values);
@@ -197,9 +197,9 @@ void map_parse_handler_start_settings( GMarkupParseContext *context, const gchar
 		if ( key && value )
 		{
 			if ( g_ascii_strcasecmp( value, "(null)" ) )
-				g_hash_table_insert( map_info->settings, (gpointer)key, EntityOption_New(value, type) );
+				g_hash_table_insert( map_info->settings, (gpointer)key, EntitySettings_New(value, type) );
 			else
-				g_hash_table_insert( map_info->settings, (gpointer)key, EntityOption_New("", type) );
+				g_hash_table_insert( map_info->settings, (gpointer)key, EntitySettings_New("", type) );
 		}
 
 	}
@@ -365,7 +365,7 @@ void map_parse_handler_start_object_element( GMarkupParseContext *context, const
 				}
 				else
 				{
-					EntityOption_Update( MAP_OBJECT_DATA(object_display)->settings, key, (g_ascii_strcasecmp( value, "(null)" ) == 0 ? "" : value), type );
+					EntitySettings_Update( MAP_OBJECT_DATA(object_display)->settings, key, (g_ascii_strcasecmp( value, "(null)" ) == 0 ? "" : value), type );
 				}
 			}
 		}
@@ -436,7 +436,7 @@ void map_parse_handler_start_root_element( GMarkupParseContext *context, const g
 				else if ( g_ascii_strcasecmp(*attribute_names, "id") == 0 )
 					object_data->object_name = g_strdup(*attribute_values);
 				else if ( g_ascii_strcasecmp(*attribute_names, "parent") == 0 || g_ascii_strcasecmp(*attribute_names, "global") == 0 )
-					EntityOption_InsertNew( object_data->settings, *attribute_names, *attribute_values, "hidden" );
+					EntitySettings_InsertNew( object_data->settings, *attribute_names, *attribute_values, "hidden" );
 			}
 
 			object_display = Alchera_DisplayObject_New(object_data, &MapObjectData_FreePointer);

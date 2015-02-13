@@ -20,8 +20,6 @@ PLATFORM_FLAGS += -DGAME_EXTENSION="\"quest\""
 PLATFORM_FLAGS += -DENGINE_FILENAME="\"openzelda$(BINEXT)\""
 PLATFORM_FLAGS += -DPACKAGE_URL="\"http://openzelda.net/userpackages/1.9.0\""
 
-PLATFORM_FLAGS += -DPROGRAMSHELPDIRECTORY="\"QuestDesigner\""
-
 #PLATFORM_FLAGS += -DQ2A_URL="\"http://openzelda.net/qa/xml-rpc\""
 
 PLATFORM_FLAGS += -DCUSTOMSETTINGS

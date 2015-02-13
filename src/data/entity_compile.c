@@ -497,7 +497,7 @@ gint Entity_Count( )
 * Entity_RebuildAll
 *
 */
-void Entity_RebuildAll( GtkButton * button, GtkTreeStore * list )
+void Entity_RebuildAll( )
 {
 	ProgressDialog_Clear( &mokoiEntityRebuild );
 	if ( ProgressDialog_Create( &mokoiEntityRebuild, "Rebuilding Entities", NULL) )

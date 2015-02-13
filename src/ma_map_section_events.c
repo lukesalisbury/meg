@@ -37,7 +37,7 @@ gboolean Meg_MapSection_LayoutPressed( GtkWidget * widget, GdkEventButton * even
 	gchar * new_id = NULL;
 	guint32 section_id = GPOINTER_TO_UINT( g_object_get_data( G_OBJECT(window), "alchera-section-id" ) );
 
-	new_id = AL_MapSection_Pressed( section_id, Meg_Main_GetWindow(window), (guint)event->x, (guint)event->y, event->button, event->type );
+	new_id = AL_MapSection_Pressed( section_id, Meg_Main_GetWindow(), (guint)event->x, (guint)event->y, event->button, event->type );
 
 	if ( new_id )
 	{
@@ -65,7 +65,7 @@ void Meg_MapSection_ComboType( GtkComboBox * combo, GtkWidget * window )
 		GtkTreeModel * store = gtk_combo_box_get_model( GTK_COMBO_BOX(combo) );
 		gtk_tree_model_get(store, &iter, 0, &value, -1 );
 
-		AL_MapSection_Type(section_id, &value, Meg_Main_GetWindow(window) );
+		AL_MapSection_Type(section_id, &value, Meg_Main_GetWindow() );
 	}
 }
 
@@ -133,7 +133,7 @@ void Meg_MapSection_ButtonSave( GtkButton * button, GtkWidget * window  )
 	gchar * section_name;
 	gint result = 0;
 	GtkWidget * dialog;
-	GtkWindow * parent_window = Meg_Main_GetWindow( window );
+	GtkWindow * parent_window = Meg_Main_GetWindow( );
 
 	section_name = (gchar*)g_object_get_data( G_OBJECT(window), "alchera-section-name" );
 

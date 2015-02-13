@@ -139,7 +139,7 @@ gboolean Map_Open( gchar * file, MapInfo * map_info )
 	thumbnail_file = g_strdup_printf( "/maps/thumbs/%s.png", file );
 
 	map_info->name = g_strdup( file );
-	map_info->settings = EntityOptionParser_Load( runtime_file );
+	map_info->settings = EntitySettings_Parser_Load( runtime_file );
 
 	map_info->data = g_new0(MapData, 1);
 	MAP_DATA(map_info)->position = (GdkRectangle){0,0,1,1};
@@ -221,7 +221,7 @@ gboolean Map_Copy( gchar * file, gchar * content )
 @ value:
 @ content:
 */
-void Map_Setting_Foreach( gchar* key, EntityOptionStruct * value, GString * content )
+void Map_Setting_Foreach( gchar* key, EntitySettingsStruct * value, GString * content )
 {
 	if ( value )
 	{
@@ -264,6 +264,21 @@ void Map_Setting_Foreach( gchar* key, EntityOptionStruct * value, GString * cont
 				g_string_append_printf( content, "\t<setting key=\"%s\" value=\"%s\" />\n", (gchar*)key, value_str );
 			}
 		}
+
+
+		if ( value->internal_type == ENTITYOPTION_TARGET && value->value)
+		{
+			gchar ** f = g_strsplit(value->value, ":", 3);
+			if ( g_strv_length(f) == 3 )
+			{
+				g_string_append_printf( content, "\t<setting key=\"%s.world\" value=\"%s\" />\n", key, f[0] );
+				g_string_append_printf( content, "\t<setting key=\"%s.grid\" value=\"%s\" />\n", key, f[1] );
+				g_string_append_printf( content, "\t<setting key=\"%s.entity\" value=\"%s\" />\n", key, f[2] );
+
+			}
+			g_strfreev(f);
+		}
+
 		g_free( value_str );
 	}
 }
@@ -378,7 +393,7 @@ gboolean Map_Save( MapInfo * map_info )
 	g_string_append_printf( map_xml, "\t<dimensions width=\"%d\" height=\"%d\" />\n",  map_data->position.width, map_data->position.height);
 	g_string_append_printf( map_xml, "\t<color red=\"%d\" blue=\"%d\" green=\"%d\" mode=\"0\" />\n", map_data->colour8.red, map_data->colour8.blue, map_data->colour8.green);
 
-	g_hash_table_foreach(map_info->settings, (GHFunc)EntityOptionParser_SaveString, (gpointer)map_xml);
+	g_hash_table_foreach(map_info->settings, (GHFunc)EntitySettings_Parser_SaveString, (gpointer)map_xml);
 
 	g_string_append_printf( map_xml, "</settings>\n");
 
@@ -527,8 +542,8 @@ gboolean Map_SetStartingPoint( )
 void Map_GetOptions( MapInfo * map_info )
 {
 	/* Load Default Settings */
-	GHashTable * default_settings = EntityOptionParser_Load( "/map.options" );
-	g_hash_table_foreach( default_settings, (GHFunc)EntityOption_Append, (gpointer)map_info->settings );
+	GHashTable * default_settings = EntitySettings_Parser_Load( "/map.options" );
+	g_hash_table_foreach( default_settings, (GHFunc)EntitySettings_Append, (gpointer)map_info->settings );
 	g_hash_table_remove_all( default_settings );
 }
 
