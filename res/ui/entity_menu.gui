@@ -14,7 +14,8 @@
     <property name="icon_name">GTK_STOCK_DELETE</property>
   </object>
   <object class="GtkAction" id="menu_settings">
-	<property name="label">Options</property>
+    <property name="label">Entity Settings</property>
+    <property name="short_label" translatable="yes">Settings</property>
   </object>
   <object class="GtkMenu" id="object_menu">
     <property name="can_focus">False</property>
@@ -41,7 +42,6 @@
     </child>
     <child>
       <object class="GtkSeparatorMenuItem" id="menuitem4">
-        <property name="use_action_appearance">False</property>
         <property name="visible">True</property>
         <property name="can_focus">False</property>
       </object>

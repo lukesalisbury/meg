@@ -51,7 +51,9 @@ OBJ += $(OBJDIR)/ma_misc.o $(OBJDIR)/ma_project.o $(OBJDIR)/ma_project_events.o 
 OBJ += $(OBJDIR)/ma_spritesheets_events.o $(OBJDIR)/ma_git.o $(OBJDIR)/ma_textedit.o $(OBJDIR)/ma_textedit_events.o
 OBJ += $(OBJDIR)/ma_web.o $(OBJDIR)/main.o $(OBJDIR)/ma_audio.o $(OBJDIR)/ma_entitylist.o $(OBJDIR)/ma_entitylist_events.o
 OBJ += $(OBJDIR)/ma_question.o $(OBJDIR)/ma_question_functions.o $(OBJDIR)/ma_map_settings.o $(OBJDIR)/gtk_compat.o
-OBJ += $(OBJDIR)/ma_map_settings_events.o $(OBJDIR)/ma_section.o $(OBJDIR)/ma_section_events.o $(OBJDIR)/ma_types.o $(OBJDIR)/lang_provider.o
+OBJ += $(OBJDIR)/ma_map_settings_events.o $(OBJDIR)/ma_section.o $(OBJDIR)/ma_section_events.o $(OBJDIR)/ma_types.o
+OBJ += $(OBJDIR)/ma_player.o $(OBJDIR)/lang_provider.o
+
 
 OBJ += $(OBJDIR)/ma_web_curl.o $(OBJDIR)/ma_web_soup.o $(OBJDIR)/ma_web_none.o
 

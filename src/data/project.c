@@ -130,7 +130,9 @@ gboolean MegProject_Play()
 	working_directory = Meg_Directory();
 	#endif
 	Meg_Log_Print( LOG_NONE, "Running %s %s", argv[0], argv[1]);
-    g_spawn_sync( working_directory, argv, play_environment_settings, G_SPAWN_SEARCH_PATH, NULL, NULL, &output, &errors, &err_code, &mokoiError);
+	//g_spawn_sync( working_directory, argv, play_environment_settings, G_SPAWN_SEARCH_PATH, NULL, NULL, &output, &errors, &err_code, &mokoiError);
+	g_spawn_async( working_directory, argv, play_environment_settings, G_SPAWN_SEARCH_PATH, NULL, NULL, NULL, &mokoiError);
+
 
 
 	if ( mokoiError )

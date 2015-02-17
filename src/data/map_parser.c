@@ -340,7 +340,7 @@ void map_parse_handler_start_object_element( GMarkupParseContext *context, const
 					type = *attribute_values;
 			}
 
-			if ( key && value )
+			if ( key && value && type)
 			{
 				if ( !g_ascii_strcasecmp( key, "id" ) )
 				{

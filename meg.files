@@ -898,3 +898,5 @@ src/lang_provider.h
 src/ma_entitylist.h
 src/ma_entitylist_events.c
 res/ui/entity_target_dialog.gui
+src/ma_player.h
+src/ma_player.c

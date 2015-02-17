@@ -88,7 +88,7 @@ gboolean Meg_Loaders_Init( gchar * project_path )
 		MegWidget_Audio_Init();
 		MegWidget_Questions_Init();
 		MegWidget_Help_Init();
-
+		MegWidget_Player_Init();
 		/* Switch to project info widget */
 		default_item = gtk_toolbar_get_nth_item( GTK_TOOLBAR(alchera_main_toolbar), 0 );
 		gtk_toggle_tool_button_set_active( GTK_TOGGLE_TOOL_BUTTON(default_item), TRUE );
@@ -144,6 +144,7 @@ gboolean Meg_Loaders_Close(  )
 		MegWidget_EntityList_Close();
 		MegWidget_Audio_Close();
 		MegWidget_Questions_Close();
+		MegWidget_Player_Close();
 
 		AL_CloseProject( );
 

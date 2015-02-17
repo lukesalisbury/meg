@@ -15,6 +15,7 @@ Permission is granted to anyone to use this software for any purpose, including 
 #include "widgets/cursors.h"
 #include "ma_web.h"
 #include "ma_widgets.h"
+#include "ma_player.h"
 
 #if (GTK_MAJOR_VERSION == 2)
 #include "gdkkeysyms-backward.h"
@@ -36,9 +37,11 @@ GtkWidget * meg_main_empty = NULL;
 /* Global Variables */
 extern gchar * project_file_path;
 
+
 /* Local Variables */
 GtkTextTag * alchera_log_bold, * alchera_log_error, * alchera_log_fine;
 GtkToggleToolButton * main_active_toolbutton = NULL;
+PlayerInfo player_info;
 
 const GtkTargetEntry meg_window_drop_targets = { "text/uri-list", GTK_TARGET_OTHER_APP, 1 };
 
@@ -190,6 +193,8 @@ gboolean Meg_Main_Init()
 	g_timer_start(yimer);
 	GError * error = NULL;
 
+	GtkWidget *area_player, * button_playgame, * button_pause, * button_refresh;
+
 	GtkAccelGroup * accel_group = NULL;
 
 	GtkBuilder * ui = gtk_builder_new();
@@ -205,6 +210,12 @@ gboolean Meg_Main_Init()
 	alchera_main_statusbar = GET_WIDGET(ui, "alchera_main_statusbar");
 	alchera_main_textlog = GET_WIDGET(ui, "alchera_main_textlog");
 	meg_main_empty = GET_WIDGET(ui, "meg_empty_label");
+
+	player_info.widget = GET_WIDGET( ui, "area_player" );
+
+	button_playgame = GET_WIDGET( ui, "button_play" );
+	button_pause = GET_WIDGET( ui, "button_pause" );
+	button_refresh = GET_WIDGET( ui, "button_refresh" );
 
 #ifdef apple
 	/* OS X Global menu */
@@ -238,7 +249,9 @@ gboolean Meg_Main_Init()
 
 	SET_MENU_SIGNAL(ui, "action_package_update", G_CALLBACK(Meg_Event_PackageCheck) );
 
-
+	g_signal_connect( button_playgame, "clicked", G_CALLBACK(MegWidget_Player_Play), &player_info );
+	g_signal_connect( button_pause, "clicked", G_CALLBACK(MegWidget_Player_Pause), &player_info );
+	g_signal_connect( button_refresh, "clicked", G_CALLBACK(MegWidget_Player_Refresh), &player_info );
 
 	accel_group = gtk_accel_group_new();
 	gtk_window_add_accel_group( GTK_WINDOW(alchera_main_window), accel_group);
@@ -264,7 +277,7 @@ gboolean Meg_Main_Init()
 	Funclist_Scan( );
 
 	/* Tab pages */
-
+	MegWidget_Player_Create();
 	Meg_Main_AddSection( GET_WIDGET(ui, "scrolledwindow3"), "Log", PAGE_ICON_LOG );
 	MegWidget_Questions_Create();
 	MegWidget_Help_Create();

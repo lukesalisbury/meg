@@ -36,6 +36,9 @@ void MegWidget_Spritesheet_Init();
 void MegWidget_Spritesheet_Close();
 void MegWidget_Spritesheet_Import(gchar * filename);
 
+void MegWidget_Player_Create();
+void MegWidget_Player_Init();
+void MegWidget_Player_Close();
 
 
 
