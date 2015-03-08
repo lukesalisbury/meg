@@ -365,6 +365,8 @@ void sheet_xml_start_element(GMarkupParseContext * context, const gchar * elemen
 					frame->offset.y = g_ascii_strtod(*attribute_values, NULL);
 				else if ( !g_ascii_strcasecmp(*attribute_names, "ms") )
 					frame->length_ms = g_ascii_strtod(*attribute_values, NULL);
+				else if ( !g_ascii_strcasecmp(*attribute_names, "f") )
+					frame->f = g_ascii_strtod(*attribute_values, NULL);
 			}
 			SPRITE_DATA(sheet_xml_sprite)->animation->frames = g_slist_append(SPRITE_DATA(sheet_xml_sprite)->animation->frames, frame);
 		}

@@ -161,20 +161,21 @@ void MegWidget_Player_Pause(GtkWidget *button, PlayerInfo *player_info)
 {
 	gtk_widget_grab_focus( player_info->widget );
 	gtk_widget_grab_default( player_info->widget );
+	/*
 	gdk_event_handler_set(player_event_handler_func, NULL, NULL);
+
 	#ifdef G_OS_WIN32
-	SendMessage( player_info->winId, WM_KEYDOWN, VK_RIGHT, 0x014F0000 );
-	SendMessage( player_info->winId, WM_KEYUP, VK_RIGHT, 0x014F0001 );
+	SendMessage( player_info->winId, WM_KEYDOWN, VK_F4, 0x014F0000 );
+	SendMessage( player_info->winId, WM_KEYUP, VK_F4, 0x014F0001 );
 	PostMessage( player_info->winId, WM_KEYDOWN, VK_RIGHT, 0x014F0000 );
 	PostMessage( player_info->winId, WM_KEYUP, VK_RIGHT, 0x014F0001 );
 
-	PostMessage( player_info->winId, WM_KEYDOWN, VK_F1, 0x014F0000 );
-	PostMessage( player_info->winId, WM_KEYUP, VK_F1, 0x014F0001 );
-
+	PostMessage( player_info->winId, WM_KEYDOWN, VK_F4, 0x014F0000 );
+	PostMessage( player_info->winId, WM_KEYUP, VK_F4, 0x014F0001 );
 	#endif
 
 	gdk_event_handler_set(event_handler_func, NULL, NULL);
-
+	*/
 }
 
 void MegWidget_Player_Refresh( GtkWidget *button, PlayerInfo *player_info )

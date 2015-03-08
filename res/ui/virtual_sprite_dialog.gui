@@ -2,11 +2,6 @@
 <interface>
   <requires lib="gtk+" version="2.20"/>
   <!-- interface-naming-policy toplevel-contextual -->
-  <object class="GtkImage" id="image_prev1">
-    <property name="visible">True</property>
-    <property name="can_focus">False</property>
-    <property name="stock">gtk-media-previous</property>
-  </object>
   <object class="GtkImage" id="image_next1">
     <property name="visible">True</property>
     <property name="can_focus">False</property>
@@ -17,22 +12,37 @@
     <property name="can_focus">False</property>
     <property name="stock">gtk-media-next</property>
   </object>
+  <object class="GtkImage" id="image_next3">
+    <property name="visible">True</property>
+    <property name="can_focus">False</property>
+    <property name="stock">gtk-media-next</property>
+  </object>
+  <object class="GtkImage" id="image_prev1">
+    <property name="visible">True</property>
+    <property name="can_focus">False</property>
+    <property name="stock">gtk-media-previous</property>
+  </object>
   <object class="GtkImage" id="image_prev2">
+    <property name="visible">True</property>
+    <property name="can_focus">False</property>
+    <property name="stock">gtk-media-previous</property>
+  </object>
+  <object class="GtkImage" id="image_prev3">
     <property name="visible">True</property>
     <property name="can_focus">False</property>
     <property name="stock">gtk-media-previous</property>
   </object>
   <object class="GtkListStore" id="store_current_objects">
     <columns>
-      <!-- column-name guint1 -->
+      <!-- column-name ID -->
       <column type="guint"/>
-      <!-- column-name gchararray1 -->
+      <!-- column-name Name -->
       <column type="gchararray"/>
-      <!-- column-name gdouble1 -->
-      <column type="gdouble"/>
-      <!-- column-name gdouble2 -->
-      <column type="gdouble"/>
-      <!-- column-name guint2 -->
+      <!-- column-name X -->
+      <column type="guint"/>
+      <!-- column-name Y -->
+      <column type="guint"/>
+      <!-- column-name Z -->
       <column type="guint"/>
     </columns>
     <data>
@@ -90,6 +100,9 @@
     <property name="visible">True</property>
     <property name="can_focus">False</property>
     <property name="border_width">5</property>
+    <property name="title" translatable="yes">Virtual Sprite</property>
+    <property name="modal">True</property>
+    <property name="window_position">center-on-parent</property>
     <property name="type_hint">dialog</property>
     <child internal-child="vbox">
       <object class="GtkVBox" id="dialog-vbox1">
@@ -107,7 +120,6 @@
                 <property name="xpad">4</property>
                 <property name="ypad">4</property>
                 <property name="stock">gtk-color-picker</property>
-                
               </object>
               <packing>
                 <property name="expand">False</property>
@@ -219,106 +231,114 @@
           </packing>
         </child>
         <child>
-          <object class="GtkHBox" id="hbox1">
+          <object class="GtkHPaned" id="hpaned1">
             <property name="visible">True</property>
-            <property name="can_focus">False</property>
+            <property name="can_focus">True</property>
             <child>
-              <object class="GtkScrolledWindow" id="scrolledwindow2">
+              <object class="GtkVPaned" id="vpaned1">
                 <property name="visible">True</property>
                 <property name="can_focus">True</property>
-                <property name="hscrollbar_policy">automatic</property>
-                <property name="vscrollbar_policy">automatic</property>
                 <child>
-                  <object class="GtkTreeView" id="treeview_objects">
+                  <object class="GtkScrolledWindow" id="scrolledwindow1">
                     <property name="visible">True</property>
                     <property name="can_focus">True</property>
-                    <property name="model">store_current_objects</property>
-                    <property name="headers_clickable">False</property>
-                    <property name="search_column">0</property>
+                    <property name="hscrollbar_policy">automatic</property>
+                    <property name="vscrollbar_policy">automatic</property>
                     <child>
-                      <object class="GtkTreeViewColumn" id="treeviewcolumn2">
-                        <property name="title">ID</property>
+                      <object class="GtkViewport" id="editor_viewport">
+                        <property name="visible">True</property>
+                        <property name="can_focus">False</property>
                         <child>
-                          <object class="GtkCellRendererText" id="cellrenderertext5"/>
-                          <attributes>
-                            <attribute name="text">0</attribute>
-                          </attributes>
-                        </child>
-                      </object>
-                    </child>
-                    <child>
-                      <object class="GtkTreeViewColumn" id="treeviewcolumn1">
-                        <property name="title">Type</property>
-                        <child>
-                          <object class="GtkCellRendererText" id="cellrenderertext4"/>
-                          <attributes>
-                            <attribute name="text">1</attribute>
-                          </attributes>
-                        </child>
-                      </object>
-                    </child>
-                    <child>
-                      <object class="GtkTreeViewColumn" id="treeviewcolumn3">
-                        <property name="title">X</property>
-                        <child>
-                          <object class="GtkCellRendererText" id="cellrenderertext6"/>
-                          <attributes>
-                            <attribute name="text">2</attribute>
-                          </attributes>
-                        </child>
-                      </object>
-                    </child>
-                    <child>
-                      <object class="GtkTreeViewColumn" id="treeviewcolumn4">
-                        <property name="title">Y</property>
-                        <child>
-                          <object class="GtkCellRendererText" id="cellrenderertext7"/>
-                          <attributes>
-                            <attribute name="text">3</attribute>
-                          </attributes>
-                        </child>
-                      </object>
-                    </child>
-                    <child>
-                      <object class="GtkTreeViewColumn" id="treeviewcolumn5">
-                        <property name="title">Z</property>
-                        <child>
-                          <object class="GtkCellRendererText" id="cellrenderertext8"/>
-                          <attributes>
-                            <attribute name="text">4</attribute>
-                          </attributes>
+                          <placeholder/>
                         </child>
                       </object>
                     </child>
                   </object>
+                  <packing>
+                    <property name="resize">False</property>
+                    <property name="shrink">False</property>
+                  </packing>
                 </child>
-              </object>
-              <packing>
-                <property name="expand">True</property>
-                <property name="fill">True</property>
-                <property name="position">0</property>
-              </packing>
-            </child>
-            <child>
-              <object class="GtkScrolledWindow" id="scrolledwindow1">
-                <property name="visible">True</property>
-                <property name="can_focus">True</property>
-                <property name="hscrollbar_policy">automatic</property>
-                <property name="vscrollbar_policy">automatic</property>
                 <child>
-                  <object class="GtkViewport" id="editor_viewport">
+                  <object class="GtkScrolledWindow" id="scrolledwindow2">
                     <property name="visible">True</property>
-                    <property name="can_focus">False</property>
+                    <property name="can_focus">True</property>
+                    <property name="hscrollbar_policy">automatic</property>
+                    <property name="vscrollbar_policy">automatic</property>
                     <child>
-                      <placeholder/>
+                      <object class="GtkTreeView" id="treeview_objects">
+                        <property name="visible">True</property>
+                        <property name="can_focus">True</property>
+                        <property name="model">store_current_objects</property>
+                        <property name="headers_clickable">False</property>
+                        <property name="search_column">0</property>
+                        <child>
+                          <object class="GtkTreeViewColumn" id="treeviewcolumn2">
+                            <property name="title">ID</property>
+                            <child>
+                              <object class="GtkCellRendererText" id="cellrenderertext5"/>
+                              <attributes>
+                                <attribute name="text">0</attribute>
+                              </attributes>
+                            </child>
+                          </object>
+                        </child>
+                        <child>
+                          <object class="GtkTreeViewColumn" id="treeviewcolumn1">
+                            <property name="title">Type</property>
+                            <child>
+                              <object class="GtkCellRendererText" id="cellrenderertext4"/>
+                              <attributes>
+                                <attribute name="text">1</attribute>
+                              </attributes>
+                            </child>
+                          </object>
+                        </child>
+                        <child>
+                          <object class="GtkTreeViewColumn" id="treeviewcolumn3">
+                            <property name="title">X</property>
+                            <child>
+                              <object class="GtkCellRendererText" id="cellrenderertext6"/>
+                              <attributes>
+                                <attribute name="text">2</attribute>
+                              </attributes>
+                            </child>
+                          </object>
+                        </child>
+                        <child>
+                          <object class="GtkTreeViewColumn" id="treeviewcolumn4">
+                            <property name="title">Y</property>
+                            <child>
+                              <object class="GtkCellRendererText" id="cellrenderertext7"/>
+                              <attributes>
+                                <attribute name="text">3</attribute>
+                              </attributes>
+                            </child>
+                          </object>
+                        </child>
+                        <child>
+                          <object class="GtkTreeViewColumn" id="treeviewcolumn5">
+                            <property name="title">Z</property>
+                            <child>
+                              <object class="GtkCellRendererText" id="cellrenderertext8"/>
+                              <attributes>
+                                <attribute name="text">4</attribute>
+                              </attributes>
+                            </child>
+                          </object>
+                        </child>
+                      </object>
                     </child>
                   </object>
+                  <packing>
+                    <property name="resize">False</property>
+                    <property name="shrink">True</property>
+                  </packing>
                 </child>
               </object>
               <packing>
-                <property name="expand">True</property>
-                <property name="fill">True</property>
-                <property name="position">1</property>
+                <property name="resize">False</property>
+                <property name="shrink">False</property>
               </packing>
             </child>
             <child>
@@ -334,7 +354,7 @@
                         <property name="visible">True</property>
                         <property name="can_focus">True</property>
                         <property name="receives_default">True</property>
-                        <property name="image">image_prev1</property>
+                        <property name="image">image_prev3</property>
                       </object>
                       <packing>
                         <property name="expand">False</property>
@@ -366,7 +386,7 @@
                         <property name="visible">True</property>
                         <property name="can_focus">True</property>
                         <property name="receives_default">True</property>
-                        <property name="image">image_next1</property>
+                        <property name="image">image_next3</property>
                         <property name="image_position">right</property>
                       </object>
                       <packing>
@@ -425,9 +445,8 @@
                 </child>
               </object>
               <packing>
-                <property name="expand">True</property>
-                <property name="fill">True</property>
-                <property name="position">2</property>
+                <property name="resize">False</property>
+                <property name="shrink">True</property>
               </packing>
             </child>
           </object>

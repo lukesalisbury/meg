@@ -28,7 +28,6 @@ Permission is granted to anyone to use this software for any purpose, including 
 /* Local Type */
 
 /* External Functions */
-gboolean EntitySettings_Editor_Open( gchar * entity_name );
 gboolean ManagedEntity_New(gchar * filename, gchar * image_text);
 
 time_t physfs_file_get_date( gchar * file );
@@ -60,7 +59,8 @@ gboolean Entity_New( gchar * filename, gchar * script )
 	g_free( runtime_file );
 	*/
 
-	return Meg_file_set_contents( filename, script, -1, NULL);
+
+	return Meg_file_set_contents( filename, (script == NULL ? mokoiScriptBlankEntity : script), -1, NULL);
 }
 
 /********************************
@@ -172,7 +172,7 @@ gboolean EntityCombo_Properties_Show( GtkButton * button, GtkComboBox * combo )
 	if ( filename )
 	{
 		file_path = g_strdup_printf( "/scripts/%s", filename );
-		return Meg_EntityList_Properties( file_path );
+		return Meg_EntityList_Settings( file_path );
 	}
 	return FALSE;
 }

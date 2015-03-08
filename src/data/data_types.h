@@ -35,6 +35,7 @@ Permission is granted to anyone to use this software for any purpose, including 
 
 	typedef struct {
 		guint length_ms;
+		guint f;
 		GdkPoint offset;
 		gchar * sprite;
 	} AnimationFrame;

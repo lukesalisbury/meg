@@ -506,8 +506,9 @@ GtkWidget * EntityEditor_New( gchar * file )
 
 	if ( !PHYSFS_exists(file) )
 	{
-		g_warning("File doesn't exists: '%s'", (file));
-		return NULL;
+		g_warning("File doesn't exists: '%s'. Creating new Entity", file );
+		Entity_New(file, NULL);
+
 	}
 
 
@@ -538,7 +539,6 @@ GtkWidget * EntityEditor_New( gchar * file )
 
 	if ( use_internal )
 	{
-
 		/* Use inbuild editor */
 		GtkWidget * widget, * text_view, * label, * viewport, * button_save, * button_close, * button_label;
 		GtkTextBuffer * buffer;

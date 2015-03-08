@@ -212,7 +212,7 @@ void Sheet_SaveEachFrame( gpointer data, gpointer user_data )
 	GString * content = (GString *)user_data;
 
 	/* <frame sprite="process_0" x="0" y="0" ms="100"/> */
-	g_string_append_printf( content, "\t\t<frame sprite=\"%s\" x=\"%d\" y=\"%d\" ms=\"%d\"/>\n", value->sprite, value->offset.x, value->offset.y, value->length_ms );
+	g_string_append_printf( content, "\t\t<frame sprite=\"%s\" x=\"%d\" y=\"%d\" ms=\"%d\" fs=\"%d\"/>\n", value->sprite, value->offset.x, value->offset.y, value->length_ms, value->f );
 
 }
 

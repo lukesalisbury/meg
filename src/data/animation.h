@@ -17,6 +17,7 @@ Permission is granted to anyone to use this software for any purpose, including 
 
 typedef struct {
 	guint length_ms;
+	guint flipmode;
 	GdkPoint offset;
 	GdkPixbuf * sprite;
 } AnimationPreviewFrame;

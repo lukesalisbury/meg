@@ -31,10 +31,9 @@ void EntitySettings_Parser_StartHandler( GMarkupParseContext *context, const gch
 
 
 /* Local Variables */
+static GMarkupParser mokoiEntitySettingsParser = {EntitySettings_Parser_StartHandler, NULL, NULL, NULL, NULL};
 
-static GMarkupParser mokoiRuntimeParser = {EntitySettings_Parser_StartHandler, NULL, NULL, NULL, NULL};
-
-
+/* UI */
 const gchar * mokoiUI_EntityOption = GUI_ENTITY_OPTION_EDITOR;
 
 
@@ -152,7 +151,7 @@ GHashTable * EntitySettings_Parser_Load(gchar * file)
 
 	if ( Meg_file_get_contents( file, &file_content, NULL, NULL ) )
 	{
-		ctx = g_markup_parse_context_new(&mokoiRuntimeParser, (GMarkupParseFlags)G_MARKUP_TREAT_CDATA_AS_TEXT, (gpointer)table, NULL);
+		ctx = g_markup_parse_context_new(&mokoiEntitySettingsParser, (GMarkupParseFlags)G_MARKUP_TREAT_CDATA_AS_TEXT, (gpointer)table, NULL);
 
 		if ( !g_markup_parse_context_parse(ctx, file_content, -1, &error) )
 		{
@@ -185,7 +184,8 @@ void EntitySettings_Editor_Menu_Add( GtkWidget * menuitem, GtkWidget *treeview )
 	Meg_ComboText_Setup( combo, TRUE );
 
 	/**/
-	Meg_ComboText_AppendText( GTK_COMBO_BOX(combo), "" );
+	Meg_ComboText_AppendText( GTK_COMBO_BOX(combo), "number" );
+	Meg_ComboText_AppendText( GTK_COMBO_BOX(combo), "string" );
 	Meg_ComboText_AppendText( GTK_COMBO_BOX(combo), "boolean" );
 	Meg_ComboText_AppendText( GTK_COMBO_BOX(combo), "music" );
 	Meg_ComboText_AppendText( GTK_COMBO_BOX(combo), "soundfx" );

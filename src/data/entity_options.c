@@ -63,9 +63,9 @@ guint EntitySettings_Type( const gchar * type )
 	{
 		return ENTITYOPTION_ENTITY;
 	}
-	else if ( !g_ascii_strcasecmp(type, "section") )
+	else if ( !g_ascii_strcasecmp(type, "string") )
 	{
-		return ENTITYOPTION_SECTION;
+		return ENTITYOPTION_STRING;
 	}
 	else if ( !g_ascii_strcasecmp(type, "sectionmap") )
 	{
@@ -432,7 +432,8 @@ void EntitySettings_AddOption( GtkButton * button, GtkWidget * table )
 	Meg_ComboText_Setup( combo, TRUE );
 
 	/**/
-	Meg_ComboText_AppendText( GTK_COMBO_BOX(combo), "" );
+	Meg_ComboText_AppendText( GTK_COMBO_BOX(combo), "number" );
+	Meg_ComboText_AppendText( GTK_COMBO_BOX(combo), "string" );
 	Meg_ComboText_AppendText( GTK_COMBO_BOX(combo), "boolean" );
 	Meg_ComboText_AppendText( GTK_COMBO_BOX(combo), "music" );
 	Meg_ComboText_AppendText( GTK_COMBO_BOX(combo), "soundfx" );
@@ -458,7 +459,7 @@ void EntitySettings_AddOption( GtkButton * button, GtkWidget * table )
 		EntitySettingsStruct * option = EntitySettings_InsertNew( settings, title, "", type );
 
 
-		EntitySettings_CreateWidget( (gchar*)title, option, table );
+		EntitySettings_CreateWidget( (gchar*)title, option, NULL );
 		EntitySettings_AttachWidget( (gchar*)title, option, table );
 
 		gtk_widget_show_all( table );
@@ -492,7 +493,7 @@ void EntitySettings_EditPopup(GtkMenuItem *menuitem, gpointer user_data )
 	const gchar * menu_text = gtk_menu_item_get_label(menuitem);
 
 
-	EntitySettings_CreateWidgetWithSignal( menu_text, option, content_area );
+	EntitySettings_CreateWidgetWithSignal( menu_text, option, NULL );
 	EntitySettings_AttachWidget( menu_text, option, content_area );
 
 	gtk_widget_show_all( content_area );
@@ -673,7 +674,7 @@ void EntitySettings_Target_Dialog( GtkWidget *button, EntitySettingsStruct * opt
 * EntitySettings_CreateWidget
 * Event:
 */
-void EntitySettings_CreateWidget( const gchar * name, EntitySettingsStruct * option, GtkWidget * list )
+void EntitySettings_CreateWidget(const gchar * name, EntitySettingsStruct * option, MapObjectData *object_data )
 {
 	g_return_if_fail( option );
 
@@ -744,11 +745,52 @@ void EntitySettings_CreateWidget( const gchar * name, EntitySettingsStruct * opt
 		case ENTITYOPTION_MAPENTITY:
 			value_widget = option->widget = gtk_combo_box_new( );
 			Meg_ComboText_Setup( value_widget, FALSE );
-			if ( option->value )
+
+			Meg_ComboText_AppendText( GTK_COMBO_BOX(value_widget), "__map__" );
+			Meg_ComboText_AppendText( GTK_COMBO_BOX(value_widget), "__main__" );
+
+			if ( object_data )
+			{
+				gchar * file_content = NULL;
+				gchar * list_file = g_strconcat( mokoiBasePath, "/maps/", object_data->parent->name, ".xml.entities", NULL );
+
+				g_file_get_contents(list_file, &file_content, NULL, &mokoiError);
+				if ( mokoiError )
+				{
+					g_clear_error( &mokoiError );
+				}
+				else
+				{
+					guint lc = 0;
+					gchar ** lines = g_strsplit_set(file_content, "\n", -1);
+					if ( g_strv_length(lines) )
+					{
+						while(lines[lc] != NULL)
+						{
+							gchar * tab = g_strstr_len( lines[lc], -1, "\t");
+							if ( tab )
+							{
+								tab[1] = '\0';
+								Meg_ComboText_AppendText( GTK_COMBO_BOX(value_widget), g_strdup(g_strstrip(lines[lc])) );
+							}
+							lc++;
+						}
+					}
+				}
+			}
+			else if ( option->value )
 			{
 				Meg_ComboText_AppendText( GTK_COMBO_BOX(value_widget), option->value );
-				gtk_combo_box_set_active( GTK_COMBO_BOX(value_widget), 0);
 			}
+
+			if ( option->value )
+			{
+				Meg_ComboText_SetIndex( GTK_COMBO_BOX(value_widget), option->value );
+			}
+
+
+
+
 			break;
 
 		default:
@@ -759,13 +801,13 @@ void EntitySettings_CreateWidget( const gchar * name, EntitySettingsStruct * opt
 	}
 }
 
-void EntitySettings_CreateWidgetWithSignal( const gchar * name, EntitySettingsStruct * option, GtkWidget * list )
+void EntitySettings_CreateWidgetWithSignal( const gchar * name, EntitySettingsStruct * option, MapObjectData * object_data )
 {
 	g_return_if_fail( option );
 
 	GtkWidget * value_widget;
 
-	EntitySettings_CreateWidget( name, option, list );
+	EntitySettings_CreateWidget( name, option, object_data );
 
 	value_widget = option->widget;
 
@@ -793,17 +835,10 @@ void EntitySettings_CreateWidgetWithSignal( const gchar * name, EntitySettingsSt
 		case ENTITYOPTION_TARGET:
 			g_signal_connect( G_OBJECT(value_widget), "clicked", G_CALLBACK(EntitySettings_Target_Dialog), option );
 			break;
-			/*
-		case ENTITYOPTION_SECTION:
-			g_signal_connect( G_OBJECT(value_widget), "changed", G_CALLBACK(EntitySettings_Changed_Combo), option );
-			break;
-		case ENTITYOPTION_SECTIONMAP:
-			g_signal_connect( G_OBJECT(value_widget), "changed", G_CALLBACK(EntitySettings_Changed_Combo), option );
-			break;
 		case ENTITYOPTION_MAPENTITY:
 			g_signal_connect( G_OBJECT(value_widget), "changed", G_CALLBACK(EntitySettings_Changed_Combo), option );
 			break;
-			*/
+
 		default:
 			g_signal_connect( G_OBJECT(value_widget), "activate", G_CALLBACK(EntitySettings_Changed_Entry), option );
 			break;
@@ -831,19 +866,6 @@ void EntitySettings_AttachWidget( const gchar * name, EntitySettingsStruct * opt
 		case ENTITYOPTION_HIDDEN:
 			return;
 			break;
-			/*
-		case ENTITYOPTION_SECTION: // section widget
-			label = gtk_label_new( name );
-			g_signal_connect( G_OBJECT(option->widget), "changed", G_CALLBACK(EntitySettings_SectionChanged), (gpointer) list );
-			break;
-		case ENTITYOPTION_SECTIONMAP: // section map
-			label = gtk_label_new( name );
-			g_signal_connect( G_OBJECT(option->widget), "changed", G_CALLBACK(EntitySettings_MapChanged), (gpointer) list );
-			break;
-		case ENTITYOPTION_MAPENTITY: // map's entities
-			label = gtk_label_new( name );
-			break;
-			*/
 		default:
 			label = gtk_label_new( name );
 			break;
@@ -894,20 +916,28 @@ void EntitySettings_SaveWidget_Foreach( const gchar * name, EntitySettingsStruct
 		}
 		else if ( !g_ascii_strcasecmp( G_OBJECT_TYPE_NAME(option->widget), "GtkComboBox" ) || !g_ascii_strcasecmp( G_OBJECT_TYPE_NAME(option->widget), "GtkComboBoxEntry" ) )
 		{
-			if  ( option->internal_type == ENTITYOPTION_SECTION )
-			{
-				gchar * text = Meg_ComboText_GetText( GTK_COMBO_BOX(option->widget) );
-
-				option->value = STRIP_FILE_EXTENSION(text, 4); // Strip .tsv
-
-				g_free(text);
-			}
-			else
-			{
-				option->value =  Meg_ComboText_GetText( GTK_COMBO_BOX(option->widget) );
-			}
+			option->value =  Meg_ComboText_GetText( GTK_COMBO_BOX(option->widget) );
 		}
 	}
+}
+
+
+/**
+ * @brief EntitySettings_DefaultValues
+ * @param object_data
+ * @return
+ */
+GHashTable * EntitySettings_DefaultValues(MapObjectData *object_data )
+{
+	GHashTable * default_settings = NULL;
+	/* Set Default Runtime option */
+	if ( object_data->entity_file && object_data->entity_language )
+	{
+		gchar * option_path = g_strdup_printf("/scripts/%s.options", object_data->entity_file );
+		default_settings = EntitySettings_Parser_Load( option_path );
+		g_free(option_path);
+	}
+	return default_settings;
 }
 
 
@@ -923,9 +953,9 @@ void EntitySettings_SetDefaultValues(MapObjectData *object_data )
 	/* Set Default Runtime option */
 	if ( object_data->entity_file && object_data->entity_language )
 	{
-		gchar * option_path = g_strdup_printf("/scripts/%s.options", object_data->entity_file );
+		GHashTable * default_settings = EntitySettings_DefaultValues( object_data );
 
-		GHashTable * default_settings = EntitySettings_Parser_Load( option_path );
+		/* Append Default Setting to Map Object  */
 		g_hash_table_foreach( default_settings, (GHFunc)EntitySettings_Append, (gpointer)object_data->settings );
 		g_hash_table_remove_all( default_settings );
 
@@ -938,31 +968,6 @@ void EntitySettings_SetDefaultValues(MapObjectData *object_data )
 				object_data->entity_global = !g_ascii_strcasecmp( hash_value->value, "true" );
 			}
 		}
-
-		g_free(option_path);
-
-
 	}
 }
 
-/**
- * @brief EntitySettings_DefaultValues
- * @param object_data
- * @return
- */
-GHashTable * EntitySettings_DefaultValues(MapObjectData *object_data )
-{
-	GHashTable * default_settings = NULL;
-	/* Set Default Runtime option */
-	if ( object_data->entity_file && object_data->entity_language )
-	{
-		gchar * option_path = g_strdup_printf("/scripts/%s.options", object_data->entity_file );
-
-		default_settings = EntitySettings_Parser_Load( option_path );
-
-		g_free(option_path);
-
-
-	}
-	return default_settings;
-}

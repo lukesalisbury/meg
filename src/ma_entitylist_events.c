@@ -42,7 +42,7 @@ gboolean EntitySettings_Editor_Open( gchar * entity_name );
  * @param file_path
  * @return
  */
-gboolean Meg_EntityList_Properties( const gchar * file_path )
+gboolean Meg_EntityList_Settings( const gchar * file_path )
 {
 	gboolean successful;
 	gchar * file_name = NULL;

@@ -32,6 +32,7 @@ GtkListStore * meg_sheet_spriteslist_store = NULL;
 extern GList * sheetList;
 extern guint16 sheetGridValue;
 extern gboolean sheetModeSelect;
+extern gdouble sheetScale;
 guint32 sheetAlignValue = 8;
 
 /* External Functions */
@@ -241,10 +242,16 @@ void MegWidget_Spritesheet_SetFile( Spritesheet * spritesheet )
                 gint width = gdk_pixbuf_get_width(spritesheet->image);
                 gint height = gdk_pixbuf_get_height(spritesheet->image);
 
+				width = (gint)((gdouble)width * sheetScale);
+				height = (gint)((gdouble)height * sheetScale);
+
                 gtk_widget_set_size_request( meg_sheet_maindisplay, width, height);
+
+
             }
+
+			Meg_Spritesheet_DisplayScale(meg_sheet_maindisplay);
 		}
-		Meg_Spritesheet_ButtonZoomNormal( NULL, (gpointer)meg_sheet_maindisplay );
 
 		spritesheet->selected = NULL;
 

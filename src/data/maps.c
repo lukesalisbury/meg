@@ -211,7 +211,7 @@ gboolean AL_MapOptions_ConstructWidget( MapInfo * map_info, GtkWidget * box_runt
 	/* Options Treeview settings */
 	if ( g_hash_table_size(map_info->settings) )
 	{
-		g_hash_table_foreach( map_info->settings, (GHFunc)EntitySettings_CreateWidgetWithSignal, box_runtime );
+		g_hash_table_foreach( map_info->settings, (GHFunc)EntitySettings_CreateWidgetWithSignal, NULL );
 		g_hash_table_foreach( map_info->settings, (GHFunc)EntitySettings_AttachWidget, box_runtime );
 	}
 
@@ -341,7 +341,7 @@ gboolean AL_Map_Options( MapInfo * map_info, GtkWindow * window )
 	if ( g_hash_table_size(map_info->settings) )
 	{
 		g_object_set_data( G_OBJECT(box_runtime), "table-y", GUINT_TO_POINTER(0) );
-		g_hash_table_foreach( map_info->settings, (GHFunc)EntitySettings_CreateWidget, box_runtime );
+		g_hash_table_foreach( map_info->settings, (GHFunc)EntitySettings_CreateWidget, NULL );
 		g_hash_table_foreach( map_info->settings, (GHFunc)EntitySettings_AttachWidget, box_runtime );
 	}
 	g_object_set_data( G_OBJECT(box_runtime), "runtime-hashtable", map_info->settings );

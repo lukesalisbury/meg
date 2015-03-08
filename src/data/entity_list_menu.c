@@ -118,7 +118,7 @@ void EntityListMenu_SettingsAction(GtkMenuItem * menuitem , GtkTreeView * tree_v
 	gchar * file = EntityListMenu_GetFilePath( tree_view );
 	if ( file )
 	{
-		Meg_EntityList_Properties( file );
+		Meg_EntityList_Settings( file );
 		g_free( file );
 	}
 }

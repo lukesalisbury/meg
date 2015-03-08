@@ -89,8 +89,8 @@
     <property name="events">GDK_KEY_RELEASE_MASK</property>
     <property name="title" translatable="yes">%BUILDHEADER_GUI_TITLE%</property>
     <property name="window_position">center</property>
-    <property name="default_width">500</property>
-    <property name="default_height">400</property>
+    <property name="default_width">640</property>
+    <property name="default_height">480</property>
     <property name="gravity">center</property>
     <child>
       <object class="GtkVBox" id="vbox1">

@@ -10,7 +10,7 @@ Permission is granted to anyone to use this software for any purpose, including 
 ****************************/
 
 
-gboolean Meg_EntityList_Properties( const gchar * file_path );
+gboolean Meg_EntityList_Settings( const gchar * file_path );
 void Meg_EntityList_NewDialog( GtkButton * button, GtkTreeView * tree );
 void Meg_EntityList_Menu(GtkWidget * treeview, GtkWidget * entityMenu);
 gboolean Meg_EntityList_MenuClick( GtkWidget * treeview, GdkEventButton *event, gpointer data);

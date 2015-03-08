@@ -97,7 +97,7 @@ void Meg_Spritesheet_ButtonColourSet( GtkColorButton *widget, gpointer user_data
 }
 
 /********************************
-* Meg_Spritesheet_ButtonColourSet
+* Meg_Spritesheet_DisplayScale
 *
 */
 void Meg_Spritesheet_DisplayScale( GtkWidget * display )

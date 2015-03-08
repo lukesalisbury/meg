@@ -125,12 +125,6 @@ void Meg_Icon_Update()
 	g_free(local_icons);
 }
 
-void event_handler_func(GdkEvent * event, gpointer user_data)
-{
-	gtk_main_do_event(event);
-}
-
-
 /********************
 * main
 * program entry point :)
@@ -142,7 +136,7 @@ gint main (gint argc, char *argv[])
 	/* Set up GTK */
 	g_set_application_name( PROGRAM_TITLE );
 	gtk_init( &argc, &argv );
-	gdk_event_handler_set(event_handler_func, NULL, NULL);
+
 	#if GLIB_CHECK_VERSION(2,32,0)
 	#else
 	g_thread_init( NULL );

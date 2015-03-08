@@ -364,7 +364,7 @@ native ObjectReplace( object:id, string{}, GraphicTypes:type );
 native ObjectFlag( object:id, ObjectFlags:key, value);
 native ObjectDelete( object:id);
 native ObjectInfo( object:id, &w, &h, &x, &y);
-
+native ObjectDimensions( object:id, &w, &h ) = ObjectInfo;
 
 ///Camera Functions
 native CameraSetScroll(bool:scroll);

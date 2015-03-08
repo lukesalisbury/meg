@@ -121,14 +121,12 @@ void ObjectAdvance_UpdateEntitySettings(GtkWidget * box_settings, MapObjectData 
 
 	if ( g_hash_table_size(object_data->settings) )
 	{
-		g_hash_table_foreach( object_data->settings, (GHFunc)EntitySettings_CreateWidgetWithSignal, box_settings );
+		g_hash_table_foreach( object_data->settings, (GHFunc)EntitySettings_CreateWidgetWithSignal, NULL );
 		g_hash_table_foreach( object_data->settings, (GHFunc)EntitySettings_AttachWidget, box_settings );
 		gtk_widget_show_all( box_settings );
 	}
 }
 
-
-GHashTable * EntitySettings_DefaultValues(MapObjectData *object_data );
 /**
  * @brief EntitySettings_Reset
  * @param button

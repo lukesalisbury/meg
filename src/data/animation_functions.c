@@ -120,21 +120,23 @@ void SpriteAnimation_Build( SheetObject * sprite )
 		{
 			AnimationFrame * first_frame = (AnimationFrame *)g_slist_nth_data(SPRITE_DATA(sprite)->animation->frames, 0);
 
-			GdkPixbuf * src = Sprite_GetPixbuf( first_frame->sprite, sprite->parent_sheet );
-			GdkPixbuf * image = gdk_pixbuf_copy( src );
-			GdkPixbuf * overlay = gdk_pixbuf_new_from_inline( -1, anim_overlay, FALSE, NULL );
+			if ( first_frame )
+			{
+				GdkPixbuf * src = Sprite_GetPixbuf( first_frame->sprite, sprite->parent_sheet );
+				GdkPixbuf * image = gdk_pixbuf_copy( src );
+				GdkPixbuf * overlay = gdk_pixbuf_new_from_inline( -1, anim_overlay, FALSE, NULL );
 
-			gdk_pixbuf_copy_area( overlay, 0,0, 9,9, image, 2, 2 );
+				gdk_pixbuf_copy_area( overlay, 0,0, 9,9, image, 2, 2 );
 
-			SPRITE_DATA(sprite)->image = image;
-			SPRITE_DATA(sprite)->animation->w = gdk_pixbuf_get_width(image);
-			SPRITE_DATA(sprite)->animation->h = gdk_pixbuf_get_height(image);
+				SPRITE_DATA(sprite)->image = image;
+				SPRITE_DATA(sprite)->animation->w = gdk_pixbuf_get_width(image);
+				SPRITE_DATA(sprite)->animation->h = gdk_pixbuf_get_height(image);
 
-			SPRITE_DATA(sprite)->image = image;
-			SPRITE_DATA(sprite)->image_loaded = TRUE;
+				SPRITE_DATA(sprite)->image = image;
+				SPRITE_DATA(sprite)->image_loaded = TRUE;
 
-			g_object_unref(src);
-
+				g_object_unref(src);
+			}
 		}
 
 	}

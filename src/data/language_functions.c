@@ -168,6 +168,7 @@ void Language_StringForeachList( gpointer key, gchar* value, GString * string )
 	g_string_append_printf( string, "%s\n", value);
 }
 
+#define allowchars "abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890_"
 /********************************
 * Language_ExportRoutines
 *
@@ -189,7 +190,11 @@ void Language_ExportRoutines( )
 		{
 			while(content_lines[lc] != NULL)
 			{
-				g_string_append_printf(str_content, "#define DIALOG_%s %d\n", g_ascii_strup(g_strstrip(content_lines[lc]), -1), lc);
+				gchar * string_name = g_ascii_strup( g_strcanon( g_strstrip(content_lines[lc]), allowchars,'_' ), -1);
+
+				g_string_append_printf(str_content, "#define DIALOG_%s %d\n", string_name, lc);
+
+				g_free(string_name);
 				lc++;
 			}
 		}
@@ -207,7 +212,9 @@ void Language_ExportRoutines( )
 		{
 			while(content_lines[lc] != NULL)
 			{
-				g_string_append_printf(str_content, "#define LANG_%s %d\n", g_ascii_strup(g_strstrip(content_lines[lc]), -1), lc);
+				gchar * string_name = g_ascii_strup( g_strcanon( g_strstrip(content_lines[lc]), allowchars,'_' ), -1);
+				g_string_append_printf(str_content, "#define LANG_%s %d\n", string_name, lc);
+				g_free(string_name);
 				lc++;
 			}
 		}

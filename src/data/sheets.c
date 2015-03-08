@@ -396,7 +396,7 @@ void AL_Sprite_Add( Spritesheet * spritesheet, GdkRectangle * sprite_rect )
 					frame->offset.x = 0;
 					frame->offset.y = 0;
 					frame->length_ms = 1000;
-
+					frame->f = 0;
 					sprite_data->animation->frames = g_slist_append( sprite_data->animation->frames, frame);
 
 					q++;

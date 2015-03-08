@@ -224,6 +224,9 @@ void Meg_MapSettings_OpenEntity( GtkButton * widget, GtkWidget * map_widget )
 	g_return_if_fail( GTK_IS_ALCHERA_MAP(map_widget) );
 
 	MapInfo * map_info = gtk_alchera_map_get_info( GTK_ALCHERA_MAP(map_widget) );
+
+
+
 	EntityEditor_New( MAP_DATA(map_info)->entity_filename );
 
 }

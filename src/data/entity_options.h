@@ -20,7 +20,7 @@ Permission is granted to anyone to use this software for any purpose, including 
 #define	ENTITYOPTION_SOUNDFX 3
 #define	ENTITYOPTION_HIDDEN 4
 #define	ENTITYOPTION_ENTITY 5
-#define	ENTITYOPTION_SECTION 6
+#define	ENTITYOPTION_STRING 6
 #define	ENTITYOPTION_SECTIONMAP 7
 #define	ENTITYOPTION_MAP 8
 #define	ENTITYOPTION_MAPENTITY 9
@@ -32,8 +32,8 @@ guint EntitySettings_Type( const gchar *type );
 gboolean EntitySettings_BooleanCheck( GHashTable * settings_table, gchar * value);
 
 void EntitySettings_AddOption( GtkButton * button, GtkWidget * table );
-void EntitySettings_CreateWidget( const gchar * name, EntitySettingsStruct * options, GtkWidget * list );
-void EntitySettings_CreateWidgetWithSignal( const gchar * name, EntitySettingsStruct * options, GtkWidget * list );
+void EntitySettings_CreateWidget(const gchar * name, EntitySettingsStruct * options, MapObjectData * object_data);
+void EntitySettings_CreateWidgetWithSignal(const gchar * name, EntitySettingsStruct * options, MapObjectData * object_data );
 void EntitySettings_AttachWidget( const gchar * name, EntitySettingsStruct * options, GtkWidget * list );
 void EntitySettings_SaveWidget_Foreach( const gchar * name, EntitySettingsStruct * options, gpointer data );
 
@@ -49,5 +49,6 @@ void EntitySettings_Delete( EntitySettingsStruct * data );
 void EntitySettings_Append(const gchar *key, EntitySettingsStruct * value, GHashTable * table );
 gint EntitySettings_GetValue( GHashTable * settings_table, gchar * key );
 void EntitySettings_SetDefaultValues( MapObjectData * object_data );
+GHashTable * EntitySettings_DefaultValues(MapObjectData *object_data );
 
 #endif
