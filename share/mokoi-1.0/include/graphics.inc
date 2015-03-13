@@ -330,7 +330,8 @@
 ***/
 
 ///Misc Graphic Functions
-native GraphicsDraw(string{}, GraphicTypes:type, x, y, Fixed:layerz, w, h, c = WHITE, string_size = sizeof string );
+native GraphicsDraw(string{}, GraphicTypes:type, x, y, Fixed:layerz, w, h, c = WHITE );
+native GraphicsDraw2(string{}, GraphicTypes:type, x, y, Fixed:layerz, w, h, c = WHITE, rotation ) = GraphicsDraw;
 native TextSprites(able, sheet{});
 native SheetReference(sheet{}, ref = 1);
 native SheetReplace(old_sheet{}, news_sheet{});
@@ -363,7 +364,7 @@ native ObjectEffect( object:id, colour = WHITE, rotate = 0, scale_w = 1000, scal
 native ObjectReplace( object:id, string{}, GraphicTypes:type );
 native ObjectFlag( object:id, ObjectFlags:key, value);
 native ObjectDelete( object:id);
-native ObjectInfo( object:id, &w, &h, &x, &y);
+native ObjectInfo( object:id, &w, &h, &x, &y, &Fixed:layerz );
 native ObjectDimensions( object:id, &w, &h ) = ObjectInfo;
 
 ///Camera Functions

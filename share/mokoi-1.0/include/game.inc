@@ -33,7 +33,7 @@ native DialogGetString(line, returnstring{}, maxlength=sizeof returnstring);
 
 /// Audio Functions
 native AudioPlayDialog(line);
-native AudioPlayMusic(file{}, loop, fadeLength);
+native AudioPlayMusic(file{}, loop = 0, fadeLength = 0);
 native AudioPlaySound(file{}, x = -1, y = -1);
 
 // Misc Functions */

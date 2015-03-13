@@ -12,3 +12,8 @@
 forward public Init(...);
 forward public UpdatePosition();
 forward public Close();
+
+
+
+public internal_ident;
+#pragma unused internal_ident

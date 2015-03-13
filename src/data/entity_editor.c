@@ -346,7 +346,7 @@ void EntityEditor_Save( GtkButton * button_save, GtkWidget * textview_content )
 	{
 		gtk_text_buffer_get_bounds( buffer, &start, &end );
 		content = gtk_text_buffer_get_text( buffer, &start, &end, FALSE );
-		content = g_strdelimit( content, "\r", ' '); // Screw \r
+		//content = g_strdelimit( content, "\r", ' '); // Screw \r
 
 		Meg_file_set_contents( file, content, -1, &mokoiError );
 

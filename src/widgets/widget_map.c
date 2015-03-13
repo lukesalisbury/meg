@@ -209,7 +209,7 @@ void gtk_alchera_map_draw_gridlines( AlcheraMap * map, cairo_t * cr  )
 	{
 		gint x = 0, y = 0;
 		cairo_save( cr );
-		cairo_set_source_rgba( cr, 0, 0, 0, 0.8);
+		cairo_set_source_rgba( cr, 0, 0, 0, 0.2);
 		cairo_set_line_width( cr, 1);
 		while ( x < map->info->width )
 		{
