@@ -219,8 +219,8 @@ static void EntityCompiler_ExtractRoutines(void * data, const char *origdir, con
 
 		PHYSFS_mkdir(origdir);
 		PHYSFS_delete( internal_file_path );
-		Meg_file_get_contents(internal_file_path, &content, NULL, NULL);
-		Meg_file_set_contents(internal_file_path, content, -1, NULL);
+		if ( Meg_file_get_contents(internal_file_path, &content, NULL, NULL) )
+			Meg_file_set_contents(internal_file_path, content, -1, NULL);
 	}
 }
 

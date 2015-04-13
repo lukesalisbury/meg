@@ -252,10 +252,12 @@ gboolean Meg_file_get_contents(const gchar *filename, gchar ** contents, gsize *
 
 		if ( length_read != file_size )
 			g_set_error( error, meg_error_quark(), G_FILE_ERROR_FAILED,  "Failed to read complete file: %s", filename);
-
-		if ( length )
+		else
 		{
-			*length = length_read;
+			if ( length )
+			{
+				*length = length_read;
+			}
 		}
 		results = TRUE;
 	}
