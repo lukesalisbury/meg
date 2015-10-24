@@ -87,6 +87,10 @@ guint EntitySettings_Type( const gchar * type )
 	{
 		return ENTITYOPTION_TARGET;
 	}
+	else if ( !g_ascii_strcasecmp(type, "internal") )
+	{
+		return ENTITYOPTION_HIDDEN;
+	}
 	return ENTITYOPTION_NONE;
 }
 
@@ -172,6 +176,22 @@ EntitySettingsStruct * EntitySettings_InsertNew( GHashTable * settings_table, co
 
 	return option;
 }
+
+/**
+ * @brief EntitySettings_UpdateType
+ * @param settings_table
+ * @param key
+ * @param type
+ */
+void EntitySettings_UpdateType( GHashTable * settings_table, const gchar * key,  const gchar * type  )
+{
+	EntitySettingsStruct * option = EntitySettings_Lookup(settings_table, key);
+	if ( option )
+	{
+		REPLACE_STRING_DUPE( option->type, type );
+	}
+}
+
 
 /********************************
 * EntitySettings_Update
@@ -740,7 +760,7 @@ void EntitySettings_CreateWidget(const gchar * name, EntitySettingsStruct * opti
 			return;
 			break;
 		case ENTITYOPTION_TARGET:
-			value_widget = option->widget = gtk_button_new_with_label( "Select" );
+			value_widget = option->widget = gtk_button_new_with_label( "Select Target" );
 			break;
 		case ENTITYOPTION_MAPENTITY:
 			value_widget = option->widget = gtk_combo_box_new( );

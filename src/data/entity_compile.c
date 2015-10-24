@@ -438,11 +438,11 @@ gboolean EntityCompiler_File( gchar * input_file, GtkWidget * logwidget, GtkWidg
 	error_compiling = EntityCompiler_ScanErrors(output, logwidget, textwidget );
 	if ( error_compiling )
 	{
-		Logger_FormattedLog(logwidget, LOG_BOLD, "%s %s\n\n\n", "Error compiling: ", basename);
+		Logger_FormattedLog(logwidget, LOG_BOLD, "%s %s\n", "Error compiling: ", basename);
 	}
 	else
 	{
-		Logger_FormattedLog(logwidget, LOG_BOLD, "%s %s\n\n\n", "Script compiled: ", basename);
+		Logger_FormattedLog(logwidget, LOG_BOLD, "%s %s\n", "Script compiled: ", basename);
 	}
 
 	g_free(basename);

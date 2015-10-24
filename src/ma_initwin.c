@@ -20,7 +20,7 @@ extern GtkWidget * alchera_init_window;
 GtkWidget * alchera_current_parent_window = NULL;
 
 /* External Functions */
-gboolean Meg_Main_Init();
+
 
 /* UI */
 

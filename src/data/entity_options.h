@@ -45,6 +45,9 @@ EntitySettingsStruct * EntitySettings_InsertNew( GHashTable * settings_table, co
 void EntitySettings_Update( GHashTable * settings_table, const gchar *key, const gchar *value, const gchar  *type);
 void EntitySettings_UpdateValue(GHashTable * settings_table, const gchar *key, const gint value , const gchar * type);
 void EntitySettings_UpdateBoolean( GHashTable * settings_table, const gchar * key, const gboolean value, const gchar *type );
+void EntitySettings_UpdateType( GHashTable * settings_table, const gchar * key,  const gchar * type  );
+
+
 void EntitySettings_Delete( EntitySettingsStruct * data );
 void EntitySettings_Append(const gchar *key, EntitySettingsStruct * value, GHashTable * table );
 gint EntitySettings_GetValue( GHashTable * settings_table, gchar * key );

@@ -79,6 +79,32 @@
 ***/
 
 ///Timer Functions
+#define SIMPLETIMER[.timer, .active]
+
+stock TimerSimpleStart(time[SIMPLETIMER], reset)
+{
+	time.active = true;
+	time.timer = reset;
+}
+
+stock TimerSimpleCountdown(time[SIMPLETIMER])
+{
+	if ( time.active )
+	{
+		time.timer -= GameFrame();
+		if ( time.timer > 0 )
+		{
+			return false;
+		}
+		else
+		{
+			time.active = false
+			return true;
+		}
+	}
+	return false;
+}
+
 stock TimerCountdown(&time)
 {
 	time -= GameFrame();
@@ -99,7 +125,7 @@ stock TimerCountdownWithReset(&time, reset)
 
 stock TimerGetRandomValue(randomness, &random_value, &time, timer_reset = 1000 )
 {
-	if ( CountTimer(time, timer_reset) )
+	if ( TimerCountdownWithReset(time, timer_reset) )
 	{
 		value = NumberRandom(randomness);
 		return true;

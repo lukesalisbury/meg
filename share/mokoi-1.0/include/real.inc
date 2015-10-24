@@ -51,10 +51,10 @@
 	#define RealAtan2(%1,%2,%3)	fatan2(%1,%2,%3)
 */
 	native RealRound(Fixed:value, round_method:method=round_normal) = fround;
-	native Fixed:RealSin(Fixed:value, anglemode:mode=radian) = fsin;
-	native Fixed:RealCos(Fixed:value, anglemode:mode=radian) = fcos;
-	native Fixed:RealTan(Fixed:value, anglemode:mode=radian) = ftan;
-	native Fixed:RealAtan2(Fixed:x, Fixed:y, anglemode:mode=radian ) = fatan2;
+	native Fixed:RealSin(Fixed:value, anglemode:mode=degrees) = fsin;
+	native Fixed:RealCos(Fixed:value, anglemode:mode=degrees) = fcos;
+	native Fixed:RealTan(Fixed:value, anglemode:mode=degrees) = ftan;
+	native Fixed:RealAtan2(Fixed:x, Fixed:y, anglemode:mode=degrees ) = fatan2;
 
 
 #endif

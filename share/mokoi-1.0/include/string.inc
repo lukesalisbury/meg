@@ -119,12 +119,11 @@ stock bool: StringEqual(const string1[], const string2[], bool:ignorecase=false,
 		<summary>Prints formatted text to string 'dest'.</summary>
 		<param name="dest[]" default="" type="a">Destination string.</param>
 		<param name="size" default="_" type="n">size of destination string.</param>
-		<param name="pack" default="_" type="n">Pack string contents.</param>
 		<param name="format" default="" type="a">Format String</param>
 		<param name="..." default="" type="v"> List of Arguments to used to produce the formatted text.</param>
 		<example>
 		new string[128];
-		strformat(string, _, true, "Text: %s, Color: %x, Number: %d, Fixed: %q\n", "Hello", 0xFFBBAAFF, 42, 50.254);
+		StringFormat(string, _, "Text: %s, Color: %x, Number: %d, Fixed: %q\n", "Hello", 0xFFBBAAFF, 42, 50.254);
 		ConsoleOutput(string);
 		</example>
 	</function>

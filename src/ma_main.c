@@ -37,7 +37,6 @@ GtkWidget * meg_main_empty = NULL;
 /* Global Variables */
 extern gchar * project_file_path;
 
-
 /* Local Variables */
 GtkTextTag * alchera_log_bold, * alchera_log_error, * alchera_log_fine;
 GtkToggleToolButton * main_active_toolbutton = NULL;
@@ -193,7 +192,7 @@ gboolean Meg_Main_Init()
 	g_timer_start(yimer);
 	GError * error = NULL;
 
-	GtkWidget *area_player, * button_playgame, * button_pause, * button_refresh;
+//	GtkWidget *area_player, * button_playgame, * button_pause, * button_refresh;
 
 	GtkAccelGroup * accel_group = NULL;
 
@@ -213,9 +212,9 @@ gboolean Meg_Main_Init()
 
 	player_info.widget = GET_WIDGET( ui, "area_player" );
 
-	button_playgame = GET_WIDGET( ui, "button_play" );
-	button_pause = GET_WIDGET( ui, "button_pause" );
-	button_refresh = GET_WIDGET( ui, "button_refresh" );
+//	button_playgame = GET_WIDGET( ui, "button_play" );
+//	button_pause = GET_WIDGET( ui, "button_pause" );
+//	button_refresh = GET_WIDGET( ui, "button_refresh" );
 
 #ifdef apple
 	/* OS X Global menu */
@@ -249,9 +248,9 @@ gboolean Meg_Main_Init()
 
 	SET_MENU_SIGNAL(ui, "action_package_update", G_CALLBACK(Meg_Event_PackageCheck) );
 
-	g_signal_connect( button_playgame, "clicked", G_CALLBACK(MegWidget_Player_Play), &player_info );
-	g_signal_connect( button_pause, "clicked", G_CALLBACK(MegWidget_Player_Pause), &player_info );
-	g_signal_connect( button_refresh, "clicked", G_CALLBACK(MegWidget_Player_Refresh), &player_info );
+	//g_signal_connect( button_playgame, "clicked", G_CALLBACK(MegWidget_Player_Play), &player_info );
+	//g_signal_connect( button_pause, "clicked", G_CALLBACK(MegWidget_Player_Pause), &player_info );
+	//g_signal_connect( button_refresh, "clicked", G_CALLBACK(MegWidget_Player_Refresh), &player_info );
 
 	accel_group = gtk_accel_group_new();
 	gtk_window_add_accel_group( GTK_WINDOW(alchera_main_window), accel_group);
@@ -264,15 +263,12 @@ gboolean Meg_Main_Init()
 	g_signal_connect( alchera_main_window, "drag-drop", G_CALLBACK(Meg_Event_Drop), NULL);
 	g_signal_connect( alchera_main_window, "drag-data-received", G_CALLBACK(Meg_Event_DropReceived),NULL);
 
-
-
 	/* Add Play button to toolbar */
 	GtkWidget * widget_play_icon = gtk_image_new_from_icon_name( PAGE_ICON_PLAY, GTK_ICON_SIZE_LARGE_TOOLBAR );
 
 	GtkToolItem * button_play = gtk_tool_button_new(widget_play_icon, "Play Game");
 	g_signal_connect(button_play, "clicked", G_CALLBACK(Meg_Event_Play), NULL);
 	gtk_toolbar_insert(GTK_TOOLBAR(alchera_main_toolbar), button_play, 0);
-
 
 	Funclist_Scan( );
 

@@ -21,6 +21,12 @@ Permission is granted to anyone to use this software for any purpose, including 
 #define GDK_BUTTON_SECONDARY    (3)
 #endif
 
+
+#ifndef GdkNativeWindow
+#define GdkNativeWindow      gpointer
+#endif
+
+
 #if GTK_MAJOR_VERSION == 2
 typedef struct {
   gdouble red;

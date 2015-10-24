@@ -77,7 +77,6 @@ void MegWidget_Project_Create()
 void MegWidget_Project_Init()
 {
 	gtk_label_set_label(GTK_LABEL(meg_project_path), project_file_path);
-	AL_Settings_Refresh();
 }
 
 /********************************

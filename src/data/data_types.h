@@ -51,6 +51,7 @@ Permission is granted to anyone to use this software for any purpose, including 
 	typedef struct {
 		gchar * name;
 		gint value;
+		gboolean autogen;
 	} ObjectMask;
 
 	typedef struct {
@@ -126,6 +127,7 @@ Permission is granted to anyone to use this software for any purpose, including 
 		gchar * value;
 		gchar * type;
 		guint internal_type;
+		gboolean internal;
 		gboolean removable;
 		gboolean deleted;
 		GtkWidget * widget;

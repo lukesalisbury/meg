@@ -45,23 +45,27 @@ void EntitySettings_Parser_StartHandler( GMarkupParseContext *context, const gch
 {
 	if ( !g_ascii_strcasecmp(element_name, "option") )
 	{
-		gchar * name = NULL;
+		gchar * setting_name = NULL;
+		const gchar * attr_name = NULL;
+		const gchar * attr_value = NULL;
 		EntitySettingsStruct * options = EntitySettings_New( NULL, NULL );
 
 		options->removable = FALSE;
 
 		for (; *attribute_names && *attribute_values; attribute_names++, attribute_values++)
 		{
-			if ( !g_ascii_strcasecmp(*attribute_names, "name") )
-				name = g_strdup(*attribute_values);
-			else if ( !g_ascii_strcasecmp(*attribute_names, "value") )
-				options->value = g_strdup(*attribute_values);
-			else if ( !g_ascii_strcasecmp(*attribute_names, "type") )
-				options->type = g_strdup(*attribute_values);
-			else if ( !g_ascii_strcasecmp(*attribute_names, "removable") )
+			attr_name = *attribute_names;
+			attr_value = *attribute_values;
+			if ( !g_ascii_strcasecmp(attr_name, "name") )
+				setting_name = g_strdup(attr_value);
+			else if ( !g_ascii_strcasecmp(attr_name, "value") )
+				options->value = g_strdup(attr_value);
+			else if ( !g_ascii_strcasecmp(attr_name, "type") )
+				options->type = g_strdup(attr_value);
+			else if ( !g_ascii_strcasecmp(attr_name, "removable") )
 				options->removable = TRUE;
 		}
-		if ( name )
+		if ( setting_name )
 		{
 			options->internal_type = EntitySettings_Type(options->type);
 
@@ -71,22 +75,23 @@ void EntitySettings_Parser_StartHandler( GMarkupParseContext *context, const gch
 			}
 			else
 			{
-				g_hash_table_insert(( GHashTable *)data, name, options);
+				g_hash_table_insert(( GHashTable *)data, setting_name, options);
 			}
 		}
 	}
 }
 
-
-/********************************
-* EntitySettings_Parser_SaveString
-*
-*/
+/**
+ * @brief EntitySettings_Parser_SaveString
+ * @param key
+ * @param option
+ * @param file_content
+ */
 void EntitySettings_Parser_SaveString(gchar * key, EntitySettingsStruct * option, GString * file_content )
 {
 	if ( option )
 	{
-		g_string_append_printf( file_content, "\t<option name=\"%s\" value=\"%s\" type=\"%s\"", key, (option->value != NULL ? option->value : ""), (option->type != NULL ? option->type : "") );
+		g_string_append_printf( file_content, "\t\t<option name=\"%s\" value=\"%s\" type=\"%s\"", key, (option->value != NULL ? option->value : ""), (option->type != NULL ? option->type : "") );
 
 		if ( option->removable )
 		{
@@ -95,17 +100,26 @@ void EntitySettings_Parser_SaveString(gchar * key, EntitySettingsStruct * option
 
 		g_string_append( file_content, " />\n" );
 
-
-
+		if ( option->internal_type == ENTITYOPTION_TARGET && option->value)
+		{
+			gchar ** f = g_strsplit(option->value, ":", 3);
+			if ( g_strv_length(f) == 3 )
+			{
+				g_string_append_printf( file_content, "\t\t<option name=\"%s.world\" value=\"%s\" />\n", key, f[0] );
+				g_string_append_printf( file_content, "\t\t<option name=\"%s.grid\" value=\"%s\" />\n", key, f[1] );
+				g_string_append_printf( file_content, "\t\t<option name=\"%s.entity\" value=\"%s\" />\n", key, f[2] );
+			}
+			g_strfreev(f);
+		}
 	}
-
 }
 
-
-/********************************
-* EntitySettings_Parser_Save
-*
-*/
+/**
+ * @brief EntitySettings_Parser_Save
+ * @param entity_option_file
+ * @param options
+ * @return
+ */
 gboolean EntitySettings_Parser_Save(gchar * entity_option_file, GHashTable * options)
 {
 	gboolean successful = FALSE;
@@ -336,7 +350,7 @@ void EntitySettings_Editor_Refresh( GtkWidget *treeview, GHashTable * settings )
 * EntitySettings_Editor_Open
 *
 */
-gboolean EntitySettings_Editor_Open( gchar * entity_name )
+gboolean EntitySettings_Editor_Open( const gchar * entity_name )
 {
 	gint response = 0;
 	GtkWidget * dialog, * label, * tree_items;
@@ -345,7 +359,7 @@ gboolean EntitySettings_Editor_Open( gchar * entity_name )
 	gchar * option_path = NULL;
 
 	/* Get Options File */
-	option_path = g_strdup_printf("/scripts/%s.options", entity_name );
+	option_path = g_strdup_printf("%s.options", entity_name );
 
 	options = EntitySettings_Parser_Load( option_path );
 	if ( !options )

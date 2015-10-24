@@ -31,7 +31,7 @@ Permission is granted to anyone to use this software for any purpose, including 
 void Patch_CreatePage();
 gboolean Meg_Dialog_Import();
 void Import_Package( gchar * url, gchar * name, gchar * root );
-
+void AL_Settings_RefreshPackages();
 
 /* Local Type */
 
@@ -360,12 +360,14 @@ gchar * AL_CopyProject( const gchar * source )
 
 }
 
+void Language_ExportRoutines();
 /********************************
 * Project_BuildDefaultEntities
 * Load spritesheets
 */
 void Project_BuildDefaultEntities()
 {
+	Language_ExportRoutines();
 	/* Compiler Required Entities */
 	guint array_count = 0;
 	if ( g_strv_length( mokoiGameRequiredFiles ) )
@@ -450,7 +452,7 @@ gchar * AL_LoadProject(const gchar *path )
 			}
 			g_free(package_location);
 		}
-
+		AL_Settings_RefreshPackages();
 		Project_BuildDefaultEntities();
 		Project_LoadSpritesheet();
 

@@ -114,19 +114,43 @@ void Setting_Event_SetImage( GtkButton* button, gpointer data )
 	g_free(image_full_path);
 }
 
+/**
+ * @brief Settings_RefreshPackageWidget
+ * @param config_str
+ * @param file_extention
+ */
+void Settings_RefreshPackageWidget( const gchar * config_str, const gchar * file_extention )
+{
+	GtkWidget * package = g_hash_table_lookup( mokoiSettingsTable, config_str );
+
+	Setting_Package( GTK_COMBO_BOX(package), file_extention );
+	if ( package )
+	{
+		gchar * setting = AL_Setting_GetString(config_str);
+		if ( setting )
+		{
+			Meg_ComboText_SetIndex(GTK_COMBO_BOX(package), setting);
+			g_free(setting);
+		}
+	}
+}
+
+
 /********************************
 * Setting_Package
 *
 @ combo:
 @ prefix:
 */
-void Setting_Package( GtkComboBox * combo, gchar * prefix )
+void Setting_Package( GtkComboBox * combo, const gchar * file_extension )
 {
+	if ( file_extension == NULL )
+		return;
 	const gchar * current_file;
 	gchar * packages_dir;
 
 	GDir * current_directory;
-	packages_dir = Meg_Directory_Data("packages");
+	packages_dir = Meg_Directory_Share("packages");
 	current_directory = g_dir_open( packages_dir, 0, &mokoiError );
 	if ( mokoiError != NULL )
 	{
@@ -136,17 +160,19 @@ void Setting_Package( GtkComboBox * combo, gchar * prefix )
 	{
 		Meg_ComboText_Clear( combo );
 		Meg_ComboText_AppendText( combo, g_strdup(MEG_COMBOFILE_NONE) );
-		gtk_combo_box_set_active( combo, 0 );
+
 
 		current_file = g_dir_read_name(current_directory);
 		while ( current_file != NULL )
 		{
-			if ( g_str_has_suffix(current_file, ".package") )
+			if ( g_str_has_suffix(current_file, file_extension) )
 			{
 				Meg_ComboText_AppendText( combo, g_strdup(current_file) );
 			}
 			current_file = g_dir_read_name( current_directory );
 		}
+
+		gtk_combo_box_set_active( combo, 0 );
 	}
 	g_free( packages_dir );
 
@@ -215,7 +241,6 @@ void Setting_WidgetRead(gchar * name, GObject * wid )
 	gchar * string = NULL;
 	if ( !g_ascii_strcasecmp( G_OBJECT_TYPE_NAME(wid), "GtkEntry" ) )
 	{
-
 		g_key_file_set_string( mokoiConfigTable, "Mokoi", name, gtk_entry_get_text( GTK_ENTRY(wid) ) );
 	}
 	else if ( !g_ascii_strcasecmp( G_OBJECT_TYPE_NAME(wid), "GtkSpinButton" ) )
@@ -239,7 +264,7 @@ void Setting_WidgetRead(gchar * name, GObject * wid )
 		{
 			/* TODO save to language.available */
 		}
-		else if ( !g_strcmp0(name, "package.main") )
+		else if ( g_str_has_prefix(name, "package.") )
 		{
 			if ( !string )
 			{
@@ -247,7 +272,7 @@ void Setting_WidgetRead(gchar * name, GObject * wid )
 			}
 			else
 			{
-				if ( Package_ChangeMain(string) )
+				if ( Package_ChangeMain(name, string) )
 				{
 					g_key_file_set_string( mokoiConfigTable, "Mokoi", name, string );
 				}
@@ -257,6 +282,11 @@ void Setting_WidgetRead(gchar * name, GObject * wid )
 		{
 			g_key_file_set_string( mokoiConfigTable, "Mokoi", name, string );
 		}
+		else
+		{
+			g_key_file_remove_key( mokoiConfigTable, "Mokoi", name, NULL );
+		}
+
 	}
 }
 
@@ -264,7 +294,7 @@ void Setting_WidgetRead(gchar * name, GObject * wid )
 * Setting_WidgetWrite
 * - Update Widget with new values
 */
-void Setting_WidgetWrite(gchar * name, GObject * wid )
+void Setting_WidgetWrite(const gchar * name, GObject * wid )
 {
 	if ( !name || !wid )
 		return;
@@ -322,9 +352,9 @@ void Setting_WidgetWrite(gchar * name, GObject * wid )
 			g_free(setting);
 			/* TODO read language.available */
 		}
-		else if ( !g_ascii_strcasecmp("package.main", name) )
+		else
 		{
-			gchar * setting = AL_Setting_GetString("package.main");
+			gchar * setting = AL_Setting_GetString(name);
 			Meg_ComboText_SetIndex(GTK_COMBO_BOX(wid), setting);
 			g_free(setting);
 		}
@@ -456,7 +486,7 @@ void Setting_ClearForeach(gpointer key, gpointer value, gpointer user_data)
 *
 @ key:
 */
-gboolean Setting_Unlocked( char * key )
+gboolean Setting_Unlocked( const char * key )
 {
 	guint array_count = 0;
 	if ( g_strv_length( mokoiSettingsLocked ) )

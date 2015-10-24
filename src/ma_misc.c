@@ -263,7 +263,7 @@ void Meg_ComboText_Clear( GtkComboBox * widget )
 void Meg_ComboText_AppendText( GtkComboBox * widget, const gchar * text )
 {
 	GtkTreeIter iter;
-	GtkListStore *store = GTK_LIST_STORE( gtk_combo_box_get_model( widget ) );
+	GtkListStore * store = GTK_LIST_STORE( gtk_combo_box_get_model( widget ) );
 
 	gtk_list_store_append( store, &iter );
 	gtk_list_store_set( store, &iter, 0, text, -1 );
@@ -297,7 +297,7 @@ gint Meg_Misc_TreeIterCompare( GtkTreeModel *model, GtkTreeIter *a, GtkTreeIter 
 			}
 			else
 			{
-			ret = g_utf8_collate(name1,name2);
+				ret = g_utf8_collate(name1,name2);
 			}
 
 			g_free(name1);

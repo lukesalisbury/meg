@@ -10,6 +10,13 @@
 #Default Settings
 include setting.mk
 
+
+
+ifeq ($(BUILDDEBUG), TRUE)
+	OBJDIR += -debug
+endif
+
+
 BIN = libmegaudio.so
 
 #Read platform and custom settings
@@ -20,7 +27,7 @@ COMPILER_LIBS = $(OPTIMIZER) $(DEBUG) $(PLATFORM_LIBS)  -shared
 COMPILER_FLAGS = $(OPTIMIZER) $(DEBUG) $(PLATFORM_FLAGS) -D$(PLATFORM)
 COMPILER_FLAGSPP = -Wno-write-strings -fno-access-control -fno-exceptions -fno-rtti $(COMPILER_FLAGS)
 
-OBJ = objects/main.o $(PLATFORM_OBJECTS)
+OBJ = $(OBJDIR)/main.o $(PLATFORM_OBJECTS)
 
 all: all-before $(BIN) $(FINALOUTPUT)
 	@echo --------------------------------

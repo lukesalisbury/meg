@@ -7,7 +7,7 @@ $(warning GTK3 for windows not recommend. )
 	USEGTKSOURCEVIEW=FALSE
 	USESOUP=FALSE
 	USECURL=TRUE
-	OBJDIR=objects-gtk3
+	OBJDIR+=-gtk3
 else
 	USEGTKSOURCEVIEW=TRUE
 	USESOUP=FALSE

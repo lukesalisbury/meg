@@ -275,7 +275,7 @@ SheetObject * MapObject_UpdateSprite( DisplayObject * object )
 * MapObject_AddSimplePolygonPoint
 *
 */
-inline void MapObject_AddSimplePolygonPoint( DisplayObject * object, gint x, gint y)
+void MapObject_AddSimplePolygonPoint( DisplayObject * object, gint x, gint y)
 {
 	DisplayObject * obj_point = g_new0(DisplayObject, 1);
 	obj_point->type = DT_POINT;
@@ -293,7 +293,7 @@ inline void MapObject_AddSimplePolygonPoint( DisplayObject * object, gint x, gin
 * MapObject_SetInitialType
 *
 */
-inline char MapObject_SetInitialType( DisplayObject * object, gchar * name, gdouble area_width, gdouble area_height )
+char MapObject_SetInitialType( DisplayObject * object, gchar * name, gdouble area_width, gdouble area_height )
 {
 	char internal_type = 's';
 	if ( !g_ascii_strcasecmp( name, "Rectangle") )

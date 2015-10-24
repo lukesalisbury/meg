@@ -19,6 +19,7 @@
 #define POSITION_SCREEN 1
 
 const Directions: {
+	UNSETDIR = -1,
 	SOUTH = 0,	//0 deg
 	SOUTHEAST,	//45 deg
 	EAST,		//90 deg
@@ -26,7 +27,8 @@ const Directions: {
 	NORTH,		//180 deg
 	NORTHWEST,	//225 deg
 	WEST,		//270 deg
-	SOUTHWEST	//315 deg
+	SOUTHWEST,	//315 deg
+	DIRECTIONS_COUNT
 }
 
 const AudioDevice:{

@@ -36,7 +36,7 @@ GKeyFile * meg_pref_storage = NULL;
 
 /* External Functions */
 gboolean Meg_Main_Init();
-void Entity_RebuildAll( GtkButton * button, GtkTreeStore * list );
+void Entity_RebuildAll(  );
 void Funclist_Free( );
 
 /* UI */
@@ -142,12 +142,10 @@ gint main (gint argc, char *argv[])
 	g_thread_init( NULL );
 	#endif
 
-
 	#if defined(__GNUWIN32__) && GTK_MAJOR_VERSION < 3
 	// Windows Bug fix for link buttons
 	gtk_link_button_set_uri_hook( meg_windows_url_handler, NULL, NULL);
 	#endif
-
 
 	/* Get Base Directory, and set up user settings */
 	PHYSFS_init( argv[0] );
@@ -197,7 +195,7 @@ gint main (gint argc, char *argv[])
 			{
 				g_print("Rebuild Entities\n");
 				AL_LoadProject( project_path );
-				Entity_RebuildAll( NULL, NULL );
+				Entity_RebuildAll( );
 				goto program_exit;
 				break;
 			}

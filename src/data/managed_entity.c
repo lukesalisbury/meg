@@ -891,14 +891,7 @@ gboolean ManagedEntity_Save(gchar * entity_name, MokoiManagedEntity * managed_en
 
 	template_name = g_strconcat (entity_name, ".managed", NULL);
 
-
-
 	gtk_tree_model_foreach( GTK_TREE_MODEL(managed_entity->store), (GtkTreeModelForeachFunc)ManagedEntity_Save_Foreach, NULL);
-
-
-
-
-
 
 /*
 	if ( g_list_length(mokoiManagedFile.subroutines) )

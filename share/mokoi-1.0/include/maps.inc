@@ -129,5 +129,10 @@ native MapCollisionCurrent(objecta, objectb, &angle, &dist, &rect );
 		<param name="section_name" default="" type="s"></param>
 		<return>World ID or 0 if world does not exist.</return>
 	</function>
+	<function name="WorldLoad">
+		<summary>Checks to see if world exist.</summary>
+		<param name="section_name" default="" type="s"></param>
+		<return>World ID or 0 if world does not exist.</return>
+	</function>
 </api>
 ***/

@@ -27,9 +27,9 @@ Permission is granted to anyone to use this software for any purpose, including 
 #include "physfs/physfs.h"
 
 
-gboolean AL_SettingBoolean( gchar * key );
-gchar * AL_Setting_GetString( gchar * key );
-gint AL_Setting_GetNumber( gchar * key );
+gboolean AL_SettingBoolean( const gchar * key );
+gchar * AL_Setting_GetString( const gchar * key );
+gint AL_Setting_GetNumber( const gchar * key );
 
 gboolean EntityCombo_Properties_Open( GtkWidget * button, GdkEventButton * event, GtkComboBox * combo );
 

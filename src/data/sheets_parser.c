@@ -229,7 +229,10 @@ void sheet_xml_start_element(GMarkupParseContext * context, const gchar * elemen
 			{
 				sprite_data->entity = g_strdup( *value_cursor );
 			}
-
+			else if ( !g_ascii_strcasecmp(*name_cursor, "automask") )
+			{
+				sprite_data->mask.autogen = TRUE;
+			}
 			name_cursor++;
 			value_cursor++;
 		}
@@ -383,7 +386,6 @@ void sheet_xml_start_element(GMarkupParseContext * context, const gchar * elemen
 */
 gboolean Sheet_ParseXMLFormat( gchar * filename )
 {
-
 	gboolean function_success = FALSE;
 	gchar * sheet_file = g_strdup_printf("/sprites/%s.xml", filename);
 
@@ -447,8 +449,6 @@ gboolean Sheet_ParseTextFormat( gchar * filename )
 		sheet->visible = TRUE;
 		sheet->children = NULL;
 		sheet->ref = 0;
-
-
 
 		mokoiSpritesheets = g_slist_prepend( mokoiSpritesheets, sheet );
 		Meg_file_get_contents( sheet_file, &sheet_contents, NULL, &local_error );

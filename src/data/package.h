@@ -11,8 +11,8 @@ Permission is granted to anyone to use this software for any purpose, including 
 #ifndef _PACKAGE_H
 	#define _PACKAGE_H
 
-	gboolean Package_ChangeMain( const gchar * new_package_name );
-	gboolean Package_ImportInital(const gchar * file, const gchar * root_dir );
-	void Package_ImportConfig(gboolean remove_file);
+	gboolean Package_ChangeMain( const gchar * package_type, const gchar * new_package_name );
+	gboolean Package_ImportInital( const gchar * file, const gchar * root_dir );
+	void Package_ImportConfig( gboolean remove_file );
 	gchar * Package_GetPath( const gchar * package );
 #endif

@@ -135,19 +135,19 @@ gboolean Map_Open( gchar * file, MapInfo * map_info )
 	gchar * runtime_file, * thumbnail_file, * content;
 
 	/* Inital Map Settings */
-	runtime_file = g_strdup_printf( "/scripts/maps/%s.options", file );
 	thumbnail_file = g_strdup_printf( "/maps/thumbs/%s.png", file );
 
 	map_info->name = g_strdup( file );
-	map_info->settings = EntitySettings_Parser_Load( runtime_file );
-
 	map_info->data = g_new0(MapData, 1);
+
 	MAP_DATA(map_info)->position = (GdkRectangle){0,0,1,1};
 	MAP_DATA(map_info)->colour8 = (rgbaColour){255,255,255,255};
-
 	MAP_DATA(map_info)->xml_filename = g_strdup_printf( "/maps/%s.xml", file );
 	MAP_DATA(map_info)->entity_filename = g_strdup_printf( "/scripts/maps/%s.%s", file, "mps" );
 	MAP_DATA(map_info)->thumb_filename = PHYSFS_buildLocalFilename( thumbnail_file );
+
+	runtime_file = g_strdup_printf( "%s.options", MAP_DATA(map_info)->entity_filename  );
+	map_info->settings = EntitySettings_Parser_Load( runtime_file );
 
 	/* Parse the XML file */
 	if ( Meg_file_get_contents( MAP_DATA(map_info)->xml_filename, &content, NULL, NULL ) )
@@ -160,6 +160,10 @@ gboolean Map_Open( gchar * file, MapInfo * map_info )
 
 	map_info->width = MAP_DATA(map_info)->position.width * AL_Setting_GetDefaultNumber("map.width", 1);
 	map_info->height = MAP_DATA(map_info)->position.height * AL_Setting_GetDefaultNumber("map.height", 1);
+
+	EntitySettings_UpdateType( map_info->settings, "wrap", "hidden" );
+	EntitySettings_UpdateType( map_info->settings, "centerview", "hidden" );
+	EntitySettings_UpdateType( map_info->settings, "independent", "hidden" );
 
 	g_free( runtime_file );
 	g_free( thumbnail_file );
@@ -178,10 +182,10 @@ gboolean Map_Open( gchar * file, MapInfo * map_info )
 gboolean Map_New( gchar * file, guint width, guint height )
 {
 	GString * content = g_string_new( "<map xmlns=\"http://mokoi.info/projects/mokoi\">\n" );
-	g_string_append_printf( content, "<settings>\n" );
-	g_string_append_printf( content, "<dimensions width=\"%ud\" height=\"%ud\" />\n", width, height );
-	g_string_append_printf( content, "<color red=\"%ud\" blue=\"%ud\" green=\"%ud\" mode=\"0\" />\n", 128, 128, 128 );
-	g_string_append_printf( content, "</settings>\n" );
+	g_string_append_printf( content, "\t<settings>\n" );
+	g_string_append_printf( content, "\t\t<dimensions width=\"%ud\" height=\"%ud\" />\n", width, height );
+	g_string_append_printf( content, "\t\t<color red=\"%ud\" blue=\"%ud\" green=\"%ud\" mode=\"0\" />\n", 128, 128, 128 );
+	g_string_append_printf( content, "\t</settings>\n" );
 	g_string_append_printf( content, "</map>" );
 
 	Meg_file_set_contents( file, content->str, -1, &mokoiError ); /* Write map file */
@@ -245,36 +249,34 @@ void Map_Setting_Foreach( gchar* key, EntitySettingsStruct * value, GString * co
 			gchar ** file = g_strsplit( value_str,".", 2);
 			if ( g_strv_length(file) )
 			{
-				g_string_append_printf( content, "\t<setting key=\"%s\" value=\"%s\" type=\"hidden\"/>\n", (gchar*)key, value_str );
+				g_string_append_printf( content, "\t\t<setting key=\"%s\" value=\"%s\" type=\"internal\"/>\n", (gchar*)key, value_str );
 			}
 			g_strfreev( file );
 		}
 		else if ( !g_ascii_strcasecmp( (gchar*)key, "text-string" ) )
 		{
-			g_string_append_printf( content, "\t<setting key=\"%s\" value=\"%s\" />\n", (gchar*)key, value->value ? value_str : "-1" );
+			g_string_append_printf( content, "\t\t<setting key=\"%s\" value=\"%s\" type=\"internal\"/>\n", (gchar*)key, value->value ? value_str : "-1" );
 		}
 		else
 		{
 			if ( value->type )
 			{
-				g_string_append_printf( content, "\t<setting key=\"%s\" value=\"%s\" type=\"%s\"/>\n", (gchar*)key, value_str, value->type );
+				g_string_append_printf( content, "\t\t<setting key=\"%s\" value=\"%s\" type=\"%s\"/>\n", (gchar*)key, value_str, value->type );
 			}
 			else
 			{
-				g_string_append_printf( content, "\t<setting key=\"%s\" value=\"%s\" />\n", (gchar*)key, value_str );
+				g_string_append_printf( content, "\t\t<setting key=\"%s\" value=\"%s\" type=\"internal\"/>\n", (gchar*)key, value_str );
 			}
 		}
-
 
 		if ( value->internal_type == ENTITYOPTION_TARGET && value->value)
 		{
 			gchar ** f = g_strsplit(value->value, ":", 3);
 			if ( g_strv_length(f) == 3 )
 			{
-				g_string_append_printf( content, "\t<setting key=\"%s.world\" value=\"%s\" />\n", key, f[0] );
-				g_string_append_printf( content, "\t<setting key=\"%s.grid\" value=\"%s\" />\n", key, f[1] );
-				g_string_append_printf( content, "\t<setting key=\"%s.entity\" value=\"%s\" />\n", key, f[2] );
-
+				g_string_append_printf( content, "\t\t<setting key=\"%s.world\" value=\"%s\" type=\"internal\"/>\n", key, f[0] );
+				g_string_append_printf( content, "\t\t<setting key=\"%s.grid\" value=\"%s\" type=\"internal\" />\n", key, f[1] );
+				g_string_append_printf( content, "\t\t<setting key=\"%s.entity\" value=\"%s\" type=\"internal\" />\n", key, f[2] );
 			}
 			g_strfreev(f);
 		}
@@ -316,15 +318,15 @@ void Map_SaveObject( DisplayObject * object, GString * map_string , GString * en
 		h = (gint)object->h;
 	}
 
-	g_string_append_printf( map_string, "<object value=\"%s\" type=\"%s\"", object_data->name, MapObject_TypeName(object_data->type) );
+	g_string_append_printf( map_string, "\t<object value=\"%s\" type=\"%s\"", object_data->name, MapObject_TypeName(object_data->type) );
 	if ( object_data->object_name && g_utf8_strlen(object_data->object_name, 1) )
 	{
 		g_string_append_printf( map_string, " id=\"%s\"", object_data->object_name );
 		g_string_append_printf( entity_list_string, "%s\t%d\t%d\n", object_data->object_name, (gint)object->x, (gint)object->y ) ;/* Add Entity to list */
 	}
 	g_string_append_printf( map_string, ">\n" );
-	g_string_append_printf( map_string, "\t<position x=\"%d\" y=\"%d\" w=\"%d\" h=\"%d\" z=\"%d\" l=\"%d\" r=\"%d\" f=\"%d\"/>\n", x, y, w, h, z, l, object->rotate*90, object->is_flipped);
-	g_string_append_printf( map_string, "\t<color red=\"%d\" blue=\"%d\" green=\"%d\" alpha=\"%d\" />\n", object_data->colour8.red, object_data->colour8.blue, object_data->colour8.green, object_data->colour8.alpha );
+	g_string_append_printf( map_string, "\t\t<position x=\"%d\" y=\"%d\" w=\"%d\" h=\"%d\" z=\"%d\" l=\"%d\" r=\"%d\" f=\"%d\"/>\n", x, y, w, h, z, l, object->rotate*90, object->is_flipped);
+	g_string_append_printf( map_string, "\t\t<color red=\"%d\" blue=\"%d\" green=\"%d\" alpha=\"%d\" />\n", object_data->colour8.red, object_data->colour8.blue, object_data->colour8.green, object_data->colour8.alpha );
 
 	g_hash_table_foreach( object_data->settings, (GHFunc) Map_Setting_Foreach, map_string );
 
@@ -332,39 +334,39 @@ void Map_SaveObject( DisplayObject * object, GString * map_string , GString * en
 	/* Write Entity */
 	if ( object_data->entity_file  )
 	{
-		g_string_append_printf( map_string, "\t<entity value=\"%s\" language=\"%s\" global=\"%s\"/>\n", object_data->entity_file, object_data->entity_language, (object_data->entity_global ? "true" : "false") );
+		g_string_append_printf( map_string, "\t\t<entity value=\"%s\" language=\"%s\" global=\"%s\"/>\n", object_data->entity_file, object_data->entity_language, (object_data->entity_global ? "true" : "false") );
 	}
 
 	/* Write Path */
 	if ( object->path  )
 	{
 		point_scan = object->path;
-		g_string_append_printf( map_string, "\t<path>\n");
+		g_string_append_printf( map_string, "\t\t<path>\n");
 		while ( point_scan )
 		{
 			DisplayObject * display_object = (DisplayObject *)point_scan->data;
-			g_string_append_printf( map_string, "\t\t<point x=\"%d\" y=\"%d\" ms=\"%d\"/>\n", (gint)display_object->x, (gint)display_object->y, 10 );
+			g_string_append_printf( map_string, "\t\t\t<point x=\"%d\" y=\"%d\" ms=\"%d\"/>\n", (gint)display_object->x, (gint)display_object->y, 10 );
 			point_scan = g_slist_next( point_scan );
 		}
-		g_string_append_printf( map_string, "\t</path>\n");
+		g_string_append_printf( map_string, "\t\t</path>\n");
 	}
 
 
 	if ( object_data->type == 'p' )
 	{
-		g_string_append_printf( map_string, "\t<option points=\"%u\"/>\n", g_slist_length(object->shape) );
+		g_string_append_printf( map_string, "\t\t<option points=\"%u\"/>\n", g_slist_length(object->shape) );
 
 		point_scan = object->shape;
 		while ( point_scan )
 		{
 			DisplayObject * display_object = (DisplayObject *)point_scan->data;
-			g_string_append_printf( map_string, "\t<point x=\"%d\" y=\"%d\"/>\n", (gint)display_object->x, (gint)display_object->y );
+			g_string_append_printf( map_string, "\t\t<point x=\"%d\" y=\"%d\"/>\n", (gint)display_object->x, (gint)display_object->y );
 			point_scan = g_slist_next(point_scan);
 		}
 	}
 
 
-	g_string_append_printf( map_string, "</object>\n");
+	g_string_append_printf( map_string, "\t</object>\n");
 
 
 }
@@ -389,13 +391,13 @@ gboolean Map_Save( MapInfo * map_info )
 	map_data->position.height = map_info->height / AL_Setting_GetDefaultNumber("map.height", 1);
 
 	/* Settings */
-	g_string_append_printf( map_xml, "<settings>\n");
-	g_string_append_printf( map_xml, "\t<dimensions width=\"%d\" height=\"%d\" />\n",  map_data->position.width, map_data->position.height);
-	g_string_append_printf( map_xml, "\t<color red=\"%d\" blue=\"%d\" green=\"%d\" mode=\"0\" />\n", map_data->colour8.red, map_data->colour8.blue, map_data->colour8.green);
+	g_string_append_printf( map_xml, "\t<settings>\n");
+	g_string_append_printf( map_xml, "\t\t<dimensions width=\"%d\" height=\"%d\" />\n",  map_data->position.width, map_data->position.height);
+	g_string_append_printf( map_xml, "\t\t<color red=\"%d\" blue=\"%d\" green=\"%d\" mode=\"0\" />\n", map_data->colour8.red, map_data->colour8.blue, map_data->colour8.green);
 
 	g_hash_table_foreach(map_info->settings, (GHFunc)EntitySettings_Parser_SaveString, (gpointer)map_xml);
 
-	g_string_append_printf( map_xml, "</settings>\n");
+	g_string_append_printf( map_xml, "\t</settings>\n");
 
 	/* Objects */
 	scan = g_list_first( map_info->display_list );
@@ -525,6 +527,7 @@ gboolean Map_SetStartingPoint( )
 		g_key_file_set_value( mokoiConfigTable, "Mokoi", "map.start", map );
 		Setting_Save();
 		g_free(map);
+
 		return TRUE;
 	}
 	else

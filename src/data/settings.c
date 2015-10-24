@@ -56,16 +56,13 @@ gchar * mokoiSettingsLocked[] = {
 *
 @ key:
 */
-gboolean AL_SettingBoolean( gchar * key )
+gboolean AL_SettingBoolean( const gchar * key )
 {
 	if ( mokoiConfigTable )
 		return g_key_file_get_boolean ( mokoiConfigTable, "Mokoi", key, NULL);
 	else
 		return TRUE;
 }
-
-
-
 
 /********************************
 * AL_Setting_Widget
@@ -112,8 +109,11 @@ void  AL_Setting_Widget( GtkBuilder * ui )
 	g_hash_table_replace(mokoiSettingsTable, "language.choose", gtk_builder_get_object( ui, "w_language_choose" ) ); /* GtkCheckButton */
 
 	g_hash_table_replace(mokoiSettingsTable, "package.main", gtk_builder_get_object( ui, "w_package_main" ) ); /* GtkComboBox */
+	g_hash_table_replace(mokoiSettingsTable, "package.music", gtk_builder_get_object( ui, "w_package_music" ) ); /* GtkComboBox */
+	g_hash_table_replace(mokoiSettingsTable, "package.graphics", gtk_builder_get_object( ui, "w_package_graphics" ) ); /* GtkComboBox */
+	g_hash_table_replace(mokoiSettingsTable, "package.sounds", gtk_builder_get_object( ui, "w_package_sound" ) ); /* GtkComboBox */
 
-
+	//AL_Settings_RefreshPackages();
 
 	GObject * obj = NULL;
 	GObject * preview_widget = NULL;
@@ -162,6 +162,22 @@ void AL_Settings_RefreshAdvance()
 }
 
 /********************************
+* AL_Settings_RefreshPackages
+*
+@ key:
+*/
+void AL_Settings_RefreshPackages()
+{
+	Settings_RefreshPackageWidget( "package.main", ".core.package" );
+	Settings_RefreshPackageWidget( "package.music", ".music.package" );
+	Settings_RefreshPackageWidget( "package.sounds", ".sound.package" );
+	Settings_RefreshPackageWidget( "package.graphics", ".graphics.package" );
+}
+
+
+
+
+/********************************
 * AL_Settings_Refresh
 *
 @ key:
@@ -169,19 +185,8 @@ void AL_Settings_RefreshAdvance()
 void AL_Settings_Refresh()
 {
 
-	/* Packages */
-	GtkWidget * package = g_hash_table_lookup( mokoiSettingsTable, "package.main");
-	Setting_Package( GTK_COMBO_BOX(package), NULL );
-	if ( package )
-	{
-		gchar * setting = AL_Setting_GetString("package.main");
-		if ( setting )
-		{
-			Meg_ComboText_SetIndex(GTK_COMBO_BOX(package), setting);
-			g_free(setting);
-		}
-	}
 
+	/*Languages */
 	GtkWidget * lang = g_hash_table_lookup( mokoiSettingsTable, "language.default");
 	if ( lang )
 	{
@@ -190,7 +195,9 @@ void AL_Settings_Refresh()
 		char ** lang_files = PHYSFS_enumerateFiles("lang");
 		char ** i;
 
+		gtk_combo_box_set_active( GTK_COMBO_BOX(lang), -1);
 		gtk_list_store_clear(list);
+
 		for (i = lang_files; *i != NULL; i++)
 		{
 			gchar * file = *i;
@@ -200,12 +207,14 @@ void AL_Settings_Refresh()
 
 				gtk_list_store_append( list, &iter );
 				gtk_list_store_set( list, &iter, 0, name, 1, name, -1);
-
 			}
 		}
 		PHYSFS_freeList(lang_files);
 		gtk_combo_box_set_active( GTK_COMBO_BOX(lang), 0  );
 	}
+
+	/* Packages */
+
 
 	g_hash_table_foreach( mokoiSettingsTable, Setting_LoadForeach, mokoiConfigTable );
 
@@ -229,7 +238,7 @@ void AL_Settings_Clear()
 *
 @ key:
 */
-gboolean AL_Setting_Remove(  gchar * key )
+gboolean AL_Setting_Remove( const  gchar * key )
 {
 	if ( Setting_Unlocked(key) )
 	{
@@ -247,7 +256,7 @@ gboolean AL_Setting_Remove(  gchar * key )
 *
 @ key:
 */
-gchar * AL_Setting_GetString( gchar * key )
+gchar * AL_Setting_GetString( const gchar * key )
 {
 	return g_key_file_get_string( mokoiConfigTable, "Mokoi", key, NULL);
 }
@@ -257,7 +266,7 @@ gchar * AL_Setting_GetString( gchar * key )
 *
 @ key:
 */
-gint AL_Setting_GetNumber( gchar * key )
+gint AL_Setting_GetNumber( const gchar * key )
 {
 	return g_key_file_get_integer( mokoiConfigTable, "Mokoi", key, NULL );
 }
@@ -268,7 +277,7 @@ gint AL_Setting_GetNumber( gchar * key )
 @ key:
 @ default_value:
 */
-gint AL_Setting_GetDefaultNumber( gchar * key, gint default_value )
+gint AL_Setting_GetDefaultNumber( const gchar * key, gint default_value )
 {
 	if ( g_key_file_has_key( mokoiConfigTable, "Mokoi", key, NULL ) )
 		return g_key_file_get_integer( mokoiConfigTable, "Mokoi", key, NULL );
@@ -280,7 +289,7 @@ gint AL_Setting_GetDefaultNumber( gchar * key, gint default_value )
 *
 @ key:
 */
-gdouble AL_Setting_GetDouble( gchar * key )
+gdouble AL_Setting_GetDouble( const gchar * key )
 {
 	return g_key_file_get_double( mokoiConfigTable, "Mokoi", key, NULL );
 }
@@ -290,7 +299,7 @@ gdouble AL_Setting_GetDouble( gchar * key )
 *
 @ store: [ 0=>name, 1=>value, 2=>editable ]
 */
-void AL_Setting_SetString( gchar * key, gchar * value )
+void AL_Setting_SetString( const gchar * key, gchar * value )
 {
 	GObject * wid = g_hash_table_lookup(mokoiSettingsTable, key);
 	g_key_file_set_string( mokoiConfigTable, "Mokoi", key, value );

@@ -215,6 +215,7 @@ void MegWidget_Spritesheet_RefreshSpriteList( )
 	}
 }
 
+void Meg_Spritesheet_DisplayScale( GtkWidget * display );
 /********************************
 * MegWidget_Spritesheet_SetSheetList
 *

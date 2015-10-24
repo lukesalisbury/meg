@@ -183,7 +183,7 @@ void Sprite_DialogPreview_SpinChange( GtkSpinButton *spinbutton, GtkWidget * are
 */
 gboolean Sprite_AdvanceDialog( Spritesheet * sheet, SheetObject * sprite )
 {
-	GtkWidget * dialog, * entry_name, * spin_mask, * file_mask, * file_entity, * area_collision , *combo_collision, * image_preview, * check_visible, * button_entitysettings;
+	GtkWidget * dialog, * entry_name, * spin_mask, *check_maskauto, * file_mask, * file_entity, * area_collision , *combo_collision, * image_preview, * check_visible, * button_entitysettings;
 	GtkWidget * image_group, * area_preview;
 	GtkSpinButton  * spin_x, * spin_y, * spin_w, * spin_h;
 	GtkListStore * store_collision;
@@ -205,7 +205,7 @@ gboolean Sprite_AdvanceDialog( Spritesheet * sheet, SheetObject * sprite )
 	spin_mask = GET_WIDGET( ui, "spin_mask");
 	file_mask = GET_WIDGET( ui, "combo_maskfile");
 	area_preview = GET_WIDGET( ui, "area_preview");
-
+	check_maskauto = GET_WIDGET( ui, "check_maskauto");
 
 	/* Collision Tab */
 	area_collision = GET_WIDGET( ui, "area_collision");
@@ -276,6 +276,7 @@ gboolean Sprite_AdvanceDialog( Spritesheet * sheet, SheetObject * sprite )
 	else
 	{
 		gtk_spin_button_set_value( GTK_SPIN_BUTTON(spin_mask), (gdouble) SPRITE_DATA(sprite)->mask.value );
+		SPRITE_DATA(sprite)->mask.autogen = gtk_toggle_button_get_active( GTK_TOGGLE_BUTTON(check_maskauto) );
 	}
 
 	if ( SPRITE_DATA(sprite)->entity )
@@ -325,8 +326,10 @@ gboolean Sprite_AdvanceDialog( Spritesheet * sheet, SheetObject * sprite )
 			if ( mask_filename )
 				SPRITE_DATA(sprite)->mask.name = g_strdup( mask_filename );
 			else
+			{
 				SPRITE_DATA(sprite)->mask.value = gtk_spin_button_get_value_as_int( GTK_SPIN_BUTTON(spin_mask) );
-
+				SPRITE_DATA(sprite)->mask.autogen = gtk_toggle_button_get_active( GTK_TOGGLE_BUTTON(check_maskauto) );
+			}
 			if ( entity_filename )
 				SPRITE_DATA(sprite)->entity = g_strdup( entity_filename );
 

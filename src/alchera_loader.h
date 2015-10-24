@@ -27,12 +27,12 @@
 	void AL_Settings_Refresh();
 	void AL_Settings_Clear();
 	void AL_Setting_Widget( GtkBuilder * ui );
-	gchar * AL_Setting_GetString( gchar * key );
-	gint AL_Setting_GetNumber( gchar * key );
-	gint AL_Setting_GetDefaultNumber( gchar * key, gint default_value );
-	gdouble AL_Setting_GetDouble( gchar * key );
-	gboolean AL_Setting_Remove(  gchar * key );
-	void AL_Setting_SetString( gchar * key, gchar * value );
+	gchar * AL_Setting_GetString( const gchar * key );
+	gint AL_Setting_GetNumber( const gchar * key );
+	gint AL_Setting_GetDefaultNumber( const gchar * key, gint default_value );
+	gdouble AL_Setting_GetDouble( const gchar * key );
+	gboolean AL_Setting_Remove(  const gchar * key );
+	void AL_Setting_SetString( const gchar * key, gchar * value );
 
 	/* Image Handling */
 	GdkPixbuf * AL_GetSprite( gchar * name );

@@ -11,12 +11,13 @@ Permission is granted to anyone to use this software for any purpose, including 
 
 #ifndef SETTING_FUNCTIONS
 	#define SETTING_FUNCTIONS
-	gboolean Setting_Unlocked( char * key );
+	gboolean Setting_Unlocked( const char * key );
 	gboolean Setting_Update( GtkListStore * store, GtkTreePath * path, GtkTreeIter * iter, gboolean * result );
 	gboolean Setting_Save();
-	void Setting_WidgetWrite(gchar * name, GObject * wid );
+	void Setting_WidgetWrite( const gchar * name, GObject * wid );
 
-	void Setting_Package( GtkComboBox * combo, gchar * prefix );
+	void Settings_RefreshPackageWidget( const gchar * config_str, const gchar * file_extention );
+	void Setting_Package(GtkComboBox * combo, const gchar * file_extension );
 
 	void Setting_Event_ButtonSave(GtkButton* button, GHashTable * table );
 	void Setting_Event_SetImage(GtkButton* button, gpointer data );

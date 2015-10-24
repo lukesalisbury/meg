@@ -135,6 +135,13 @@ gboolean Alchera_DisplayObject_PathRemove( MapInfo * map_info, DisplayObject * o
 	return FALSE;
 }
 
+/**
+ * @brief Alchera_DisplayObject_Path
+ * @param map_info
+ * @param obj
+ * @param parent_window
+ * @return
+ */
 gboolean Alchera_DisplayObject_Path( MapInfo * map_info, DisplayObject * obj, GtkWindow * parent_window )
 {
 	if ( obj )

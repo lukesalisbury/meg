@@ -183,24 +183,41 @@ void map_parse_handler_start_settings( GMarkupParseContext *context, const gchar
 	}
 	else if ( g_ascii_strcasecmp (element_name, "option") == 0 )
 	{
-		gchar * key = NULL, *value = NULL, *type = NULL;
+		gchar * setting_name = NULL;
+		const gchar * attr_name = NULL;
+		const gchar * attr_value = NULL;
+		EntitySettingsStruct * options = EntitySettings_New( NULL, NULL );
+
+		options->removable = FALSE;
+
 		for (; *attribute_names && *attribute_values; attribute_names++, attribute_values++)
 		{
-			if ( g_ascii_strcasecmp(*attribute_names, "name") == 0 )
-				key = g_strdup(*attribute_values);
-			else if ( g_ascii_strcasecmp(*attribute_names, "value") == 0 )
-				value = g_strdup(*attribute_values);
-			else if ( g_ascii_strcasecmp(*attribute_names, "type") == 0 )
-				type = g_strdup(*attribute_values);
+			attr_name = *attribute_names;
+			attr_value = *attribute_values;
+			if ( !g_ascii_strcasecmp(attr_name, "name") )
+				setting_name = g_strdup(attr_value);
+			else if ( !g_ascii_strcasecmp(attr_name, "value") )
+				options->value = g_strdup(attr_value);
+			else if ( !g_ascii_strcasecmp(attr_name, "type") )
+				options->type = g_strdup(attr_value);
+			else if ( !g_ascii_strcasecmp(attr_name, "removable") )
+				options->removable = TRUE;
 		}
 
-		if ( key && value )
+		if ( setting_name )
 		{
-			if ( g_ascii_strcasecmp( value, "(null)" ) )
-				g_hash_table_insert( map_info->settings, (gpointer)key, EntitySettings_New(value, type) );
+			options->internal_type = EntitySettings_Type(options->type);
+
+			if ( options->internal_type == ENTITYOPTION_NONE )
+			{
+				EntitySettings_Delete( options );
+			}
 			else
-				g_hash_table_insert( map_info->settings, (gpointer)key, EntitySettings_New("", type) );
+			{
+				g_hash_table_insert(map_info->settings, setting_name, options);
+			}
 		}
+
 
 	}
 	else if ( g_ascii_strcasecmp (element_name, "dimensions") == 0 )
@@ -239,7 +256,6 @@ void map_parse_handler_start_path_element( GMarkupParseContext *context, const g
 		else if ( g_ascii_strcasecmp (*attribute_names, "y") == 0 )
 			object_display->y = atoi(*attribute_values);
 	}
-
 
 	/* Append Path */
 	GList * last_object = NULL;

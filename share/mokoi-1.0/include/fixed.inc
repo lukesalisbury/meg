@@ -30,10 +30,10 @@ native Fixed:flog(Fixed:value, Fixed:base=10.0); /* Return the logarithm */
 
 /**************************************************/
 /* Return the sine, cosine or tangent. The input angle may be in radian, degrees or grades. */
-native Fixed:fsin(Fixed:value, anglemode:mode=radian);
-native Fixed:fcos(Fixed:value, anglemode:mode=radian);
-native Fixed:ftan(Fixed:value, anglemode:mode=radian);
-native Fixed:fatan2(Fixed:x, Fixed:y, anglemode:mode=radian );
+native Fixed:fsin(Fixed:value, anglemode:mode=degrees);
+native Fixed:fcos(Fixed:value, anglemode:mode=degrees);
+native Fixed:ftan(Fixed:value, anglemode:mode=degrees);
+native Fixed:fatan2(Fixed:x, Fixed:y, anglemode:mode=degrees );
 
 /**************************************************/
 /* user defined operators */

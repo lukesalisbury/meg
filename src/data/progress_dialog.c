@@ -155,6 +155,7 @@ gboolean ProgressDialog_Create( ProgressDialogWidgets * wid, gchar * title, cons
 	/* Setup */
 	gtk_window_set_title( GTK_WINDOW(wid->dialog), title );
 	gtk_window_set_transient_for( GTK_WINDOW(wid->dialog), Meg_Main_GetWindow() );
+	gtk_window_set_position ( GTK_WINDOW(wid->dialog), GTK_WIN_POS_CENTER_ON_PARENT );
 	Logger_SetBufferTag( gtk_text_view_get_buffer( GTK_TEXT_VIEW(wid->log) ) );
 
 	/* Set Compile Widget */

@@ -27,7 +27,7 @@ const gchar * mokoiUI_SpriteGrouping = GUI_SPRITE_GROUPING;
 /* Functions */
 
 /********************************
-* Meg_ComboText_AppendText
+* SpriteGrouping_ComboAppend
 * Design to replace gtk_combo_box_append_text
 *
 */

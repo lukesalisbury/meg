@@ -14,6 +14,11 @@
 #define ARG_STRING	's'
 #define ARG_END	'\0'
 
+#define ARG_N	'n'
+#define ARG_R	'd'
+#define ARG_A	'a'
+#define ARG_S	's'
+
 #define MAP_ENTITY entity:0xD4824F64
 #define MAIN_ENTITY entity:0x1D1A8BF1
 
@@ -28,7 +33,7 @@ native EntityGetPosition2(&x, &y, &Fixed:layerz, id = SELF, whole = 1 ) = Entity
 native entity:EntityCreate(parententity{}, id_string{}, Fixed:x, Fixed:y, Fixed:layerz, map_id, args[]=[ARG_END], args_count = sizeof(args), {Fixed,_}:...);
 native EntityDelete(entity:id = SELF);
 native EntityGetSetting(key{}, string{}, entity:id = SELF, length = sizeof string);
-native EntityGetSettingHash(key{}, entity:id = SELF);
+native EntityGetHash(key{}, entity:id = SELF) = EntityGetSettingHash;
 native EntityGetNumber(key{}, entity:id = SELF );
 native object:EntityGetObject(key{} = "object-id", entity:id = SELF ) = EntityGetNumber;
 

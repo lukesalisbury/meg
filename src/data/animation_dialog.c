@@ -52,7 +52,7 @@ gboolean Animation_AdvanceDialog( Spritesheet * sheet, SheetObject * sprite )
 	AnimationPreview * anim_data;
 	GtkTreeIter iter;
 	GtkListStore * store_frames;
-	GtkWidget * dialog, * entry_name, * check_visible, * tree_frames, * spin_mask, * file_mask, * image_group, * file_entity, *area_framepreview, * button_entitysettings, * button_play;
+	GtkWidget * dialog, * entry_name, * check_visible, * tree_frames, *check_maskauto, * spin_mask, * file_mask, * image_group, * file_entity, *area_framepreview, * button_entitysettings, * button_play;
 	GObject * spin_frame_x, * spin_frame_y, * spin_frame_time;
 
 	/* UI */
@@ -67,6 +67,7 @@ gboolean Animation_AdvanceDialog( Spritesheet * sheet, SheetObject * sprite )
 	check_visible = GET_WIDGET( ui, "check_visible" );
 	spin_mask = GET_WIDGET( ui, "spin_mask");
 	file_mask = GET_WIDGET( ui, "combo_maskfile");
+	check_maskauto = GET_WIDGET( ui, "check_maskauto");
 
 	/* Frame Tab */
 	area_framepreview = GET_WIDGET( ui, "area_framepreview");
@@ -137,6 +138,7 @@ gboolean Animation_AdvanceDialog( Spritesheet * sheet, SheetObject * sprite )
 	else
 	{
 		gtk_spin_button_set_value( GTK_SPIN_BUTTON(spin_mask), (gdouble) SPRITE_DATA(sprite)->mask.value );
+		SPRITE_DATA(sprite)->mask.autogen = gtk_toggle_button_get_active( GTK_TOGGLE_BUTTON(check_maskauto) );
 	}
 
 	if ( SPRITE_DATA(sprite)->entity )
@@ -204,6 +206,7 @@ gboolean Animation_AdvanceDialog( Spritesheet * sheet, SheetObject * sprite )
 			else
 			{
 				SPRITE_DATA(sprite)->mask.value = gtk_spin_button_get_value_as_int( GTK_SPIN_BUTTON(spin_mask) );
+				SPRITE_DATA(sprite)->mask.autogen = gtk_toggle_button_get_active( GTK_TOGGLE_BUTTON(check_maskauto) );
 			}
 
 			if ( entity_filename )

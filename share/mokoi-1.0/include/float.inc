@@ -33,10 +33,10 @@ native Float:floatabs(Float:value); /* Return the absolute value */
 
 /**************************************************/
 /* Return the sine, cosine or tangent. The input angle may be in radian, degrees or grades. */
-native Float:floatsin(Float:value, anglemode:mode=radian);
-native Float:floatcos(Float:value, anglemode:mode=radian);
-native Float:floattan(Float:value, anglemode:mode=radian);
-native Float:floatatan2(Float:x, Float:y, anglemode:mode=radian );
+native Float:floatsin(Float:value, anglemode:mode=degrees);
+native Float:floatcos(Float:value, anglemode:mode=degrees);
+native Float:floattan(Float:value, anglemode:mode=degrees);
+native Float:floatatan2(Float:x, Float:y, anglemode:mode=degrees );
 
 
 /**************************************************/

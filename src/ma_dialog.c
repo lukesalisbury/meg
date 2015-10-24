@@ -189,8 +189,6 @@ gboolean Meg_Dialog_Preference()
 	gchar * current_image_editor_path = g_key_file_get_string(meg_pref_storage, "path", "imageeditor", NULL);
 	gchar * current_text_editor_path = g_key_file_get_string(meg_pref_storage, "path", "texteditor", NULL);
 
-
-
 	/* UI */
 	GtkBuilder * ui = Meg_Builder_Create(UIPrefDialog, __func__, __LINE__);
 	g_return_val_if_fail( ui, FALSE );
@@ -203,21 +201,17 @@ gboolean Meg_Dialog_Preference()
 	button_imageclear = GET_WIDGET( ui, "button_imageclear" );
 	spin_gridvalue = GET_WIDGET( ui, "spin_gridvalue" );
 
-
 	/* Signal */
 	g_signal_connect( button_textclear, "clicked", G_CALLBACK(Meg_Preference_ClearFile), file_texteditor );
 	g_signal_connect( button_imageclear, "clicked", G_CALLBACK(Meg_Preference_ClearFile), file_imageeditor );
 
-
 	/* Setting */
-
 	gtk_spin_button_set_value( GTK_SPIN_BUTTON(spin_gridvalue), g_key_file_get_double(meg_pref_storage, "numeric", "gridvalue", NULL) );
 
 	if ( current_text_editor_path )
 		gtk_file_chooser_set_filename( GTK_FILE_CHOOSER(file_texteditor), current_text_editor_path  );
 	if ( current_image_editor_path )
 		gtk_file_chooser_set_filename( GTK_FILE_CHOOSER(file_imageeditor), current_image_editor_path  );
-
 
 	gtk_window_set_transient_for( GTK_WINDOW(dialog), Meg_Main_GetWindow() );
 
@@ -240,7 +234,7 @@ gboolean Meg_Dialog_Preference()
 			g_key_file_remove_key(meg_pref_storage, "path", "imageeditor", NULL);
 
 		/* Save to File */
-		gchar * pref_file = g_build_filename( Meg_Directory_Config(), "mokoi-editor.ini", NULL);
+		gchar * pref_file = g_build_filename( Meg_Directory_Config(), "settings.ini", NULL);
 		gchar * string = g_key_file_to_data( meg_pref_storage, NULL, NULL );
 		g_file_set_contents( pref_file, string, -1, NULL );
 		g_free( pref_file );

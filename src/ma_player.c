@@ -76,15 +76,12 @@ void MegWidget_Player_Close()
 */
 void MegWidget_Player_Play( GtkWidget *button, PlayerInfo * player_info )
 {
+	#ifdef GDK_WINDOWING_WIN32
 	gdk_window_ensure_native( gtk_widget_get_window(player_info->widget) );
 	gtk_widget_set_double_buffered(player_info->widget, FALSE);
-	#ifdef GDK_WINDOWING_X11
-	player_info.winId = GDK_WINDOW_XID(gtk_widget_get_window(player_info->widget));
-	#endif
-	#ifdef GDK_WINDOWING_WIN32
+
 	player_info->winId = gdk_win32_drawable_get_handle(gtk_widget_get_window(player_info->widget));
 
-	#endif
 
 	if ( player_info->state == NOTRUNNING )
 	{
@@ -117,7 +114,7 @@ void MegWidget_Player_Play( GtkWidget *button, PlayerInfo * player_info )
 			argv[0] = g_build_filename( Meg_Directory(), ENGINE_FILENAME, NULL);
 			argv[1] = g_strconcat( "'", project_file_path, G_DIR_SEPARATOR_S, "'", NULL);
 		#endif
-		argv[2] = g_strdup_printf("--windowid=%d", player_info->winId);
+		argv[2] = g_strdup_printf("--windowid=%d", (gint)player_info->winId);
 		argv[3] = NULL;
 
 		#ifdef apple
@@ -147,6 +144,7 @@ void MegWidget_Player_Play( GtkWidget *button, PlayerInfo * player_info )
 		g_spawn_close_pid(player_info->pid);
 		player_info->state = NOTRUNNING;
 	}
+#endif
 
 
 }
@@ -180,9 +178,12 @@ void MegWidget_Player_Pause(GtkWidget *button, PlayerInfo *player_info)
 
 void MegWidget_Player_Refresh( GtkWidget *button, PlayerInfo *player_info )
 {
+#ifdef GDK_WINDOWING_WIN32
+
 	GdkEvent * event = gdk_event_new(GDK_CLIENT_EVENT);
 
 	event->client.data_format = 32;
 	event->client.data.s[0] = 42;
 	gdk_event_send_client_message(event, player_info->winId);
+#endif
 }

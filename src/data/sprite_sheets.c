@@ -264,7 +264,11 @@ gboolean Sheet_SaveFile( Spritesheet * sheet )
 			if ( SPRITE_DATA(sprite)->mask.name != NULL )
 				g_string_append_printf( content, " mask=\"%s\"", SPRITE_DATA(sprite)->mask.name );
 			else
+			{
 				g_string_append_printf( content, " mask=\"%d\"", SPRITE_DATA(sprite)->mask.value );
+				if ( SPRITE_DATA(sprite)->mask.autogen  )
+					content = g_string_append( content, " automask=\"1\"" );
+			}
 
 
 			if ( SPRITE_DATA(sprite)->entity )

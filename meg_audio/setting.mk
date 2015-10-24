@@ -13,5 +13,5 @@ MESSAGE =
 #INSTALLDIR = /opt/mokoi
 #BUILDOS =
 
-
+-include ../../globalsettings.mk
 include ../platform.mk

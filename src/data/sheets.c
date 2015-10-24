@@ -246,7 +246,7 @@ void AL_Sprite_Add( Spritesheet * spritesheet, GdkRectangle * sprite_rect )
 		return;
 	}
 
-	GtkWidget * dialog, * text_name, * file_mask, * file_entity, * radio_align;
+	GtkWidget * dialog, * text_name, * file_mask, *check_maskauto, * file_entity, * radio_align;
 	GtkSpinButton * spin_mask, * spin_x, * spin_y, * spin_w, * spin_h, * spin_frames;
 
 	/* UI */
@@ -269,6 +269,8 @@ void AL_Sprite_Add( Spritesheet * spritesheet, GdkRectangle * sprite_rect )
 	spin_h = GET_SPIN_WIDGET( ui, "spin_h");
 	spin_mask = GET_SPIN_WIDGET( ui, "spin_mask");
 	spin_frames = GET_SPIN_WIDGET( ui, "spin_frames");
+
+	check_maskauto = GET_WIDGET( ui, "check_maskauto");
 
 	file_mask = GET_WIDGET( ui, "file_mask");
 	file_entity = GET_WIDGET( ui, "file_entity");
@@ -332,7 +334,10 @@ void AL_Sprite_Add( Spritesheet * spritesheet, GdkRectangle * sprite_rect )
 			if ( mask_file && g_utf8_strlen( mask_file, -1 ) )
 				sprite_data->mask.name = g_strdup(mask_file);
 			else
+			{
 				sprite_data->mask.value = gtk_spin_button_get_value_as_int( spin_mask );
+				sprite_data->mask.autogen = gtk_toggle_button_get_active( GTK_TOGGLE_BUTTON(check_maskauto) );
+			}
 
 			GdkPixbuf * parent_image = AL_GetImage( sprite->parent_sheet, NULL );
 			if ( frame_count > 0 )

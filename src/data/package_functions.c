@@ -26,7 +26,6 @@ Permission is granted to anyone to use this software for any purpose, including 
 #include "progress_dialog.h"
 #include "logger_functions.h"
 
-
 /* Global Variables */
 extern gchar * mokoiBasePath;
 extern GError * mokoiError;
@@ -45,19 +44,16 @@ typedef struct {
 	GtkTreeIter iter;
 } PackageWatch;
 
-
 /* UI */
-
-
 const gchar * uiPackageFiles = GUI_PACKAGE_FILES;
 const gchar * uiPackageQuestion = GUI_PACKAGE_QUESTION;
 
-/********************************
-* Package_ExtractFile
-*
-@ in_file:
-@ out_dir:
-*/
+/**
+ * @brief Package_ExtractFile
+ * @param fd
+ * @param fi
+ * @return
+ */
 gboolean Package_ExtractFile( FILE * fd, StoredFileInfo * fi )
 {
 	if ( fd == NULL )
@@ -81,13 +77,11 @@ gboolean Package_ExtractFile( FILE * fd, StoredFileInfo * fi )
 	return FALSE;
 }
 
-/********************************
-* Package_GetPath
-*
-@ package:
-
-*/
-
+/**
+ * @brief Package_GetPath
+ * @param package
+ * @return
+ */
 gchar * Package_GetPath( const gchar * package )
 {
 	gchar * package_location = NULL;
@@ -111,8 +105,6 @@ gchar * Package_GetPath( const gchar * package )
 	}
 	g_free( package_location );
 
-
-
 	package_location = NULL;
 
 	function_exit:
@@ -123,13 +115,16 @@ gchar * Package_GetPath( const gchar * package )
 	return package_location;
 }
 
-
-/********************************
-* Package_Infomation
-*
-@ in_file:
-@ out_dir:
-*/
+/**
+ * @brief Package_Infomation
+ * @param file
+ * @param package_name
+ * @param package_path
+ * @param package_version
+ * @param package_description
+ * @param package_type
+ * @return
+ */
 gboolean Package_Infomation( const gchar * file, gchar ** package_name, gchar ** package_path, \
 							 gchar ** package_version, gchar ** package_description, \
 							 guint8 *package_type )
@@ -171,12 +166,11 @@ gboolean Package_Infomation( const gchar * file, gchar ** package_name, gchar **
 	return valid;
 }
 
-/********************************
-* Package_FileList
-*
-@ data:
-@ size:
-*/
+/**
+ * @brief Package_FileList
+ * @param file
+ * @return
+ */
 GSList * Package_FileList( const gchar * file )
 {
 	GSList * list = NULL;
@@ -191,13 +185,11 @@ GSList * Package_FileList( const gchar * file )
 	return list;
 }
 
-
-/********************************
-* Package_FileSelectionDialog_Update
-*
-@ data:
-@ user_data:
-*/
+/**
+ * @brief Package_FileSelectionDialog_Update
+ * @param data (StoredFileInfo*)
+ * @param user_data (GtkListStore*)
+ */
 void Package_FileSelectionDialog_Update(gpointer data, gpointer user_data)
 {
 	StoredFileInfo *file_info = (StoredFileInfo*)data;
@@ -210,12 +202,12 @@ void Package_FileSelectionDialog_Update(gpointer data, gpointer user_data)
 
 }
 
-/********************************
-* Package_FileSelectionDialog
-*
-@ file:
-@ widget:
-*/
+/**
+ * @brief Package_FileSelectionDialog
+ * @param file
+ * @param widget
+ * @return
+ */
 GSList * Package_FileSelectionDialog( const gchar * file, GtkWidget * widget  )
 {
 	GtkListStore * store_files;
@@ -269,21 +261,18 @@ GSList * Package_FileSelectionDialog( const gchar * file, GtkWidget * widget  )
 	return file_import_list;
 }
 
-
-/********************************
-* Package_ImportConfig
-*
-@ data:
-@ size:
-*/
+/**
+ * @brief Package_ImportConfig
+ * @param remove_file
+ */
 void Package_ImportConfig( gboolean remove_file )
 {
 	gchar * config_text = NULL;
 	gsize config_length = 0;
+
 	if ( Meg_file_get_contents( "/package/package.config", &config_text, &config_length, &mokoiError ) )
 	{
 		GKeyFile * package_config = NULL;
-
 
 		gsize lc = 0;
 		gsize length = 0;
@@ -293,8 +282,7 @@ void Package_ImportConfig( gboolean remove_file )
 
 		/* Config file found */
 		package_config = g_key_file_new();
-		g_key_file_load_from_data( package_config, config_text, config_length, G_KEY_FILE_KEEP_TRANSLATIONS, &mokoiError );
-
+		g_key_file_load_from_data( package_config, config_text, config_length, G_KEY_FILE_KEEP_TRANSLATIONS, NULL );
 
 		keys = g_key_file_get_keys(package_config, "package", &length, NULL);
 		if ( length )
@@ -325,22 +313,13 @@ void Package_ImportConfig( gboolean remove_file )
 	g_free(config_text);
 
 	Meg_Error_Check( mokoiError, FALSE, __func__ );
-
-
 }
 
-
-
-
-/********************************
-* Package_Import
-*
-@ file:
-@ progress_widget:
-@ model:
-@ iter:
-@ initial:
-*/
+/**
+ * @brief Package_ImportFiles
+ * @param filename
+ * @param files
+ */
 void Package_ImportFiles( const gchar * filename, GSList * files )
 {
 	FILE * fd;
@@ -379,22 +358,19 @@ void Package_ImportFiles( const gchar * filename, GSList * files )
 
 			}
 		}
-
-
 		item = g_slist_next( item );
 	}
-
-
 
 	PHYSFS_close(log_file);
 	fclose(fd);
 }
 
 
-/********************************
-* Package_ImportThread
-*
-*/
+/**
+ * @brief Package_ImportThread
+ * @param data
+ * @return
+ */
 gpointer Package_ImportThread( gpointer data )
 {
 	PackageWatch * package = (PackageWatch *)data;
@@ -416,10 +392,12 @@ gpointer Package_ImportThread( gpointer data )
 	return NULL;
 }
 
-/********************************
-* Package_ImportThread_ProgressDialog
-* Same as above but uses ProgressDialog instead.
-*/
+/**
+ * @brief Package_ImportThread_ProgressDialog
+ * Same as above but uses ProgressDialog instead.
+ * @param wids
+ * @return
+ */
 gpointer Package_ImportThread_ProgressDialog( ProgressDialogWidgets *wids )
 {
 	Logger_SetQueue( wids->queue ); // redirects a Logger_* to pass messages
@@ -434,10 +412,11 @@ gpointer Package_ImportThread_ProgressDialog( ProgressDialogWidgets *wids )
 	return NULL;
 }
 
-/********************************
-* Package_ImportWatch
-*
-*/
+/**
+ * @brief Package_ImportWatch
+ * @param package
+ * @return
+ */
 gboolean Package_ImportWatch( PackageWatch * package )
 {
 	gpointer q = g_async_queue_try_pop( package->queue );
@@ -458,11 +437,9 @@ gboolean Package_ImportWatch( PackageWatch * package )
 
 		g_async_queue_unref( package->queue );
 
-
 		g_free(package->url);
 		g_free(package->filename);
 		g_free(package);
-
 
 		/* Reload Spritesheet */
 		char ** files = PHYSFS_enumerateFiles("/sprites/");
@@ -486,16 +463,13 @@ gboolean Package_ImportWatch( PackageWatch * package )
 	return FALSE;
 }
 
-
-/********************************
-* Package_ImportDrop
-*
-@ file:
-*/
+/**
+ * @brief Package_ImportDrop
+ * @param file
+ * @return
+ */
 gboolean Package_ImportDrop(const gchar * file )
 {
-
-
 	ProgressDialog_Clear( &mokoiPackageImport );
 	if ( ProgressDialog_Create( &mokoiPackageImport, "Importing Files", file ) )
 	{
@@ -506,26 +480,25 @@ gboolean Package_ImportDrop(const gchar * file )
 	return FALSE;
 }
 
-/********************************
-* Package_ChangeMain
-*
-@ package:
-*/
-gboolean Package_ChangeMain( const gchar * new_package_name )
+/**
+ * @brief Package_ChangeMain
+ * @param new_package_name
+ * @return
+ */
+gboolean Package_ChangeMain( const gchar * package_type, const gchar * new_package_name )
 {
 	gchar * package_location = NULL;
-	gchar * package_name = AL_Setting_GetString("package.main");
+	gchar * old_package_name = AL_Setting_GetString(package_type);
 
-
-	if ( !g_strcmp0(new_package_name, package_name) )
+	if ( !g_strcmp0(new_package_name, old_package_name) )
 	{
 		return TRUE;
 	}
 
-	if ( package_name )
+	if ( old_package_name )
 	{
-		package_location = Package_GetPath( package_name );
-		if ( !PHYSFS_removeFromSearchPath(package_location) )
+		package_location = Package_GetPath( old_package_name );
+		if ( !PHYSFS_removeFromSearchPath( package_location ) )
 		{
 			g_warning( "Package Unload Error %s", PHYSFS_getLastError() );
 		}
@@ -549,18 +522,17 @@ gboolean Package_ChangeMain( const gchar * new_package_name )
 			Package_ImportConfig( FALSE );
 		}
 
-
 		g_free(package_location);
 	}
 	return TRUE;
 }
 
-/********************************
-* Package_ImportInital
-*
-@ file:
-@ root_dir:
-*/
+/**
+ * @brief Package_ImportInital
+ * @param file
+ * @param root_dir
+ * @return
+ */
 gboolean Package_ImportInital(const gchar * file, const gchar * root_dir )
 {
 	/* Install Base System */
@@ -570,7 +542,6 @@ gboolean Package_ImportInital(const gchar * file, const gchar * root_dir )
 	GtkDialog * dialog;
 
 	GtkBuilder * ui = Meg_Builder_Create(uiPackageQuestion, __func__, __LINE__);
-
 
 	Meg_Log_Print( LOG_NONE, "Installing Base System: '%s'", file);
 
@@ -588,7 +559,6 @@ gboolean Package_ImportInital(const gchar * file, const gchar * root_dir )
 		Package_ImportFiles( file, package_files );
 		files_imported = TRUE;
 
-
 		/* Remove physfs  */
 		PHYSFS_setWriteDir(NULL);
 		PHYSFS_removeFromSearchPath(root_dir);
@@ -603,15 +573,14 @@ gboolean Package_ImportInital(const gchar * file, const gchar * root_dir )
 	return files_imported;
 }
 
-/********************************
-* Package_Import
-*
-@ file:
-@ progress_widget:
-@ model:
-@ iter:
-@ initial:
-*/
+/**
+ * @brief Package_Import
+ * @param file
+ * @param progress_widget
+ * @param model
+ * @param iter
+ * @param initial
+ */
 void Package_Import(const gchar * file, GtkWidget * progress_widget, GtkTreeModel * model, GtkTreeIter iter, gboolean initial )
 {
 	PackageWatch * package = g_new0(PackageWatch, 1);
@@ -639,20 +608,17 @@ void Package_Import(const gchar * file, GtkWidget * progress_widget, GtkTreeMode
 	}
 }
 
-
-
-
-/********************************
-* Package_ExportList
-* Starts creating a content package
-@
-@
-@
-@
-@
-@
-- return a list of files or null if file already exists
-*/
+/**
+ * @brief Starts creating a content package
+ * @param package_path
+ * @param title
+ * @param version
+ * @param description
+ * @param authors
+ * @param terms
+ * @param config
+ * @return a list of files or null if file already exists
+ */
 GSList * Package_ExportInitial( const gchar * package_path, const gchar * title, const gchar * version, const gchar * description, const gchar * authors, const gchar * terms, const gchar * config )
 {
 	GSList * files = NULL;
@@ -668,10 +634,19 @@ GSList * Package_ExportInitial( const gchar * package_path, const gchar * title,
 	return files;
 }
 
-/********************************
-* Package_ExportFolders
-* Creates Content Package.
-*/
+
+/**
+ * @brief Creates Content Package.
+ * @param package_path
+ * @param title
+ * @param version
+ * @param description
+ * @param authors
+ * @param terms
+ * @param config
+ * @param folders
+ * @return
+ */
 gboolean Package_ExportFolders(const gchar * package_path, const gchar * title, const gchar * version, const gchar * description, const gchar * authors, const gchar * terms, const gchar * config, GSList * folders)
 {
 	gboolean valid = FALSE;
@@ -730,13 +705,11 @@ gboolean Package_ExportFolders(const gchar * package_path, const gchar * title, 
 	GtkWidget * message_dialog = NULL;
 	if ( valid )
 	{
-		message_dialog = gtk_message_dialog_new( Meg_Main_GetWindow(), GTK_DIALOG_MODAL|GTK_DIALOG_DESTROY_WITH_PARENT,
-												 GTK_MESSAGE_INFO, GTK_BUTTONS_CLOSE, "Package saved to %s.", package_path );
+		message_dialog = gtk_message_dialog_new( Meg_Main_GetWindow(), GTK_DIALOG_MODAL|GTK_DIALOG_DESTROY_WITH_PARENT, GTK_MESSAGE_INFO, GTK_BUTTONS_CLOSE, "Package saved to %s.", package_path );
 	}
 	else
 	{
-		message_dialog = gtk_message_dialog_new( Meg_Main_GetWindow(), GTK_DIALOG_MODAL|GTK_DIALOG_DESTROY_WITH_PARENT,
-												 GTK_MESSAGE_ERROR, GTK_BUTTONS_CLOSE, "Error creating package" );
+		message_dialog = gtk_message_dialog_new( Meg_Main_GetWindow(), GTK_DIALOG_MODAL|GTK_DIALOG_DESTROY_WITH_PARENT, GTK_MESSAGE_ERROR, GTK_BUTTONS_CLOSE, "Error creating package" );
 	}
 	gtk_dialog_run( GTK_DIALOG(message_dialog) );
 	gtk_widget_destroy( message_dialog );
@@ -748,12 +721,19 @@ gboolean Package_ExportFolders(const gchar * package_path, const gchar * title, 
 
 }
 
-/********************************
-* Package_ExportList
-* Creates Content Packages.
-*/
-gboolean Package_ExportList( const gchar * package_path, const gchar * title, const gchar * version, const gchar * description, const gchar * authors, const gchar * terms,
-const gchar * config, GSList * files )
+/**
+ * @brief Creates Content Packages.
+ * @param package_path
+ * @param title
+ * @param version
+ * @param description
+ * @param authors
+ * @param terms
+ * @param config
+ * @param files
+ * @return
+ */
+gboolean Package_ExportList( const gchar * package_path, const gchar * title, const gchar * version, const gchar * description, const gchar * authors, const gchar * terms, const gchar * config, GSList * files )
 {
 	g_return_val_if_fail( files, FALSE );
 
@@ -798,7 +778,6 @@ const gchar * config, GSList * files )
 		MokoiPackage_SaveResource( package_path, package_files, title, authors, 2);
 		Meg_Log_Print(LOG_BOLD, "Package saved to %s.\n", package_path);
 
-
 		valid = TRUE;
 	}
 
@@ -806,13 +785,11 @@ const gchar * config, GSList * files )
 	GtkWidget * message_dialog = NULL;
 	if ( valid )
 	{
-		message_dialog = gtk_message_dialog_new( Meg_Main_GetWindow(), GTK_DIALOG_MODAL|GTK_DIALOG_DESTROY_WITH_PARENT,
-												 GTK_MESSAGE_INFO, GTK_BUTTONS_CLOSE, "Package saved to %s.", package_path );
+		message_dialog = gtk_message_dialog_new( Meg_Main_GetWindow(), GTK_DIALOG_MODAL|GTK_DIALOG_DESTROY_WITH_PARENT, GTK_MESSAGE_INFO, GTK_BUTTONS_CLOSE, "Package saved to %s.", package_path );
 	}
 	else
 	{
-		message_dialog = gtk_message_dialog_new( Meg_Main_GetWindow(), GTK_DIALOG_MODAL|GTK_DIALOG_DESTROY_WITH_PARENT,
-												 GTK_MESSAGE_ERROR, GTK_BUTTONS_CLOSE, "Error creating package" );
+		message_dialog = gtk_message_dialog_new( Meg_Main_GetWindow(), GTK_DIALOG_MODAL|GTK_DIALOG_DESTROY_WITH_PARENT, GTK_MESSAGE_ERROR, GTK_BUTTONS_CLOSE, "Error creating package" );
 	}
 	gtk_dialog_run( GTK_DIALOG(message_dialog) );
 	gtk_widget_destroy( message_dialog );
@@ -822,7 +799,3 @@ const gchar * config, GSList * files )
 
 	return valid;
 }
-
-
-
-

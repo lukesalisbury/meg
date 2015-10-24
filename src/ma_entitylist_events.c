@@ -26,7 +26,7 @@ Permission is granted to anyone to use this software for any purpose, including 
 /* Local Type */
 
 /* External Functions */
-gboolean EntitySettings_Editor_Open( gchar * entity_name );
+gboolean EntitySettings_Editor_Open( const gchar * entity_name );
 
 
 /* Global Variables */
@@ -51,7 +51,7 @@ gboolean Meg_EntityList_Settings( const gchar * file_path )
 	file_name = g_path_get_basename( file_path );
 	entity_name = STRIP_FILE_EXTENSION( file_name, 4 );
 
-	successful = EntitySettings_Editor_Open( entity_name );
+	successful = EntitySettings_Editor_Open( file_path );
 
 	g_free( file_name );
 	g_free( entity_name );
