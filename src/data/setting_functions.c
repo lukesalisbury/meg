@@ -176,8 +176,6 @@ void Setting_Package( GtkComboBox * combo, const gchar * file_extension )
 	}
 	g_free( packages_dir );
 
-
-
 }
 
 
@@ -211,10 +209,10 @@ gboolean Setting_Save()
 	g_hash_table_foreach( mokoiSettingsTable, Setting_SaveForeach, mokoiConfigTable );
 
 	/* Check if display.customsize is set */
-	if ( g_key_file_get_boolean( mokoiConfigTable, "Mokoi", "display.customsize", NULL ) )
+	if ( AL_SettingBoolean( "display.customsize" ) )
 	{
-		g_key_file_set_integer( mokoiConfigTable, "Mokoi", "display.width", AL_Setting_GetNumber("screen.width") );
-		g_key_file_set_integer( mokoiConfigTable, "Mokoi", "display.height", AL_Setting_GetNumber("screen.height") );
+		//g_key_file_set_integer( mokoiConfigTable, "Mokoi", "display.width", AL_Setting_GetNumber("screen.width") );
+		//g_key_file_set_integer( mokoiConfigTable, "Mokoi", "display.height", AL_Setting_GetNumber("screen.height") );
 	}
 
 	string = g_key_file_to_data( mokoiConfigTable, NULL, NULL );

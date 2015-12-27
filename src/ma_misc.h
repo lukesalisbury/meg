@@ -34,7 +34,7 @@ void Meg_Dialog_ButtonClose( GtkButton * button, gpointer user_data );
 void Meg_ColorButton_GetColor( GtkColorButton * button, GdkRGBA * rgbacolour );
 void Meg_ColorButton_SetColor( GtkColorButton * button, GdkRGBA * rgbacolour );
 
-void Meg_Misc_SetLabel( GtkWidget * label, gchar * section, gchar * text, gchar sep );
+void Meg_Misc_SetLabel( GtkWidget * label, const gchar * section, const gchar * text, gchar sep );
 
 void Meg_ComboFile_Scan( GtkWidget * widget, gchar * path, gchar * prefix, gboolean none, guint extension_length );
 void Meg_ComboFile_Setup( GtkWidget * combo_box, gchar * path, gboolean force_model );

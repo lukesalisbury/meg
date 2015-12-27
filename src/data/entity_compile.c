@@ -405,6 +405,10 @@ gboolean EntityCompiler_FileWithRountines( gchar * inputfile, GtkWidget * logwid
 	return EntityCompiler_File( inputfile, logwidget, textwidget );
 }
 
+
+
+
+void Logger_FormattedLogTop( GtkWidget * widget, LogStyle style, const gchar * format, ...);
 /********************************
 * EntityCompiler_File
 * compiles entity file
@@ -438,11 +442,12 @@ gboolean EntityCompiler_File( gchar * input_file, GtkWidget * logwidget, GtkWidg
 	error_compiling = EntityCompiler_ScanErrors(output, logwidget, textwidget );
 	if ( error_compiling )
 	{
-		Logger_FormattedLog(logwidget, LOG_BOLD, "%s %s\n", "Error compiling: ", basename);
+		Logger_FormattedLog(logwidget, LOG_BOLD, "%s %s\n\n", "Error compiling: ", basename);
+		//Logger_FormattedLogTop(logwidget, LOG_BOLD, "%s %s\n\n", "Error compiling: ", basename);
 	}
 	else
 	{
-		Logger_FormattedLog(logwidget, LOG_BOLD, "%s %s\n", "Script compiled: ", basename);
+		Logger_FormattedLog(logwidget, LOG_BOLD, "%s %s\n\n", "Script compiled: ", basename);
 	}
 
 	g_free(basename);

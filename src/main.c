@@ -125,6 +125,10 @@ void Meg_Icon_Update()
 	g_free(local_icons);
 }
 
+#if defined(__GNUWIN32__) && GTK_MAJOR_VERSION < 3
+GtkLinkButtonUriFunc gtk_link_button_set_uri_hook (GtkLinkButtonUriFunc func, gpointer data, GDestroyNotify destroy);
+#endif
+
 /********************
 * main
 * program entry point :)

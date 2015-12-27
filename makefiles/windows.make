@@ -67,7 +67,7 @@ endif
 
 
 $(RES): $(RES_SOURCE)
-	windres -i $(RES_SOURCE) --input-format=rc -o $(RES) -O coff  -F $(RES_OUTPUT)
+	@windres -i $(RES_SOURCE) --input-format=rc -o $(RES) -O coff  -F $(RES_OUTPUT)
 
 
 #used for builderheader

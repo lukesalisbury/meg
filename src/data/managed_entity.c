@@ -390,8 +390,10 @@ gboolean ManagedEntity_Save2( GtkButton * button, MokoiManagedEntity * managed_e
 
 GtkWidget *  ManagedEntity_Edit(gchar * filename)
 {
-	GtkWidget * window, * tree_listing, * button_save, * button_close, * icon_options;
-	GtkListStore * store_states, * store_icon;
+	GtkWidget * window, * tree_listing, * button_save, * button_close;
+	//GtkWidget * icon_options;
+	//GtkListStore * store_states;
+	GtkListStore * store_icon;
 	GtkTreeIter iter;
 	EntityState * state;
 	GtkTreeViewColumn * column;
@@ -413,9 +415,9 @@ GtkWidget *  ManagedEntity_Edit(gchar * filename)
 	button_save = GET_WIDGET( ui, "button_save" );
 	button_close = GET_WIDGET( ui, "button_close" );
 	tree_listing = GET_WIDGET( ui, "tree_listing" );
-	icon_options = GET_WIDGET( ui, "icon_options" );
+	//icon_options = GET_WIDGET( ui, "icon_options" );
 
-	store_states = GET_LISTSTORE( ui, "store_states" );
+	//store_states = GET_LISTSTORE( ui, "store_states" );
 	store_icon = GET_LISTSTORE( ui, "store_icon" );
 
 	/* Iconview*/
@@ -582,7 +584,8 @@ void ManagedEntity_StateProperties(GtkTreeView *tree_view, GtkTreePath *path, Gt
 */
 G_MODULE_EXPORT void ManagedEntity_FunctionProperties(GtkTreeView *tree_view, GtkTreePath *path, GtkTreeViewColumn *column, gpointer user_data)
 {
-	GtkWidget * window, * custom_func, * once_func;
+	GtkWidget * window, * custom_func;
+//	GtkWidget * once_func;
 	GtkTreeIter iter;
 	GtkTextIter start, end;
 	EntityFunction * func;
@@ -614,7 +617,7 @@ G_MODULE_EXPORT void ManagedEntity_FunctionProperties(GtkTreeView *tree_view, Gt
 
 	window = GET_WIDGET( ui, "mokoi_entity_function_window");
 	custom_func = GET_WIDGET( ui, "mokoi_entityfunction_custom");
-	once_func = GET_WIDGET( ui, "mokoi_entityfunction_once");
+	//once_func = GET_WIDGET( ui, "mokoi_entityfunction_once");
 
 	buffer = gtk_text_view_get_buffer (GTK_TEXT_VIEW(custom_func));
 	gtk_text_buffer_set_text(buffer, func->custom, -1);
@@ -883,6 +886,7 @@ gboolean ManagedEntity_Save_Foreach( GtkTreeModel * model, GtkTreePath * path, G
 */
 gboolean ManagedEntity_Save(gchar * entity_name, MokoiManagedEntity * managed_entity )
 {
+	/*
 	GList * scan = NULL;
 	gchar * template_name;
 	GString * template_content = g_string_new("<entity xmlns=\"http://mokoi.sourceforge.net/projects/mokoi\">\n");
@@ -893,7 +897,7 @@ gboolean ManagedEntity_Save(gchar * entity_name, MokoiManagedEntity * managed_en
 
 	gtk_tree_model_foreach( GTK_TREE_MODEL(managed_entity->store), (GtkTreeModelForeachFunc)ManagedEntity_Save_Foreach, NULL);
 
-/*
+
 	if ( g_list_length(mokoiManagedFile.subroutines) )
 	{
 		scan = g_list_first(mokoiManagedFile.subroutines);

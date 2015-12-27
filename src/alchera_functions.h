@@ -79,7 +79,7 @@
 	void Meg_Help_Load( const gchar * file, GtkWidget * textview );
 
 	/* */
-	void Meg_Misc_SetLabel( GtkWidget *label, gchar * section, gchar * text, gchar sep );
+	void Meg_Misc_SetLabel( GtkWidget *label, const gchar * section, const gchar * text, gchar sep );
 	void Meg_Misc_SetLabel_Print( GtkWidget * label, const gchar * format, ... );
 
 #endif

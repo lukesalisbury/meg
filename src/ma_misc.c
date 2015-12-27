@@ -338,7 +338,7 @@ GtkWindow * Meg_Misc_ParentWindow( GtkWidget * widget )
 * Meg_Misc_SetLabel
 *
 */
-void Meg_Misc_SetLabel( GtkWidget *label, gchar * section, gchar * text, gchar sep )
+void Meg_Misc_SetLabel( GtkWidget *label, const gchar * section, const gchar * text, gchar sep )
 {
 	gchar * markup = g_markup_printf_escaped( "<b>%s</b>%c%s", section, sep, text );
 	gtk_label_set_markup( GTK_LABEL(label), markup );

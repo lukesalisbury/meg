@@ -51,6 +51,56 @@ void Logger_SetQueue( GAsyncQueue * queue )
 * Logger_Append
 * Appends Text to GtkTextView or Progress Dialog
 */
+void Logger_TopAppend( GtkWidget * widget, LogStyle style, gchar * text )
+{
+	g_return_if_fail( text != NULL );
+
+	if ( mokoiLoggerQueue && !widget )
+	{
+		ProgressDialogLog * clog = g_new0(ProgressDialogLog, 1);
+		clog->text = g_strdup(text);
+		clog->style = style;
+		g_async_queue_push( mokoiLoggerQueue, clog );
+	}
+	else if ( !widget )
+	{
+		Meg_Log_Append( style, text );
+	}
+	else
+	{
+		GtkTextBuffer * buffer = NULL;
+		GtkTextIter iter;
+		buffer = gtk_text_view_get_buffer( GTK_TEXT_VIEW(widget) );
+		if ( buffer )
+		{
+			gtk_text_buffer_get_start_iter(buffer, &iter);
+			switch (style)
+			{
+				case LOG_NONE:
+					gtk_text_buffer_insert( buffer, &iter, text, -1);
+				break;
+				case LOG_BOLD:
+					gtk_text_buffer_insert_with_tags_by_name( buffer, &iter, text, -1, "Bold", NULL);
+				break;
+				case LOG_ERROR:
+					gtk_text_buffer_insert_with_tags_by_name( buffer, &iter, text, -1, "Error", NULL);
+				break;
+				case LOG_WARNING:
+					gtk_text_buffer_insert_with_tags_by_name( buffer, &iter, text, -1, "Warning", NULL);
+				break;
+				case LOG_FINE:
+					gtk_text_buffer_insert( buffer, &iter, text, -1);
+				break;
+			}
+		}
+	}
+	//g_free(text);
+}
+
+/********************************
+* Logger_Append
+* Appends Text to GtkTextView or Progress Dialog
+*/
 void Logger_Append( GtkWidget * widget, LogStyle style, gchar * text )
 {
 	g_return_if_fail( text != NULL );
@@ -95,6 +145,23 @@ void Logger_Append( GtkWidget * widget, LogStyle style, gchar * text )
 		}
 	}
 	//g_free(text);
+}
+
+/********************************
+* Logger_FormattedLogTop
+*
+*/
+void Logger_FormattedLogTop( GtkWidget * log_widget, LogStyle style, const gchar * format, ...)
+{
+	gchar * log = g_new0( gchar, 512 );
+	va_list argptr;
+	va_start( argptr, format );
+	g_vsnprintf( log, 511, format, argptr );
+
+	Logger_TopAppend( log_widget, style, log );
+
+	va_end( argptr );
+
 }
 
 /********************************

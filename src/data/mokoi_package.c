@@ -229,6 +229,11 @@ gboolean MokoiPackage_OpenResource(FILE * src_fd, GSList ** files, gchar ** titl
 	}
 
 	version = file_read_byte( src_fd );
+	if ( version )
+	{
+
+	}
+
 	fseek( src_fd, 1, SEEK_CUR); // skip buffer
 
 	if ( fread( safe_title, 1, 128, src_fd ) != 128 )  // title
@@ -249,6 +254,11 @@ gboolean MokoiPackage_OpenResource(FILE * src_fd, GSList ** files, gchar ** titl
 
 	safe_category = file_read_byte( src_fd ); // buffer
 	crc = file_read_long( src_fd ); // CRC
+
+	if ( crc )
+	{
+
+	}
 
 	if ( files != NULL )
 		*files = MokoiPackage_Scan( src_fd, NULL );

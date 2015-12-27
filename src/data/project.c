@@ -37,7 +37,6 @@ extern gchar * mokoiGameDirectories[];
 ProgressDialogWidgets mokoiGameComplier;
 
 /* UI */
-
 const gchar * mokoiUI_Publish = GUI_PROJECT_PUBLISH;
 
 
@@ -68,7 +67,6 @@ gboolean AL_CloseProject()
 
 	return TRUE;
 }
-
 
 
 /********************************

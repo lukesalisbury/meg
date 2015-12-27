@@ -53,13 +53,6 @@ const gchar * mokoiUI_EntityAdd = GUI_ENTITY_ADD;
 */
 gboolean Entity_New( gchar * filename, gchar * script )
 {
-	/*
-	gchar * runtime_file = g_strconcat( filename, ".options", NULL );
-	Meg_file_set_contents( runtime_file, "<entity/>", -1, NULL );
-	g_free( runtime_file );
-	*/
-
-
 	return Meg_file_set_contents( filename, (script == NULL ? mokoiScriptBlankEntity : script), -1, NULL);
 }
 

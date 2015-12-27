@@ -64,7 +64,7 @@ gboolean Distro_OSXCreate( const gchar * project_title, const gchar * game_path 
 	g_free(zip_original_path);
 	g_free(zip_target_path);
 
-
+	g_free(target_name);
 
 
 	return TRUE;

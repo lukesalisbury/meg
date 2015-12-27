@@ -270,6 +270,7 @@ gboolean Meg_Main_Init()
 	g_signal_connect(button_play, "clicked", G_CALLBACK(Meg_Event_Play), NULL);
 	gtk_toolbar_insert(GTK_TOOLBAR(alchera_main_toolbar), button_play, 0);
 
+
 	Funclist_Scan( );
 
 	/* Tab pages */
@@ -284,6 +285,8 @@ gboolean Meg_Main_Init()
 	MegWidget_Spritesheet_Create();
 	MegWidget_Language_Create();
 	MegWidget_Project_Create();
+
+	gtk_container_check_resize(GTK_CONTAINER(alchera_main_toolbar));
 
 	g_print("Creation time: %f\n", g_timer_elapsed(yimer, NULL) );
 
@@ -300,10 +303,14 @@ gboolean Meg_Main_Init()
 }
 
 
-/********************************
-* Meg_Main_AddSection
-*
-*/
+
+/**
+ * @brief Meg_Main_AddSection
+ * @param section_widget
+ * @param section_title
+ * @param section_icon
+ * @return
+ */
 GtkWidget * Meg_Main_AddSection( GtkWidget * section_widget, gchar * section_title, gchar * section_icon )
 {
 	GtkToolItem * toolbutton = NULL;
@@ -321,6 +328,7 @@ GtkWidget * Meg_Main_AddSection( GtkWidget * section_widget, gchar * section_tit
 	g_signal_connect(toolbutton, "toggled", G_CALLBACK (Meg_Main_ToolbarToggle), section_widget);
 
 	gtk_toolbar_insert(GTK_TOOLBAR(alchera_main_toolbar), toolbutton, 0);
+	gtk_widget_set_size_request(alchera_main_toolbar, -1, -1);
 	gtk_widget_show_all(alchera_main_toolbar);
 
 	return GTK_WIDGET(toolbutton);

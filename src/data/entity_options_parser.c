@@ -350,7 +350,7 @@ void EntitySettings_Editor_Refresh( GtkWidget *treeview, GHashTable * settings )
 * EntitySettings_Editor_Open
 *
 */
-gboolean EntitySettings_Editor_Open( const gchar * entity_name )
+gboolean EntitySettings_Editor_Open( const gchar * entity_name, GtkWindow * parent )
 {
 	gint response = 0;
 	GtkWidget * dialog, * label, * tree_items;
@@ -359,7 +359,7 @@ gboolean EntitySettings_Editor_Open( const gchar * entity_name )
 	gchar * option_path = NULL;
 
 	/* Get Options File */
-	option_path = g_strdup_printf("%s.options", entity_name );
+	option_path = g_strdup_printf("/scripts/%s.options", entity_name );
 
 	options = EntitySettings_Parser_Load( option_path );
 	if ( !options )
@@ -393,7 +393,7 @@ gboolean EntitySettings_Editor_Open( const gchar * entity_name )
 	Meg_Misc_SetLabel(label, "Entity Settings", entity_name, '\n' );
 
 	gtk_widget_show_all( gtk_dialog_get_content_area( GTK_DIALOG(dialog) ) );
-	gtk_window_set_transient_for( GTK_WINDOW(dialog), Meg_Main_GetWindow() );
+	gtk_window_set_transient_for( GTK_WINDOW(dialog), parent );
 
 	/*  Display Dialog */
 	response = gtk_dialog_run( GTK_DIALOG(dialog) );

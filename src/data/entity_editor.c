@@ -25,6 +25,8 @@ Permission is granted to anyone to use this software for any purpose, including 
 gboolean EntityEditor_InsertDialog( GtkWidget * widget, GtkWidget * view );
 GtkWidget *  ManagedEntity_Edit(gchar * filename);
 GHashTable * Funclist_GetHashTable();
+void EntitySettings_Editor_Refresh( GtkWidget *treeview, GHashTable * settings );
+GHashTable * EntitySettings_Parser_Load( gchar * entity_name );
 /* Global Variables */
 extern GError * mokoiError;
 extern GtkWidget * mokoiCompileLog;
@@ -37,8 +39,6 @@ extern GtkWidget * mokoiEntityTreeview;
 const gchar * mokoiUI_EntityFunction = GUI_ENTITY_EDITOR_FUNCTION;
 const gchar * mokoiUI_EntityEditor = GUI_ENTITY_EDITOR;
 const gchar * mokoiUI_ErrorDialog = GUI_ERROR_DIALOG;
-
-
 
 /* Events */
 /********************************
@@ -71,7 +71,6 @@ gboolean EntityEditor_Close( GtkWidget * widget, GdkEvent * event, GtkWidget * t
 	{
 		gtk_dialog_add_buttons( GTK_DIALOG(dialog), GTK_STOCK_YES, 1, GTK_STOCK_CANCEL, 0, NULL );
 	}
-
 
 
 	result = gtk_dialog_run( GTK_DIALOG(dialog) );
@@ -494,6 +493,30 @@ gboolean EntityEditor_InsertDialog( GtkWidget * widget, GtkWidget * view )
 	return FALSE;
 }
 
+void scan_script(const gchar * file_name, GtkTreeModel * model );
+
+void EntityEditor_GotoLine( GtkTreeView * tree_view, GtkTreePath * path, GtkTreeViewColumn * column, GtkTextView * text )
+{
+	GtkTreeIter iter;
+	GtkTextIter location;
+	GtkTreeModel * model;
+	GtkTextMark * mark;
+	GtkTreeSelection * selection = gtk_tree_view_get_selection( tree_view );
+	gint line_number = 0;
+
+	if ( gtk_tree_selection_get_selected( selection, &model, &iter) )
+	{
+		gtk_tree_model_get( model, &iter, 1, &line_number, -1 );
+		gtk_text_buffer_get_iter_at_line(gtk_text_view_get_buffer(text), &location, line_number +1);
+
+		mark = gtk_text_buffer_create_mark( gtk_text_view_get_buffer(text), "gotoline", &location, TRUE);
+		gtk_text_view_scroll_to_mark(text, mark, 0.0, TRUE, 0.0, 0.17);
+
+	}
+
+
+}
+
 
 /********************************
 * EntityEditor_New
@@ -511,23 +534,6 @@ GtkWidget * EntityEditor_New( gchar * file )
 
 	}
 
-
-	/* Open Managed Entity Editor Instead */
-	/*
-	GtkWidget * managed_widget = NULL;
-	gchar * managed_file = g_strconcat( file, ".managed", NULL );
-
-	if ( Meg_file_test( managed_file, G_FILE_TEST_IS_REGULAR ) )
-	{
-		managed_widget = ManagedEntity_Edit( file );
-	}
-	g_free( managed_file );
-
-	if ( managed_widget )
-		return managed_widget;
-	*/
-
-
 	/* Check if External Editor can be used */
 	gchar * full_path = Meg_file_get_path(file);
 	if ( full_path )
@@ -540,18 +546,14 @@ GtkWidget * EntityEditor_New( gchar * file )
 	if ( use_internal )
 	{
 		/* Use inbuild editor */
-		GtkWidget * widget, * text_view, * label, * viewport, * button_save, * button_close, * button_label;
+		GtkWidget * widget, * text_view, *tree_items, * label, * viewport, * button_save, * button_close, * button_label, * tree_hierarchy;
 		GtkTextBuffer * buffer;
 		gchar * file_content;
+		GtkTreeModel * store_hierarchy;
 
 		/* UI */
-		GError * error = NULL;
-		GtkBuilder * ui = gtk_builder_new();
-		if ( !gtk_builder_add_from_string(ui, mokoiUI_EntityEditor, -1, &error) )
-		{
-			Meg_Error_Print( __func__, __LINE__, "UI creation error '%s'.", error->message );
-			return NULL;
-		}
+		GtkBuilder * ui = Meg_Builder_Create(mokoiUI_EntityEditor, __func__, __LINE__);
+		g_return_val_if_fail( ui, FALSE );
 
 
 		widget = GET_WIDGET( ui, "window1" );
@@ -560,6 +562,10 @@ GtkWidget * EntityEditor_New( gchar * file )
 		button_save = GET_WIDGET( ui, "button-save" );
 		button_close = GET_WIDGET( ui, "button-close" );
 		button_label = GET_WIDGET( ui, "label1" );
+		tree_hierarchy = GET_WIDGET( ui, "tree_hierarchy" );
+		store_hierarchy = gtk_tree_view_get_model(GTK_TREE_VIEW(tree_hierarchy));
+		tree_items = GET_WIDGET( ui, "tree_items" );
+
 
 		text_view = Meg_Editor_New( "pawn" );
 
@@ -569,7 +575,7 @@ GtkWidget * EntityEditor_New( gchar * file )
 		g_signal_connect( text_view, "populate-popup", G_CALLBACK(EntityEditor_ShowMenuClick), NULL );
 		g_signal_connect( text_view, "key-release-event", G_CALLBACK(EntityEditor_ShowHelp), NULL);
 		g_signal_connect( widget, "delete-event", G_CALLBACK(EntityEditor_Close), text_view );
-
+		g_signal_connect( G_OBJECT(tree_hierarchy), "row_activated", G_CALLBACK(EntityEditor_GotoLine), text_view );
 
 		/* Add Key watch */
 		GtkAccelGroup * accel_group = gtk_accel_group_new();
@@ -587,16 +593,33 @@ GtkWidget * EntityEditor_New( gchar * file )
 
 		if ( PHYSFS_exists( file ) )
 		{
-			Meg_file_get_contents( file, &file_content, NULL, &mokoiError);
+			gsize length = 0;
+			Meg_file_get_contents( file, &file_content, &length, &mokoiError);
 			if ( mokoiError )
 			{
 				Meg_Error_Print( __func__, __LINE__, "Can't open entity: %s (%s)", file, mokoiError->message);
 				g_clear_error(&mokoiError);
 				file_content = "";
 			}
+			else
+			{
+				scan_script( file, store_hierarchy );
+			}
 		}
 		else
 			file_content = "";
+
+		/* Get Options File */
+		gchar * entity_name = STRIP_FILE_EXTENSION( file, 4 );
+		gchar * option_path = g_strdup_printf("%s.options", entity_name );
+		GHashTable * options = EntitySettings_Parser_Load( option_path );
+		if ( options )
+		{
+			EntitySettings_Editor_Refresh( tree_items, options );
+		}
+		g_free(entity_name);
+		g_free(option_path);
+		g_hash_table_destroy(options);
 
 		/* Obtaining the buffer associated with the widget. */
 		buffer = gtk_text_view_get_buffer( GTK_TEXT_VIEW(text_view) );

@@ -16,3 +16,6 @@ void Logger_SetQueue( GAsyncQueue * queue );
 void Logger_Append( GtkWidget * widget, LogStyle style, gchar * text );
 void Logger_FormattedLog( GtkWidget * widget, LogStyle style, const gchar * format, ...);
 void Logger_FormattedLogLine( GtkWidget * log_widget, GtkWidget * editor_widget, char * file, gint line, LogStyle style, gchar * message );
+
+
+

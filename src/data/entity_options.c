@@ -25,12 +25,9 @@ extern GError * mokoiError;
 
 
 /* Functions */
-
-
 EntitySettingsStruct * EntitySettings_Lookup( GHashTable * hash_table, const gchar * key)
 {
 	return (EntitySettingsStruct*)g_hash_table_lookup(hash_table, key);
-
 }
 
 /********************************
