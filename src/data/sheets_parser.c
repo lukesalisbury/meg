@@ -95,7 +95,7 @@ void Sheet_Create( GdkPixbuf * image, gchar * imagefile )
 		height = gtk_spin_button_get_value_as_int( GTK_SPIN_BUTTON(spin_height) );
 
 		yc = gtk_spin_button_get_value_as_int( GTK_SPIN_BUTTON(spin_top) );
-
+		xc =  gtk_spin_button_get_value_as_int( GTK_SPIN_BUTTON(spin_left) );
 		section_width = gdk_pixbuf_get_width( image ) - gtk_spin_button_get_value_as_int( GTK_SPIN_BUTTON(spin_right) );
 		section_height = gdk_pixbuf_get_height( image ) - gtk_spin_button_get_value_as_int( GTK_SPIN_BUTTON(spin_bottom) );
 

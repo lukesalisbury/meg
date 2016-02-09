@@ -10,10 +10,8 @@
 #Default Settings
 include setting.mk
 
-
-
 ifeq ($(BUILDDEBUG), TRUE)
-	OBJDIR += -debug
+	OBJDIR =object-debug
 endif
 
 
@@ -35,12 +33,7 @@ all: all-before $(BIN) $(FINALOUTPUT)
 all-before:
 	@echo --------------------------------
 	@echo Building $(BIN) $(PROGRAM_VERSION)
-#	@echo Build Platform: $(BUILDPLATFORM)
-#	@echo Target Platform: $(BUILDOS)/$(PLATFORMBITS)
-#	@echo Debug Build? $(BUILDDEBUG)
-#	@echo Build Flags: $(COMPILER_FLAGS)
-#	@echo Build Libs: $(COMPILER_LIBS)
-
+	@echo Debug Build? $(BUILDDEBUG)
 
 $(BIN): $(OBJ)
 	@echo --------------------------------
@@ -56,11 +49,9 @@ clean:
 
 objects/%.o : src/%.cpp
 	@-$(MKDIR) $(dir $@)
-#	@echo Compiling $@ $(MESSAGE)
 	@$(CPP) $(COMPILER_FLAGSPP) -o $@ -c $<
 
 $(OBJDIR)/%.o : src/%.c
-#	@echo Compiling $@ $(MESSAGE)
 	@-$(MKDIR) $(dir $@)
 	@$(CC) -c $(COMPILER_FLAGS) -o $@ $<
 
